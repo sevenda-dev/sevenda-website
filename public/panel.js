@@ -1490,9 +1490,36 @@ function setJiraButtonVisible(visible) {
   // Camunda nella toolbar superiore
   const btnCamunda = document.getElementById('btnExportCamunda');
   if (btnCamunda) btnCamunda.classList.toggle('hidden', !visible);
-  // Analisi nel tab Diagramma
+  // Analisi nel tab Diagramma — con cooldown automatico quando visibile
   const btnDoc = document.getElementById('btnDocAnalisi');
-  if (btnDoc) btnDoc.classList.toggle('hidden', !visible);
+  if (btnDoc) {
+    btnDoc.classList.toggle('hidden', !visible);
+    if (visible) startDocAnalisiCooldown(btnDoc);
+  }
+}
+
+// Cooldown automatico 30s sul bottone "📄 Analisi" dopo ogni generazione BPMN.
+// Evita di sforare il rate limit API (30k token/min) quando l'utente genera
+// BPMN e Analisi in rapida successione. L'utente vede il countdown sul bottone.
+function startDocAnalisiCooldown(btn) {
+  if (!btn) return;
+  if (btn._cooldownInterval) clearInterval(btn._cooldownInterval);
+
+  var remaining = 30;
+  btn.disabled    = true;
+  btn.textContent = '📄 Analisi (' + remaining + 's)';
+
+  btn._cooldownInterval = setInterval(function() {
+    remaining--;
+    if (remaining <= 0) {
+      clearInterval(btn._cooldownInterval);
+      btn._cooldownInterval = null;
+      btn.disabled    = false;
+      btn.textContent = '📄 Analisi';
+    } else {
+      btn.textContent = '📄 Analisi (' + remaining + 's)';
+    }
+  }, 1000);
 }
 
 // Agganciato al momento in cui il BPMN viene generato o importato
@@ -2297,7 +2324,13 @@ async function generateBpmnAnalysis() {
     const userPrompt = 'BPMN Tasks:\n' + tasksText + '\n\nSession Events:\n' + eventsText + '\n\nMetadata:\n' + metaText;
 
     const ctrl = new AbortController();
-    const tid  = setTimeout(() => ctrl.abort(), 120_000);
+    const tid  = setTimeout(() => ctrl.abort(), 180_000); // 3 minuti
+
+    // Messaggi progressivi — rassicurano l'utente durante l'elaborazione lunga
+    const _w1 = setTimeout(() => addSysLog('⏳ Elaborazione in corso, l\'analisi è articolata…'), 30_000);
+    const _w2 = setTimeout(() => addSysLog('⏳ Claude sta elaborando tutte le sezioni del documento…'), 75_000);
+    const _w3 = setTimeout(() => addSysLog('⏳ Quasi pronto — assemblaggio in corso…'), 120_000);
+    const clearWaiters = () => { clearTimeout(_w1); clearTimeout(_w2); clearTimeout(_w3); };
 
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST', signal: ctrl.signal,
@@ -2306,6 +2339,7 @@ async function generateBpmnAnalysis() {
     });
     clearTimeout(tid);
 
+    clearWaiters();
     if (!res.ok) { const e = await res.json().catch(()=>({})); throw new Error(e?.error?.message || 'HTTP '+res.status); }
 
     const raw  = (await res.json()).content?.[0]?.text || '';
@@ -2337,8 +2371,13 @@ async function generateBpmnAnalysis() {
     addSysLog('📄 Documento scaricato: Analisi-Tecnico-Funzionale.docx');
 
   } catch (err) {
-    showToast('✗ Errore generazione documento: ' + err.message, 'error');
-    addSysLog('⚠ Errore Step 12: ' + err.message);
+    if (typeof clearWaiters === 'function') clearWaiters();
+    const isAbort = err.name === 'AbortError' || err.message.includes('aborted');
+    const msg = isAbort
+      ? '⏱ Timeout: la generazione ha impiegato più di 3 minuti. Riprova.'
+      : err.message;
+    showToast('✗ ' + msg, 'error');
+    addSysLog('⚠ Errore Step 12: ' + msg);
     console.error('[FL Doc]', err);
   } finally {
     if (btn) { btn.textContent = origText || '📄 Analisi'; btn.disabled = false; }
