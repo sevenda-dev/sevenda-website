@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sevenda — Impostazioni</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── TEMA DARK (default) ─────────────────────────────────────────────── */
+    :root,
+    [data-theme="dark"] {
+      --bg:           #191919;
+      --bg-surface:   #1f1f1f;
+      --bg-hover:     #252525;
+      --bg-elevated:  #2c2c2c;
+      --bg-input:     #222222;
+      --border:       #333333;
+      --border-soft:  #272727;
+      --border-focus: #555555;
+      --text:         #e8e8e6;
+      --text-dim:     #a0a0a0;
+      --text-muted:   #5a5a5a;
+      --accent:       #e8e8e6;
+      --red:          #e05555;
+      --red-soft:     rgba(224,85,85,0.12);
+      --green:        #4da97c;
+      --green-soft:   rgba(77,169,124,0.12);
+      --blue:         #5b8dee;
+      --blue-soft:    rgba(91,141,238,0.12);
+      --orange:       #d4854a;
+      --mono:         'SFMono-Regular', 'Consolas', 'Monaco', monospace;
+      --sans:         -apple-system, 'Segoe UI', system-ui, sans-serif;
+      --radius:       5px;
+      --radius-md:    7px;
+      --sidebar-w:    220px;
+    }
+
+    /* ── TEMA LIGHT ──────────────────────────────────────────────────────── */
+    [data-theme="light"] {
+      --bg:           #ffffff;
+      --bg-surface:   #f8f9fa;
+      --bg-hover:     #f1f3f5;
+      --bg-elevated:  #e9ecef;
+      --bg-input:     #f8f9fa;
+      --border:       #dee2e6;
+      --border-soft:  #e9ecef;
+      --border-focus: #adb5bd;
+      --text:         #1a1a2e;
+      --text-dim:     #495057;
+      --text-muted:   #868e96;
+      --accent:       #1a1a2e;
+      --red:          #c92a2a;
+      --red-soft:     rgba(201,42,42,0.08);
+      --green:        #2f9e44;
+      --green-soft:   rgba(47,158,68,0.1);
+      --blue:         #1971c2;
+      --blue-soft:    rgba(25,113,194,0.1);
+      --orange:       #e67700;
+    }
+
+    /* ── TEMA AUTO ───────────────────────────────────────────────────────── */
+    @media (prefers-color-scheme: light) {
+      [data-theme="auto"] {
+        --bg:           #ffffff;
+        --bg-surface:   #f8f9fa;
+        --bg-hover:     #f1f3f5;
+        --bg-elevated:  #e9ecef;
+        --bg-input:     #f8f9fa;
+        --border:       #dee2e6;
+        --border-soft:  #e9ecef;
+        --border-focus: #adb5bd;
+        --text:         #1a1a2e;
+        --text-dim:     #495057;
+        --text-muted:   #868e96;
+        --accent:       #1a1a2e;
+        --red:          #c92a2a;
+        --red-soft:     rgba(201,42,42,0.08);
+        --green:        #2f9e44;
+        --green-soft:   rgba(47,158,68,0.1);
+        --blue:         #1971c2;
+        --blue-soft:    rgba(25,113,194,0.1);
+        --orange:       #e67700;
+      }
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 13.5px;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+      overflow: hidden;
+    }
+
+    /* ── LAYOUT ─────────────────────────────────────────────────────────── */
+    .app {
+      display: flex;
+      height: 100vh;
+    }
+
+    /* ════════════════════════════════════════════════════════════════════════
+       SIDEBAR
+    ════════════════════════════════════════════════════════════════════════ */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--bg-surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      overflow-y: auto;
+    }
+
+    /* ── Brand ── */
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 16px 14px 13px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand-img {
+      width: 22px;
+      height: 22px;
+      border-radius: 5px;
+      flex-shrink: 0;
+      object-fit: cover;
+    }
+
+    .brand-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.01em;
+      flex: 1;
+    }
+
+    .brand-ver {
+      font-size: 10px;
+      font-family: var(--mono);
+      color: var(--text-muted);
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      padding: 1px 5px;
+      border-radius: 3px;
+    }
+
+    /* ── Nav ── */
+    .sidebar-nav {
+      flex: 1;
+      padding: 8px 6px;
+    }
+
+    .nav-section {
+      font-size: 10.5px;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 10px 8px 5px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      color: var(--text-dim);
+      font-size: 13px;
+      font-weight: 400;
+      background: none;
+      border: none;
+      width: 100%;
+      text-align: left;
+      font-family: var(--sans);
+      -webkit-font-smoothing: antialiased;
+      transition: background 0.08s, color 0.08s;
+    }
+
+    .nav-item:hover {
+      background: var(--bg-hover);
+      color: var(--text);
+    }
+
+    .nav-item.active {
+      background: var(--bg-elevated);
+      color: var(--text);
+    }
+
+    .nav-icon {
+      font-size: 13px;
+      width: 18px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    /* ── Sidebar footer ── */
+    .sidebar-footer {
+      padding: 10px 8px;
+      border-top: 1px solid var(--border);
+    }
+
+    .sidebar-footer-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      border-radius: var(--radius);
+      font-size: 13px;
+      color: var(--text-dim);
+      background: none;
+      border: none;
+      cursor: pointer;
+      width: 100%;
+      font-family: var(--sans);
+      -webkit-font-smoothing: antialiased;
+      transition: background 0.08s, color 0.08s;
+    }
+
+    .sidebar-footer-btn:hover {
+      background: var(--bg-hover);
+      color: var(--text);
+    }
+
+    .sidebar-footer-btn .nav-icon {
+      background: var(--red-soft);
+      color: var(--red);
+      border-radius: 4px;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ════════════════════════════════════════════════════════════════════════
+       CONTENT
+    ════════════════════════════════════════════════════════════════════════ */
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      background: var(--bg);
+    }
+
+    .content::-webkit-scrollbar { width: 5px; }
+    .content::-webkit-scrollbar-track { background: transparent; }
+    .content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    /* ── Section ── */
+    .section {
+      display: none;
+      animation: fadeSlide 0.14s ease;
+      max-width: 700px;
+      padding: 0 0 60px;
+    }
+    .section.active { display: block; }
+
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .section-header {
+      padding: 36px 44px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.03em;
+    }
+
+    .section-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    .section-body {
+      padding: 28px 44px;
+    }
+
+    /* ── Block ── */
+    .block {
+      margin-bottom: 28px;
+    }
+
+    .block-title {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-soft);
+    }
+
+    /* ── Row ── */
+    .row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 11px 0;
+      border-bottom: 1px solid var(--border-soft);
+    }
+    .row:last-child { border-bottom: none; }
+
+    .row-label {
+      font-size: 13.5px;
+      color: var(--text);
+    }
+
+    .row-hint {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .row-ctrl { flex-shrink: 0; }
+
+    /* ── Input ── */
+    .input {
+      padding: 7px 10px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-family: var(--mono);
+      color: var(--text);
+      outline: none;
+      width: 100%;
+      transition: border-color 0.12s;
+    }
+
+    .input:focus {
+      border-color: var(--border-focus);
+    }
+
+    .input::placeholder { color: var(--text-muted); }
+
+    .input-wrap {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    /* ── Select ── */
+    .select {
+      padding: 6px 28px 6px 10px;
+      background: var(--bg-input) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='5'%3E%3Cpath d='M0 0l4.5 5L9 0z' fill='%235a5a5a'/%3E%3C/svg%3E") no-repeat right 9px center;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-family: var(--sans);
+      color: var(--text);
+      outline: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+      transition: border-color 0.12s;
+      min-width: 140px;
+    }
+    .select:focus { border-color: var(--border-focus); }
+
+    /* ── Toggle ── */
+    .toggle {
+      position: relative;
+      width: 36px;
+      height: 20px;
+      cursor: pointer;
+      flex-shrink: 0;
+      display: block;
+    }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-track {
+      position: absolute;
+      inset: 0;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      transition: background 0.18s, border-color 0.18s;
+    }
+    .toggle-thumb {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      left: 3px;
+      top: 3px;
+      background: var(--text-muted);
+      border-radius: 50%;
+      transition: transform 0.18s, background 0.18s;
+    }
+    .toggle input:checked ~ .toggle-track {
+      background: var(--green);
+      border-color: var(--green);
+    }
+    .toggle input:checked ~ .toggle-thumb {
+      transform: translateX(16px);
+      background: #fff;
+    }
+
+    /* ── Radio group ── */
+    .radios {
+      display: flex;
+      gap: 4px;
+    }
+
+    .radio-btn {
+      padding: 5px 11px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: background 0.08s, color 0.08s, border-color 0.08s;
+      user-select: none;
+    }
+
+    .radio-btn.active {
+      background: var(--bg-hover);
+      border-color: var(--border-focus);
+      color: var(--text);
+    }
+
+    /* ── Chips ── */
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 11px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 12.5px;
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: background 0.08s, color 0.08s, border-color 0.08s;
+      user-select: none;
+    }
+
+    .chip.active {
+      border-color: var(--border-focus);
+      color: var(--text);
+      background: var(--bg-hover);
+    }
+
+    .chip-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+      opacity: 0.7;
+    }
+
+    /* ── Model grid ── */
+    .model-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .model-chip {
+      padding: 6px 13px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 12.5px;
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: background 0.08s, color 0.08s, border-color 0.08s;
+      user-select: none;
+    }
+
+    .model-chip:hover { background: var(--bg-hover); color: var(--text); }
+
+    .model-chip.selected {
+      background: var(--bg-hover);
+      border-color: var(--border-focus);
+      color: var(--text);
+    }
+
+    .model-chip.rec::after {
+      content: ' ✦';
+      font-size: 9px;
+      opacity: 0.5;
+    }
+
+    /* ── Textarea ── */
+    .textarea {
+      width: 100%;
+      padding: 10px 12px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 12.5px;
+      font-family: var(--mono);
+      color: var(--text);
+      outline: none;
+      resize: vertical;
+      line-height: 1.65;
+      transition: border-color 0.12s;
+    }
+    .textarea:focus { border-color: var(--border-focus); }
+    .textarea::placeholder { color: var(--text-muted); }
+
+    /* ── Btn ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-weight: 500;
+      font-family: var(--sans);
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: background 0.1s, border-color 0.1s;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .btn-solid {
+      background: var(--text);
+      color: var(--bg);
+      border-color: var(--text);
+    }
+    .btn-solid:hover { background: var(--text-dim); border-color: var(--text-dim); }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--text-dim);
+      border-color: var(--border);
+    }
+    .btn-outline:hover { background: var(--bg-hover); color: var(--text); }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-dim);
+      border-color: transparent;
+    }
+    .btn-ghost:hover { background: var(--bg-hover); color: var(--text); }
+
+    .btn-danger {
+      background: transparent;
+      color: var(--red);
+      border-color: rgba(224,85,85,0.25);
+    }
+    .btn-danger:hover { background: var(--red-soft); }
+
+    /* ── Save bar ── */
+    .save-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-top: 16px;
+    }
+
+    .save-ok {
+      font-size: 12px;
+      color: var(--green);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .save-ok.show { opacity: 1; }
+
+    /* ── Key status ── */
+    .key-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      margin-top: 8px;
+      padding: 7px 10px;
+      border-radius: var(--radius);
+    }
+    .key-status.valid   { background: var(--green-soft);  color: var(--green); }
+    .key-status.invalid { background: var(--red-soft);    color: var(--red); }
+    .key-status.idle    { background: var(--bg-elevated); color: var(--text-muted); }
+    .key-status.hidden  { display: none; }
+
+    /* ── Hint box ── */
+    .hint-box {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px 14px;
+      background: var(--blue-soft);
+      border: 1px solid rgba(91,141,238,0.2);
+      border-radius: var(--radius-md);
+      margin-bottom: 20px;
+      font-size: 12.5px;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+
+    .hint-box kbd {
+      display: inline-block;
+      padding: 1px 5px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-focus);
+      border-radius: 3px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text);
+    }
+
+    /* ── Info grid ── */
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .info-cell {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+    }
+
+    .info-cell-label {
+      font-size: 10.5px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 3px;
+    }
+
+    .info-cell-val {
+      font-size: 13.5px;
+      font-family: var(--mono);
+      color: var(--text);
+    }
+
+    /* ── Links ── */
+    .link-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .link-list a {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: var(--radius);
+      font-size: 13px;
+      color: var(--text-dim);
+      text-decoration: none;
+      transition: background 0.08s, color 0.08s;
+    }
+
+    .link-list a:hover {
+      background: var(--bg-hover);
+      color: var(--text);
+    }
+
+    /* ── About logo ── */
+    .about-brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+
+    .about-img {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      object-fit: cover;
+    }
+
+    .about-name {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: -0.03em;
+    }
+
+    .about-sub {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* ── Roadmap ── */
+    .roadmap {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 13px;
+    }
+
+    .roadmap-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 0;
+      border-bottom: 1px solid var(--border-soft);
+      color: var(--text-dim);
+    }
+
+    .roadmap-item:last-child { border-bottom: none; }
+
+    .roadmap-item.done { color: var(--text-muted); }
+    .roadmap-item.done .step-icon { color: var(--green); }
+    .roadmap-item.current { color: var(--text); }
+    .roadmap-item.current .step-icon { color: var(--blue); }
+
+    .step-icon { font-size: 12px; width: 16px; text-align: center; }
+    .step-num  { font-family: var(--mono); font-size: 11px; color: var(--text-muted); }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ═══════════════════════════════════════════════════════ SIDEBAR ═══ -->
+  <aside class="sidebar">
+
+    <div class="sidebar-brand">
+      <img class="brand-img" src="icons/icon128.png" alt="Sevenda" />
+      <span class="brand-name">Sevenda</span>
+      <span class="brand-ver">v0.2</span>
+    </div>
+
+    <nav class="sidebar-nav">
+
+      <div class="nav-section">Configurazione</div>
+
+      <button class="nav-item active" data-section="ai">
+        <span class="nav-icon">🤖</span> AI Models
+      </button>
+
+      <button class="nav-item" data-section="capture">
+        <span class="nav-icon">🎯</span> Capture &amp; Filtri
+      </button>
+
+      <button class="nav-item" data-section="general">
+        <span class="nav-icon">⚙</span> Interfaccia
+      </button>
+
+      <button class="nav-item" data-section="prompt">
+        <span class="nav-icon">✏</span> Prompt Template
+      </button>
+
+      <div class="nav-section">Account</div>
+
+      <button class="nav-item" data-section="sessions">
+        <span class="nav-icon">▤</span> Sessioni salvate
+      </button>
+
+      <button class="nav-item" data-section="about">
+        <span class="nav-icon">◐</span> Supporto &amp; Info
+      </button>
+
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="sidebar-footer-btn" id="btnOpenDevtools">
+        <span class="nav-icon">⏺</span>
+        Apri Sevenda (DevTools)
+      </button>
+    </div>
+
+  </aside>
+
+  <!-- ════════════════════════════════════════════════════════ CONTENT ═══ -->
+  <main class="content">
+
+    <!-- ═══ AI MODELS ══════════════════════════════════════════════════════ -->
+    <div class="section active" id="section-ai">
+      <div class="section-header">
+        <div class="section-title">AI Models</div>
+        <div class="section-desc">Credenziali e parametri per la generazione BPMN con Claude</div>
+      </div>
+      <div class="section-body">
+
+        <!-- API KEY (migrata dal modal del pannello) -->
+        <div class="block">
+          <div class="block-title">Anthropic API Key</div>
+
+          <div class="row">
+            <div>
+              <div class="row-label">API Key</div>
+              <div class="row-hint">
+                Ottieni la tua chiave su
+                <a href="https://console.anthropic.com" target="_blank" style="color:var(--text-dim)">console.anthropic.com</a>.
+                Salvata localmente in <code style="font-family:var(--mono);font-size:11px">chrome.storage.sync</code>.
+              </div>
+            </div>
+          </div>
+
+          <div class="input-wrap" style="margin-bottom:8px">
+            <input
+              type="password"
+              class="input"
+              id="apiKey"
+              placeholder="sk-ant-api03-••••••••••••••••••••"
+              autocomplete="off"
+            />
+            <button class="btn btn-outline" id="btnToggleKey" style="white-space:nowrap">Mostra</button>
+            <button class="btn btn-solid"   id="btnSaveKey"   style="white-space:nowrap">Salva</button>
+          </div>
+
+          <div class="key-status hidden" id="keyStatus"></div>
+        </div>
+
+        <!-- MODELLO -->
+        <div class="block">
+          <div class="block-title">Modello Claude</div>
+          <div class="row">
+            <div>
+              <div class="row-label">Seleziona il modello</div>
+              <div class="row-hint">Sonnet offre il miglior rapporto qualità/velocità per la generazione BPMN</div>
+            </div>
+          </div>
+          <div class="model-grid" id="modelGrid">
+            <div class="model-chip rec selected" data-model="claude-sonnet-4-20250514">Claude Sonnet 4</div>
+            <div class="model-chip rec"          data-model="claude-opus-4-20250514">Claude Opus 4</div>
+            <div class="model-chip"              data-model="claude-haiku-4-5-20251001">Claude Haiku 4.5</div>
+            <div class="model-chip"              data-model="claude-sonnet-4-5-20251001">Claude Sonnet 4.5</div>
+          </div>
+          <div style="margin-top:8px;font-size:11.5px;color:var(--text-muted)">✦ Consigliato</div>
+        </div>
+
+        <!-- PARAMETRI (migrati dal modal del pannello) -->
+        <div class="block">
+          <div class="block-title">Parametri</div>
+
+          <div class="row">
+            <div>
+              <div class="row-label">Lingua output BPMN</div>
+              <div class="row-hint">Lingua usata per label e descrizioni nel diagramma generato</div>
+            </div>
+            <div class="row-ctrl">
+              <select class="select" id="outputLang">
+                <option value="it" selected>Italiano</option>
+                <option value="en">English</option>
+                <option value="de">Deutsch</option>
+                <option value="fr">Français</option>
+                <option value="es">Español</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <div class="row-label">Max tokens risposta</div>
+              <div class="row-hint">Limita la lunghezza dell'XML BPMN generato</div>
+            </div>
+            <div class="row-ctrl">
+              <select class="select" id="maxTokens">
+                <option value="2000">2 000</option>
+                <option value="4000" selected>4 000</option>
+                <option value="8000">8 000</option>
+                <option value="16000">16 000</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <div class="row-label">Temperatura</div>
+              <div class="row-hint">0 = deterministico · 1 = creativo</div>
+            </div>
+            <div class="row-ctrl">
+              <select class="select" id="temperature">
+                <option value="0">0 — Deterministico</option>
+                <option value="0.2" selected>0.2 — Preciso</option>
+                <option value="0.5">0.5 — Bilanciato</option>
+                <option value="1">1.0 — Creativo</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="save-bar">
+          <button class="btn btn-solid" id="btnSaveAI">Salva impostazioni</button>
+          <span class="save-ok" id="saveOkAI">✓ Salvato</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══ CAPTURE & FILTRI ════════════════════════════════════════════════ -->
+    <div class="section" id="section-capture">
+      <div class="section-header">
+        <div class="section-title">Capture &amp; Filtri</div>
+        <div class="section-desc">Controlla quali eventi vengono catturati e quali domini escludere</div>
+      </div>
+      <div class="section-body">
+
+        <div class="block">
+          <div class="block-title">Sorgenti eventi</div>
+          <div class="chips" id="sourceChips">
+            <div class="chip active" data-src="network"><div class="chip-dot" style="color:#4da97c"></div>Network</div>
+            <div class="chip active" data-src="interaction"><div class="chip-dot" style="color:#a0a0a0"></div>Interazioni UI</div>
+            <div class="chip active" data-src="navigation"><div class="chip-dot" style="color:#5b8dee"></div>Navigazione</div>
+            <div class="chip active" data-src="error"><div class="chip-dot" style="color:#e05555"></div>Errori JS</div>
+            <div class="chip"        data-src="dom"><div class="chip-dot" style="color:#d4854a"></div>Mutazioni DOM</div>
+          </div>
+        </div>
+
+        <div class="block">
+          <div class="block-title">Soglia importanza</div>
+          <div class="row">
+            <div>
+              <div class="row-label">Livello minimo</div>
+              <div class="row-hint">Low include tutti gli eventi; High solo quelli critici</div>
+            </div>
+            <div class="row-ctrl">
+              <div class="radios" id="importanceRadios">
+                <div class="radio-btn active" data-val="Low">Low</div>
+                <div class="radio-btn"        data-val="Medium">Medium</div>
+                <div class="radio-btn"        data-val="High">High</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DOMINI ESCLUSI (migrati dal modal del pannello) -->
+        <div class="block">
+          <div class="block-title">Domini esclusi dalla cattura</div>
+          <div class="row-hint" style="margin-bottom:8px">
+            Le chiamate di rete verso questi domini vengono ignorate. Separati da virgola o a capo. Supporta wildcard <code style="font-family:var(--mono);font-size:11px">*</code>.
+          </div>
+          <input
+            type="text"
+            class="input"
+            id="excludedDomains"
+            placeholder="analytics.google.com, hotjar.com, *.intercom.io"
+            style="font-family:var(--mono)"
+          />
+        </div>
+
+        <!-- LIMITE EVENTI (migrato dal modal del pannello) -->
+        <div class="block">
+          <div class="block-title">Limiti registrazione</div>
+
+          <div class="row">
+            <div>
+              <div class="row-label">Limite eventi per sessione</div>
+              <div class="row-hint">Numero massimo di eventi inviati a Claude (default: 500)</div>
+            </div>
+            <div class="row-ctrl">
+              <select class="select" id="maxEvents">
+                <option value="200">200</option>
+                <option value="500" selected>500</option>
+                <option value="1000">1 000</option>
+                <option value="5000">5 000</option>
+                <option value="0">Nessun limite</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <div class="row-label">Flush interval</div>
+              <div class="row-hint">Frequenza invio batch al service worker</div>
+            </div>
+            <div class="row-ctrl">
+              <select class="select" id="flushInterval">
+                <option value="1000">1 secondo</option>
+                <option value="2000" selected>2 secondi</option>
+                <option value="5000">5 secondi</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="save-bar">
+          <button class="btn btn-solid" id="btnSaveCapture">Salva impostazioni</button>
+          <span class="save-ok" id="saveOkCapture">✓ Salvato</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══ INTERFACCIA ═════════════════════════════════════════════════════ -->
+    <div class="section" id="section-general">
+      <div class="section-header">
+        <div class="section-title">Interfaccia</div>
+        <div class="section-desc">Preferenze di visualizzazione del pannello DevTools</div>
+      </div>
+      <div class="section-body">
+
+        <div class="hint-box">
+          <span>💡</span>
+          <span>Il pannello Sevenda si apre nel DevTools. Premi <kbd>F12</kbd> e seleziona il tab <strong>"Sevenda"</strong>.</span>
+        </div>
+
+        <div class="block">
+          <div class="block-title">Pannello DevTools</div>
+
+          <div class="row">
+            <div>
+              <div class="row-label">Tema pannello</div>
+              <div class="row-hint">Segue automaticamente il tema di Chrome DevTools</div>
+            </div>
+            <div class="row-ctrl">
+              <div class="radios" id="themeRadios">
+                <div class="radio-btn active" data-val="auto">Auto</div>
+                <div class="radio-btn"        data-val="dark">Dark</div>
+                <div class="radio-btn"        data-val="light">Light</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <div class="row-label">Auto-scroll log</div>
+              <div class="row-hint">Scorri automaticamente verso i nuovi eventi in arrivo</div>
+            </div>
+            <div class="row-ctrl">
+              <label class="toggle">
+                <input type="checkbox" id="autoScroll" checked />
+                <span class="toggle-track"></span>
+                <span class="toggle-thumb"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <div class="row-label">Mostra eventi DOM nel log</div>
+              <div class="row-hint">Aumenta il numero di righe nel log (più verboso)</div>
+            </div>
+            <div class="row-ctrl">
+              <label class="toggle">
+                <input type="checkbox" id="showDom" />
+                <span class="toggle-track"></span>
+                <span class="toggle-thumb"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <div class="row-label">Formato timestamp</div>
+              <div class="row-hint">Come viene mostrata l'ora nel log degli eventi</div>
+            </div>
+            <div class="row-ctrl">
+              <div class="radios" id="tsRadios">
+                <div class="radio-btn active" data-val="hms">HH:MM:SS</div>
+                <div class="radio-btn"        data-val="rel">Relativo</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <div class="row-label">Conserva sessioni per</div>
+              <div class="row-hint">Sessioni più vecchie vengono eliminate automaticamente</div>
+            </div>
+            <div class="row-ctrl">
+              <select class="select" id="retentionDays">
+                <option value="7">7 giorni</option>
+                <option value="30" selected>30 giorni</option>
+                <option value="90">90 giorni</option>
+                <option value="0">Sempre</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="save-bar">
+          <button class="btn btn-solid" id="btnSaveGeneral">Salva impostazioni</button>
+          <span class="save-ok" id="saveOkGeneral">✓ Salvato</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══ PROMPT TEMPLATE ═════════════════════════════════════════════════ -->
+    <div class="section" id="section-prompt">
+      <div class="section-header">
+        <div class="section-title">Prompt Template</div>
+        <div class="section-desc">Personalizza il prompt per la generazione BPMN dalla sessione registrata</div>
+      </div>
+      <div class="section-body">
+
+        <div class="block">
+          <div class="block-title">System prompt</div>
+          <div class="row-hint" style="margin-bottom:8px">
+            Usa <code style="font-family:var(--mono);font-size:11px">{{EVENTS}}</code> per gli eventi della sessione e <code style="font-family:var(--mono);font-size:11px">{{CONTEXT}}</code> per il contesto utente.
+          </div>
+          <textarea class="textarea" id="systemPrompt" rows="10">Sei un esperto di analisi dei processi aziendali e modellazione BPMN 2.0.
+Ti verrà fornita una sequenza di eventi catturati da una sessione browser.
+Il tuo compito è generare un diagramma BPMN 2.0 valido in formato XML che rappresenti
+il flusso del processo utente osservato.
+
+Contesto aggiuntivo fornito dall'utente:
+{{CONTEXT}}
+
+Segui queste regole:
+1. Identifica le attività principali e le decisioni
+2. Collega gli eventi in un flusso logico e sequenziale
+3. Usa elementi BPMN standard: StartEvent, Task, ExclusiveGateway, EndEvent
+4. Genera SOLO l'XML BPMN valido, senza testo aggiuntivo</textarea>
+        </div>
+
+        <div class="block">
+          <div class="block-title">Preset rapidi</div>
+          <div class="chips">
+            <div class="chip" data-preset="minimal">⚡ Minimale</div>
+            <div class="chip" data-preset="detailed">📋 Dettagliato</div>
+            <div class="chip" data-preset="swimlane">🏊 Swimlane</div>
+          </div>
+        </div>
+
+        <div class="save-bar">
+          <button class="btn btn-solid"   id="btnSavePrompt">Salva template</button>
+          <button class="btn btn-outline" id="btnResetPrompt">Ripristina</button>
+          <span class="save-ok" id="saveOkPrompt">✓ Salvato</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══ SESSIONI ════════════════════════════════════════════════════════ -->
+    <div class="section" id="section-sessions">
+      <div class="section-header">
+        <div class="section-title">Sessioni salvate</div>
+        <div class="section-desc">Storico delle sessioni di registrazione archiviate in IndexedDB</div>
+      </div>
+      <div class="section-body">
+
+        <div class="block">
+          <div class="block-title">Statistiche</div>
+          <div class="info-grid">
+            <div class="info-cell">
+              <div class="info-cell-label">Sessioni totali</div>
+              <div class="info-cell-val" id="statSessions">—</div>
+            </div>
+            <div class="info-cell">
+              <div class="info-cell-label">Eventi totali</div>
+              <div class="info-cell-val" id="statEvents">—</div>
+            </div>
+            <div class="info-cell">
+              <div class="info-cell-label">BPMN generati</div>
+              <div class="info-cell-val" id="statBpmn">—</div>
+            </div>
+            <div class="info-cell">
+              <div class="info-cell-label">Conservazione</div>
+              <div class="info-cell-val" id="statRetention">30 giorni</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="block">
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-outline" id="btnClearSessions">Elimina tutte le sessioni</button>
+            <button class="btn btn-outline" id="btnClearSettings">Ripristina impostazioni</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══ SUPPORTO & INFO ══════════════════════════════════════════════════ -->
+    <div class="section" id="section-about">
+      <div class="section-header">
+        <div class="section-title">Supporto &amp; Info</div>
+        <div class="section-desc">Documentazione e informazioni sull'estensione</div>
+      </div>
+      <div class="section-body">
+
+        <div class="block">
+          <div class="about-brand">
+            <img class="about-img" src="icons/icon128.png" alt="Sevenda" />
+            <div>
+              <div class="about-name">Sevenda</div>
+              <div class="about-sub">BPMN Recording &amp; AI Generation — Chrome Extension MV3</div>
+            </div>
+          </div>
+          <div class="info-grid">
+            <div class="info-cell"><div class="info-cell-label">Versione</div><div class="info-cell-val">0.2.0</div></div>
+            <div class="info-cell"><div class="info-cell-label">Manifest</div><div class="info-cell-val">MV3</div></div>
+            <div class="info-cell"><div class="info-cell-label">AI Engine</div><div class="info-cell-val">Claude Sonnet 4</div></div>
+          </div>
+        </div>
+
+        <div class="block">
+          <div class="block-title">Risorse</div>
+          <ul class="link-list">
+            <li><a href="https://docs.anthropic.com" target="_blank">📚 Documentazione Anthropic API</a></li>
+            <li><a href="https://docs.camunda.io/docs/components/modeler/bpmn/" target="_blank">📐 Specifiche BPMN 2.0 (Camunda)</a></li>
+            <li><a href="https://developer.chrome.com/docs/extensions/mv3/" target="_blank">🔌 Chrome Extension MV3 Docs</a></li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script src="options.js"></script>
+</body>
+</html>

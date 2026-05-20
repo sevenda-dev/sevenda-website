@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sevenda</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./vendor/bpmn-js.css" />
+  <link rel="stylesheet" href="./vendor/bpmn-font.css" />
+  <style>
+    @font-face { font-family:'bpmn'; src:url('./vendor/bpmn.woff2') format('woff2'); font-weight:normal; font-style:normal; }
+
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+
+    /* ── TEMA LIGHT — default ────────────────────────────────────────────── */
+    :root,
+    [data-theme="light"] {
+      --bg:          #ffffff;
+      --bg-surface:  #fafafa;
+      --bg-elevated: #f5f5f5;
+      --border:      #f0f0f0;
+      --border-mid:  #e8e8e8;
+      --text:        #0f0f0f;
+      --text-muted:  #888888;
+      --text-dim:    #aaaaaa;
+      --accent:      #0f0f0f;
+      --green:       #16a34a;
+      --red:         #ef4444;
+      --mono:        'Geist Mono', 'JetBrains Mono', monospace;
+      --sans:        'Geist', -apple-system, sans-serif;
+      --radius:      8px;
+    }
+
+    /* ── TEMA DARK ───────────────────────────────────────────────────────── */
+    [data-theme="dark"] {
+      --bg:          #191919;
+      --bg-surface:  #1f1f1f;
+      --bg-elevated: #2c2c2c;
+      --border:      #2a2a2a;
+      --border-mid:  #333333;
+      --text:        #e8e8e6;
+      --text-muted:  #606060;
+      --text-dim:    #a0a0a0;
+      --accent:      #e8e8e6;
+      --green:       #4da97c;
+      --red:         #e05555;
+    }
+
+    /* ── TEMA AUTO (segue il sistema operativo) ──────────────────────────── */
+    @media (prefers-color-scheme: dark) {
+      [data-theme="auto"] {
+        --bg:          #191919;
+        --bg-surface:  #1f1f1f;
+        --bg-elevated: #2c2c2c;
+        --border:      #2a2a2a;
+        --border-mid:  #333333;
+        --text:        #e8e8e6;
+        --text-muted:  #606060;
+        --text-dim:    #a0a0a0;
+        --accent:      #e8e8e6;
+        --green:       #4da97c;
+        --red:         #e05555;
+      }
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 13px;
+      line-height: 1.5;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .hidden { display: none !important; }
+    .app    { display: flex; flex-direction: column; height: 100vh; }
+
+    /* ── SCROLLBAR ─────────────────────────────────────────────────── */
+    ::-webkit-scrollbar          { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track    { background: transparent; }
+    ::-webkit-scrollbar-thumb    { background: rgba(0,0,0,0.08); border-radius: 2px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.15); }
+
+    /* ── TOPBAR ────────────────────────────────────────────────────── */
+    .header {
+      display: flex; align-items: center; gap: 10px;
+      padding: 14px 16px;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .logo { display: flex; align-items: center; gap: 9px; }
+    .logo-mark {
+      width: 22px; height: 22px;
+      background: var(--accent);
+      border-radius: 5px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .logo-wordmark { font-size: 13px; font-weight: 600; color: var(--text); letter-spacing: -0.01em; }
+    .logo-version  {
+      font-size: 10px; color: var(--text-dim);
+      background: var(--bg-elevated); padding: 1px 6px;
+      border-radius: 4px; font-family: var(--mono);
+    }
+    .header-spacer { flex: 1; }
+
+    /* status badge */
+    .status-badge {
+      display: flex; align-items: center; gap: 6px;
+      padding: 4px 10px; border-radius: 20px;
+      font-size: 11px; font-weight: 500;
+      border: 1px solid transparent; transition: all 0.2s;
+    }
+    .status-badge.idle      { background: var(--bg-elevated); color: var(--text-muted); border-color: var(--border-mid); }
+    .status-badge.recording { background: #fff1f0; color: var(--red); border-color: #fecaca; }
+    .status-badge .dot      { width: 6px; height: 6px; border-radius: 50%; }
+    .status-badge.idle .dot      { background: var(--text-dim); }
+    .status-badge.recording .dot { background: var(--red); animation: pulse 1.2s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.45;transform:scale(0.8)} }
+
+    /* ── TOOLBAR ───────────────────────────────────────────────────── */
+    .toolbar {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 16px;
+      background: var(--bg);
+      border-bottom: 1px solid #f5f5f5;
+      flex-shrink: 0;
+    }
+    .toolbar-divider { width: 1px; height: 18px; background: var(--border-mid); margin: 0 2px; flex-shrink: 0; }
+    .toolbar-spacer  { flex: 1; }
+    .session-info    { font-size: 10px; color: var(--text-dim); font-family: var(--mono); max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .event-counter   { font-size: 11px; padding: 4px 8px; background: #f8f8f8; border-radius: 6px; color: var(--text-muted); font-family: var(--mono); }
+    .event-counter span { color: var(--accent); font-weight: 600; }
+
+    /* ── BUTTONS ───────────────────────────────────────────────────── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 12px; border-radius: var(--radius);
+      font-size: 12px; font-weight: 500;
+      cursor: pointer; border: 1px solid transparent;
+      transition: all 0.12s; font-family: var(--sans);
+      white-space: nowrap; background: none;
+      letter-spacing: -0.01em;
+    }
+    .btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .btn-primary  { background: var(--accent); color: #ffffff; border-color: var(--accent); }
+    .btn-primary:hover:not(:disabled) { background: #222; }
+    .btn-danger   { background: #fff1f0; color: var(--red); border: 1px solid #fecaca; }
+    .btn-danger:hover:not(:disabled)  { background: #fee2e2; }
+    .btn-ghost    { color: var(--text-muted); border-color: var(--border-mid); }
+    .btn-ghost:hover:not(:disabled)   { background: var(--bg-elevated); color: var(--text); }
+    .btn-ghost.active { background: var(--bg-elevated); color: var(--text); border-color: var(--border-mid); font-weight: 600; }
+    .btn-accent   { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .btn-accent:hover:not(:disabled)  { background: #222; }
+    .btn-import   { background: #f0fdf4; color: var(--green); border-color: #bbf7d0; }
+    .btn-import:hover:not(:disabled)  { background: #dcfce7; }
+    .btn-xs       { padding: 3px 9px; font-size: 11px; border-radius: 6px; }
+
+    /* ── MAIN AREA ─────────────────────────────────────────────────── */
+    .main { flex: 1; display: flex; overflow: hidden; }
+
+    /* ── LOG HEADER ────────────────────────────────────────────────── */
+    .log-header {
+      padding: 8px 16px; font-size: 10px; font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--text-dim); border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 8px;
+      flex-shrink: 0; background: var(--bg-surface);
+    }
+    .log-accent { width: 2px; height: 12px; background: var(--accent); border-radius: 1px; flex-shrink: 0; opacity: 0.15; }
+
+    /* ── FILTER BAR ────────────────────────────────────────────────── */
+    .filters {
+      display: flex; align-items: center; gap: 6px;
+      padding: 8px 16px; background: var(--bg);
+      border-bottom: 1px solid #f5f5f5; flex-shrink: 0;
+    }
+    .filter-chip {
+      display: inline-flex; align-items: center;
+      padding: 3px 8px; border-radius: 5px;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.04em;
+      cursor: pointer; border: 1px solid transparent;
+      transition: opacity 0.12s; font-family: var(--sans);
+      user-select: none;
+    }
+    .filter-chip.off { opacity: 0.28; }
+    .chip-nav { background: #eff6ff; color: #2563eb; }
+    .chip-ui  { background: #f5f3ff; color: #7c3aed; }
+    .chip-net { background: #f0fdf4; color: #16a34a; }
+    .chip-err { background: #fff1f0; color: #dc2626; }
+    .chip-dom { background: #fffbeb; color: #d97706; }
+    .filter-search {
+      flex: 1; min-width: 80px;
+      background: #f8f8f8; border: 1px solid var(--border-mid);
+      border-radius: 6px; color: var(--text);
+      font-family: var(--mono); font-size: 11px;
+      padding: 3px 9px; outline: none;
+    }
+    .filter-search::placeholder { color: var(--text-dim); }
+    .filter-search:focus { border-color: #ccc; }
+
+    /* ── LOG BODY ──────────────────────────────────────────────────── */
+    #viewLive { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .log-body { flex: 1; overflow-y: auto; font-family: var(--mono); font-size: 11px; }
+    .log-entry {
+      display: grid; grid-template-columns: 80px 90px 1fr;
+      gap: 8px; padding: 6px 16px;
+      border-bottom: 1px solid rgba(0,0,0,0.04);
+      transition: background 0.1s ease; cursor: pointer; align-items: center;
+    }
+    .log-entry:hover    { background: #fafafa; }
+    .log-entry.expanded { background: #fafafa; border-bottom: none; }
+    .log-time  { color: #bbb; font-size: 10px; font-family: var(--mono); }
+    .log-badge {
+      padding: 2px 6px; border-radius: 4px;
+      font-size: 9px; font-weight: 700; text-align: center; letter-spacing: 0.05em;
+    }
+    .log-msg   { font-size: 12px; color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    /* badge colors */
+    .badge-navigation  { background: #eff6ff; color: #2563eb; }
+    .badge-interaction { background: #f5f3ff; color: #7c3aed; }
+    .badge-network     { background: #f0fdf4; color: #16a34a; }
+    .badge-error       { background: #fff1f0; color: #dc2626; }
+    .badge-dom         { background: #fffbeb; color: #d97706; }
+    .badge-system      { background: #f5f5f5; color: #888888; }
+
+    /* event detail */
+    .event-detail-row { grid-column: 1/-1; padding: 0 0 6px 0; }
+    .event-detail {
+      background: var(--bg-surface); border: 1px solid var(--border-mid);
+      border-radius: 6px; padding: 8px 10px; font-size: 10.5px;
+    }
+    .detail-grid { display: grid; grid-template-columns: 90px 1fr; gap: 3px 8px; }
+    .detail-key  { color: var(--text-dim); font-size: 10px; }
+    .detail-val  { color: var(--text-muted); word-break: break-all; }
+    .detail-val.hl { color: var(--text); font-weight: 500; }
+
+    /* ── EMPTY STATE ───────────────────────────────────────────────── */
+    .empty-state {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; gap: 14px; padding: 40px;
+      text-align: center; height: 100%;
+    }
+    .empty-icon  {
+      width: 44px; height: 44px; background: var(--bg-elevated);
+      border-radius: 10px; display: flex; align-items: center;
+      justify-content: center; font-size: 20px; color: var(--text-dim);
+    }
+    .empty-title { font-size: 14px; font-weight: 600; color: #333; }
+    .empty-desc  { font-size: 12px; color: #aaa; max-width: 180px; line-height: 1.5; }
+
+    /* ── CONTEXT AREA ──────────────────────────────────────────────── */
+    .context-bar {
+      padding: 12px 16px; background: #fafafa;
+      border-top: 1px solid var(--border); flex-shrink: 0;
+      display: flex; gap: 10px; align-items: flex-end;
+    }
+    .context-wrap  { flex: 1; }
+    .context-label {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: #bbb; margin-bottom: 8px;
+    }
+    .context-input {
+      width: 100%; background: #ffffff;
+      border: 1px solid var(--border-mid); border-radius: var(--radius);
+      color: var(--text); font-family: var(--sans);
+      font-size: 12px; padding: 6px 10px;
+      outline: none; resize: none; line-height: 1.5; height: 52px;
+    }
+    .context-input::placeholder { color: var(--text-dim); }
+    .context-input:focus { border-color: var(--accent); }
+    #btnGenerateBpmn {
+      background: var(--accent); color: #ffffff;
+      border: none; border-radius: var(--radius);
+      font-size: 12px; font-weight: 600;
+      height: 52px; padding: 0 16px; cursor: pointer;
+      white-space: nowrap; font-family: var(--sans);
+      transition: background 0.12s;
+    }
+    #btnGenerateBpmn:disabled { opacity: 0.35; cursor: not-allowed; }
+    #btnGenerateBpmn:hover:not(:disabled) { background: #222; }
+    #btnGenerateInsights {
+      background: #7c3aed; color: #ffffff;
+      border: none; border-radius: var(--radius);
+      font-size: 12px; font-weight: 600;
+      height: 52px; padding: 0 16px; cursor: pointer;
+      white-space: nowrap; font-family: var(--sans);
+      transition: background 0.12s;
+    }
+    #btnGenerateInsights:disabled { opacity: 0.35; cursor: not-allowed; }
+    #btnGenerateInsights:hover:not(:disabled) { background: #6d28d9; }
+    .generate-group {
+      display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+    }
+    .generate-label {
+      font-size: 11px; color: #bbb; font-weight: 500; white-space: nowrap;
+    }
+    .generate-arrow {
+      font-size: 13px; color: #ddd;
+    }
+
+    /* ── BPMN PANEL ────────────────────────────────────────────────── */
+    #bpmnPanel {
+      border-left: 1px solid var(--border); width: 44%;
+      display: flex; flex-direction: column;
+      overflow: hidden; background: var(--bg); flex-shrink: 0;
+    }
+    .bpmn-header {
+      padding: 8px 10px; background: var(--bg-surface);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+    }
+    .bpmn-header-title {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--text-dim);
+      flex: 1; display: flex; align-items: center; gap: 6px;
+    }
+    .view-toggle { display: flex; border: 1px solid var(--border-mid); border-radius: 6px; overflow: hidden; }
+    .view-toggle-btn {
+      padding: 2px 9px; font-size: 10px; font-weight: 600;
+      cursor: pointer; border: none; background: none;
+      color: var(--text-muted); font-family: var(--sans);
+      transition: all 0.12s;
+    }
+    .view-toggle-btn.active { background: var(--bg-elevated); color: var(--text); }
+    .bpmn-body   { flex: 1; overflow: hidden; position: relative; min-height: 0; }
+    .bpmn-xml-view { position: absolute; inset: 0; overflow: auto; }
+    .bpmn-xml    { font-family: var(--mono); font-size: 10px; color: #555; padding: 12px 14px; white-space: pre; line-height: 1.6; }
+    .bpmn-diagram-view { position: absolute; inset: 0; background: #fff; }
+    .bpmn-diagram-view .bjs-container { height: 100% !important; }
+    .bpmn-generating {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; height: 100%; gap: 14px; color: var(--text-muted);
+    }
+    .bpmn-spinner {
+      width: 24px; height: 24px;
+      border: 2px solid var(--border-mid);
+      border-top-color: var(--accent);
+      border-radius: 50%; animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .bpmn-error { padding: 16px; color: var(--red); font-size: 12px; line-height: 1.6; }
+    .bpmn-empty {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; height: 100%; gap: 10px;
+      color: var(--text-muted); text-align: center; padding: 20px;
+    }
+    .bpmn-empty-title { font-size: 12px; font-weight: 600; color: var(--text-muted); }
+    .bpmn-empty-desc  { font-size: 11px; line-height: 1.6; max-width: 200px; color: var(--text-dim); }
+
+    /* ── BPMN CHAT ─────────────────────────────────────────────────── */
+    #bpmnChatPanel {
+      border-top: 1px solid var(--border); flex-shrink: 0;
+      display: flex; flex-direction: column; max-height: 210px;
+    }
+    .chat-header {
+      padding: 6px 10px; background: var(--bg-surface);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 6px;
+      font-size: 9px; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--text-dim);
+    }
+    .chat-header-spacer { flex: 1; }
+    #bpmnChatHistory {
+      flex: 1; overflow-y: auto; padding: 8px 10px;
+      display: flex; flex-direction: column; gap: 6px; min-height: 40px;
+    }
+    .chat-msg {
+      font-size: 11px; line-height: 1.5; padding: 5px 9px;
+      border-radius: 6px; max-width: 90%; word-break: break-word;
+    }
+    .chat-user      { background: var(--bg-elevated); color: var(--text); border: 1px solid var(--border-mid); align-self: flex-end; }
+    .chat-assistant { background: #fafafa; color: var(--text-muted); border: 1px solid var(--border); align-self: flex-start; }
+    .chat-temp      { opacity: 0.5; font-style: italic; }
+    .chat-input-row {
+      display: flex; gap: 6px; padding: 8px 10px;
+      border-top: 1px solid var(--border); background: var(--bg-surface); flex-shrink: 0;
+    }
+    #bpmnChatInput {
+      flex: 1; background: #fff;
+      border: 1px solid var(--border-mid); border-radius: 6px;
+      color: var(--text); font-family: var(--sans);
+      font-size: 11.5px; padding: 5px 9px; outline: none; resize: none;
+    }
+    #bpmnChatInput::placeholder { color: var(--text-dim); }
+    #bpmnChatInput:focus { border-color: var(--accent); }
+
+    /* ── SESSIONS VIEW ─────────────────────────────────────────────── */
+    #viewSessions  { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .sessions-body { flex: 1; overflow: hidden; display: flex; }
+    #sessionsList  {
+      flex: 1; overflow-y: auto; padding: 12px;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .session-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-mid);
+      border-left: 3px solid var(--border-mid);
+      border-radius: var(--radius); padding: 10px 12px; transition: all 0.15s;
+    }
+    .session-card:hover { border-color: #ddd; border-left-color: var(--accent); background: var(--bg-elevated); }
+    .sc-header   { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; }
+    .sc-id       { font-family: var(--mono); font-size: 10.5px; color: var(--text-muted); }
+    .sc-status   { font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 4px; letter-spacing: 0.05em; }
+    .status-completed { background: #f0fdf4; color: var(--green); }
+    .status-recording { background: #fff1f0; color: var(--red); }
+    .sc-url   { font-size: 10.5px; color: var(--text-muted); margin-bottom: 7px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .sc-meta  { display: flex; gap: 10px; font-size: 10px; color: var(--text-dim); margin-bottom: 9px; }
+    .sc-actions { display: flex; gap: 5px; }
+
+    /* replay panel */
+    #replayPanel    { width: 56%; border-left: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
+    .replay-header  { padding: 10px 14px; background: var(--bg-surface); border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .replay-top     { display: flex; align-items: center; justify-content: space-between; margin-bottom: 9px; }
+    .replay-label   { font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 2px; }
+    #replayTitle    { font-family: var(--mono); font-size: 11px; color: var(--text-muted); }
+    .replay-stats   { display: flex; border: 1px solid var(--border-mid); border-radius: 6px; overflow: hidden; }
+    .stat-item      { flex: 1; padding: 5px 4px; text-align: center; border-right: 1px solid var(--border); background: var(--bg-elevated); }
+    .stat-item:last-child { border-right: none; }
+    .stat-val       { display: block; font-size: 13px; font-weight: 700; color: var(--text); font-family: var(--mono); }
+    .stat-lbl       { display: block; font-size: 8px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 1px; }
+    .replay-body    { flex: 1; overflow-y: auto; font-family: var(--mono); font-size: 11px; }
+
+    /* ── STATUS BAR ────────────────────────────────────────────────── */
+    .conn-bar {
+      padding: 8px 16px; font-size: 10px;
+      background: var(--bg); border-top: 1px solid var(--border);
+      display: flex; align-items: center; gap: 8px;
+      color: var(--text-dim); flex-shrink: 0;
+    }
+    .conn-dot { width: 5px; height: 5px; border-radius: 50%; background: #ccc; flex-shrink: 0; transition: all 0.3s; }
+    .conn-dot.connected { background: #22c55e; box-shadow: 0 0 5px rgba(34,197,94,0.4); }
+    .conn-note { margin-left: auto; font-size: 10px; color: #ccc; }
+
+    /* ── MODAL SETTINGS ────────────────────────────────────────────── */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 1000; backdrop-filter: blur(4px);
+    }
+    .modal {
+      background: #fff; border: 1px solid var(--border-mid);
+      border-radius: 12px; width: 420px; max-width: 95vw;
+      overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    }
+    .modal-header  { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .modal-title   { font-size: 14px; font-weight: 600; color: var(--text); }
+    .modal-body    { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+    .modal-footer  { padding: 14px 20px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 8px; }
+    .form-group    { display: flex; flex-direction: column; gap: 6px; }
+    .form-label    { font-size: 11px; font-weight: 600; letter-spacing: 0.04em; color: var(--text-muted); }
+    .form-input {
+      background: var(--bg-surface); border: 1px solid var(--border-mid);
+      border-radius: 6px; color: var(--text); font-family: var(--mono);
+      font-size: 12px; padding: 8px 10px; outline: none; width: 100%;
+      transition: border-color 0.12s;
+    }
+    .form-input:focus { border-color: var(--accent); }
+    .form-input::placeholder { color: var(--text-dim); }
+    .form-hint   { font-size: 11px; color: var(--text-dim); line-height: 1.5; }
+    .form-hint a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+    .setting-saved { font-size: 11px; color: var(--green); display: flex; align-items: center; gap: 5px; }
+
+    /* ── JIRA ──────────────────────────────────────────────────────── */
+    .btn-jira {
+      background: #0052CC; color: #fff; border-color: #0052CC;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-jira:hover:not(:disabled) { background: #0747A6; border-color: #0747A6; }
+
+    /* Jira modal overlay — sovrascrive il modal-overlay generico */
+    #jiraModal {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+      display: none; align-items: center; justify-content: center;
+      z-index: 2000; backdrop-filter: blur(3px);
+    }
+    #jiraModal.open { display: flex; }
+    #jiraModal .modal {
+      width: 500px; max-width: 96vw; max-height: 90vh;
+      overflow-y: auto; animation: jiraIn 0.18s ease;
+    }
+    @keyframes jiraIn {
+      from { opacity:0; transform:translateY(-10px) scale(0.97); }
+      to   { opacity:1; transform:translateY(0) scale(1); }
+    }
+    #jiraModal .modal-header { background: #f8f8f8; }
+    .jira-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: #0052CC; color: #fff;
+      padding: 2px 8px; border-radius: 4px;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.04em;
+    }
+    .form-row { display: flex; gap: 10px; }
+    .form-row .form-group { flex: 1; }
+    .form-select {
+      background: var(--bg-surface); border: 1px solid var(--border-mid);
+      border-radius: 6px; color: var(--text); font-family: var(--sans);
+      font-size: 12px; padding: 8px 10px; outline: none; width: 100%;
+      transition: border-color 0.12s;
+    }
+    .form-select:focus { border-color: var(--accent); }
+    .form-textarea {
+      background: var(--bg-surface); border: 1px solid var(--border-mid);
+      border-radius: 6px; color: var(--text); font-family: var(--sans);
+      font-size: 12px; padding: 8px 10px; outline: none; width: 100%;
+      resize: vertical; min-height: 70px; transition: border-color 0.12s;
+    }
+    .form-textarea:focus { border-color: var(--accent); }
+    .attach-list { display: flex; flex-direction: column; gap: 5px; }
+    .attach-item {
+      display: flex; align-items: center; gap: 8px;
+      padding: 6px 10px; border: 1px solid var(--border-mid);
+      border-radius: 6px; font-size: 12px; color: var(--text-muted);
+      cursor: pointer; user-select: none; transition: border-color 0.12s;
+    }
+    .attach-item:hover { border-color: var(--accent); }
+    .attach-item.checked { border-color: #0052CC; background: #eff6ff; color: #1e40af; }
+    .attach-item input[type="checkbox"] { accent-color: #0052CC; }
+    .jira-progress {
+      display: none; align-items: center; gap: 8px;
+      font-size: 11px; color: var(--text-muted);
+    }
+    .jira-progress.visible { display: flex; }
+    .jira-spinner {
+      width: 13px; height: 13px;
+      border: 2px solid var(--border-mid);
+      border-top-color: #0052CC;
+      border-radius: 50%; animation: spin 0.7s linear infinite;
+    }
+    .jira-result {
+      display: none; align-items: center; gap: 8px;
+      padding: 8px 12px; margin: 0 20px 14px;
+      background: #f0fdf4; border: 1px solid #bbf7d0;
+      border-radius: 6px; font-size: 12px; color: var(--green);
+    }
+    .jira-result.visible { display: flex; }
+    .jira-result a { color: var(--green); font-weight: 600; text-decoration: none; }
+    .jira-result a:hover { text-decoration: underline; }
+
+    /* ── CAMUNDA ────────────────────────────────────────────────────── */
+    .btn-camunda {
+      background: #FC5D0D; color: #fff; border-color: #FC5D0D;
+      display: inline-flex; align-items: center; gap: 5px;
+    }
+    .btn-camunda:hover:not(:disabled) { background: #e04d00; border-color: #e04d00; }
+
+    /* ── DOCUMENTA ──────────────────────────────────────────────── */
+    .btn-doc {
+      background: #1e3a5f; color: #fff; border-color: #1e3a5f;
+      display: inline-flex; align-items: center; gap: 5px;
+    }
+    .btn-doc:hover:not(:disabled) { background: #162d4a; border-color: #162d4a; }
+    .btn-doc-analytics {
+      background: #5b21b6; color: #fff; border-color: #5b21b6;
+      display: inline-flex; align-items: center; gap: 5px;
+    }
+    .btn-doc-analytics:hover:not(:disabled) { background: #4c1d95; border-color: #4c1d95; }
+
+    /* ── Tab Insights nel header BPMN */
+    .view-toggle-btn.insights-tab {
+      background: none;
+    }
+    .view-toggle-btn.insights-tab.active {
+      background: #f5f3ff; color: #7c3aed; border-color: #7c3aed;
+    }
+
+    /* Pannello Insights */
+    #insightsView {
+      position: absolute; inset: 0;
+      overflow-y: auto; padding: 14px;
+      display: flex; flex-direction: column; gap: 12px;
+      background: var(--bg);
+    }
+
+    /* Summary bar */
+    .ins-summary {
+      display: flex; gap: 8px; flex-wrap: wrap;
+      padding: 10px 12px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-mid);
+      border-radius: var(--radius);
+      font-size: 11px; color: var(--text-muted);
+    }
+    .ins-summary-pill {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 8px; border-radius: 10px;
+      font-size: 10px; font-weight: 600;
+    }
+    .ins-pill-gtm  { background: #fef3c7; color: #92400e; }
+    .ins-pill-ga4  { background: #dbeafe; color: #1e40af; }
+    .ins-pill-none { background: #f3f4f6; color: #6b7280; }
+    .ins-pill-ok   { background: #d1fae5; color: #065f46; }
+
+    /* Sezioni */
+    .ins-section { display: flex; flex-direction: column; gap: 6px; }
+    .ins-section-title {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--text-dim);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .ins-section-title span {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 16px; height: 16px; padding: 0 4px;
+      background: var(--bg-elevated); border-radius: 8px;
+      font-size: 9px; color: var(--text-muted);
+    }
+
+    /* Card evento GTM */
+    .ins-event-card {
+      border: 1px solid var(--border-mid);
+      border-radius: var(--radius);
+      overflow: hidden; background: var(--bg-surface);
+    }
+    .ins-event-header {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 10px;
+      background: var(--bg-elevated);
+      border-bottom: 1px solid var(--border);
+      cursor: pointer; user-select: none;
+    }
+    .ins-chev {
+      font-size: 9px; color: var(--text-muted);
+      flex-shrink: 0; width: 10px; text-align: center;
+      pointer-events: none;
+    }
+    .ins-event-header:hover { background: #f0f0f0; }
+    .ins-event-name {
+      font-family: var(--mono); font-size: 11px;
+      font-weight: 600; color: var(--text); flex: 1;
+    }
+    .ins-priority {
+      font-size: 9px; font-weight: 700; padding: 1px 6px;
+      border-radius: 4px; letter-spacing: 0.04em;
+    }
+    .ins-priority-high   { background: #fee2e2; color: #b91c1c; }
+    .ins-priority-medium { background: #fef3c7; color: #92400e; }
+    .ins-priority-low    { background: #f3f4f6; color: #6b7280; }
+    .ins-event-body {
+      padding: 10px;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .ins-event-body.collapsed { display: none; }
+    .ins-kv { font-size: 10.5px; }
+    .ins-kv-label {
+      font-size: 9px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.06em; color: var(--text-dim); margin-bottom: 3px;
+    }
+    .ins-code {
+      font-family: var(--mono); font-size: 10px;
+      background: #f8f8f8; border: 1px solid var(--border);
+      border-radius: 4px; padding: 6px 8px;
+      white-space: pre-wrap; word-break: break-all;
+      color: #374151;
+    }
+    .ins-trigger {
+      font-size: 10.5px; color: var(--text-muted);
+      background: var(--bg-elevated);
+      border-radius: 4px; padding: 5px 8px;
+    }
+
+    /* Card gap */
+    .ins-gap-card {
+      border: 1px solid #fde68a;
+      border-left: 3px solid #f59e0b;
+      border-radius: var(--radius);
+      padding: 10px 12px;
+      background: #fffbeb;
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .ins-gap-title {
+      font-size: 11px; font-weight: 600; color: #92400e;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .ins-gap-severity {
+      font-size: 9px; font-weight: 700; padding: 1px 5px;
+      border-radius: 4px; background: #fef3c7; color: #92400e;
+    }
+    .ins-gap-severity.high { background: #fee2e2; color: #b91c1c; }
+    .ins-gap-desc { font-size: 10.5px; color: #78350f; }
+    .ins-gap-fix {
+      font-size: 10px; color: #92400e;
+      padding: 5px 8px; background: #fef9c3;
+      border-radius: 4px; margin-top: 2px;
+    }
+
+    /* Footer azioni */
+    .ins-actions {
+      display: flex; gap: 8px; padding-top: 4px;
+      border-top: 1px solid var(--border); margin-top: 4px;
+    }
+    .btn-insights {
+      background: #7c3aed; color: #fff;
+      border-color: #7c3aed;
+      display: inline-flex; align-items: center; gap: 5px;
+    }
+    .btn-insights:hover:not(:disabled) { background: #6d28d9; border-color: #6d28d9; }
+
+    /* Spinner generazione */
+    .ins-generating {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; gap: 10px;
+      padding: 40px; color: var(--text-muted); font-size: 12px;
+    }
+    .ins-spinner {
+      width: 20px; height: 20px;
+      border: 2px solid var(--border-mid);
+      border-top-color: #7c3aed;
+      border-radius: 50%; animation: spin 0.7s linear infinite;
+    }
+    .ins-empty {
+      text-align: center; padding: 40px;
+      color: var(--text-dim); font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ── TOPBAR ─────────────────────────────────────────────────────── -->
+  <div class="header">
+    <div class="logo">
+      <div class="logo-mark">
+        <svg width="14" height="12" viewBox="0 0 14 12" xmlns="http://www.w3.org/2000/svg">
+          <path d="M1 2 Q4 1 7 2 Q10 3 13 2" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.2" stroke-linecap="round"/>
+          <path d="M1 5 Q4 4 7 5 Q10 6 13 5" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.2" stroke-linecap="round"/>
+          <path d="M1 8 Q4 7 7 8 Q10 9 13 8" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="1.2" stroke-linecap="round"/>
+          <path d="M1 11 Q4 10 7 11 Q10 12 13 11" fill="none" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span class="logo-wordmark">Sevenda</span>
+      <span class="logo-version">v0.2.0</span>
+    </div>
+    <div class="header-spacer"></div>
+    <div class="status-badge idle" id="statusBadge">
+      <div class="dot"></div>
+      <span id="statusText">Idle</span>
+    </div>
+  </div>
+
+  <!-- ── TOOLBAR ────────────────────────────────────────────────────── -->
+  <div class="toolbar">
+    <button class="btn btn-primary" id="btnStart">
+      <svg width="9" height="9" viewBox="0 0 9 9"><circle cx="4.5" cy="4.5" r="4.5" fill="currentColor" opacity="0.9"/></svg>
+      Avvia Registrazione
+    </button>
+    <button class="btn btn-danger" id="btnStop" disabled>⏹ Stop</button>
+    <div class="toolbar-divider"></div>
+    <button class="btn btn-ghost" id="btnClear">✕ Pulisci</button>
+    <div class="toolbar-divider"></div>
+    <button class="btn btn-ghost active" id="btnLive">Live</button>
+    <button class="btn btn-ghost" id="btnSessions">☰ Sessioni</button>
+    <div class="toolbar-spacer"></div>
+    <div class="session-info" id="sessionInfo">—</div>
+    <div class="event-counter">Events: <span id="eventCount">0</span></div>
+    <div class="toolbar-divider"></div>
+    <button class="btn btn-ghost btn-xs" id="btnSettings">⚙ Settings</button>
+    <button class="btn btn-jira btn-xs hidden" id="btnJira">
+      <svg width="11" height="11" viewBox="0 0 32 32" fill="none"><path d="M15.93 2C15.93 2 8.28 9.42 8.28 16.05c0 4.22 3.42 7.64 7.64 7.64.23 0 .46-.01.68-.03L9.97 30h4.7l8.05-13.95C22.72 16.05 22.72 2 15.93 2zm0 19.55c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z" fill="white"/></svg>
+      Jira
+    </button>
+    <button class="btn btn-camunda btn-xs hidden" id="btnExportCamunda" title="Esporta in formato Camunda Modeler (.bpmn)">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+        <path d="M8 12l4 4 4-4M12 8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Camunda
+    </button>
+  </div>
+
+  <!-- ── MAIN ───────────────────────────────────────────────────────── -->
+  <div class="main">
+
+    <!-- VIEW: LIVE -->
+    <div id="viewLive">
+      <div class="log-header">
+        <div class="log-accent"></div>
+        Event Stream
+        <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-dim);font-size:10px;margin-left:2px">— in tempo reale</span>
+      </div>
+      <div class="filters">
+        <button class="filter-chip chip-nav" data-source="navigation">NAV</button>
+        <button class="filter-chip chip-ui"  data-source="interaction">UI</button>
+        <button class="filter-chip chip-net" data-source="network">NET</button>
+        <button class="filter-chip chip-err" data-source="error">ERR</button>
+        <button class="filter-chip chip-dom" data-source="dom">DOM</button>
+        <input class="filter-search" id="searchInput" placeholder="Cerca negli eventi…" />
+      </div>
+
+      <div style="flex:1;display:flex;overflow:hidden;">
+        <div class="log-body" id="logBody" style="flex:1;">
+          <div class="empty-state" id="emptyState">
+            <div class="empty-title">Nessuna sessione attiva</div>
+            <div class="empty-desc">Premi "Avvia Registrazione" per iniziare a catturare gli eventi.</div>
+          </div>
+        </div>
+
+        <!-- BPMN OUTPUT PANEL -->
+        <div id="bpmnPanel" class="hidden">
+          <div class="bpmn-header">
+            <span class="bpmn-header-title"><div class="log-accent"></div>BPMN 2.0</span>
+            <div class="view-toggle">
+              <button class="view-toggle-btn active" id="btnViewXml">XML</button>
+              <button class="view-toggle-btn" id="btnViewDiagram">Diagramma</button>
+              <button class="view-toggle-btn insights-tab hidden" id="btnViewInsights">📊 Insights</button>
+            </div>
+            <!-- Sub-toolbar XML: visibile solo nella vista XML -->
+            <div id="bpmnXmlTools" style="display:flex;align-items:center;gap:4px;margin-left:6px">
+              <button class="btn btn-ghost btn-xs" id="btnCopyXml">⎘ Copia</button>
+              <button class="btn btn-import btn-xs" id="btnImportXml" title="Incolla XML BPMN dagli appunti">⬇ Incolla XML</button>
+            </div>
+            <!-- Sub-toolbar Diagramma: visibile solo nella vista Diagramma -->
+            <div id="bpmnDiagramTools" style="display:none;align-items:center;gap:4px;margin-left:6px">
+              <button class="btn btn-ghost btn-xs" id="btnExportSvg">↓ SVG</button>
+              <button class="btn btn-doc btn-xs hidden" id="btnDocAnalisi" title="Genera documento di analisi tecnico-funzionale (.docx)">📄 Analisi</button>
+            </div>
+            <div style="flex:1"></div>
+            <button class="btn btn-ghost btn-xs" id="btnCloseBpmn">✕</button>
+          </div>
+          <div class="bpmn-body" id="bpmnBody">
+            <div class="bpmn-xml-view" id="bpmnXmlView">
+              <div class="bpmn-empty">
+                <div class="bpmn-empty-title">Nessun BPMN generato</div>
+                <div class="bpmn-empty-desc">Avvia una sessione e premi "Genera BPMN".</div>
+              </div>
+            </div>
+            <div class="bpmn-diagram-view hidden" id="bpmnDiagramView"></div>
+            <!-- INSIGHTS VIEW -->
+            <div id="insightsView" class="hidden">
+              <div class="ins-empty" id="insightsEmpty">
+                <div style="font-size:28px;margin-bottom:8px">📊</div>
+                <div style="font-weight:600;color:var(--text-muted);margin-bottom:4px">Nessuna analisi disponibile</div>
+                <div>Attiva Insights dalla toolbar e genera il BPMN per ottenere l'analisi.</div>
+              </div>
+            </div>
+          </div>
+          <!-- BPMN CHAT ITERATIVO -->
+          <div id="bpmnChatPanel" class="hidden">
+            <div class="chat-header">
+              <div class="log-accent"></div>
+              Feedback iterativo
+              <div class="chat-header-spacer"></div>
+              <button class="btn btn-ghost btn-xs" id="btnUndoBpmn" disabled>↩ Undo</button>
+            </div>
+            <div id="bpmnChatHistory"></div>
+            <div class="chat-input-row">
+              <textarea id="bpmnChatInput" rows="2"
+                placeholder="Es: 'Aggiungi un gateway esclusivo dopo il task di pagamento'…"></textarea>
+              <button class="btn btn-primary btn-xs" id="btnSendFeedback">↑ Invia</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="context-bar">
+        <div class="context-wrap">
+          <div class="context-label">Contesto sessione</div>
+          <textarea class="context-input" id="contextInput" rows="2"
+            placeholder="Descrivi cosa stai testando…"></textarea>
+        </div>
+        <div class="generate-group">
+          <span class="generate-label">Genera</span>
+          <span class="generate-arrow">→</span>
+          <button id="btnGenerateBpmn" disabled title="Genera il diagramma BPMN 2.0">BPMN</button>
+          <button id="btnGenerateInsights" disabled title="Analizza tracking GTM/GA4 e rileva gap">📊 Insights</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW: SESSIONS -->
+    <div id="viewSessions" class="hidden">
+      <div class="log-header"><div class="log-accent"></div>Sessioni salvate</div>
+      <div class="sessions-body">
+        <div id="sessionsList"></div>
+        <div id="replayPanel" class="hidden">
+          <div class="replay-header">
+            <div class="replay-top">
+              <div>
+                <div class="replay-label">Sessione</div>
+                <div id="replayTitle">—</div>
+              </div>
+              <div style="display:flex;gap:6px;">
+                <button class="btn btn-accent btn-xs" id="btnReplayGenerateBpmn">✦ BPMN</button>
+                <button class="btn btn-xs" id="btnReplayGenerateInsights" style="background:#7c3aed;color:#fff;border:none;">📊 Insights</button>
+                <button class="btn btn-ghost btn-xs" id="btnCloseReplay">✕ Chiudi</button>
+              </div>
+            </div>
+            <div class="replay-stats" id="replayStats"></div>
+          </div>
+          <div class="filters" id="replayFilters">
+            <button class="filter-chip chip-nav" data-source="navigation">NAV</button>
+            <button class="filter-chip chip-ui"  data-source="interaction">UI</button>
+            <button class="filter-chip chip-net" data-source="network">NET</button>
+            <button class="filter-chip chip-err" data-source="error">ERR</button>
+            <button class="filter-chip chip-dom" data-source="dom">DOM</button>
+            <input class="filter-search" id="replaySearch" placeholder="Cerca…" />
+          </div>
+          <div class="replay-body" id="replayBody"></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /.main -->
+
+  <!-- ── STATUS BAR ─────────────────────────────────────────────────── -->
+  <div class="conn-bar">
+    <div class="conn-dot" id="connDot"></div>
+    <span id="connStatus">Connessione al service worker in corso...</span>
+  </div>
+
+</div><!-- /.app -->
+
+<!-- ── MODAL SETTINGS ─────────────────────────────────────────────── -->
+<div class="modal-overlay hidden" id="modalSettings">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Impostazioni Sevenda</span>
+      <button class="btn btn-ghost btn-xs" id="btnCloseSettings">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label" for="apiKeyInput">Anthropic API Key</label>
+        <input class="form-input" type="password" id="apiKeyInput" placeholder="sk-ant-api03-…" autocomplete="off" />
+        <div class="form-hint">Ottieni la tua API key su <a href="#" id="linkApiKey">console.anthropic.com</a>. Salvata localmente in IndexedDB.</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="bpmnLangSelect">Lingua output BPMN</label>
+        <select class="form-input" id="bpmnLangSelect">
+          <option value="it">Italiano</option>
+          <option value="en">English</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="maxEventsInput">Limite eventi per sessione</label>
+        <input class="form-input" type="number" id="maxEventsInput" min="50" max="2000" value="500" />
+        <div class="form-hint">Numero massimo di eventi inviati a Claude (default: 500).</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="excludedDomainsInput">Domini esclusi dalla cattura</label>
+        <input class="form-input" type="text" id="excludedDomainsInput" placeholder="analytics.google.com, hotjar.com" />
+        <div class="form-hint">Separati da virgola. Gli eventi di rete verso questi domini saranno ignorati.</div>
+      </div>
+      <div id="settingSavedMsg" class="setting-saved hidden">✓ Impostazioni salvate</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" id="btnCancelSettings">Annulla</button>
+      <button class="btn btn-primary" id="btnSaveSettings">Salva</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL JIRA ──────────────────────────────────────────────────── -->
+<div id="jiraModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="jira-badge">
+          <svg width="10" height="10" viewBox="0 0 32 32" fill="none"><path d="M15.93 2C15.93 2 8.28 9.42 8.28 16.05c0 4.22 3.42 7.64 7.64 7.64.23 0 .46-.01.68-.03L9.97 30h4.7l8.05-13.95C22.72 16.05 22.72 2 15.93 2zm0 19.55c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z" fill="white"/></svg>
+          JIRA
+        </span>
+        <span class="modal-title">Esporta in Jira Cloud</span>
+      </div>
+      <button class="btn btn-ghost btn-xs" id="btnJiraClose">✕</button>
+    </div>
+    <div class="modal-body" style="gap:12px">
+      <div class="form-row">
+        <div class="form-group" style="flex:2">
+          <label class="form-label">URL Jira *</label>
+          <input class="form-input" id="jiraUrl" type="url" placeholder="https://tuo-dominio.atlassian.net" autocomplete="off"/>
+        </div>
+        <div class="form-group" style="flex:1">
+          <label class="form-label">Project Key *</label>
+          <input class="form-input" id="jiraProjectKey" type="text" placeholder="FL" style="text-transform:uppercase"/>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Email account *</label>
+          <input class="form-input" id="jiraEmail" type="email" placeholder="tuo@email.com" autocomplete="off"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">API Token *</label>
+          <input class="form-input" id="jiraToken" type="password" placeholder="••••••••••••" autocomplete="off"/>
+          <div class="form-hint"><a id="linkJiraToken" href="#">Genera token ↗</a></div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group" style="flex:1">
+          <label class="form-label">Tipo Issue</label>
+          <select class="form-select" id="jiraIssueType">
+            <option value="Task">Task</option>
+            <option value="Story">Story</option>
+            <option value="Epic">Epic</option>
+            <option value="Bug">Bug</option>
+          </select>
+        </div>
+        <div class="form-group" style="flex:3">
+          <label class="form-label">Titolo *</label>
+          <input class="form-input" id="jiraIssueTitle" type="text" placeholder="Processo registrato da Sevenda"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Descrizione</label>
+        <textarea class="form-textarea" id="jiraDescription" placeholder="Descrizione del processo…"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Allega al ticket</label>
+        <div class="attach-list">
+          <label class="attach-item checked" id="jiraAttachXmlItem">
+            <input type="checkbox" id="jiraAttachXml" checked/> 📄 BPMN XML
+          </label>
+          <label class="attach-item checked" id="jiraAttachSvgItem">
+            <input type="checkbox" id="jiraAttachSvg" checked/> 🖼 SVG
+          </label>
+          <label class="attach-item checked" id="jiraAttachCommentItem">
+            <input type="checkbox" id="jiraAttachComment" checked/> 💬 Commento riepilogo
+          </label>
+        </div>
+      </div>
+      <label style="display:flex;align-items:center;gap:7px;font-size:11px;color:var(--text-muted);cursor:pointer">
+        <input type="checkbox" id="jiraSaveCreds" style="accent-color:#0052CC"/>
+        Ricorda URL, email e project key
+      </label>
+    </div>
+    <div class="jira-result" id="jiraResult">
+      ✓ Issue creata: <a id="jiraResultLink" href="#" target="_blank">—</a>
+    </div>
+    <div class="modal-footer">
+      <div class="jira-progress" id="jiraProgress">
+        <div class="jira-spinner"></div>
+        <span id="jiraProgressText">Creazione in corso…</span>
+      </div>
+      <div style="flex:1"></div>
+      <button class="btn btn-ghost" id="btnJiraCancel">Annulla</button>
+      <button class="btn btn-jira" id="btnJiraExport">
+        <svg width="11" height="11" viewBox="0 0 32 32" fill="none"><path d="M15.93 2C15.93 2 8.28 9.42 8.28 16.05c0 4.22 3.42 7.64 7.64 7.64.23 0 .46-.01.68-.03L9.97 30h4.7l8.05-13.95C22.72 16.05 22.72 2 15.93 2zm0 19.55c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z" fill="white"/></svg>
+        Esporta
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="./vendor/bpmn-viewer.min.js"></script>
+<script src="./vendor/docx.iife.js"></script>
+<script type="module" src="panel.js"></script>
+</body>
+</html>

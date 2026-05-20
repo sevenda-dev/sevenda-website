@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #191919;
+      --bg-hover:    #252525;
+      --bg-elevated: #2f2f2f;
+      --border:      #333333;
+      --border-soft: #262626;
+      --text:        #e8e8e6;
+      --text-dim:    #a0a0a0;
+      --text-muted:  #5a5a5a;
+      --red:         #e05555;
+      --red-soft:    rgba(224,85,85,0.14);
+      --green:       #4da97c;
+      --mono:        'SFMono-Regular', 'Consolas', monospace;
+      --sans:        -apple-system, 'Segoe UI', system-ui, sans-serif;
+      --radius:      5px;
+    }
+
+    html, body {
+      width: 258px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 13px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── HEADER ─────────────────────────────────────────────────────────── */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 13px 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo-img {
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      flex-shrink: 0;
+      object-fit: cover;
+    }
+
+    .logo-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.01em;
+      flex: 1;
+    }
+
+    .logo-badge {
+      font-size: 10px;
+      font-weight: 500;
+      font-family: var(--mono);
+      color: var(--text-muted);
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      padding: 1px 6px;
+      border-radius: 3px;
+    }
+
+    /* ── STATUS ──────────────────────────────────────────────────────────── */
+    .status-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 7px 13px;
+      border-bottom: 1px solid var(--border-soft);
+    }
+
+    .status-label {
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 2px 7px;
+      border-radius: 20px;
+    }
+
+    .status-pill.idle       { background: var(--bg-elevated); color: var(--text-muted); }
+    .status-pill.recording  { background: var(--red-soft); color: var(--red); }
+
+    .status-pill .dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .status-pill.recording .dot { animation: blink 1.2s ease-in-out infinite; }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.2; }
+    }
+
+    /* ── MENU ITEMS ──────────────────────────────────────────────────────── */
+    .menu {
+      padding: 5px 5px 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 9px;
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--text);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      width: 100%;
+      text-align: left;
+      font-family: var(--sans);
+      -webkit-font-smoothing: antialiased;
+      transition: background 0.08s;
+    }
+
+    .menu-item:hover { background: var(--bg-hover); }
+
+    .menu-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      flex-shrink: 0;
+      color: var(--text-dim);
+    }
+
+    .menu-item.cta .menu-icon {
+      background: var(--red-soft);
+      border-color: rgba(224,85,85,0.22);
+      color: var(--red);
+    }
+
+    .menu-label { flex: 1; }
+
+    .menu-hint {
+      font-size: 11px;
+      font-family: var(--mono);
+      color: var(--text-muted);
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      padding: 1px 5px;
+      border-radius: 3px;
+    }
+
+    /* ── SEPARATOR ───────────────────────────────────────────────────────── */
+    .sep {
+      height: 1px;
+      background: var(--border);
+      margin: 3px 5px;
+    }
+
+    /* ── FOOTER ──────────────────────────────────────────────────────────── */
+    .footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 7px 13px 9px;
+      border-top: 1px solid var(--border-soft);
+    }
+
+    .footer-text {
+      font-size: 10.5px;
+      color: var(--text-muted);
+    }
+
+    .footer-btn {
+      font-size: 10.5px;
+      color: var(--text-muted);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 2px 5px;
+      border-radius: 3px;
+      font-family: var(--sans);
+      transition: background 0.08s, color 0.08s;
+    }
+
+    .footer-btn:hover {
+      background: var(--bg-hover);
+      color: var(--text-dim);
+    }
+
+    /* ── DEVTOOLS HINT ───────────────────────────────────────────────────── */
+    .devtools-hint {
+      display: none;
+      margin: 0 5px 2px;
+      padding: 7px 10px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 11.5px;
+      color: var(--text-dim);
+      line-height: 1.5;
+    }
+
+    .devtools-hint.visible { display: block; }
+
+    .devtools-hint kbd {
+      display: inline-block;
+      padding: 0 4px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      font-family: var(--mono);
+      font-size: 10.5px;
+      color: var(--text);
+    }
+
+    .devtools-hint strong { color: var(--text); font-weight: 500; }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <div class="header">
+    <img class="logo-img" src="icons/icon128.png" alt="Sevenda" />
+    <span class="logo-name">Sevenda</span>
+    <span class="logo-badge">v0.2.0</span>
+  </div>
+
+  <!-- STATUS -->
+  <div class="status-row">
+    <span class="status-label">Registrazione</span>
+    <div class="status-pill idle" id="statusPill">
+      <div class="dot"></div>
+      <span id="statusText">Idle</span>
+    </div>
+  </div>
+
+  <!-- MENU -->
+  <div class="menu">
+
+    <button class="menu-item cta" id="btnDevtools">
+      <span class="menu-icon">⏺</span>
+      <span class="menu-label">Apri Sevenda (DevTools)</span>
+      <span class="menu-hint">F12</span>
+    </button>
+
+    <!-- hint mostrato dopo click su DevTools -->
+    <div class="devtools-hint" id="devtoolsHint">
+      Premi <kbd>F12</kbd> → tab <strong>"Sevenda"</strong>
+    </div>
+
+    <div class="sep"></div>
+
+    <button class="menu-item" id="btnSettings">
+      <span class="menu-icon">⚙</span>
+      <span class="menu-label">Settings &amp; AI Models</span>
+    </button>
+
+    <button class="menu-item" id="btnSessions">
+      <span class="menu-icon">▤</span>
+      <span class="menu-label">Sessioni salvate</span>
+    </button>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <span class="footer-text">Sevenda</span>
+    <button class="footer-btn" id="btnAbout">Supporto</button>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

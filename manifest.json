@@ -1,0 +1,57 @@
+{
+  "manifest_version": 3,
+  "name": "Sevenda",
+  "version": "0.1.0",
+  "description": "Registra sessioni browser e genera diagrammi BPMN 2.0 automaticamente tramite AI.",
+
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting",
+    "tabs"
+  ],
+
+  "host_permissions": [
+    "<all_urls>"
+  ],
+
+  "background": {
+    "service_worker": "src/background/service-worker.js",
+    "type": "module"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["src/content/content-script.js"],
+      "run_at": "document_start",
+      "all_frames": false
+    }
+  ],
+
+  "devtools_page": "src/devtools/devtools.html",
+
+  "options_page": "public/options.html",
+
+  "action": {
+    "default_popup": "public/popup.html",
+    "default_icon": {
+      "16":  "public/icons/icon16.png",
+      "48":  "public/icons/icon48.png",
+      "128": "public/icons/icon128.png"
+    }
+  },
+
+  "icons": {
+    "16":  "public/icons/icon16.png",
+    "48":  "public/icons/icon48.png",
+    "128": "public/icons/icon128.png"
+  },
+
+  "web_accessible_resources": [
+    {
+      "resources": ["src/content/injected.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
