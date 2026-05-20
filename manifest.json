@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Sevenda",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Registra sessioni browser e genera diagrammi BPMN 2.0 automaticamente tramite AI.",
 
   "permissions": [
