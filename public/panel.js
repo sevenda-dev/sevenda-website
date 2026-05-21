@@ -270,6 +270,8 @@ function connect() {
   state.port.onMessage.addListener(handleSWMessage);
   state.port.onDisconnect.addListener(() => {
     setConnected(false);
+    // Ferma il keepalive prima di riconnettersi per evitare ping su porta chiusa
+    stopSwKeepalive();
     setTimeout(connect, 2000);
   });
   state.port.postMessage({ type: 'PANEL_INIT', payload: { tabId: state.tabId } });
@@ -277,6 +279,37 @@ function connect() {
   // Carica API key e settings
   state.port.postMessage({ type: 'GET_SETTING', payload: { key: 'anthropic_api_key' } });
   state.port.postMessage({ type: 'GET_SETTING', payload: { key: 'fl_settings' } });
+}
+
+// ─── SW KEEPALIVE ─────────────────────────────────────────────────────────────
+// Chrome termina i service worker inattivi dopo ~30s. Durante una registrazione
+// l'utente potrebbe non compiere azioni per minuti (es. lettura di un documento),
+// causando la terminazione del SW e la perdita dello stato della sessione.
+// Il keepalive invia un PING ogni 20s per mantenere il SW attivo.
+// Viene avviato con la registrazione e fermato allo stop o alla disconnessione.
+let _swKeepaliveInterval = null;
+
+function startSwKeepalive() {
+  // Evita intervalli duplicati se chiamata più volte
+  if (_swKeepaliveInterval) return;
+  _swKeepaliveInterval = setInterval(() => {
+    if (state.port && state.isRecording) {
+      try {
+        // PING leggero — il SW risponde con PONG (ignorato) ma rimane attivo
+        state.port.postMessage({ type: 'PING', payload: { ts: Date.now() } });
+      } catch (e) {
+        // La porta potrebbe essere chiusa durante la riconnessione — ignora silenziosamente
+        console.warn('[FL] Keepalive ping fallito:', e.message);
+      }
+    }
+  }, 20_000); // ogni 20s — abbondante margine rispetto al timeout Chrome di 30s
+}
+
+function stopSwKeepalive() {
+  if (_swKeepaliveInterval) {
+    clearInterval(_swKeepaliveInterval);
+    _swKeepaliveInterval = null;
+  }
 }
 
 function setConnected(ok) {
@@ -314,12 +347,17 @@ function handleSWMessage(msg) {
       setUIRecording(true);
       startTimer();
       switchView('live');
+      // Avvia il keepalive: mantiene il SW attivo durante periodi di inattività
+      // (es. utente non interagisce per minuti), evitando la terminazione dopo 30s
+      startSwKeepalive();
       addSysLog(`Registrazione avviata — ${state.sessionId}`);
       break;
 
     case 'RECORDING_STOPPED':
       state.isRecording = false;
       stopTimer();
+      // Ferma il keepalive: sessione conclusa, il SW può tornare in idle
+      stopSwKeepalive();
       setUIRecording(false);
       el.btnGenerateBpmn.disabled     = state.eventCount === 0;
       el.btnGenerateInsights.disabled = state.eventCount === 0;
@@ -2318,6 +2356,100 @@ function serializeEventsForDoc(events) {
   }).join('\n');
 }
 
+// ─── Toast persistente con bottone "↺ Riprova" ───────────────────────────────
+// Usato per errori della generazione documenti (Step 12) dove un toast
+// temporaneo non è sufficiente — l'utente deve poter riprovare senza
+// navigare via dal tab corrente.
+// Il toast rimane visibile fino al click su "↺ Riprova" o "✕ Chiudi".
+// Un solo toast persistente è visibile alla volta: una nuova chiamata
+// rimuove automaticamente l'eventuale toast precedente.
+function showPersistentErrorToast(msg, onRetry) {
+  // Rimuove eventuali toast persistenti precedenti per evitare sovrapposizioni
+  const existing = document.getElementById('fl-persistent-toast');
+  if (existing) existing.remove();
+
+  // Contenitore del toast — posizionato in fondo al pannello BPMN (o al panel)
+  const toast = document.createElement('div');
+  toast.id = 'fl-persistent-toast';
+  Object.assign(toast.style, {
+    position:     'fixed',
+    bottom:       '72px',      // sopra la context bar
+    left:         '50%',
+    transform:    'translateX(-50%)',
+    background:   '#1a1a1a',
+    color:        '#e5e5e5',
+    borderRadius: '10px',
+    padding:      '12px 16px',
+    display:      'flex',
+    alignItems:   'center',
+    gap:          '12px',
+    boxShadow:    '0 4px 24px rgba(0,0,0,0.35)',
+    minWidth:     '340px',
+    maxWidth:     '480px',
+    border:       '1px solid rgba(255,255,255,0.08)',
+    zIndex:       '9999',
+    fontSize:     '11.5px',
+    lineHeight:   '1.5',
+    animation:    'fl-slide-up 0.25s ease',
+  });
+
+  // Aggiunge l'animazione slideUp se non è già nel documento
+  if (!document.getElementById('fl-toast-style')) {
+    const style = document.createElement('style');
+    style.id = 'fl-toast-style';
+    style.textContent = '@keyframes fl-slide-up { from { opacity:0; transform:translateX(-50%) translateY(8px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }';
+    document.head.appendChild(style);
+  }
+
+  // Messaggio di errore
+  const msgEl = document.createElement('span');
+  msgEl.textContent = '✗ ' + msg;
+  msgEl.style.flex = '1';
+  toast.appendChild(msgEl);
+
+  // Bottone "↺ Riprova" — richiama il callback e chiude il toast
+  const retryBtn = document.createElement('button');
+  retryBtn.textContent = '↺ Riprova';
+  Object.assign(retryBtn.style, {
+    display:      'inline-flex',
+    alignItems:   'center',
+    gap:          '4px',
+    padding:      '6px 12px',
+    borderRadius: '6px',
+    background:   '#7c3aed',
+    color:        '#fff',
+    border:       'none',
+    fontSize:     '11px',
+    fontWeight:   '600',
+    cursor:       'pointer',
+    flexShrink:   '0',
+  });
+  retryBtn.addEventListener('click', function() {
+    toast.remove();   // chiude il toast prima di riprovare
+    if (typeof onRetry === 'function') onRetry();
+  });
+  toast.appendChild(retryBtn);
+
+  // Bottone "✕" per chiudere senza riprovare
+  const closeBtn = document.createElement('button');
+  closeBtn.textContent = '✕';
+  Object.assign(closeBtn.style, {
+    background:  'none',
+    border:      'none',
+    color:       '#666',
+    cursor:      'pointer',
+    fontSize:    '15px',
+    lineHeight:  '1',
+    padding:     '0 2px',
+    flexShrink:  '0',
+  });
+  closeBtn.addEventListener('click', function() { toast.remove(); });
+  toast.appendChild(closeBtn);
+
+  // Inserisce nel body così è visibile indipendentemente dal tab attivo
+  document.body.appendChild(toast);
+}
+
 // ─── DOCUMENTO 1: Analisi Tecnico-Funzionale ─────────────────────────────────
 async function generateBpmnAnalysis() {
   if (!state.currentBpmnXml) { showToast('Nessun BPMN disponibile', 'error'); return; }
@@ -2395,15 +2527,30 @@ async function generateBpmnAnalysis() {
     addSysLog('📄 Documento scaricato: Analisi-Tecnico-Funzionale.docx');
 
   } catch (err) {
+    // Pulisce i timer dei messaggi progressivi se la funzione è ancora in scope
     if (typeof clearWaiters === 'function') clearWaiters();
+
+    // Distingue timeout da errore generico per un messaggio più preciso
     const isAbort = err.name === 'AbortError' || err.message.includes('aborted');
     const msg = isAbort
-      ? '⏱ Timeout: la generazione ha impiegato più di 3 minuti. Riprova.'
+      ? '⏱ Timeout: la generazione ha impiegato più di 3 minuti.'
       : err.message;
-    showToast('✗ ' + msg, 'error');
+
     addSysLog('⚠ Errore Step 12: ' + msg);
     console.error('[FL Doc]', err);
+
+    // Mostra un toast persistente con il bottone "↺ Riprova" sovrapposto al diagramma.
+    // A differenza del toast standard (che sparisce dopo 3s), questo rimane visibile
+    // finché l'utente non interagisce — evita di dover tornare al tab Diagramma
+    // e ricliccare manualmente il bottone "📄 Analisi".
+    showPersistentErrorToast(msg, function onRetry() {
+      // Il retry richiama direttamente generateBpmnAnalysis: tutti i dati
+      // necessari (XML, eventi, contesto) sono già in state — nessun parametro.
+      generateBpmnAnalysis();
+    });
+
   } finally {
+    // Ripristina sempre il bottone nel finally, indipendentemente dall'esito
     if (btn) { btn.textContent = origText || '📄 Analisi'; btn.disabled = false; }
   }
 }

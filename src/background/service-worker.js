@@ -261,6 +261,40 @@ async function ensureDb() {
   await dbReady;
 }
 
+// ─── STATE RECOVERY ──────────────────────────────────────────────────────────
+// Chrome può terminare il service worker dopo ~30s di inattività (nessun evento
+// in ingresso). Al riavvio swState viene azzerato, causando "No active recording"
+// quando il panel tenta di fermare una sessione ancora aperta in IndexedDB.
+// Questa funzione ripristina isRecording e currentSessionId leggendo le sessioni
+// con status='recording' dal DB, in modo che handleStopRecording funzioni
+// correttamente anche dopo un riavvio inaspettato del SW.
+async function recoverSwStateFromDb() {
+  try {
+    await ensureDb();
+    const sessions = await storage.getAllSessions();
+    // Cerca sessioni ancora marcate come 'recording' nel DB
+    const active = sessions.filter(s => s.status === 'recording');
+    if (active.length === 0) return;
+
+    // Prende la sessione più recente in caso ce ne siano più di una
+    // (non dovrebbe accadere, ma è una guardia di sicurezza)
+    const session = active.sort((a,b) => (b.startTime||0) - (a.startTime||0))[0];
+
+    swState.isRecording      = true;
+    swState.currentSessionId = session.id;
+    swState.activeTabId      = session.tabId || null;
+
+    console.log(`[FL SW] State recovered from DB — session: ${session.id}`);
+  } catch (err) {
+    // Non blocca il SW se il recovery fallisce — lo stato rimane azzerato
+    console.warn('[FL SW] State recovery failed:', err.message);
+  }
+}
+
+// Avvia il recovery subito dopo l'inizializzazione del DB.
+// Non attende il completamento per non rallentare l'avvio del SW.
+dbReady.then(() => recoverSwStateFromDb());
+
 // ─── PATCH RETE ───────────────────────────────────────────────────────────────
 // Inietta il patch fetch/XHR nel mondo MAIN tramite chrome.scripting.executeScript,
 // che bypassa la CSP del sito. Viene chiamato quando il content script si connette
@@ -733,7 +767,15 @@ async function handleStartRecording(payload, tabId, port) {
 
 async function handleStopRecording(tabId, port) {
   await ensureDb();
+
+  // Se swState non è sincronizzato (es. SW riavviato da Chrome),
+  // tenta un recovery immediato dal DB prima di rispondere con errore
   if (!swState.isRecording) {
+    await recoverSwStateFromDb();
+  }
+
+  if (!swState.isRecording) {
+    // Recovery fallito — nessuna sessione attiva trovata nel DB
     port.postMessage({ type: 'ERROR', payload: { message: 'No active recording' } });
     return;
   }
