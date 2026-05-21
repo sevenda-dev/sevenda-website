@@ -850,6 +850,12 @@ async function runBpmnGeneration(events, context, sessionMeta) {
       throw new Error(err?.error?.message || `HTTP ${response.status}`);
     }
 
+    // Legge i token rimanenti per calibrare il cooldown adattivo di "📄 Analisi"
+    const tokensRemaining = parseInt(response.headers.get('anthropic-ratelimit-tokens-remaining') || '0', 10);
+    const resetAfterMs    = parseFloat(response.headers.get('anthropic-ratelimit-tokens-reset') || '0') * 1000;
+    state._bpmnTokensRemaining = tokensRemaining;
+    state._bpmnRateLimitReset  = resetAfterMs > 0 ? Date.now() + resetAfterMs + 5000 : 0;
+
     const data   = await response.json();
     const xmlRaw = data.content?.[0]?.text || '';
     const xml    = extractBpmnXml(xmlRaw);
@@ -1505,7 +1511,24 @@ function startDocAnalisiCooldown(btn) {
   if (!btn) return;
   if (btn._cooldownInterval) clearInterval(btn._cooldownInterval);
 
-  var remaining = 30;
+  // Cooldown adattivo basato sui token rimanenti comunicati da Anthropic:
+  //   Livello 1 — header disponibile: usa il reset time effettivo (+5s buffer)
+  //   Livello 2 — token sufficienti (>12k): cooldown breve 20s
+  //   Livello 3 — fallback: 60s se Insights recenti, 45s altrimenti
+  var remaining;
+  var now = Date.now();
+
+  if (state._bpmnRateLimitReset && state._bpmnRateLimitReset > now) {
+    remaining = Math.ceil((state._bpmnRateLimitReset - now) / 1000);
+    remaining = Math.min(remaining, 65);
+  } else if (state._bpmnTokensRemaining > 0 && state._bpmnTokensRemaining >= 12000) {
+    remaining = 20;
+  } else {
+    var insightsRecent = state._insightsTimestamp &&
+      (now - state._insightsTimestamp) < 90_000;
+    remaining = insightsRecent ? 60 : 45;
+  }
+
   btn.disabled    = true;
   btn.textContent = '📄 Analisi (' + remaining + 's)';
 
@@ -2047,6 +2070,7 @@ async function runInsightsAnalysis(events, context, sessionMeta) {
     const data = JSON.parse(jsonStr);
     state.insightsData       = data;
     state._insightsSessionId = currentSessionId;
+    state._insightsTimestamp = Date.now();
     renderInsightsView(data, tracking);
     addSysLog('📊 Insights generati');
     showToast('📊 Insights pronti', 'success');
