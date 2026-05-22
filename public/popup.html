@@ -235,6 +235,77 @@
     }
 
     .devtools-hint strong { color: var(--text); font-weight: 500; }
+
+    /* ── MODE SWITCH ─────────────────────────────────────────────────────── */
+    .mode-row {
+      padding: 8px 13px;
+      border-bottom: 1px solid var(--border-soft);
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .mode-label {
+      font-size: 10.5px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    /* Toggle a due opzioni — simile a un segmented control */
+    .mode-toggle {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 2px;
+      gap: 2px;
+    }
+
+    .mode-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      padding: 5px 0;
+      border-radius: 4px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 11.5px;
+      font-weight: 500;
+      font-family: var(--sans);
+      cursor: pointer;
+      transition: background 0.12s, color 0.12s;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .mode-btn:hover:not(.active) {
+      background: var(--bg-hover);
+      color: var(--text-dim);
+    }
+
+    /* Modalità BPMN attiva — stile neutro/scuro */
+    .mode-btn.active.bpmn {
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    /* Modalità Insights attiva — stile viola */
+    .mode-btn.active.insights {
+      background: rgba(124, 58, 237, 0.15);
+      color: #a78bfa;
+      border: 1px solid rgba(124, 58, 237, 0.3);
+    }
+
+    /* Descrizione contestuale sotto il toggle */
+    .mode-desc {
+      font-size: 10.5px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
   </style>
 </head>
 <body>
@@ -253,6 +324,23 @@
       <div class="dot"></div>
       <span id="statusText">Idle</span>
     </div>
+  </div>
+
+  <!-- MODE SWITCH ─────────────────────────────────────────────────────────── -->
+  <!-- Seleziona la modalità operativa: BPMN (analisti, tester) o Insights      -->
+  <!-- (digital marketer). La scelta persiste in chrome.storage.sync e adatta   -->
+  <!-- dinamicamente la UI del DevTools panel.                                  -->
+  <div class="mode-row">
+    <span class="mode-label">Modalità</span>
+    <div class="mode-toggle">
+      <button class="mode-btn bpmn active" id="modeBpmn" title="Per analisti funzionali e tester — genera diagrammi BPMN 2.0">
+        🧩 BPMN
+      </button>
+      <button class="mode-btn insights" id="modeInsights" title="Per digital marketer — analisi GTM, gap tracking, tag plan">
+        📊 Insights
+      </button>
+    </div>
+    <span class="mode-desc" id="modeDesc">Flussi di processo, errori tecnici, documentazione BPMN.</span>
   </div>
 
   <!-- MENU -->

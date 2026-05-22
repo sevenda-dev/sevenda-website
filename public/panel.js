@@ -441,7 +441,23 @@ function appendEventToLog(event, container) {
   const [row, detailRow] = createEventRow(event);
   const filters = container === el.logBody ? state.liveFilters : state.replayFilters;
   const search  = container === el.logBody ? state.liveSearch  : state.replaySearch;
-  const show = filters[event.source] !== false &&
+
+  // In modalità Insights, filtra gli eventi NET che sono assets statici non
+  // rilevanti per l'analisi del tracking (CSS, JS, font, immagini, favicon).
+  // Il digital marketer non ha bisogno di vedere le chiamate infrastrutturali.
+  let showNet = true;
+  if (state._insightsNetFilter && event.source === 'network') {
+    const url = event.network?.url || '';
+    const isStaticAsset = /\.(css|js|woff2?|ttf|eot|svg|png|jpg|jpeg|gif|ico|webp|map)(\?|$)/i.test(url)
+      || url.includes('/static/')
+      || url.includes('/assets/')
+      || url.includes('/_next/static/')
+      || url.includes('/webpack');
+    if (isStaticAsset) showNet = false;
+  }
+
+  const show = showNet &&
+               filters[event.source] !== false &&
                (!search || getEventMessage(event).toLowerCase().includes(search.toLowerCase()));
   if (!show) row.classList.add('hidden');
 
@@ -2805,6 +2821,121 @@ chrome.storage.onChanged.addListener((changes, area) => {
   if (area === 'sync' && changes.theme) {
     applyTheme(changes.theme.newValue);
   }
+  // Ascolta il cambio modalità dal popup — aggiorna la UI del panel in tempo reale
+  // senza richiedere il reload dell'estensione o la chiusura del DevTools
+  if (area === 'sync' && changes.fl_mode) {
+    applyMode(changes.fl_mode.newValue);
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// MODE SWITCH — applyMode(mode)
+// Adatta dinamicamente la UI del panel in base alla modalità selezionata nel popup.
+//
+// Modalità 'bpmn'     → audience: analisti, tester, developer
+//   • CTA visibile:   bottone BPMN nella context bar
+//   • Toolbar:        Jira, Camunda, Analisi visibili
+//   • Tab BPMN:       XML, Diagramma (Insights nascosto)
+//   • Filtri log:     NAV ✓ UI ✓ NET ✓ ERR ✓ DOM ✓ SYS ✗
+//
+// Modalità 'insights' → audience: digital marketer, web analyst
+//   • CTA visibile:   bottone 📊 Insights nella context bar
+//   • Toolbar:        Jira, Camunda, Analisi nascosti
+//   • Tab BPMN:       solo 📊 Insights visibile
+//   • Filtri log:     NAV ✓ UI ✓ NET ✓ ERR ✓ DOM ✗ SYS ✗
+//   • NET filtrato:   esclude assets statici (CSS, JS, font, immagini)
+// ═══════════════════════════════════════════════════════════════════════════════
+function applyMode(mode) {
+  const isBpmn     = mode !== 'insights';
+  const isInsights = mode === 'insights';
+
+  // ── 1. Context bar: mostra solo il bottone rilevante ─────────────────────
+  // In modalità BPMN: solo il bottone "BPMN" è visibile
+  // In modalità Insights: solo il bottone "📊 Insights" è visibile
+  const btnBpmn     = document.getElementById('btnGenerateBpmn');
+  const btnInsights = document.getElementById('btnGenerateInsights');
+  if (btnBpmn)     btnBpmn.style.display     = isBpmn     ? '' : 'none';
+  if (btnInsights) btnInsights.style.display = isInsights ? '' : 'none';
+
+  // ── 2. Toolbar superiore: Jira, Camunda visibili solo in modalità BPMN ───
+  // Il digital marketer non usa Jira né Camunda — riduciamo il rumore visivo
+  const btnJira    = document.getElementById('btnJira');
+  const btnCamunda = document.getElementById('btnExportCamunda');
+  if (btnJira)    { btnJira.dataset.modeHidden    = isInsights ? '1' : ''; if (isInsights) btnJira.classList.add('hidden'); }
+  if (btnCamunda) { btnCamunda.dataset.modeHidden = isInsights ? '1' : ''; if (isInsights) btnCamunda.classList.add('hidden'); }
+  // Riabilita i bottoni in modalità BPMN solo se erano stati nascosti da applyMode
+  // (non tocca lo stato "hidden" gestito da setJiraButtonVisible)
+  if (isBpmn && state.currentBpmnXml) {
+    if (btnJira    && btnJira.dataset.modeHidden    === '1') { btnJira.classList.remove('hidden');    btnJira.dataset.modeHidden = ''; }
+    if (btnCamunda && btnCamunda.dataset.modeHidden === '1') { btnCamunda.classList.remove('hidden'); btnCamunda.dataset.modeHidden = ''; }
+  }
+
+  // ── 3. Bottone 📄 Analisi: solo in modalità BPMN ─────────────────────────
+  const btnAnalisi = document.getElementById('btnDocAnalisi');
+  if (btnAnalisi) {
+    btnAnalisi.dataset.modeHidden = isInsights ? '1' : '';
+    if (isInsights) btnAnalisi.classList.add('hidden');
+    else if (state.currentBpmnXml) btnAnalisi.classList.remove('hidden');
+  }
+
+  // ── 4. Tab header pannello BPMN ──────────────────────────────────────────
+  // In modalità BPMN:     XML e Diagramma visibili, Insights nascosto
+  // In modalità Insights: solo Insights visibile, XML e Diagramma nascosti
+  const btnViewXml     = document.getElementById('btnViewXml');
+  const btnViewDiagram = document.getElementById('btnViewDiagram');
+  const btnViewIns     = document.getElementById('btnViewInsights');
+  const xmlTools       = document.getElementById('bpmnXmlTools');
+  const diagTools      = document.getElementById('bpmnDiagramTools');
+
+  if (btnViewXml)     btnViewXml.style.display     = isBpmn ? '' : 'none';
+  if (btnViewDiagram) btnViewDiagram.style.display = isBpmn ? '' : 'none';
+  if (xmlTools)       xmlTools.style.display       = (isBpmn && _bpmnView === 'xml')     ? 'flex' : (isBpmn ? '' : 'none');
+  if (diagTools)      diagTools.style.display      = (isBpmn && _bpmnView === 'diagram') ? 'flex' : (isBpmn ? '' : 'none');
+
+  // In modalità Insights mostra sempre il tab Insights se i dati sono disponibili
+  if (btnViewIns) {
+    if (isInsights && state.insightsData) btnViewIns.classList.remove('hidden');
+    else if (isBpmn) btnViewIns.classList.add('hidden');
+  }
+
+  // Se si passa a Insights e c'è già un risultato, porta subito sulla vista Insights
+  if (isInsights && state.insightsData) {
+    showBpmnPanel();
+    setBpmnView('insights');
+  }
+  // Se si passa a BPMN e c'è già un BPMN, porta sulla vista XML
+  if (isBpmn && state.currentBpmnXml && _bpmnView === 'insights') {
+    setBpmnView('xml');
+  }
+
+  // ── 5. Filtri log stream ──────────────────────────────────────────────────
+  // Modalità BPMN:     NAV ✓  UI ✓  NET ✓  ERR ✓  DOM ✓  (SYS sempre ✗)
+  // Modalità Insights: NAV ✓  UI ✓  NET ✓  ERR ✓  DOM ✗  (SYS sempre ✗)
+  // Il filtro DOM viene disattivato in Insights perché le mutazioni DOM
+  // non aggiungono valore all'analisi del tracking marketing
+  state.liveFilters.dom = isBpmn;
+
+  // Aggiorna i chip di filtro visibili nel log stream e riapplica i filtri
+  // alle righe già presenti nel log per effetto immediato senza reload
+  applyFilters(el.logBody, state.liveFilters, state.liveSearch);
+
+  // ── 6. Aggiorna filtro NET per modalità Insights ──────────────────────────
+  // In modalità Insights viene attivato il filtro aggiuntivo sulle chiamate
+  // di rete — esclude assets statici non rilevanti per il tracking GTM/GA4
+  state._insightsNetFilter = isInsights;
+
+  // ── 7. Salva la modalità corrente nello state per uso interno ─────────────
+  // Usato da buildPrompt, buildInsightsPrompt e altri per contestualizzare
+  // la chiamata API in base all'audience attiva
+  state.currentMode = mode || 'bpmn';
+
+  addSysLog('Modalità: ' + (isBpmn ? 'BPMN' : 'Insights'));
+}
+
+// Carica la modalità salvata all'avvio del panel
+// Default: 'bpmn' — modalità più ricca di informazioni tecniche
+chrome.storage.sync.get(['fl_mode'], (data) => {
+  applyMode(data.fl_mode || 'bpmn');
 });
 
 // Avvia

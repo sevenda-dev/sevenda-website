@@ -1,5 +1,45 @@
 // popup.js — Sevenda
 
+// ── MODE SWITCH ───────────────────────────────────────────────────────────────
+// Gestisce il toggle BPMN / Insights nel popup.
+// La modalità viene salvata in chrome.storage.sync (persiste tra sessioni)
+// e comunicata al panel tramite chrome.storage.onChanged.
+
+const MODE_DESCRIPTIONS = {
+  bpmn:     'Flussi di processo, errori tecnici, documentazione BPMN.',
+  insights: 'Comportamento utente, tracking GTM/GA4, tag plan.',
+};
+
+const btnBpmn     = document.getElementById('modeBpmn');
+const btnInsights = document.getElementById('modeInsights');
+const modeDesc    = document.getElementById('modeDesc');
+
+// Applica lo stato visivo del toggle al popup
+function setModeUI(mode) {
+  const isBpmn = mode === 'bpmn';
+  btnBpmn.classList.toggle('active', isBpmn);
+  btnInsights.classList.toggle('active', !isBpmn);
+  modeDesc.textContent = MODE_DESCRIPTIONS[mode] || MODE_DESCRIPTIONS.bpmn;
+}
+
+// Carica la modalità salvata all'apertura del popup
+chrome.storage.sync.get(['fl_mode'], (data) => {
+  setModeUI(data.fl_mode || 'bpmn');
+});
+
+// Gestisce il click su "BPMN"
+btnBpmn.addEventListener('click', () => {
+  setModeUI('bpmn');
+  // Salva in storage — il panel.js ascolta chrome.storage.onChanged e si adatta
+  chrome.storage.sync.set({ fl_mode: 'bpmn' });
+});
+
+// Gestisce il click su "📊 Insights"
+btnInsights.addEventListener('click', () => {
+  setModeUI('insights');
+  chrome.storage.sync.set({ fl_mode: 'insights' });
+});
+
 // ── DEVTOOLS ──────────────────────────────────────────────────────────────────
 // Non è possibile aprire DevTools programmaticamente da un popup.
 // Al click mostriamo un hint inline contestuale invece di chiudere senza feedback.
