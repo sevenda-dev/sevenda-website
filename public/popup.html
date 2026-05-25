@@ -306,9 +306,326 @@
       color: var(--text-muted);
       line-height: 1.5;
     }
+
+    /* ── ONBOARDING ──────────────────────────────────────────────────────── */
+    /* Wrapper che avvolge l'intero corpo del popup durante l'onboarding.     */
+    /* Quando l'onboarding è completato, viene rimosso via JS lasciando       */
+    /* intatta la struttura esistente (status, mode-row, menu, footer).       */
+    .onboarding {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Un singolo step — visibile uno alla volta tramite JS */
+    .ob-step {
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+      padding: 18px 16px 14px;
+    }
+    .ob-step.active { display: flex; }
+
+    /* Titolo dello step */
+    .ob-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    /* Testo descrittivo */
+    .ob-desc {
+      font-size: 11.5px;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+
+    /* Lista di feature nello step Welcome */
+    .ob-features {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .ob-feature {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 9px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      font-size: 11.5px;
+      color: var(--text-dim);
+    }
+
+    /* Card modalità nello step Mode */
+    .ob-mode-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    .ob-mode-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 11px;
+      border-radius: 7px;
+      border: 2px solid var(--border);
+      background: transparent;
+      cursor: pointer;
+      text-align: left;
+      font-family: var(--sans);
+      transition: border-color 0.12s, background 0.12s;
+      width: 100%;
+    }
+    .ob-mode-card:hover { border-color: var(--text-muted); }
+
+    /* Card BPMN selezionata — verde coerente con 🧩 */
+    .ob-mode-card.bpmn.selected {
+      border-color: var(--green);
+      background: rgba(77, 169, 124, 0.10);
+    }
+    /* Card Insights selezionata — viola */
+    .ob-mode-card.insights.selected {
+      border-color: rgba(124, 58, 237, 0.5);
+      background: rgba(124, 58, 237, 0.10);
+    }
+
+    .ob-mode-emoji { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+
+    .ob-mode-info { flex: 1; }
+    .ob-mode-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+    .ob-mode-sub {
+      font-size: 10.5px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Check visibile sulla card selezionata */
+    .ob-mode-check {
+      font-size: 13px;
+      color: var(--green);
+      flex-shrink: 0;
+      opacity: 0;
+      transition: opacity 0.12s;
+    }
+    .ob-mode-card.bpmn.selected     .ob-mode-check { opacity: 1; color: var(--green); }
+    .ob-mode-card.insights.selected .ob-mode-check { opacity: 1; color: #a78bfa; }
+
+    /* Istruzioni DevTools nello step 3 */
+    .ob-steps-list {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    .ob-step-item {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+    .ob-step-num {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+    .ob-step-item kbd {
+      display: inline-block;
+      padding: 0 4px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text);
+    }
+
+    /* Tip contestuale — colore dipende dalla modalità */
+    .ob-tip {
+      padding: 7px 10px;
+      border-radius: 5px;
+      font-size: 10.5px;
+      line-height: 1.5;
+    }
+    .ob-tip.bpmn {
+      background: rgba(77, 169, 124, 0.10);
+      border: 1px solid rgba(77, 169, 124, 0.22);
+      color: var(--green);
+    }
+    .ob-tip.insights {
+      background: rgba(124, 58, 237, 0.12);
+      border: 1px solid rgba(124, 58, 237, 0.25);
+      color: #a78bfa;
+    }
+
+    /* CTA primaria dello step */
+    .ob-cta {
+      width: 100%;
+      padding: 8px;
+      border-radius: 5px;
+      background: var(--text);
+      color: var(--bg);
+      border: none;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: var(--sans);
+      cursor: pointer;
+      transition: opacity 0.12s;
+    }
+    .ob-cta:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    /* Navigazione step: dots + link indietro */
+    .ob-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 16px 10px;
+      border-top: 1px solid var(--border-soft);
+    }
+    .ob-back {
+      font-size: 10.5px;
+      color: var(--text-muted);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: var(--sans);
+      padding: 2px 4px;
+      border-radius: 3px;
+      transition: color 0.08s;
+    }
+    .ob-back:hover { color: var(--text-dim); }
+    .ob-dots {
+      display: flex;
+      gap: 5px;
+    }
+    .ob-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      transition: background 0.15s;
+    }
+    .ob-dot.active { background: var(--text); }
   </style>
 </head>
 <body>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       ONBOARDING — visibile solo al primo avvio (fl_onboarded non impostato).
+       Gestito interamente da popup.js: alla fine dell'onboarding viene nascosto
+       e il corpo esistente del popup viene reso visibile.
+       Non tocca nulla della struttura esistente (status, mode-row, menu, footer).
+  ════════════════════════════════════════════════════════════════════════════ -->
+  <div class="onboarding" id="onboarding">
+
+    <!-- HEADER comune a tutti gli step -->
+    <div class="header">
+      <img class="logo-img" src="icons/icon128.png" alt="Sevenda" />
+      <span class="logo-name">Sevenda</span>
+      <span class="logo-badge">v0.2.0</span>
+    </div>
+
+    <!-- ── STEP 1: Welcome ─────────────────────────────────────────────── -->
+    <div class="ob-step active" id="obStep1">
+      <span class="ob-title">Benvenuto in Sevenda</span>
+      <span class="ob-desc">Registra sessioni browser e genera diagrammi BPMN o analisi GTM in automatico — senza scrivere codice.</span>
+      <div class="ob-features">
+        <div class="ob-feature"><span>⏺</span> Avvia la registrazione con un click</div>
+        <div class="ob-feature"><span>👁</span> Osserva gli eventi in tempo reale</div>
+        <div class="ob-feature"><span>✦</span> Genera BPMN o Insights con AI</div>
+      </div>
+      <button class="ob-cta" id="obStep1Cta">Inizia →</button>
+    </div>
+
+    <!-- ── STEP 2: Scelta modalità ─────────────────────────────────────── -->
+    <div class="ob-step" id="obStep2">
+      <span class="ob-title">Scegli la tua modalità</span>
+      <span class="ob-desc">Puoi cambiarla in qualsiasi momento dal popup.</span>
+      <div class="ob-mode-cards">
+
+        <!-- Card BPMN — bordo e check verdi quando selezionata -->
+        <button class="ob-mode-card bpmn" id="obCardBpmn">
+          <span class="ob-mode-emoji">🧩</span>
+          <div class="ob-mode-info">
+            <div class="ob-mode-name">BPMN</div>
+            <div class="ob-mode-sub">Per analisti, tester e sviluppatori. Diagrammi di processo, documentazione, Jira e Camunda.</div>
+          </div>
+          <span class="ob-mode-check">✓</span>
+        </button>
+
+        <!-- Card Insights — bordo e check viola quando selezionata -->
+        <button class="ob-mode-card insights" id="obCardInsights">
+          <span class="ob-mode-emoji">📊</span>
+          <div class="ob-mode-info">
+            <div class="ob-mode-name">Insights</div>
+            <div class="ob-mode-sub">Per digital marketer e web analyst. Analisi GTM/GA4, gap tracking, tag plan.</div>
+          </div>
+          <span class="ob-mode-check">✓</span>
+        </button>
+
+      </div>
+      <!-- CTA disabilitata fino a selezione -->
+      <button class="ob-cta" id="obStep2Cta" disabled>Continua →</button>
+    </div>
+
+    <!-- ── STEP 3: Istruzioni DevTools ────────────────────────────────── -->
+    <div class="ob-step" id="obStep3">
+      <span class="ob-title">Apri il pannello Sevenda</span>
+      <div class="ob-steps-list">
+        <div class="ob-step-item">
+          <div class="ob-step-num">1</div>
+          <span>Premi <kbd>F12</kbd> per aprire DevTools</span>
+        </div>
+        <div class="ob-step-item">
+          <div class="ob-step-num">2</div>
+          <span>Clicca il tab <kbd>Sevenda</kbd> nella barra in alto</span>
+        </div>
+        <div class="ob-step-item">
+          <div class="ob-step-num">3</div>
+          <!-- Il testo cambia dinamicamente in base alla modalità scelta -->
+          <span id="obStep3Action">Visualizza gli eventi e genera <kbd>BPMN</kbd></span>
+        </div>
+      </div>
+      <!-- Tip contestuale — classe e testo aggiornati da JS in base alla modalità -->
+      <div class="ob-tip bpmn" id="obTip">
+        💡 In modalità BPMN vedi tutti gli eventi inclusi DOM ed ERR — utile per analisi tecniche.
+      </div>
+      <button class="ob-cta" id="obStep3Cta">Inizia a registrare</button>
+    </div>
+
+    <!-- Navigazione: dots + link indietro -->
+    <div class="ob-nav">
+      <!-- "← Indietro" nascosto al primo step -->
+      <button class="ob-back" id="obBack" style="visibility:hidden">← Indietro</button>
+      <div class="ob-dots">
+        <div class="ob-dot active" id="obDot1"></div>
+        <div class="ob-dot"        id="obDot2"></div>
+        <div class="ob-dot"        id="obDot3"></div>
+      </div>
+      <!-- Placeholder per allineamento flex -->
+      <div style="width:52px"></div>
+    </div>
+
+  </div><!-- /onboarding -->
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       CORPO ESISTENTE — nascosto durante l'onboarding, visibile dopo.
+       Nessuna modifica alla struttura interna.
+  ════════════════════════════════════════════════════════════════════════════ -->
+  <div id="mainBody" style="display:none">
 
   <!-- HEADER -->
   <div class="header">
@@ -376,6 +693,8 @@
     <span class="footer-text">Sevenda</span>
     <button class="footer-btn" id="btnAbout">Supporto</button>
   </div>
+
+  </div><!-- /mainBody -->
 
   <script src="popup.js"></script>
 </body>
