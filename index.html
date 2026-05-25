@@ -665,7 +665,8 @@
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(13,13,13,.97);
+      background: #0d0d0d;
+      opacity: 1;
       z-index: 100;
       flex-direction: column;
       align-items: center;
@@ -676,12 +677,17 @@
     .nav-drawer a {
       font-size: 24px;
       font-weight: 600;
-      color: var(--text);
+      color: #ffffff;
       text-decoration: none;
       letter-spacing: -.02em;
     }
     .nav-drawer a:hover { color: #fff; }
-    .nav-drawer .drawer-cta { margin-top: 8px; }
+    .nav-drawer .drawer-cta {
+      margin-top: 8px;
+      background: #ffffff;
+      color: #000000;
+      font-weight: 600;
+    }
 
     /* ── CTA FOOTER ──────────────────────────────────────────── */
     #cta-foot {
