@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sevenda — Documentation</title>
+  <meta name="description" content="Complete Sevenda documentation — installation, event capture, BPMN generation and insights.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=Geist+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0d0d0d; --surface: #131313; --surface-up: #1a1a1a;
+      --border: rgba(255,255,255,0.07); --border-hi: rgba(255,255,255,0.13);
+      --text: #e8e8e6; --muted: #6e6e6a; --dim: #3a3a36;
+      --green: #6BB89A; --blue: #7aafd4; --amber: #c8a064; --red: #dc5858; --purple: #a78bfa;
+      --sans: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+      --mono: 'Geist Mono', 'Fira Code', monospace;
+      --max: 1120px; --r: 6px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; overflow-x: hidden; }
+    body { background: var(--bg); color: var(--text); font-family: var(--sans); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+    body::before { content:''; position:fixed; inset:0; background-image: linear-gradient(rgba(255,255,255,0.024) 1px,transparent 1px), linear-gradient(90deg,rgba(255,255,255,0.024) 1px,transparent 1px); background-size:44px 44px; pointer-events:none; z-index:0; }
+    body::after { content:''; position:fixed; inset:0; background:radial-gradient(ellipse 100% 60% at 50% 0%,transparent 30%,rgba(13,13,13,0.7) 100%); pointer-events:none; z-index:0; }
+    a { color:inherit; text-decoration:none; }
+
+    /* ── NAV ─────────────────────────────────────────────────── */
+    nav { position:sticky; top:0; z-index:100; height:58px; padding:0 28px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid transparent; transition:background .25s,border-color .25s,backdrop-filter .25s; }
+    nav.scrolled { background:rgba(13,13,13,.88); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); border-color:var(--border); }
+    .nav-logo { display:flex; align-items:center; gap:9px; font-weight:600; font-size:15px; letter-spacing:-.02em; }
+    .logo-svg { width:26px; height:19px; flex-shrink:0; }
+    .nav-links { display:flex; align-items:center; gap:28px; list-style:none; }
+    .nav-links a { font-size:14px; color:var(--muted); transition:color .15s; }
+    .nav-links a:hover { color:var(--text); }
+    .nav-links a.active { color:var(--text); }
+
+    /* ── BUTTONS ─────────────────────────────────────────────── */
+    .btn { display:inline-flex; align-items:center; gap:6px; font-family:var(--sans); font-weight:500; border-radius:var(--r); border:1px solid transparent; cursor:pointer; transition:all .15s; white-space:nowrap; line-height:1; }
+    .btn-primary { background:#fff; color:#0d0d0d; border-color:#fff; padding:9px 17px; font-size:14px; }
+    .btn-primary:hover { background:#e0e0de; box-shadow:0 0 0 3px rgba(255,255,255,.1); }
+
+    /* ── HAMBURGER ───────────────────────────────────────────── */
+    .nav-burger { display:none; background:none; border:none; cursor:pointer; padding:6px; flex-direction:column; gap:5px; z-index:110; }
+    .nav-burger span { display:block; width:22px; height:1.5px; background:var(--text); border-radius:2px; transition:transform .25s,opacity .25s; }
+    .nav-burger.open span:nth-child(1) { transform:translateY(6.5px) rotate(45deg); }
+    .nav-burger.open span:nth-child(2) { opacity:0; }
+    .nav-burger.open span:nth-child(3) { transform:translateY(-6.5px) rotate(-45deg); }
+
+    /* ── DRAWER ──────────────────────────────────────────────── */
+    .nav-drawer { display:none; position:fixed; inset:0; background:#0d0d0d; z-index:100; flex-direction:column; align-items:center; justify-content:center; gap:36px; }
+    .nav-drawer.open { display:flex; }
+    .nav-drawer a { font-size:24px; font-weight:600; color:#ffffff; text-decoration:none; letter-spacing:-.02em; }
+    .nav-drawer a:hover { color:#fff; }
+    .nav-drawer .drawer-cta { margin-top:8px; background:#ffffff; color:#000000; font-weight:600; }
+
+    /* ── WRAP ────────────────────────────────────────────────── */
+    .wrap { position:relative; z-index:1; max-width:var(--max); margin:0 auto; padding:0 28px; }
+
+    /* ── HERO ────────────────────────────────────────────────── */
+    #hero { position:relative; z-index:1; padding:80px 28px 60px; text-align:center; }
+    #hero::before { content:''; position:absolute; top:0; left:50%; transform:translateX(-50%); width:min(600px,100%); height:400px; background:radial-gradient(ellipse at 50% 20%,rgba(107,184,154,.06) 0%,transparent 70%); pointer-events:none; }
+    .pill { display:inline-flex; align-items:center; gap:8px; font-family:var(--mono); font-size:11.5px; color:var(--muted); border:1px solid var(--border-hi); border-radius:100px; padding:5px 13px 5px 10px; margin-bottom:28px; }
+    .pill-dot { width:6px; height:6px; border-radius:50%; background:var(--green); flex-shrink:0; animation:blink 2.2s ease infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.25} }
+    h1 { font-size:clamp(42px,6vw,72px); font-weight:800; letter-spacing:-.045em; line-height:1.0; max-width:700px; margin:0 auto 20px; }
+    .hero-sub { font-size:clamp(15px,1.8vw,17px); color:var(--muted); max-width:520px; margin:0 auto 40px; line-height:1.65; }
+    .hero-meta { display:flex; align-items:center; justify-content:center; gap:20px; flex-wrap:wrap; font-family:var(--mono); font-size:11px; color:var(--dim); margin-bottom:48px; }
+
+    /* ── SECTION ─────────────────────────────────────────────── */
+    .sh { text-align:center; margin-bottom:52px; }
+    .sh-eyebrow { font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--green); margin-bottom:12px; display:block; }
+    .sh h2 { font-size:clamp(26px,4vw,38px); font-weight:700; letter-spacing:-.03em; line-height:1.15; margin-bottom:14px; }
+    .sh p { font-size:16px; color:var(--muted); max-width:500px; margin:0 auto; line-height:1.65; }
+    .section { padding:80px 0; position:relative; z-index:1; }
+    .section + .section { border-top:1px solid var(--border); }
+
+    /* ── STEPS ───────────────────────────────────────────────── */
+    .steps { display:flex; flex-direction:column; }
+    .step { display:grid; grid-template-columns:52px 1fr; gap:20px; padding-bottom:36px; }
+    .step:last-child { padding-bottom:0; }
+    .step-col { display:flex; flex-direction:column; align-items:center; }
+    .step-n { width:34px; height:34px; border-radius:50%; border:1px solid var(--border-hi); background:var(--surface); display:flex; align-items:center; justify-content:center; font-family:var(--mono); font-size:11px; color:var(--muted); flex-shrink:0; }
+    .step-line { width:1px; flex:1; margin-top:8px; background:linear-gradient(to bottom,var(--border-hi),transparent); }
+    .step:last-child .step-line { display:none; }
+    .step-body { padding-top:5px; }
+    .step-h { font-size:16px; font-weight:600; letter-spacing:-.02em; margin-bottom:7px; }
+    .step-p { font-size:14px; color:var(--muted); line-height:1.65; }
+
+    /* ── CARDS ───────────────────────────────────────────────── */
+    .cgrid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); background:var(--border); gap:1px; border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+    .ccard { background:var(--bg); padding:30px 26px; transition:background .2s; display:flex; flex-direction:column; }
+    .ccard:hover { background:var(--surface); }
+    .ccard-icon { font-size:22px; margin-bottom:14px; display:block; }
+    .ccard-title { font-size:15px; font-weight:600; letter-spacing:-.02em; margin-bottom:8px; }
+    .ccard-desc { font-size:13.5px; color:var(--muted); line-height:1.65; flex:1; }
+    .ccard-link { display:inline-block; margin-top:18px; font-size:13px; color:var(--text); font-weight:500; transition:opacity .15s; }
+    .ccard-link:hover { opacity:.7; }
+
+    /* ── TAGS ────────────────────────────────────────────────── */
+    .tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; }
+    .tag { font-family:var(--mono); font-size:10px; padding:3px 8px; border-radius:3px; color:var(--dim); border:1px solid var(--border); }
+    .tag.green { color:var(--green); border-color:rgba(107,184,154,.25); background:rgba(107,184,154,.06); }
+    .tag.blue  { color:var(--blue);  border-color:rgba(122,175,212,.25); background:rgba(122,175,212,.06); }
+    .tag.amber { color:var(--amber); border-color:rgba(200,160,100,.25); background:rgba(200,160,100,.06); }
+    .tag.red   { color:var(--red);   border-color:rgba(220,88,88,.25);   background:rgba(220,88,88,.06); }
+    .tag.purple{ color:var(--purple);border-color:rgba(167,139,250,.25); background:rgba(167,139,250,.06); }
+
+    /* ── MOCKUP ──────────────────────────────────────────────── */
+    .mockup { background:#111; border:1px solid var(--border-hi); border-radius:10px; overflow:hidden; box-shadow:0 0 0 1px rgba(255,255,255,.04),0 24px 60px rgba(0,0,0,.7); }
+    .mkbar { display:flex; align-items:center; gap:10px; padding:8px 14px; background:#161616; border-bottom:1px solid var(--border); }
+    .mkdot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+    .mkdot.r{background:#dc5858;} .mkdot.y{background:#c8a064;} .mkdot.g{background:#6BB89A;}
+    .mktitle { font-family:var(--mono); font-size:11px; color:var(--muted); margin:0 auto; }
+    .mkbody { padding:18px 20px; font-family:var(--mono); font-size:12px; line-height:1.7; }
+    .log-row { display:flex; align-items:center; gap:10px; padding:4px 0; border-bottom:1px solid rgba(255,255,255,.03); }
+    .log-time { font-size:10px; color:var(--dim); flex-shrink:0; width:72px; }
+    .log-badge { font-family:var(--mono); font-size:9px; font-weight:500; padding:2px 6px; border-radius:3px; flex-shrink:0; }
+    .log-badge.nav{background:rgba(122,175,212,.15);color:var(--blue);}
+    .log-badge.ui{background:rgba(107,184,154,.15);color:var(--green);}
+    .log-badge.net{background:rgba(200,160,100,.15);color:var(--amber);}
+    .log-badge.err{background:rgba(220,88,88,.15);color:var(--red);}
+    .log-msg { font-size:11px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+    /* ── POPUP PREVIEW ───────────────────────────────────────── */
+    .popup-preview { width:258px; max-width:100%; background:#191919; border:1px solid rgba(255,255,255,0.1); border-radius:10px; overflow:hidden; box-shadow:0 24px 60px rgba(0,0,0,.7); font-family:var(--sans); font-size:13px; }
+    .pp-header { display:flex; align-items:center; gap:8px; padding:12px 13px 10px; border-bottom:1px solid rgba(255,255,255,.07); }
+    .pp-logo { font-size:15px; font-weight:600; flex:1; }
+    .pp-badge { font-family:var(--mono); font-size:10px; color:#5a5a5a; background:#2f2f2f; border:1px solid #333; padding:1px 6px; border-radius:3px; }
+    .pp-status { display:flex; align-items:center; justify-content:space-between; padding:7px 13px; border-bottom:1px solid rgba(255,255,255,.04); }
+    .pp-status-label { font-size:11.5px; color:#5a5a5a; }
+    .pp-pill { display:flex; align-items:center; gap:5px; font-size:11px; font-weight:500; padding:2px 7px; border-radius:20px; background:#2f2f2f; color:#5a5a5a; }
+    .pp-pill .dot { width:5px; height:5px; border-radius:50%; background:currentColor; }
+    .pp-mode-row { padding:8px 13px; border-bottom:1px solid rgba(255,255,255,.04); }
+    .pp-mode-label { font-size:10px; color:#5a5a5a; text-transform:uppercase; letter-spacing:.06em; margin-bottom:6px; }
+    .pp-toggle { display:grid; grid-template-columns:1fr 1fr; background:#2f2f2f; border:1px solid #333; border-radius:6px; padding:2px; gap:2px; }
+    .pp-btn { padding:5px 0; border-radius:4px; border:none; font-size:11.5px; font-weight:500; cursor:pointer; background:transparent; color:#5a5a5a; font-family:var(--sans); }
+    .pp-btn.active.bpmn { background:#0d0d0d; color:#e8e8e6; border:1px solid #333; }
+    .pp-btn.active.insights { background:rgba(124,58,237,.15); color:#a78bfa; border:1px solid rgba(124,58,237,.3); }
+    .pp-mode-desc { font-size:10.5px; color:#5a5a5a; margin-top:5px; line-height:1.5; }
+    .pp-menu { padding:5px 5px 4px; }
+    .pp-item { display:flex; align-items:center; gap:8px; padding:6px 9px; border-radius:5px; font-size:13px; cursor:pointer; transition:background .08s; }
+    .pp-item:hover { background:#252525; }
+    .pp-icon { width:20px; height:20px; border-radius:4px; background:#2f2f2f; border:1px solid #333; display:flex; align-items:center; justify-content:center; font-size:11px; flex-shrink:0; color:#a0a0a0; }
+    .pp-item.cta .pp-icon { background:rgba(224,85,85,.14); border-color:rgba(224,85,85,.22); color:#e05555; }
+
+    /* ── ALERTS ──────────────────────────────────────────────── */
+    .alert { display:flex; gap:12px; padding:14px 16px; border-radius:var(--r); border:1px solid; margin:16px 0; font-size:13.5px; line-height:1.6; }
+    .alert-icon { flex-shrink:0; font-size:15px; margin-top:1px; }
+    .alert.tip  { border-color:rgba(107,184,154,.25); background:rgba(107,184,154,.06); color:var(--text); }
+    .alert.info { border-color:rgba(122,175,212,.25); background:rgba(122,175,212,.06); color:var(--text); }
+    .alert.warn { border-color:rgba(200,160,100,.25); background:rgba(200,160,100,.06); color:var(--text); }
+
+    /* ── TABLES ──────────────────────────────────────────────── */
+    .tbl { width:100%; border-collapse:collapse; font-size:13.5px; }
+    .tbl th { text-align:left; font-size:11px; font-family:var(--mono); letter-spacing:.06em; text-transform:uppercase; color:var(--muted); padding:8px 14px; border-bottom:1px solid var(--border-hi); }
+    .tbl td { padding:10px 14px; border-bottom:1px solid var(--border); vertical-align:top; line-height:1.5; }
+    .tbl tr:last-child td { border-bottom:none; }
+    .tbl td:first-child { font-family:var(--mono); font-size:12px; white-space:nowrap; }
+    .tbl-wrap { background:var(--surface); border:1px solid var(--border-hi); border-radius:8px; overflow:hidden; margin:16px 0; }
+    code { font-family:var(--mono); font-size:.85em; background:var(--surface-up); border:1px solid var(--border); padding:1px 5px; border-radius:3px; color:var(--text); }
+
+    /* ── TOC ─────────────────────────────────────────────────── */
+    .toc { background:var(--surface); border:1px solid var(--border-hi); border-radius:10px; padding:28px 32px; }
+    .toc-title { font-size:12px; font-family:var(--mono); letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-bottom:16px; }
+    .toc-list { list-style:none; display:flex; flex-direction:column; gap:6px; }
+    .toc-list a { font-size:13.5px; color:var(--muted); transition:color .12s; display:flex; align-items:center; gap:8px; }
+    .toc-list a:hover { color:var(--text); }
+    .toc-num { font-family:var(--mono); font-size:11px; color:var(--dim); width:20px; flex-shrink:0; }
+
+    /* ── MODE CARDS ──────────────────────────────────────────── */
+    .mode-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:24px; }
+    .mode-card { background:var(--surface); border:1px solid var(--border-hi); border-radius:10px; padding:24px; }
+    .mode-card.bpmn    { border-top:2px solid var(--green); }
+    .mode-card.insights{ border-top:2px solid var(--purple); }
+    .mode-card-title { font-size:16px; font-weight:700; letter-spacing:-.02em; margin-bottom:4px; }
+    .mode-card-sub   { font-size:12px; color:var(--muted); margin-bottom:16px; font-family:var(--mono); }
+    .mode-list { list-style:none; display:flex; flex-direction:column; gap:7px; }
+    .mode-list li { font-size:13px; color:var(--muted); display:flex; align-items:baseline; gap:8px; line-height:1.4; }
+    .mode-list li.on { color:var(--text); }
+    .chk { font-size:11px; flex-shrink:0; }
+    .chk.y { color:var(--green); } .chk.n { color:var(--dim); }
+
+    /* ── CHIPS ───────────────────────────────────────────────── */
+    .chips { display:flex; gap:6px; flex-wrap:wrap; margin:12px 0; }
+    .chip { font-family:var(--mono); font-size:10px; font-weight:500; padding:4px 10px; border-radius:4px; border:1px solid; }
+    .chip.nav{background:rgba(122,175,212,.1);color:var(--blue);border-color:rgba(122,175,212,.25);}
+    .chip.ui{background:rgba(107,184,154,.1);color:var(--green);border-color:rgba(107,184,154,.25);}
+    .chip.net{background:rgba(200,160,100,.1);color:var(--amber);border-color:rgba(200,160,100,.25);}
+    .chip.err{background:rgba(220,88,88,.1);color:var(--red);border-color:rgba(220,88,88,.25);}
+    .chip.dom{background:rgba(200,160,100,.07);color:var(--amber);border-color:rgba(200,160,100,.2);}
+    .chip.off{background:transparent;color:var(--dim);border-color:var(--dim);opacity:.5;}
+
+    /* ── FAQ ─────────────────────────────────────────────────── */
+    .faq { display:flex; flex-direction:column; gap:1px; border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+    .faq-item { background:var(--surface); padding:20px 24px; }
+    .faq-item + .faq-item { border-top:1px solid var(--border); }
+    .faq-q { font-size:14.5px; font-weight:600; margin-bottom:10px; }
+    .faq-a { font-size:13.5px; color:var(--muted); line-height:1.65; }
+
+    /* ── FOOTER ──────────────────────────────────────────────── */
+    footer { position:relative; z-index:1; border-top:1px solid var(--border); padding:40px 24px; }
+    .foot-in { max-width:var(--max); margin:0 auto; display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:24px; }
+    .foot-brand { display:flex; align-items:center; gap:10px; }
+    .foot-brand .logo-svg { width:22px; height:16px; }
+    .foot-brand-name { font-weight:600; font-size:15px; color:var(--text); letter-spacing:-.02em; }
+    .foot-brand-ver { font-family:var(--mono); font-size:11px; color:var(--dim); margin-left:2px; }
+    .foot-links { display:flex; gap:28px; list-style:none; padding:0; margin:0; }
+    .foot-links a { font-size:13px; color:var(--muted); text-decoration:none; transition:color .15s; }
+    .foot-links a:hover { color:var(--text); }
+    .foot-copy { font-size:12px; color:var(--dim); text-align:right; font-family:var(--mono); }
+
+    /* ── ANIMATIONS ──────────────────────────────────────────── */
+    @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+    .fade { animation:fadeUp .5s ease both; }
+    .reveal { opacity:0; transform:translateY(18px); transition:opacity .55s ease, transform .55s ease; }
+    .reveal.vis { opacity:1; transform:translateY(0); }
+
+    /* ── RESPONSIVE ──────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      section, nav, footer { width:100%; max-width:100%; }
+      .wrap { padding:0 20px; width:100%; }
+      .nav-links, nav > .btn { display:none; }
+      .nav-burger { display:flex; }
+
+      #hero { padding:60px 20px 40px; }
+      h1 { font-size:clamp(2rem,8vw,4.5rem); }
+      .hero-meta { flex-direction:column; gap:8px; }
+
+      .toc { padding:20px 18px; }
+      .toc-list[style] { columns:1 !important; }
+
+      .mode-grid { grid-template-columns:1fr; }
+      .cgrid { grid-template-columns:1fr; }
+
+      /* collapse any 2-col inline grids */
+      div[style*="grid-template-columns:1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+        gap: 24px !important;
+      }
+
+      .tbl-wrap { overflow-x:auto; }
+
+      .foot-in { grid-template-columns:1fr; text-align:center; gap:20px; }
+      .foot-brand { justify-content:center; }
+      .foot-links { justify-content:center; flex-wrap:wrap; gap:20px; }
+      .foot-copy { text-align:center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAV ──────────────────────────────────────────────────── -->
+<nav id="nav">
+  <a href="/" class="nav-logo">
+    <svg class="logo-svg" viewBox="0 0 28 20" fill="none">
+      <path d="M2,3.5 Q8,1 14,3.5 Q20,6 26,3.5"  stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
+      <path d="M2,8.5 Q8,6 14,8.5 Q20,11 26,8.5" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
+      <path d="M2,13.5 Q8,11 14,13.5 Q20,16 26,13.5" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
+      <path d="M2,18.5 Q8,16 14,18.5 Q20,21 26,18.5" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
+    </svg>
+    Sevenda
+  </a>
+
+  <ul class="nav-links">
+    <li><a href="/#features">Features</a></li>
+    <li><a href="/#insights">Insights</a></li>
+    <li><a href="/#how">How it works</a></li>
+    <li><a href="/#pricing">Pricing</a></li>
+    <li><a href="/docs.html" class="active">Docs</a></li>
+  </ul>
+
+  <a href="#" class="btn btn-primary">Add to Chrome</a>
+
+  <button class="nav-burger" id="burger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- Mobile drawer -->
+<div class="nav-drawer" id="drawer">
+  <a href="/#features" class="drawer-link">Features</a>
+  <a href="/#insights" class="drawer-link">Insights</a>
+  <a href="/#how" class="drawer-link">How it works</a>
+  <a href="/#pricing" class="drawer-link">Pricing</a>
+  <a href="/docs.html" class="drawer-link">Docs</a>
+  <a href="#" class="btn btn-primary drawer-cta">Add to Chrome</a>
+</div>
+
+<!-- ── HERO ─────────────────────────────────────────────────── -->
+<section id="hero">
+  <div class="pill fade"><div class="pill-dot"></div>User Manual · Version 0.2.0</div>
+  <h1 class="fade">Sevenda<br>User Manual</h1>
+  <p class="hero-sub fade">Complete guide to the Chrome extension that records browser sessions and generates BPMN 2.0 diagrams and GTM analysis using AI.</p>
+  <div class="hero-meta fade">
+    <span>🇬🇧 English</span><span>·</span><span>18 sections</span><span>·</span><span>Chrome Extension MV3</span>
+  </div>
+  <div class="wrap">
+    <div class="toc fade">
+      <div class="toc-title">Table of contents</div>
+      <ul class="toc-list" style="columns:2;gap:32px;">
+        <li><a href="#intro"><span class="toc-num">01</span>Introduction</a></li>
+        <li><a href="#quickstart"><span class="toc-num">02</span>Installation</a></li>
+        <li><a href="#popup"><span class="toc-num">03</span>The Popup</a></li>
+        <li><a href="#onboarding"><span class="toc-num">04</span>Guided Onboarding</a></li>
+        <li><a href="#modes"><span class="toc-num">05</span>Operating Modes</a></li>
+        <li><a href="#panel"><span class="toc-num">06</span>The DevTools Panel</a></li>
+        <li><a href="#events"><span class="toc-num">07</span>Recording</a></li>
+        <li><a href="#log"><span class="toc-num">08</span>Event Stream</a></li>
+        <li><a href="#bpmn"><span class="toc-num">09</span>BPMN Generation</a></li>
+        <li><a href="#bpmn-panel"><span class="toc-num">10</span>BPMN Panel</a></li>
+        <li><a href="#feedback"><span class="toc-num">11</span>Iterative Feedback</a></li>
+        <li><a href="#insights"><span class="toc-num">12</span>Insights Generation</a></li>
+        <li><a href="#docs"><span class="toc-num">13</span>Documentation</a></li>
+        <li><a href="#sessions"><span class="toc-num">14</span>Session Management</a></li>
+        <li><a href="#jira"><span class="toc-num">15</span>Jira Integration</a></li>
+        <li><a href="#camunda"><span class="toc-num">16</span>Camunda Export</a></li>
+        <li><a href="#settings"><span class="toc-num">17</span>Settings</a></li>
+        <li><a href="#faq"><span class="toc-num">18</span>FAQ</a></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 01 INTRODUCTION -->
+<section class="section" id="intro">
+  <div class="wrap">
+    <div class="sh">
+      <span class="sh-eyebrow">01 — Introduction</span>
+      <h2>What Sevenda does</h2>
+      <p>Automatically captures browser events and transforms them into AI outputs — without touching the target application code.</p>
+    </div>
+    <div class="cgrid">
+      <div class="ccard"><span class="ccard-icon">🧩</span><div class="ccard-title">Automatic BPMN 2.0</div><div class="ccard-desc">Generates standard process diagrams from real sessions. Refinable in natural language.</div></div>
+      <div class="ccard"><span class="ccard-icon">📊</span><div class="ccard-title">GTM/GA4 Insights</div><div class="ccard-desc">Tracking analysis, gap identification, exportable tag plan in JSON for your marketing team.</div></div>
+      <div class="ccard"><span class="ccard-icon">📄</span><div class="ccard-title">AI Documentation</div><div class="ccard-desc">Generate enterprise Word documents from technical-functional analysis to Analytics Report.</div></div>
+      <div class="ccard"><span class="ccard-icon">🔗</span><div class="ccard-title">Integrations</div><div class="ccard-desc">Create Jira issues with attached BPMN. Export to Camunda Modeler. Share with your team.</div></div>
+    </div>
+    <div style="margin-top:40px">
+      <div class="sh-eyebrow" style="text-align:center;margin-bottom:20px">Who it's for</div>
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <thead><tr><th>Profile</th><th>Primary use case</th><th>Recommended mode</th></tr></thead>
+          <tbody>
+            <tr><td>Business Analyst</td><td>AS-IS process documentation, BPMN generation</td><td><span class="tag green">🧩 BPMN</span></td></tr>
+            <tr><td>Tester / QA</td><td>Bug reproduction, test flow mapping</td><td><span class="tag green">🧩 BPMN</span></td></tr>
+            <tr><td>Developer</td><td>Application flow debugging, API analysis</td><td><span class="tag green">🧩 BPMN</span></td></tr>
+            <tr><td>Digital Marketer</td><td>GTM/GA4 tracking analysis, gap identification</td><td><span class="tag purple">📊 Insights</span></td></tr>
+            <tr><td>Web Analyst</td><td>Tag plan, analytics implementation verification</td><td><span class="tag purple">📊 Insights</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 02 INSTALLATION -->
+<section class="section" id="quickstart">
+  <div class="wrap">
+    <div class="sh">
+      <span class="sh-eyebrow">02 — Installation</span>
+      <h2>Installing Sevenda</h2>
+      <p>Install from an unpacked folder in under 2 minutes.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start;">
+      <div class="steps">
+        <div class="step"><div class="step-col"><div class="step-n">1</div><div class="step-line"></div></div><div class="step-body"><div class="step-h">Open extensions page</div><div class="step-p">Navigate to <code>chrome://extensions/</code> in your browser.</div></div></div>
+        <div class="step"><div class="step-col"><div class="step-n">2</div><div class="step-line"></div></div><div class="step-body"><div class="step-h">Enable Developer mode</div><div class="step-p">Toggle in the top right — it should turn green.</div></div></div>
+        <div class="step"><div class="step-col"><div class="step-n">3</div><div class="step-line"></div></div><div class="step-body"><div class="step-h">Load unpacked extension</div><div class="step-p">Click the button and select the root folder of the Sevenda project.</div></div></div>
+        <div class="step"><div class="step-col"><div class="step-n">4</div></div><div class="step-body"><div class="step-h">Icon in the toolbar</div><div class="step-p">The <strong>≋</strong> icon appears in the Chrome toolbar. Installation complete.</div><div class="tags"><span class="tag green">✓ Ready</span></div></div></div>
+      </div>
+      <div>
+        <div class="mockup">
+          <div class="mkbar"><div class="mkdot r"></div><div class="mkdot y"></div><div class="mkdot g"></div><div class="mktitle">chrome://extensions/</div></div>
+          <div class="mkbody" style="color:var(--muted)">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;"><span style="color:var(--text);font-size:14px;font-family:var(--sans);font-weight:600;">Extensions</span><span style="color:var(--green);font-size:11px;">● Developer mode active</span></div>
+            <div style="background:var(--surface);border:1px solid var(--border-hi);border-radius:8px;padding:16px;display:flex;align-items:center;gap:14px;">
+              <div style="width:36px;height:36px;background:#1a1a1a;border:1px solid var(--border);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:18px;">≋</div>
+              <div><div style="color:var(--text);font-family:var(--sans);font-size:13px;font-weight:600;margin-bottom:2px;">Sevenda <span style="color:var(--muted);font-size:11px;font-family:var(--mono);">0.2.0</span></div><div style="font-size:11px;color:var(--muted);">Records browser sessions and generates BPMN 2.0</div></div>
+              <div style="margin-left:auto;color:var(--green);font-size:18px;">●</div>
+            </div>
+          </div>
+        </div>
+        <div class="alert tip" style="margin-top:16px"><span class="alert-icon">💡</span><div>After installation, configure the Anthropic API key in Settings. Without a key, AI generation is unavailable.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 03 POPUP -->
+<section class="section" id="popup">
+  <div class="wrap">
+    <div class="sh">
+      <span class="sh-eyebrow">03 — The Popup</span>
+      <h2>Main control point</h2>
+      <p>Click the ≋ icon in the Chrome toolbar to access all features without opening DevTools.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start;">
+      <div style="display:flex;justify-content:center;">
+        <div class="popup-preview">
+          <div class="pp-header"><span style="font-size:14px;">≋</span><span class="pp-logo">Sevenda</span><span class="pp-badge">v0.2.0</span></div>
+          <div class="pp-status"><span class="pp-status-label">Recording</span><div class="pp-pill"><div class="dot"></div> Idle</div></div>
+          <div class="pp-mode-row">
+            <div class="pp-mode-label">Mode</div>
+            <div class="pp-toggle"><button class="pp-btn active bpmn">🧩 BPMN</button><button class="pp-btn insights">📊 Insights</button></div>
+            <div class="pp-mode-desc">Process flows, technical errors, BPMN documentation.</div>
+          </div>
+          <div class="pp-menu">
+            <div class="pp-item cta"><div class="pp-icon">⏺</div><span>Open Sevenda (DevTools)</span><span style="margin-left:auto;font-family:var(--mono);font-size:10px;color:#5a5a5a;background:#2f2f2f;border:1px solid #333;padding:1px 5px;border-radius:3px;">F12</span></div>
+            <div style="height:1px;background:#262626;margin:3px 5px;"></div>
+            <div class="pp-item"><div class="pp-icon">⚙</div><span>Settings &amp; AI Models</span></div>
+            <div class="pp-item"><div class="pp-icon">▤</div><span>Saved sessions</span></div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 13px 9px;border-top:1px solid #262626;"><span style="font-size:10.5px;color:#5a5a5a;">Sevenda</span><span style="font-size:10.5px;color:#5a5a5a;cursor:pointer;">Support</span></div>
+        </div>
+      </div>
+      <div class="steps">
+        <div class="step"><div class="step-col"><div class="step-n" style="background:rgba(224,85,85,.1);border-color:rgba(224,85,85,.3);color:var(--red);">●</div><div class="step-line"></div></div><div class="step-body"><div class="step-h">Recording Status</div><div class="step-p">Grey dot = idle. Blinking red = active REC. Syncs in real time with the DevTools panel.</div></div></div>
+        <div class="step"><div class="step-col"><div class="step-n">≋</div><div class="step-line"></div></div><div class="step-body"><div class="step-h">Mode Switch</div><div class="step-p">Toggle between 🧩 BPMN and 📊 Insights. Adapts the panel UI in real time via <code>chrome.storage.onChanged</code>. Persists between sessions.</div></div></div>
+        <div class="step"><div class="step-col"><div class="step-n">⏺</div><div class="step-line"></div></div><div class="step-body"><div class="step-h">Open Sevenda (DevTools)</div><div class="step-p">First click shows F12 → Sevenda tab instructions. Second click closes the popup.</div></div></div>
+        <div class="step"><div class="step-col"><div class="step-n">⚙</div><div class="step-line"></div></div><div class="step-body"><div class="step-h">Settings &amp; AI Models</div><div class="step-p">Opens the full settings page with API key, model, filters, theme and session management.</div></div></div>
+        <div class="step"><div class="step-col"><div class="step-n">▤</div></div><div class="step-body"><div class="step-h">Saved sessions</div><div class="step-p">Opens settings directly in the Sessions section to review or replay previous sessions.</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 04 ONBOARDING -->
+<section class="section" id="onboarding">
+  <div class="wrap">
+    <div class="sh">
+      <span class="sh-eyebrow">04 — Guided Onboarding</span>
+      <h2>Three steps on first launch</h2>
+      <p>On first use, Sevenda guides the user through a 3-step journey. It does not repeat on subsequent openings.</p>
+    </div>
+    <div class="cgrid">
+      <div class="ccard"><span class="ccard-icon">👋</span><div class="ccard-title">Step 1 — Welcome</div><div class="ccard-desc">Presents the three main features in non-technical language. Click <strong>Get Started →</strong> to proceed.</div><div class="tags"><span class="tag">First launch only</span></div></div>
+      <div class="ccard"><span class="ccard-icon">🎯</span><div class="ccard-title">Step 2 — Choose Mode</div><div class="ccard-desc">Select 🧩 BPMN (green) or 📊 Insights (purple) via descriptive cards. Continue button enables after selection.</div><div class="tags"><span class="tag green">BPMN</span><span class="tag purple">Insights</span></div></div>
+      <div class="ccard"><span class="ccard-icon">🛠</span><div class="ccard-title">Step 3 — DevTools Guide</div><div class="ccard-desc">Shows 3 numbered steps to open the panel. A contextual tip explains the characteristics of the chosen mode.</div><div class="tags"><span class="tag">F12 → Sevenda tab</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 05 MODES -->
+<section class="section" id="modes">
+  <div class="wrap">
+    <div class="sh">
+      <span class="sh-eyebrow">05 — Operating Modes</span>
+      <h2>BPMN or Insights — two distinct audiences</h2>
+      <p>The selected mode adapts filters, UI, and AI outputs for the active user profile.</p>
+    </div>
+    <div class="mode-grid">
+      <div class="mode-card bpmn">
+        <div class="mode-card-title">🧩 BPMN Mode</div>
+        <div class="mode-card-sub">Analysts · Testers · Developers</div>
+        <ul class="mode-list">
+          <li class="on"><span class="chk y">✓</span>All filters active (NAV, UI, NET, ERR, DOM)</li>
+          <li class="on"><span class="chk y">✓</span>Complete NET with latencies and status codes</li>
+          <li class="on"><span class="chk y">✓</span>Jira, Camunda and 📄 Analysis buttons visible</li>
+          <li class="on"><span class="chk y">✓</span>XML and Diagram tabs in BPMN panel</li>
+          <li class="on"><span class="chk y">✓</span>Context bar: BPMN button only</li>
+          <li><span class="chk n">○</span>No static asset NET filter (not needed)</li>
+        </ul>
+        <div class="tags" style="margin-top:16px;"><span class="tag green">NAV</span><span class="tag green">UI</span><span class="tag green">NET</span><span class="tag green">ERR</span><span class="tag green">DOM</span></div>
+      </div>
+      <div class="mode-card insights">
+        <div class="mode-card-title">📊 Insights Mode</div>
+        <div class="mode-card-sub">Digital Marketer · Web Analyst</div>
+        <ul class="mode-list">
+          <li class="on"><span class="chk y">✓</span>NAV, UI, partial NET, ERR active</li>
+          <li class="on"><span class="chk y">✓</span>NET filtered: excludes CSS, JS, fonts, images</li>
+          <li class="on"><span class="chk y">✓</span>📄 Report button in Insights footer</li>
+          <li class="on"><span class="chk y">✓</span>Only 📊 Insights tab in BPMN panel</li>
+          <li class="on"><span class="chk y">✓</span>Context bar: Insights button only</li>
+          <li><span class="chk n">✗</span>DOM and SYS excluded (noise for marketer)</li>
+        </ul>
+        <div class="tags" style="margin-top:16px;"><span class="tag blue">NAV</span><span class="tag green">UI</span><span class="tag amber">NET filtered</span><span class="tag red">ERR</span><span class="tag off">DOM</span></div>
+      </div>
+    </div>
+    <div class="alert info" style="margin-top:24px"><span class="alert-icon">ℹ</span><div>Changing mode from the popup updates the DevTools panel UI in real time via <code>chrome.storage.onChanged</code> — no extension reload required.</div></div>
+  </div>
+</section>
+
+<!-- 06 PANEL -->
+<section class="section" id="panel">
+  <div class="wrap">
+    <div class="sh">
+      <span class="sh-eyebrow">06 — The DevTools Panel</span>
+      <h2>The heart of Sevenda</h2>
+      <p>The panel lives inside Chrome's DevTools. Open with F12 → Sevenda tab.</p>
+    </div>
+    <div class="mockup" style="max-width:860px;margin:0 auto 32px;">
+      <div class="mkbar"><div class="mkdot r"></div><div class="mkdot y"></div><div class="mkdot g"></div><div class="mktitle">Sevenda — DevTools Panel</div></div>
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--border);background:#0f0f0f;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:5px;background:#e8e8e6;color:#0d0d0d;font-size:11px;font-weight:600;">⏺ Start Recording</div>
+          <div style="padding:5px 8px;border-radius:5px;border:1px solid var(--border-hi);font-size:11px;color:var(--muted);">■ Stop</div>
+          <div style="padding:5px 8px;border-radius:5px;border:1px solid var(--border);font-size:11px;color:var(--muted);">× Clear</div>
+          <div style="padding:5px 8px;border-radius:5px;border:1px solid var(--border);font-size:11px;color:var(--text);">Live</div>
+          <div style="padding:5px 8px;border-radius:5px;border:1px solid var(--border);font-size:11px;color:var(--muted);">Sessions</div>
+          <div style="margin-left:auto;display:flex;gap:6px;align-items:center;">
+            <span style="font-family:var(--mono);font-size:10px;color:var(--dim);">Last: fl-mp6tp...</span>
+            <span style="font-family:var(--mono);font-size:10px;color:var(--muted);">Events: 42</span>
+            <div style="padding:4px 8px;border-radius:4px;border:1px solid var(--border);font-size:11px;color:var(--muted);">⚙ Settings</div>
+          </div>
+        </div>
+        <div style="padding:10px 14px;border-bottom:1px solid var(--border);background:#0d0d0d;">
+          <div style="font-size:10px;font-family:var(--mono);color:var(--muted);margin-bottom:8px;">│ EVENT STREAM — real time</div>
+          <div style="display:flex;gap:6px;margin-bottom:8px;"><span class="chip nav">NAV</span><span class="chip ui">UI</span><span class="chip net">NET</span><span class="chip err">ERR</span><span class="chip dom">DOM</span><div style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:3px 8px;font-family:var(--mono);font-size:10px;color:var(--dim);">Search events...</div></div>
+          <div class="log-row"><span class="log-time">09:18:40.399</span><span class="log-badge nav">NAV</span><span class="log-msg">pushState → /dashboard/login</span></div>
+          <div class="log-row"><span class="log-time">09:18:40.487</span><span class="log-badge ui">UI</span><span class="log-msg">click input[type=email]</span></div>
+          <div class="log-row"><span class="log-time">09:18:41.120</span><span class="log-badge net">NET</span><span class="log-msg">POST api/auth/login → 200 (142ms)</span></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#0d0d0d;">
+          <div style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:7px 10px;font-size:12px;color:var(--dim);">Describe what you are testing...</div>
+          <span style="font-size:11px;color:var(--dim);">Generate →</span>
+          <div style="padding:6px 12px;border-radius:5px;background:#1a1a1a;border:1px solid var(--border-hi);font-size:11px;color:var(--text);font-weight:600;">BPMN</div>
+          <div style="padding:6px 12px;border-radius:5px;background:rgba(124,58,237,.15);border:1px solid rgba(124,58,237,.3);font-size:11px;color:#a78bfa;font-weight:600;">📊 Insights</div>
+        </div>
+      </div>
+    </div>
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr><th>Element</th><th>Function</th></tr></thead>
+        <tbody>
+          <tr><td>⏺ Start Recording</td><td>Starts event capture on the current tab</td></tr>
+          <tr><td>■ Stop</td><td>Stops recording and saves the session to IndexedDB</td></tr>
+          <tr><td>× Clear</td><td>Clears the visual log without deleting saved data</td></tr>
+          <tr><td>Live / Sessions</td><td>Switches between the real-time log and the saved sessions list</td></tr>
+          <tr><td>Events: N</td><td>Event counter for the current session</td></tr>
+          <tr><td>⚙ Settings</td><td>Quick modal to configure the Anthropic API key</td></tr>
+          <tr><td>Jira</td><td>Creates a Jira issue with BPMN attached (visible after generation)</td></tr>
+          <tr><td>Camunda</td><td>Exports .bpmn file for Camunda Modeler (BPMN mode only)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- 07 RECORDING -->
+<section class="section" id="events">
+  <div class="wrap">
+    <div class="sh">
+      <span class="sh-eyebrow">07 — Recording</span>
+      <h2>Capture a session</h2>
+      <p>Sevenda automatically captures all events without any changes to the target application.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start;">
+      <div class="steps">
+        <div class="step"><div class="step-col"><div class="step-n">1</div><div class="step-line"></div></div><div class="step-body"><div class="step-h">Navigate to the target page</div><div class="step-p">Open the page you want to analyze in the current tab.</div></div></div>
+        <div class="step"><div class="step-col"><div class="step-n">2</div><div class="step-line"></div></div><div class="step-body"><div class="step-h">Open the Sevenda panel</div><div class="step-p">F12 → Sevenda tab in DevTools.</div></div></div>
+        <div class="step"><div class="step-col"><div class="step-n">3</div><div class="step-line"></div></div><div class="step-body"><div class="step-h">Add context (optional)</div><div class="step-p">Describe the process in the field at the bottom. Significantly improves BPMN quality.</div><div style="margin-top:8px;padding:7px 10px;background:var(--surface);border:1px solid var(--border);border-radius:5px;font-size:11.5px;color:var(--muted);">"Checkout flow — from cart to payment"</div></div></div>
+        <div class="step"><div class="step-col"><div class="step-n">4</div><div class="step-line"></div></div><div class="step-body"><div class="step-h">Start recording</div><div class="step-p">Click <strong>⏺ Start Recording</strong>. The REC timer appears in the top right.</div></div></div>
+        <div class="step"><div class="step-col"><div class="step-n">5</div></div><div class="step-body"><div class="step-h">Stop when done</div><div class="step-p">Click <strong>■ Stop</strong>. The session is saved automatically.</div><div class="tags"><span class="tag green">✓ Session saved to IndexedDB</span></div></div></div>
+      </div>
+      <div>
+        <div class="sh-eyebrow" style="margin-bottom:14px;">Captured event types</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;gap:12px;align-items:flex-start;padding:12px 14px;background:var(--surface);border:1px solid var(--border-hi);border-radius:7px;"><span class="chip nav" style="flex-shrink:0;">NAV</span><div style="font-size:13px;color:var(--muted);">Page navigations, SPA pushState, hashChange, redirects</div></div>
+          <div style="display:flex;gap:12px;align-items:flex-start;padding:12px 14px;background:var(--surface);border:1px solid var(--border-hi);border-radius:7px;"><span class="chip ui" style="flex-shrink:0;">UI</span><div style="font-size:13px;color:var(--muted);">Element clicks, form submits, user input with selector and text</div></div>
+          <div style="display:flex;gap:12px;align-items:flex-start;padding:12px 14px;background:var(--surface);border:1px solid var(--border-hi);border-radius:7px;"><span class="chip net" style="flex-shrink:0;">NET</span><div style="font-size:13px;color:var(--muted);">Fetch/XHR calls with URL, method, status code and duration in ms</div></div>
+          <div style="display:flex;gap:12px;align-items:flex-start;padding:12px 14px;background:var(--surface);border:1px solid var(--border-hi);border-radius:7px;"><span class="chip err" style="flex-shrink:0;">ERR</span><div style="font-size:13px;color:var(--muted);">JavaScript errors with message and full stack trace</div></div>
+          <div style="display:flex;gap:12px;align-items:flex-start;padding:12px 14px;background:var(--surface);border:1px solid var(--border-hi);border-radius:7px;"><span class="chip dom" style="flex-shrink:0;">DOM</span><div style="font-size:13px;color:var(--muted);">Significant DOM mutations — modals, overlays, UI state changes (BPMN only)</div></div>
+        </div>
+        <div class="alert warn" style="margin-top:16px;"><span class="alert-icon">⚠</span><div>Automatic keepalive sends a ping to the service worker every 20s during recording to prevent Chrome from terminating it after inactivity periods.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 08 EVENT STREAM -->
+<section class="section" id="log">
+  <div class="wrap">
+    <div class="sh">
+      <span class="sh-eyebrow">08 — Event Stream</span>
+      <h2>The real-time event log</h2>
+      <p>Filter, search and inspect every event with a click to view complete details.</p>
+    </div>
+    <div class="cgrid">
+      <div class="ccard"><span class="ccard-icon">🔍</span><div class="ccard-title">Type filters</div><div class="ccard-desc">Colored chips (NAV · UI · NET · ERR · DOM) enable/disable event categories. Click to toggle. Grey = disabled.</div><div class="chips" style="margin-top:12px;"><span class="chip nav">NAV</span><span class="chip ui">UI</span><span class="chip net">NET</span><span class="chip err">ERR</span><span class="chip off">DOM</span></div></div>
+      <div class="ccard"><span class="ccard-icon">🔎</span><div class="ccard-title">Text search</div><div class="ccard-desc">The search field filters events in real time by message text. Case-insensitive. Works during active recording.</div></div>
+      <div class="ccard"><span class="ccard-icon">📋</span><div class="ccard-title">Event detail</div><div class="ccard-desc">Every row is clickable. Expands to show all details in key-value format: full URL, headers, payload, response time, stack trace.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 09 BPMN GENERATION -->
+<section class="section" id="bpmn">
+  <div class="wrap">
+    <div class="sh">
+      <span class="sh-eyebrow">09 — BPMN Generation</span>
+      <h2>From log to diagram</h2>
+      <p>Claude Sonnet transforms the event sequence into a BPMN 2.0 standard-compliant diagram.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start;">
+      <div class="steps">
+        <div class="step"><div class="step-col"><div class="step-n">1</div><div class="step-line"></div></div><div class="step-body"><div class="step-h">Record the session</div><div class="step-p">Or load a historical session via Replay.</div></div></div>
+        <div class="step"><div class="step-col"><div class="step-n">2</div><div class="step-line"></div></div><div class="step-body"><div class="step-h">Add context (optional)</div><div class="step-p">Describe the process in the field at the bottom to guide AI interpretation.</div></div></div>
+        <div class="step"><div class="step-col"><div class="step-n">3</div><div class="step-line"></div></div><div class="step-body"><div class="step-h">Click BPMN</div><div class="step-p">The BPMN panel opens automatically with the generated diagram.</div></div></div>
+        <div class="step"><div class="step-col"><div class="step-n">4</div></div><div class="step-body"><div class="step-h">Wait for the cooldown</div><div class="step-p">The 📄 Analysis button shows an adaptive countdown — calculated from remaining tokens communicated by the Anthropic API. Prevents rate limiting.</div><div style="margin-top:10px;padding:7px 12px;background:var(--surface);border:1px solid var(--border);border-radius:5px;font-family:var(--mono);font-size:11px;color:var(--muted);">📄 Analysis (38s) → ... → 📄 Analysis</div></div></div>
+      </div>
+      <div>
+        <div class="alert tip"><span class="alert-icon">💡</span><div><strong>On error</strong> — a persistent toast with <strong>↺ Retry</strong> stays visible on the panel. Click to relaunch without going back to the context bar.</div></div>
+        <div class="alert info" style="margin-top:12px;"><span class="alert-icon">ℹ</span><div><strong>90-second timeout</strong> — generation stops with a clear message. Progressive messages appear at 30s, 75s and 120s in the log.</div></div>
+        <div class="alert warn" style="margin-top:12px;"><span class="alert-icon">⚠</span><div><strong>Rate limit 30k token/min</strong> — the adaptive cooldown automatically manages compliance. Don't click Analysis before the countdown ends.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 10 BPMN PANEL -->
+<section class="section" id="bpmn-panel">
+  <div class="wrap">
+    <div class="sh">
+      <span class="sh-eyebrow">10 — BPMN Panel</span>
+      <h2>Views and available tools</h2>
+      <p>The BPMN panel offers three tabs with contextual tools for each view.</p>
+    </div>
+    <div class="cgrid">
+      <div class="ccard"><span class="ccard-icon">📄</span><div class="ccard-title">XML Tab</div><div class="ccard-desc">Shows the raw BPMN 2.0 XML generated by Claude.</div><div style="margin-top:12px;display:flex;flex-direction:column;gap:6px;"><div style="padding:6px 10px;background:var(--surface);border:1px solid var(--border);border-radius:5px;font-size:12px;color:var(--muted);">⎘ Copy — copy XML to clipboard</div><div style="padding:6px 10px;background:var(--surface);border:1px solid var(--border);border-radius:5px;font-size:12px;color:var(--muted);">⬇ Paste XML — import from clipboard</div></div></div>
+      <div class="ccard"><span class="ccard-icon">🗂</span><div class="ccard-title">Diagram Tab</div><div class="ccard-desc">Renders BPMN graphically via bpmn-js. Interactive: pan and zoom with mouse.</div><div style="margin-top:12px;display:flex;flex-direction:column;gap:6px;"><div style="padding:6px 10px;background:var(--surface);border:1px solid var(--border);border-radius:5px;font-size:12px;color:var(--muted);">↓ SVG — export the diagram</div><div style="padding:6px 10px;background:var(--surface);border:1px solid var(--border);border-radius:5px;font-size:12px;color:var(--muted);">📄 Analysis — generate Word document</div></div></div>
+      <div class="ccard"><span class="ccard-icon">📊</span><div class="ccard-title">Insights Tab</div><div class="ccard-desc">Visible after Insights generation. Shows suggested GTM events and tracking gaps.</div><div style="margin-top:12px;display:flex;flex-direction:column;gap:6px;"><div style="padding:6px 10px;background:var(--surface);border:1px solid var(--border);border-radius:5px;font-size:12px;color:var(--muted);">⬇ Export Tag Plan JSON</div><div style="padding:6px 10px;background:var(--surface);border:1px solid var(--border);border-radius:5px;font-size:12px;color:var(--muted);">📄 Report — generate Analytics Report</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 11 FEEDBACK -->
+<section class="section" id="feedback">
+  <div class="wrap">
+    <div class="sh">
+      <span class="sh-eyebrow">11 — Iterative Feedback</span>
+      <h2>Refine the BPMN in natural language</h2>
+      <p>Modify the diagram without regenerating from scratch. The conversation keeps the last 6 interactions.</p>
+    </div>
+    <div class="mockup" style="max-width:640px;margin:0 auto;">
+      <div class="mkbar"><div class="mkdot r"></div><div class="mkdot y"></div><div class="mkdot g"></div><div class="mktitle">BPMN Feedback Chat</div></div>
+      <div class="mkbody" style="display:flex;flex-direction:column;gap:10px;">
+        <div style="padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:6px;font-size:12px;color:var(--muted);border-left:2px solid var(--blue);">👤 "Add an exclusive gateway after the Login task"</div>
+        <div style="padding:10px 12px;background:rgba(107,184,154,.06);border:1px solid rgba(107,184,154,.2);border-radius:6px;font-size:12px;color:var(--text);border-left:2px solid var(--green);">✦ Gateway added. The flow now branches toward "Home Dashboard" or "Authentication Error" based on the login outcome.</div>
+        <div style="padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:6px;font-size:12px;color:var(--muted);border-left:2px solid var(--blue);">👤 "Rename the 'Submit' task to 'Confirm Order'"</div>
+        <div style="padding:10px 12px;background:rgba(107,184,154,.06);border:1px solid rgba(107,184,154,.2);border-radius:6px;font-size:12px;color:var(--text);border-left:2px solid var(--green);">✦ Task renamed correctly in the diagram.</div>
+        <div style="display:flex;gap:8px;margin-top:4px;"><input type="text" placeholder="Type a modification..." style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:7px 10px;font-family:var(--mono);font-size:11px;color:var(--muted);outline:none;"><div style="padding:7px 12px;background:#e8e8e6;border-radius:4px;font-size:11px;color:#0d0d0d;font-weight:600;cursor:pointer;">Send</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 12 INSIGHTS -->
+<section class="section" id="insights">
+  <div class="wrap">
+    <div class="sh">
+      <span class="sh-eyebrow">12 — Insights Generation</span>
+      <h2>Automatic GTM/GA4 analysis</h2>
+      <p>Identifies tracking gaps, missing events and produces an implementation-ready tag plan.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start;">
+      <div>
+        <div class="sh-eyebrow" style="margin-bottom:14px;">Automatically detected tracking tools</div>
+        <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:24px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--surface);border:1px solid var(--border);border-radius:5px;"><span style="font-size:13px;">Google Tag Manager</span><span class="tag green">GTM-K7X9P2 ✓</span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--surface);border:1px solid var(--border);border-radius:5px;"><span style="font-size:13px;">Google Analytics 4</span><span class="tag red">Not detected</span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--surface);border:1px solid var(--border);border-radius:5px;"><span style="font-size:13px;">Facebook Pixel</span><span class="tag amber">Partial</span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--surface);border:1px solid var(--border);border-radius:5px;"><span style="font-size:13px;">Hotjar · Clarity · Segment</span><span style="font-size:12px;color:var(--dim);">Monitored</span></div>
+        </div>
+        <div class="sh-eyebrow" style="margin-bottom:14px;">Suggested GTM event example</div>
+        <div style="background:var(--surface);border:1px solid var(--border-hi);border-radius:8px;overflow:hidden;">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);"><span style="font-family:var(--mono);font-size:12px;font-weight:500;">add_to_cart</span><span class="tag red">HIGH</span></div>
+          <div style="padding:12px 14px;display:flex;flex-direction:column;gap:8px;">
+            <div style="font-size:12px;color:var(--muted);"><span style="color:var(--dim);font-family:var(--mono);font-size:10px;">TRIGGER</span><br>Click on button[data-action="add-to-cart"]</div>
+            <div style="font-size:12px;color:var(--muted);"><span style="color:var(--dim);font-family:var(--mono);font-size:10px;">DATALAYER.PUSH()</span></div>
+            <div style="background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:8px 10px;font-family:var(--mono);font-size:10.5px;color:var(--text);">{<br>&nbsp;&nbsp;"event": "add_to_cart",<br>&nbsp;&nbsp;"item_id": "{{DL - product_id}}"<br>}</div>
+          </div>
+        </div>
+      </div>
+      <div class="steps">
+        <div class="step"><div class="step-col"><div class="step-n">1</div><div class="step-line"></div></div><div class="step-body"><div class="step-h">Select Insights mode from popup</div><div class="step-p">The panel adapts by hiding elements not needed for marketing analysis.</div></div></div>
+        <div class="step"><div class="step-col"><div class="step-n">2</div><div class="step-line"></div></div><div class="step-body"><div class="step-h">Record the session</div><div class="step-p">The NET filter automatically excludes static assets (CSS, JS, fonts, images).</div></div></div>
+        <div class="step"><div class="step-col"><div class="step-n">3</div><div class="step-line"></div></div><div class="step-body"><div class="step-h">Click 📊 Insights</div><div class="step-p">Max 60 deduplicated events sent to Claude with optimized prompt (&lt;10k tokens).</div></div></div>
+        <div class="step"><div class="step-col"><div class="step-n">4</div></div><div class="step-body"><div class="step-h">Export the Tag Plan</div><div class="step-p">⬇ Export Tag Plan JSON · ⎘ Copy JSON · 📄 Report Word</div><div class="tags"><span class="tag green">Automatic per-session caching</span></div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 13 DOCUMENTATION -->
+<section class="section" id="docs">
+  <div class="wrap">
+    <div class="sh">
+      <span class="sh-eyebrow">13 — Documentation</span>
+      <h2>Two documents, two audiences</h2>
+      <p>Generate professional enterprise Word documents with one click.</p>
+    </div>
+    <div class="mode-grid">
+      <div class="mode-card bpmn">
+        <div class="mode-card-title">📄 Technical-Functional Analysis</div>
+        <div class="mode-card-sub">Diagram tab → 📄 Analysis button</div>
+        <ul class="mode-list" style="margin-bottom:16px;">
+          <li class="on"><span class="chk y">✓</span>Cover page with session metadata</li>
+          <li class="on"><span class="chk y">✓</span>Narrative Executive Summary</li>
+          <li class="on"><span class="chk y">✓</span>Operational timeline (table)</li>
+          <li class="on"><span class="chk y">✓</span>Detailed analysis per BPMN task</li>
+          <li class="on"><span class="chk y">✓</span>Anomaly analysis with impact</li>
+          <li class="on"><span class="chk y">✓</span>Conclusions and recommendations</li>
+        </ul>
+        <div class="tags"><span class="tag">Claude API call</span><span class="tag">6–8k tokens</span><span class="tag">3min timeout</span></div>
+      </div>
+      <div class="mode-card insights">
+        <div class="mode-card-title">📄 Analytics Report</div>
+        <div class="mode-card-sub">Insights view → 📄 Report button</div>
+        <ul class="mode-list" style="margin-bottom:16px;">
+          <li class="on"><span class="chk y">✓</span>Current tracking status (GTM, GA4)</li>
+          <li class="on"><span class="chk y">✓</span>Suggested GTM events with triggers</li>
+          <li class="on"><span class="chk y">✓</span>Critical gaps with severity and fixes</li>
+          <li class="on"><span class="chk y">✓</span>Prioritized action plan</li>
+          <li class="on"><span class="chk y">✓</span>Instant generation</li>
+          <li><span class="chk n">○</span>No Claude API call needed</li>
+        </ul>
+        <div class="tags"><span class="tag purple">No API call</span><span class="tag">Data already in memory</span><span class="tag">&lt; 1 second</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 14 SESSIONS -->
+<section class="section" id="sessions">
+  <div class="wrap">
+    <div class="sh">
+      <span class="sh-eyebrow">14 — Session Management</span>
+      <h2>Archive and replay</h2>
+      <p>All sessions are saved to IndexedDB and available for replay and later analysis.</p>
+    </div>
+    <div class="cgrid">
+      <div class="ccard"><span class="ccard-icon">📋</span><div class="ccard-title">Session list</div><div class="ccard-desc">Click <strong>Sessions</strong> in the toolbar to see the date-ordered list with ID, URL, event count and duration.</div></div>
+      <div class="ccard"><span class="ccard-icon">▶</span><div class="ccard-title">Replay</div><div class="ccard-desc">Reload a historical session into the panel. Generate BPMN and Insights from past sessions exactly as from a live one.</div></div>
+      <div class="ccard"><span class="ccard-icon">🗑</span><div class="ccard-title">Deletion</div><div class="ccard-desc">Click ✕ on an individual session to delete it. Settings includes "Delete all" to clear the entire archive.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 15-16 INTEGRATIONS -->
+<section class="section" id="jira">
+  <div class="wrap">
+    <div class="sh">
+      <span class="sh-eyebrow">15–16 — Integrations</span>
+      <h2>Jira and Camunda</h2>
+      <p>Bring the BPMN directly into your existing workflow.</p>
+    </div>
+    <div class="mode-grid">
+      <div class="mode-card bpmn">
+        <div class="mode-card-title">🔷 Jira Integration</div>
+        <div class="mode-card-sub">Top toolbar → Jira button</div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.65;margin-bottom:16px;">Configure in Settings: Base URL, Email, API Token, Project Key. On click opens a modal for title, description and issue type.</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Automatic attachments:</div>
+        <ul class="mode-list">
+          <li class="on"><span class="chk y">✓</span>BPMN XML file</li>
+          <li class="on"><span class="chk y">✓</span>Diagram SVG file</li>
+          <li class="on"><span class="chk y">✓</span>Comment with session metadata</li>
+        </ul>
+      </div>
+      <div class="mode-card" style="border-top:2px solid var(--amber);">
+        <div class="mode-card-title">🟠 Camunda Export</div>
+        <div class="mode-card-sub">Top toolbar → Camunda button</div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.65;margin-bottom:16px;">Exports the current BPMN as a <code>.bpmn</code> file compatible with Camunda Modeler. Ready for direct import into Camunda Platform.</div>
+        <ul class="mode-list">
+          <li class="on"><span class="chk y">✓</span>Automatic Camunda adaptations</li>
+          <li class="on"><span class="chk y">✓</span>File name includes session ID</li>
+          <li><span class="chk n">○</span>Only in 🧩 BPMN mode</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 17 SETTINGS -->
+<section class="section" id="settings">
+  <div class="wrap">
+    <div class="sh">
+      <span class="sh-eyebrow">17 — Settings</span>
+      <h2>Settings page</h2>
+      <p>Accessible from popup → Settings &amp; AI Models or from the ⚙ modal in the panel.</p>
+    </div>
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr><th>Section</th><th>Setting</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>AI &amp; API</td><td>Anthropic API Key</td><td>Format <code>sk-ant-...</code>. Saved in <code>chrome.storage.sync</code>. Show/hide with the eye icon.</td></tr>
+          <tr><td>AI &amp; API</td><td>AI Model</td><td>Default: <code>claude-sonnet-4-6</code>. Best quality/cost balance.</td></tr>
+          <tr><td>AI &amp; API</td><td>Output Language</td><td>Italian or English. Applies to BPMN and text outputs.</td></tr>
+          <tr><td>AI &amp; API</td><td>Max Tokens</td><td>Claude response token limit (default: 8192). Increase for complex BPMN.</td></tr>
+          <tr><td>AI &amp; API</td><td>Temperature</td><td>Model creativity 0–1. Default: 0.3 for structured outputs.</td></tr>
+          <tr><td>AI &amp; API</td><td>System Prompt</td><td>Additional prompt prepended to standard instructions. Customize style and context.</td></tr>
+          <tr><td>Capture</td><td>Active Sources</td><td>Chips NAV · UI · NET · ERR · DOM to enable/disable categories.</td></tr>
+          <tr><td>Capture</td><td>Excluded Domains</td><td>Ignore during recording. Supports wildcards <code>*.example.com</code>.</td></tr>
+          <tr><td>Capture</td><td>Event Limit</td><td>Max events sent to Claude (default: 500).</td></tr>
+          <tr><td>Capture</td><td>Flush Interval</td><td>Frequency of sending batches to the service worker (default: 2s).</td></tr>
+          <tr><td>Capture</td><td>Retention Days</td><td>Days sessions are kept in IndexedDB before automatic deletion.</td></tr>
+          <tr><td>Interface</td><td>Theme</td><td>Dark · Light · Auto. Applies only to the Settings page.</td></tr>
+          <tr><td>Interface</td><td>Auto Scroll</td><td>Log stream scrolls automatically to the bottom during recording.</td></tr>
+          <tr><td>Interface</td><td>Timestamp Format</td><td><code>HH:MM:SS</code> or <code>HH:MM:SS.mmm</code> with milliseconds.</td></tr>
+          <tr><td>Sessions</td><td>Archive management</td><td>View, export or delete sessions. Includes "Delete all".</td></tr>
+          <tr><td>About</td><td>Reset settings</td><td>Restores all values to defaults. Requires confirmation.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- 18 FAQ -->
+<section class="section" id="faq">
+  <div class="wrap">
+    <div class="sh">
+      <span class="sh-eyebrow">18 — FAQ</span>
+      <h2>Frequently asked questions</h2>
+    </div>
+    <div class="faq">
+      <div class="faq-item"><div class="faq-q">The Sevenda panel does not appear in DevTools.</div><div class="faq-a">Verify the extension is active in <code>chrome://extensions/</code>. Reload the page and reopen DevTools. If it persists, click the refresh icon on the extensions page.</div></div>
+      <div class="faq-item"><div class="faq-q">I get "No active recording" when clicking Stop.</div><div class="faq-a">The service worker was terminated by Chrome after inactivity (> 30s without events). Sevenda automatically attempts state recovery from IndexedDB. The automatic keepalive every 20s prevents this during active recording.</div></div>
+      <div class="faq-item"><div class="faq-q">Generation exceeds the rate limit (30,000 tokens/minute).</div><div class="faq-a">The adaptive cooldown on the 📄 Analysis button automatically manages rate limit compliance — calculated from remaining tokens communicated by the API. Wait for the countdown to reach zero. Use ↺ Retry in the toast if the error still appears.</div></div>
+      <div class="faq-item"><div class="faq-q">The BPMN diagram is not rendered.</div><div class="faq-a">Switch to the XML view to check the raw content. Use the feedback field to ask Claude to fix the XML. You can also paste a corrected XML using the ⬇ Paste XML button.</div></div>
+      <div class="faq-item"><div class="faq-q">Insights don't show GTM events even though GTM is installed.</div><div class="faq-a">Verify GTM is active and the recording includes NET events to <code>googletagmanager.com</code>. Add context in the Session Context field specifying that you want to analyze GTM tracking.</div></div>
+      <div class="faq-item"><div class="faq-q">Document generation takes more than 3 minutes.</div><div class="faq-a">Use the ↺ Retry button in the persistent toast. If frequent, wait a few minutes between BPMN generation and Analysis generation due to the rate limit.</div></div>
+      <div class="faq-item"><div class="faq-q">How do I update the API key?</div><div class="faq-a">Popup → Settings &amp; AI Models → AI &amp; API section → enter the new key → Save settings.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ────────────────────────────────────────────────── -->
+<footer>
+  <div class="foot-in">
+    <div class="foot-brand">
+      <svg class="logo-svg" viewBox="0 0 28 20" fill="none">
+        <path d="M2,3.5 Q8,1 14,3.5 Q20,6 26,3.5"   stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
+        <path d="M2,8.5 Q8,6 14,8.5 Q20,11 26,8.5"  stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
+        <path d="M2,13.5 Q8,11 14,13.5 Q20,16 26,13.5" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
+        <path d="M2,18.5 Q8,16 14,18.5 Q20,21 26,18.5" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
+      </svg>
+      <span class="foot-brand-name">Sevenda</span>
+      <span class="foot-brand-ver">v0.2.0</span>
+    </div>
+
+    <ul class="foot-links">
+      <li><a href="/#features">Features</a></li>
+      <li><a href="/#insights">Insights</a></li>
+      <li><a href="/#pricing">Pricing</a></li>
+      <li><a href="#">GitHub</a></li>
+      <li><a href="/privacy.html">Privacy Policy</a></li>
+      <li><a href="/docs.html">Docs</a></li>
+    </ul>
+
+    <span class="foot-copy">© 2025 Sevenda · hello@sevenda.dev</span>
+  </div>
+</footer>
+
+<script>
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', scrollY > 16);
+  }, { passive: true });
+
+  const burger = document.getElementById('burger');
+  const drawer = document.getElementById('drawer');
+  burger.addEventListener('click', () => {
+    const open = burger.classList.toggle('open');
+    drawer.classList.toggle('open', open);
+    document.body.style.overflow = open ? 'hidden' : '';
+  });
+  drawer.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => {
+      burger.classList.remove('open');
+      drawer.classList.remove('open');
+      document.body.style.overflow = '';
+    });
+  });
+
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('vis'); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>

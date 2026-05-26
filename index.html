@@ -770,6 +770,40 @@
     }
 
     /* ── RESPONSIVE ──────────────────────────────────────────── */
+    /* ── DOCUMENTATION ───────────────────────────────────────── */
+    #documentation { padding: 0 0 120px; }
+    #documentation .doc-head { text-align: center; margin-bottom: 52px; }
+
+    .cgrid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      background: var(--border);
+      gap: 1px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .ccard {
+      background: var(--bg);
+      padding: 30px 26px;
+      transition: background .2s;
+      display: flex;
+      flex-direction: column;
+    }
+    .ccard:hover { background: var(--surface); }
+    .ccard-icon { font-size: 22px; margin-bottom: 14px; display: block; }
+    .ccard-title { font-size: 15px; font-weight: 600; letter-spacing: -.02em; margin-bottom: 8px; }
+    .ccard-desc { font-size: 13.5px; color: var(--muted); line-height: 1.65; flex: 1; }
+    .ccard-link {
+      display: inline-block;
+      margin-top: 18px;
+      font-size: 13px;
+      color: var(--text);
+      font-weight: 500;
+      transition: opacity .15s;
+    }
+    .ccard-link:hover { opacity: .7; }
+
     @media (max-width: 768px) {
       /* Contain all sections */
       section, nav, footer { width: 100%; max-width: 100%; }
@@ -803,6 +837,9 @@
       /* Pricing: stack, Pro card first */
       .pgrid      { grid-template-columns: 1fr; }
       .pcard-pro  { order: -1; top: 0; }
+
+      /* Documentation */
+      .cgrid      { grid-template-columns: 1fr; }
 
       /* CTA footer */
       #cta-foot { padding: 80px 20px; }
@@ -839,6 +876,7 @@
     <li><a href="#insights">Insights</a></li>
     <li><a href="#how">How it works</a></li>
     <li><a href="#stats">Pricing</a></li>
+    <li><a href="/docs.html">Docs</a></li>
   </ul>
 
   <a href="#" class="btn btn-primary">Add to Chrome</a>
@@ -854,6 +892,7 @@
   <a href="#insights" class="drawer-link">Insights</a>
   <a href="#how" class="drawer-link">How it works</a>
   <a href="#pricing" class="drawer-link">Pricing</a>
+  <a href="/docs.html" class="drawer-link">Docs</a>
   <a href="#" class="btn btn-primary drawer-cta">Add to Chrome</a>
 </div>
 
@@ -1302,6 +1341,40 @@
   </div>
 </section>
 
+<!-- ── DOCUMENTATION ─────────────────────────────────────────── -->
+<section id="documentation">
+  <div class="wrap">
+    <div class="doc-head reveal">
+      <p class="slabel">Documentation</p>
+      <h2 class="stitle">Everything you need to get started.</h2>
+      <p class="ssub" style="max-width:540px;margin:0 auto;">From installation to advanced BPMN generation — the complete guide is one click away.</p>
+    </div>
+
+    <div class="cgrid" style="margin-top:52px;">
+      <div class="ccard reveal" style="transition-delay:.04s">
+        <span class="ccard-icon">🚀</span>
+        <div class="ccard-title">Quick Start</div>
+        <div class="ccard-desc">Install Sevenda, configure your API key and generate your first BPMN diagram in under 60 seconds.</div>
+        <a href="/docs.html#quickstart" class="ccard-link">Read guide →</a>
+      </div>
+
+      <div class="ccard reveal" style="transition-delay:.1s">
+        <span class="ccard-icon">⚡</span>
+        <div class="ccard-title">Event Capture</div>
+        <div class="ccard-desc">Understand how Sevenda captures NAV, UI, NET, ERR and DOM events and how to filter them for better results.</div>
+        <a href="/docs.html#events" class="ccard-link">Read guide →</a>
+      </div>
+
+      <div class="ccard reveal" style="transition-delay:.16s">
+        <span class="ccard-icon">🧩</span>
+        <div class="ccard-title">BPMN &amp; Insights</div>
+        <div class="ccard-desc">Generate BPMN 2.0 diagrams, refine them with natural language and export to Camunda, Jira or .docx.</div>
+        <a href="/docs.html#bpmn" class="ccard-link">Read guide →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ── CTA FOOTER ────────────────────────────────────────────── -->
 <section id="cta-foot">
   <div class="cta-foot-inner reveal">
@@ -1334,6 +1407,7 @@
       <li><a href="#pricing">Pricing</a></li>
       <li><a href="#">GitHub</a></li>
       <li><a href="/privacy.html">Privacy Policy</a></li>
+      <li><a href="/docs.html">Docs</a></li>
     </ul>
 
     <span class="foot-copy">© 2025 Sevenda · Built with Claude</span>
