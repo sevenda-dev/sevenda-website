@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="color-scheme" content="dark">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FAQ — Sevenda</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=Geist+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #0d0d0d;
+  --surface:  #131313;
+  --surface-up: #1a1a1a;
+  --border:   rgba(255,255,255,0.07);
+  --border-hi: rgba(255,255,255,0.13);
+  --white:    #ffffff;
+  --off:      #e8e8e6;
+  --text:     #e8e8e6;
+  --muted:    #6e6e6a;
+  --dim:      #3a3a36;
+  --green:    #6BB89A;
+  --blue:     #7aafd4;
+  --amber:    #c8a064;
+  --red:      #dc5858;
+  --sans:     'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+  --mono:     'Geist Mono', 'Fira Code', monospace;
+  --max:      1120px;
+  --r:        6px;
+}
+
+html { color-scheme: dark; }
+
+html {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+  scroll-behavior: smooth;
+  width: 100%;
+  overflow-x: hidden;
+  color-scheme: dark;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+  width: 100%;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* Grid overlay */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.024) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.024) 1px, transparent 1px);
+  background-size: 44px 44px;
+  pointer-events: none; z-index: 0;
+}
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background: radial-gradient(ellipse 100% 60% at 50% 0%, transparent 30%, rgba(13,13,13,0.7) 100%);
+  pointer-events: none; z-index: 0;
+}
+
+/* ── NAV — matches privacy.html pattern ── */
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: 58px;
+  padding: 0 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid transparent;
+  transition: background .25s, border-color .25s, backdrop-filter .25s;
+}
+nav.scrolled {
+  background: rgba(13,13,13,.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-color: var(--border);
+}
+
+.nav-logo { display: flex; align-items: center; gap: 9px; font-weight: 600; font-size: 15px; letter-spacing: -.02em; text-decoration: none; color: var(--text); }
+.logo-svg { width: 26px; height: 19px; flex-shrink: 0; }
+
+.nav-links { display: flex; align-items: center; gap: 28px; list-style: none; }
+.nav-links a { font-size: 14px; color: var(--muted); text-decoration: none; transition: color .15s; }
+.nav-links a:hover, .nav-links a.active { color: var(--text); }
+
+.nav-cta {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--sans); font-weight: 500;
+  border-radius: var(--r); border: 1px solid transparent;
+  cursor: pointer; transition: all .15s; white-space: nowrap; line-height: 1;
+  background: #fff; color: #0d0d0d; border-color: #fff;
+  padding: 9px 17px; font-size: 14px; text-decoration: none;
+}
+.nav-cta:hover { background: #e0e0de; box-shadow: 0 0 0 3px rgba(255,255,255,.1); }
+
+.nav-burger {
+  display: none; background: none; border: none; cursor: pointer;
+  padding: 6px; flex-direction: column; gap: 5px; z-index: 110;
+}
+.nav-burger span {
+  display: block; width: 22px; height: 1.5px;
+  background: var(--text); border-radius: 2px;
+  transition: transform .25s, opacity .25s;
+}
+.nav-burger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+.nav-burger.open span:nth-child(2) { opacity: 0; }
+.nav-burger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+.nav-drawer {
+  display: none; position: fixed; inset: 0;
+  background: #0d0d0d; z-index: 100;
+  flex-direction: column; align-items: center; justify-content: center; gap: 36px;
+}
+.nav-drawer.open { display: flex; }
+.nav-drawer a { font-size: 24px; font-weight: 600; color: #fff; text-decoration: none; letter-spacing: -.02em; }
+.nav-drawer .drawer-cta { margin-top: 8px; background: #fff; color: #000; font-weight: 600; padding: 12px 28px; border-radius: 6px; }
+
+@media (max-width: 768px) {
+  .nav-links { display: none; }
+  .nav-burger { display: flex; }
+}
+
+/* ── PAGE CONTENT ── */
+.page {
+  position: relative; z-index: 1;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 120px 24px 80px;
+}
+
+/* ── HEADER ── */
+.page-header { margin-bottom: 56px; }
+
+.page-label {
+  font-family: var(--mono);
+  font-size: 11px; font-weight: 500;
+  color: var(--green); letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.page-title {
+  font-size: clamp(32px, 5vw, 48px);
+  font-weight: 800; color: var(--white);
+  line-height: 1.05; letter-spacing: -1px;
+  margin-bottom: 16px;
+}
+
+.page-sub {
+  font-size: 16px; font-weight: 300;
+  color: var(--muted); line-height: 1.65;
+  max-width: 520px;
+}
+
+/* ── SEARCH ── */
+.faq-search-wrap {
+  position: relative; margin-bottom: 48px;
+}
+
+.faq-search {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  color: var(--white);
+  font-family: var(--sans);
+  font-size: 14px;
+  padding: 14px 48px 14px 18px;
+  outline: none;
+  transition: border-color 0.2s;
+  -webkit-appearance: none;
+}
+
+.faq-search::placeholder { color: var(--muted); }
+.faq-search:focus { border-color: var(--green); }
+
+.search-icon {
+  position: absolute; right: 16px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted); pointer-events: none; font-size: 16px;
+}
+
+.no-results {
+  display: none;
+  text-align: center;
+  padding: 48px 0;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* ── CATEGORY PILLS ── */
+.faq-filters {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  margin-bottom: 40px;
+}
+
+.filter-pill {
+  font-family: var(--mono);
+  font-size: 10px; font-weight: 500;
+  letter-spacing: 1px; text-transform: uppercase;
+  padding: 6px 14px;
+  border: 1px solid var(--border2);
+  color: var(--muted);
+  background: transparent;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+
+.filter-pill:hover { color: var(--white); border-color: var(--border2); }
+.filter-pill.active { color: var(--bg); background: var(--green); border-color: var(--green); }
+
+/* ── CATEGORY GROUP ── */
+.faq-group { margin-bottom: 48px; }
+
+.faq-group-label {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.faq-group-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.faq-group-name {
+  font-family: var(--mono);
+  font-size: 10px; font-weight: 500;
+  color: var(--muted); letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.faq-group-count {
+  font-family: var(--mono);
+  font-size: 10px; color: var(--dim);
+  margin-left: auto;
+}
+
+/* ── FAQ ITEM ── */
+.faq-item {
+  border-bottom: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.faq-item:first-of-type { border-top: 1px solid var(--border); }
+
+.faq-q {
+  width: 100%;
+  background: none; border: none;
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 16px;
+  padding: 20px 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+.faq-q-text {
+  font-size: 15px; font-weight: 500;
+  color: var(--white); line-height: 1.45;
+  transition: color 0.15s;
+}
+
+.faq-item:hover .faq-q-text { color: var(--green); }
+.faq-item.open .faq-q-text   { color: var(--green); }
+
+.faq-icon {
+  font-family: var(--mono);
+  font-size: 18px; color: var(--muted);
+  flex-shrink: 0; margin-top: 1px;
+  transition: transform 0.25s ease, color 0.15s;
+  line-height: 1;
+}
+
+.faq-item.open .faq-icon { transform: rotate(45deg); color: var(--green); }
+
+.faq-a {
+  max-height: 0; overflow: hidden;
+  transition: max-height 0.35s ease, padding 0.25s ease;
+  padding: 0;
+}
+
+.faq-item.open .faq-a {
+  max-height: 600px;
+  padding-bottom: 20px;
+}
+
+.faq-a-inner {
+  font-size: 14px; font-weight: 300;
+  color: var(--muted); line-height: 1.75;
+}
+
+.faq-a-inner strong { color: var(--off); font-weight: 500; }
+
+.faq-a-inner code {
+  font-family: var(--mono);
+  font-size: 12px; color: var(--green);
+  background: var(--surface);
+  padding: 2px 6px;
+}
+
+.faq-a-inner a { color: var(--green); }
+
+/* ── FOOTER CTA ── */
+.faq-footer {
+  margin-top: 72px;
+  padding: 40px;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  text-align: center;
+}
+
+.faq-footer-title {
+  font-size: 20px; font-weight: 700;
+  color: var(--white); margin-bottom: 8px;
+}
+
+.faq-footer-sub {
+  font-size: 14px; font-weight: 300;
+  color: var(--muted); margin-bottom: 24px;
+}
+
+.faq-footer a {
+  display: inline-block;
+  background: var(--white); color: var(--bg);
+  font-size: 13px; font-weight: 700;
+  padding: 12px 28px;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+.faq-footer a:hover { opacity: 0.85; }
+
+/* ── SITE FOOTER ── */
+footer {
+  position: relative; z-index: 1;
+  border-top: 1px solid var(--border);
+  padding: 28px 40px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 12px;
+}
+
+.footer-left { display: flex; align-items: center; gap: 8px; }
+.footer-logo-text { font-size: 13px; font-weight: 600; color: var(--white); }
+
+.footer-links { display: flex; gap: 20px; }
+.footer-links a { font-size: 12px; color: var(--muted); text-decoration: none; transition: color 0.15s; }
+.footer-links a:hover { color: var(--white); }
+
+.footer-copy {
+  font-family: var(--mono);
+  font-size: 11px; color: var(--dim);
+}
+
+@media (max-width: 600px) {
+  nav { padding: 0 20px; }
+  .nav-links { gap: 16px; }
+  .page { padding: 100px 20px 60px; }
+  footer { padding: 24px 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav id="nav">
+  <a class="nav-logo" href="index.html">
+    <svg class="logo-svg" viewBox="0 0 36 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2 4 Q6 1 10 4 Q14 7 18 4 Q22 1 26 4 Q30 7 34 4" stroke="#ffffff" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+      <path d="M2 11 Q6 8 10 11 Q14 14 18 11 Q22 8 26 11 Q30 14 34 11" stroke="#ffffff" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+      <path d="M2 18 Q6 15 10 18 Q14 21 18 18 Q22 15 26 18 Q30 21 34 18" stroke="#ffffff" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+      <path d="M2 25 Q6 22 10 25 Q14 28 18 25 Q22 22 26 25 Q30 28 34 25" stroke="#ffffff" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+    </svg>
+    <span>Sevenda</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="index.html#features">Features</a></li>
+    <li><a href="index.html#insights">Insights</a></li>
+    <li><a href="index.html#how-it-works">How it works</a></li>
+    <li><a href="index.html#pricing">Pricing</a></li>
+    <li><a href="docs.html">Docs</a></li>
+    <li><a href="faq.html" class="active">FAQ</a></li>
+    <li><a href="#" class="nav-cta">Add to Chrome</a></li>
+  </ul>
+  <button class="nav-burger" id="burger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- Mobile drawer -->
+<div class="nav-drawer" id="drawer">
+  <a href="index.html#features">Features</a>
+  <a href="index.html#insights">Insights</a>
+  <a href="index.html#how-it-works">How it works</a>
+  <a href="index.html#pricing">Pricing</a>
+  <a href="docs.html">Docs</a>
+  <a href="faq.html">FAQ</a>
+  <a href="#" class="drawer-cta">Add to Chrome</a>
+</div>
+
+<!-- ── PAGE ── -->
+<div class="page">
+
+  <div class="page-header">
+    <div class="page-label">FAQ</div>
+    <div class="page-title">Frequently Asked<br>Questions</div>
+    <div class="page-sub">Everything you need to know about Sevenda — from installation to advanced BPMN generation and GTM analysis.</div>
+  </div>
+
+  <!-- Search -->
+  <div class="faq-search-wrap">
+    <input class="faq-search" type="text" placeholder="Search questions…" id="faqSearch" oninput="filterFAQ()">
+    <span class="search-icon">⌕</span>
+  </div>
+
+  <!-- Filters -->
+  <div class="faq-filters">
+    <button class="filter-pill active" onclick="filterCategory('all', this)">All</button>
+    <button class="filter-pill" onclick="filterCategory('general', this)">General</button>
+    <button class="filter-pill" onclick="filterCategory('setup', this)">Setup &amp; Install</button>
+    <button class="filter-pill" onclick="filterCategory('bpmn', this)">BPMN</button>
+    <button class="filter-pill" onclick="filterCategory('insights', this)">Insights &amp; GTM</button>
+    <button class="filter-pill" onclick="filterCategory('privacy', this)">Privacy &amp; Data</button>
+    <button class="filter-pill" onclick="filterCategory('pricing', this)">Pricing</button>
+  </div>
+
+  <div id="noResults" class="no-results">No questions match your search.</div>
+
+  <!-- ── GENERAL ── -->
+  <div class="faq-group" data-category="general">
+    <div class="faq-group-label">
+      <div class="faq-group-dot" style="background:#6BB89A;"></div>
+      <span class="faq-group-name">General</span>
+      <span class="faq-group-count">6 questions</span>
+    </div>
+
+    <div class="faq-item" data-category="general">
+      <button class="faq-q" onclick="toggleFAQ(this)">
+        <span class="faq-q-text">What is Sevenda and what does it do?</span>
+        <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a">
+        <div class="faq-a-inner">
+          Sevenda is a Chrome Extension (MV3) that records your browser sessions and automatically generates <strong>BPMN 2.0 process diagrams</strong> and <strong>GTM/GA4 analytics insights</strong> — powered by Claude Sonnet AI.<br><br>
+          It works in two modes: <strong>🧩 BPMN mode</strong> maps user flows and processes from real browser interactions; <strong>📊 Insights mode</strong> analyzes your tracking setup, identifies missing GTM events, and generates a ready-to-use Tag Plan. No code changes, no SDK, no setup required on the target site.
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item" data-category="general">
+      <button class="faq-q" onclick="toggleFAQ(this)">
+        <span class="faq-q-text">Who is Sevenda for?</span>
+        <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a">
+        <div class="faq-a-inner">
+          Sevenda is built for three main audiences:<br><br>
+          <strong>Developers &amp; Business Analysts</strong> — document AS-IS processes, user flows, and API interactions directly from the browser, without manual diagramming.<br><br>
+          <strong>Marketing &amp; Data teams</strong> — audit GTM/GA4 tracking coverage, identify funnel gaps, and generate Tag Plans without manual inspection.<br><br>
+          <strong>Consultants &amp; Project Managers</strong> — produce BPMN diagrams and .docx reports for clients in minutes, and push directly to Jira.
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item" data-category="general">
+      <button class="faq-q" onclick="toggleFAQ(this)">
+        <span class="faq-q-text">What browsers does Sevenda support?</span>
+        <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a">
+        <div class="faq-a-inner">
+          Sevenda is a <strong>Chrome Extension Manifest V3</strong> and works on <strong>Google Chrome</strong> and any Chromium-based browser (Brave, Edge, Arc). It requires access to Chrome DevTools, so it runs on desktop only — not on mobile browsers.
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item" data-category="general">
+      <button class="faq-q" onclick="toggleFAQ(this)">
+        <span class="faq-q-text">How long does it take to generate the first diagram?</span>
+        <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a">
+        <div class="faq-a-inner">
+          From installation to your first BPMN diagram: <strong>under 60 seconds</strong>.<br><br>
+          The generation itself (Claude Sonnet processing the event stream) typically takes <strong>15–30 seconds</strong> depending on session length and API response time. The Analytics Report in Insights mode is <strong>instantaneous</strong> — it's generated from cached data without an additional API call.
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item" data-category="general">
+      <button class="faq-q" onclick="toggleFAQ(this)">
+        <span class="faq-q-text">Can I use Sevenda on any website?</span>
+        <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a">
+        <div class="faq-a-inner">
+          Yes. Sevenda uses <code>&lt;all_urls&gt;</code> host permissions because the target site is not known in advance — you can record any website you navigate to. It does not inject any visible code or modify the target site in any way.<br><br>
+          Some sites with very aggressive Content Security Policies (CSP) may limit which events Sevenda can capture — in particular, some XHR/fetch calls may be partially blocked. The BPMN and Insights output will still be generated from the events that were successfully captured.
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item" data-category="general">
+      <button class="faq-q" onclick="toggleFAQ(this)">
+        <span class="faq-q-text">Does Sevenda work on localhost and internal tools?</span>
+        <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a">
+        <div class="faq-a-inner">
+          Yes — Sevenda works on <code>localhost</code>, internal tools, and staging environments just like on public websites. This makes it particularly useful for documenting internal workflows, admin dashboards, and pre-production user flows before they go live.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SETUP ── -->
+  <div class="faq-group" data-category="setup">
+    <div class="faq-group-label">
+      <div class="faq-group-dot" style="background:#7aafd4;"></div>
+      <span class="faq-group-name">Setup &amp; Install</span>
+      <span class="faq-group-count">5 questions</span>
+    </div>
+
+    <div class="faq-item" data-category="setup">
+      <button class="faq-q" onclick="toggleFAQ(this)">
+        <span class="faq-q-text">How do I install Sevenda?</span>
+        <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a">
+        <div class="faq-a-inner">
+          1. Install the extension from the <strong>Chrome Web Store</strong> (search for "Sevenda").<br>
+          2. Click the Sevenda icon in the Chrome toolbar — a popup appears.<br>
+          3. Go to <strong>Settings → AI Models</strong> and enter your <a href="https://console.anthropic.com" target="_blank">Anthropic API key</a>.<br>
+          4. Open Chrome DevTools (<code>F12</code>) on any page — you'll find the Sevenda panel in the tabs.<br>
+          5. Press <strong>Avvia Registrazione</strong> and start navigating.
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item" data-category="setup">
+      <button class="faq-q" onclick="toggleFAQ(this)">
+        <span class="faq-q-text">Where do I get an Anthropic API key?</span>
+        <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a">
+        <div class="faq-a-inner">
+          1. Create an account at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>.<br>
+          2. Go to <strong>API Keys</strong> and click <strong>Create Key</strong>.<br>
+          3. Copy the key (starts with <code>sk-ant-</code>) — you'll only see it once.<br>
+          4. Paste it in Sevenda → Settings → AI Models → API Key field and save.<br><br>
+          Anthropic offers a free credit tier to get started. The key is stored locally in <code>chrome.storage.sync</code> — it never leaves your device unless you explicitly click Generate.
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item" data-category="setup">
+      <button class="faq-q" onclick="toggleFAQ(this)">
+        <span class="faq-q-text">I see "Idle" in the panel but nothing happens when I record. What's wrong?</span>
+        <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a">
+        <div class="faq-a-inner">
+          A few things to check:<br><br>
+          • Make sure you're on an <strong>http:// or https:// page</strong> — Sevenda doesn't work on Chrome internal pages (<code>chrome://</code>) or the New Tab page.<br>
+          • Check that the <strong>Sevenda panel is the active tab</strong> in DevTools when you press start.<br>
+          • If the connection indicator shows a warning, try <strong>closing and reopening DevTools</strong> — the Service Worker keepalive ping reconnects automatically.<br>
+          • Verify your API key is saved in Settings → AI Models.
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item" data-category="setup">
+      <button class="faq-q" onclick="toggleFAQ(this)">
+        <span class="faq-q-text">How do I switch between BPMN mode and Insights mode?</span>
+        <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a">
+        <div class="faq-a-inner">
+          Click the <strong>Sevenda icon</strong> in the Chrome toolbar — the popup shows a toggle between <strong>🧩 BPMN</strong> and <strong>📊 Insights</strong>. Your selection is saved in <code>chrome.storage.sync</code> and persists across sessions.<br><br>
+          Switching modes also changes the event capture filters automatically — Insights mode enables DOM observation and network tracking optimized for tag detection, while BPMN mode prioritizes navigation and interaction events.
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item" data-category="setup">
+      <button class="faq-q" onclick="toggleFAQ(this)">
+        <span class="faq-q-text">Can multiple team members use Sevenda simultaneously?</span>
+        <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a">
+        <div class="faq-a-inner">
+          Yes. Each team member installs Sevenda on their own Chrome and configures their own API key. Sessions are stored locally per device — there is no shared session storage in the Free and Pro plans.<br><br>
+          The <strong>Team plan</strong> (€29/month) adds a shared session library and team analytics dashboard, allowing up to 10 team members to access and replay each other's sessions.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── BPMN ── -->
+  <div class="faq-group" data-category="bpmn">
+    <div class="faq-group-label">
+      <div class="faq-group-dot" style="background:#c8a064;"></div>
+      <span class="faq-group-name">BPMN</span>
+      <span class="faq-group-count">6 questions</span>
+    </div>
+
+    <div class="faq-item" data-category="bpmn">
+      <button class="faq-q" onclick="toggleFAQ(this)">
+        <span class="faq-q-text">Is the generated BPMN compliant with the BPMN 2.0 standard?</span>
+        <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a">
+        <div class="faq-a-inner">
+          Yes. Sevenda generates <strong>BPMN 2.0 XML</strong> that is standards-compliant and compatible with the major BPMN tools:<br><br>
+          • <strong>Camunda Modeler &amp; Camunda Platform</strong> (native .bpmn export with <code>adaptForCamunda()</code>)<br>
+          • <strong>Signavio</strong><br>
+          • <strong>Bizagi</strong><br>
+          • <strong>bpmn.io</strong><br><br>
+          Sevenda includes automatic XML repair for truncated or malformed output, and validates the structure before rendering with bpmn-js.
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item" data-category="bpmn">
+      <button class="faq-q" onclick="toggleFAQ(this)">
+        <span class="faq-q-text">How accurate is the generated BPMN? Can I use it directly with clients?</span>
+        <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a">
+        <div class="faq-a-inner">
+          Accuracy depends on the quality of the recorded session. A well-structured session — with clear navigation, meaningful interactions, and a short context description — typically produces a BPMN that can be delivered with minimal edits.<br><br>
+          Sevenda is designed as a <strong>starting point accelerator</strong>, not a replacement for expert review. The iterative feedback feature (natural language refinement) is specifically built to let you tune the diagram in seconds — add gateways, rename tasks, restructure flows — without leaving the panel.
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item" data-category="bpmn">
+      <button class="faq-q" onclick="toggleFAQ(this)">
+        <span class="faq-q-text">What formats can I export the BPMN in?</span>
+        <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a">
+        <div class="faq-a-inner">
+          From the BPMN panel toolbar you can export:<br><br>
+          • <strong>.bpmn</strong> — BPMN 2.0 XML, ready for Camunda Modeler, Signavio or Bizagi<br>
+          • <strong>.svg</strong> — vector image, scalable for presentations and documentation<br>
+          • <strong>.png</strong> — raster image for slides, emails, reports<br>
+          • <strong>.docx</strong> — full Analisi Tecnico-Funzionale (6-section enterprise report) generated via Claude<br>
+          • <strong>Jira issue</strong> — creates a Jira issue with XML + SVG attachments and session metadata<br>
+          • <strong>Camunda .bpmn</strong> — adapted export with <code>isExecutable="true"</code> and Camunda namespace
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item" data-category="bpmn">
+      <button class="faq-q" onclick="toggleFAQ(this)">
+        <span class="faq-q-text">Can I refine the BPMN after it's generated?</span>
+        <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a">
+        <div class="faq-a-inner">
+          Yes — this is one of Sevenda's core features. The <strong>Iterative Feedback</strong> section in the panel lets you type natural language instructions to modify the diagram:<br><br>
+          <em>"Add an exclusive gateway after the login task with two paths: registered user and guest."</em><br>
+          <em>"Rename 'Click Submit' to 'Form Submission — Newsletter'"</em><br>
+          <em>"Add an error boundary event on the checkout task"</em><br><br>
+          Sevenda maintains a conversation history of up to <strong>6 turns</strong>, so Claude has full context of the previous modifications when applying new ones.
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item" data-category="bpmn">
+      <button class="faq-q" onclick="toggleFAQ(this)">
+        <span class="faq-q-text">What events does Sevenda capture to build the BPMN?</span>
+        <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a">
+        <div class="faq-a-inner">
+          Sevenda captures five categories of events, each color-coded in the live stream:<br><br>
+          • <strong style="color:#7aafd4">NAV</strong> — page navigations, History API pushState/replaceState, URL changes<br>
+          • <strong style="color:#a78bfa">UI</strong> — clicks, form submissions, keyboard interactions, button presses<br>
+          • <strong style="color:#6BB89A">NET</strong> — fetch and XHR calls (monkey-patched), response status codes and timing<br>
+          • <strong style="color:#dc5858">ERR</strong> — JavaScript errors, unhandled promise rejections<br>
+          • <strong style="color:#c8a064">DOM</strong> — MutationObserver events: modals appearing/disappearing, dynamic content changes<br><br>
+          Each event is scored HIGH/MEDIUM/LOW by relevance and filtered before being sent to the AI.
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item" data-category="bpmn">
+      <button class="faq-q" onclick="toggleFAQ(this)">
+        <span class="faq-q-text">Can I import an existing BPMN XML into Sevenda?</span>
+        <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a">
+        <div class="faq-a-inner">
+          Yes. In the BPMN panel, click <strong>Incolla XML</strong> to paste any valid BPMN 2.0 XML and render it in the viewer. You can then use the Iterative Feedback feature to ask Claude to modify it — effectively using Sevenda as an AI-powered BPMN editor even without recording a new session.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── INSIGHTS ── -->
+  <div class="faq-group" data-category="insights">
+    <div class="faq-group-label">
+      <div class="faq-group-dot" style="background:#dc5858;"></div>
+      <span class="faq-group-name">Insights &amp; GTM</span>
+      <span class="faq-group-count">5 questions</span>
+    </div>
+
+    <div class="faq-item" data-category="insights">
+      <button class="faq-q" onclick="toggleFAQ(this)">
+        <span class="faq-q-text">Which tracking tools does Sevenda detect automatically?</span>
+        <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a">
+        <div class="faq-a-inner">
+          Sevenda automatically detects the presence and configuration of:<br><br>
+          • <strong>Google Tag Manager</strong> (GTM ID, dataLayer presence)<br>
+          • <strong>Google Analytics 4</strong> (measurement ID, gtag.js)<br>
+          • <strong>Cookiebot</strong> (consent management)<br>
+          • <strong>Hotjar</strong> (heatmaps and session recording)<br>
+          • Other common analytics and tag management tools present in the page scripts<br><br>
+          Detection is passive and happens automatically during the session recording — no configuration needed.
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item" data-category="insights">
+      <button class="faq-q" onclick="toggleFAQ(this)">
+        <span class="faq-q-text">What is the Tag Plan JSON export and how do I use it?</span>
+        <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a">
+        <div class="faq-a-inner">
+          The Tag Plan JSON is a structured file containing all the suggested GTM events, triggers, variables, and dataLayer pushes identified during the session analysis. It follows a standardized format that can be:<br><br>
+          • <strong>Imported directly into Google Tag Manager</strong> (via GTM JSON import)<br>
+          • <strong>Shared with a developer</strong> as a complete implementation spec<br>
+          • <strong>Included in a client deliverable</strong> alongside the Analytics Report .docx<br><br>
+          Export it from the Insights panel using the <strong>↓ Tag Plan</strong> button.
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item" data-category="insights">
+      <button class="faq-q" onclick="toggleFAQ(this)">
+        <span class="faq-q-text">How does Sevenda identify tracking gaps?</span>
+        <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a">
+        <div class="faq-a-inner">
+          During the session, Sevenda captures every user interaction (clicks, form fills, navigation, CTA interactions) and compares them against the GTM events actually fired in the dataLayer. Interactions that happened but weren't tracked become <strong>tracking gaps</strong>.<br><br>
+          Each gap is reported with the specific <strong>CSS selector</strong> and <strong>XPath</strong> of the untriggered element, so developers can implement the fix precisely. Claude then generates the corresponding <code>dataLayer.push()</code> snippet ready to paste into GTM.
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item" data-category="insights">
+      <button class="faq-q" onclick="toggleFAQ(this)">
+        <span class="faq-q-text">Why is the Analytics Report generated instantly while BPMN takes longer?</span>
+        <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a">
+        <div class="faq-a-inner">
+          The Analytics Report (.docx) is built directly from the <strong>cached Insights data</strong> already generated in the current session — it doesn't require a new API call to Claude. It renders instantly from the structured JSON that Claude produced during the Insights analysis.<br><br>
+          The BPMN and Insights generation (the initial AI call) take 15–30 seconds because Claude Sonnet is processing the full event stream. Once that's done, all derivative outputs (report, Tag Plan) are immediate.
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item" data-category="insights">
+      <button class="faq-q" onclick="toggleFAQ(this)">
+        <span class="faq-q-text">Can I run both BPMN and Insights analysis on the same session?</span>
+        <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a">
+        <div class="faq-a-inner">
+          Yes. From the session replay view (Sessions tab), you can run both BPMN and Insights generation on any saved session — regardless of which mode was active when it was recorded. Switch to the session, then use the <strong>BPMN</strong> and <strong>Insights</strong> buttons independently to generate both outputs from the same event data.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PRIVACY ── -->
+  <div class="faq-group" data-category="privacy">
+    <div class="faq-group-label">
+      <div class="faq-group-dot" style="background:#7aafd4;"></div>
+      <span class="faq-group-name">Privacy &amp; Data</span>
+      <span class="faq-group-count">5 questions</span>
+    </div>
+
+    <div class="faq-item" data-category="privacy">
+      <button class="faq-q" onclick="toggleFAQ(this)">
+        <span class="faq-q-text">Where is my session data stored?</span>
+        <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a">
+        <div class="faq-a-inner">
+          All session data is stored <strong>locally on your device</strong> using the browser's <code>IndexedDB</code> API (database name: <code>flowlens</code>). Your settings and API key are stored in <code>chrome.storage.sync</code>, which is synced across your Chrome devices by Google — not by Sevenda.<br><br>
+          <strong>Sevenda Lab operates no backend infrastructure.</strong> There is no server that receives, stores, or processes your session data. You can delete all sessions at any time from the Sessions tab → Delete, or by uninstalling the extension.
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item" data-category="privacy">
+      <button class="faq-q" onclick="toggleFAQ(this)">
+        <span class="faq-q-text">Does Sevenda capture passwords or sensitive form data?</span>
+        <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a">
+        <div class="faq-a-inner">
+          No. Sevenda does <strong>not</strong> capture:<br><br>
+          • Passwords or any <code>type="password"</code> field values<br>
+          • Credit card numbers or payment data<br>
+          • Full text content of input fields (only element identifiers: tag, ID, CSS selector, visible label)<br>
+          • Screenshots or visual recordings of the page<br>
+          • Personal data beyond what appears in the URL or visible element labels<br><br>
+          The captured data is limited to navigation URLs, element identifiers (IDs, CSS selectors), network request URLs with status codes, and DOM structural changes — the minimum required to reconstruct a process flow.
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item" data-category="privacy">
+      <button class="faq-q" onclick="toggleFAQ(this)">
+        <span class="faq-q-text">What data is sent to the Anthropic Claude API?</span>
+        <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a">
+        <div class="faq-a-inner">
+          When you click <strong>Generate</strong>, Sevenda sends the recorded event stream (a structured list of events with timestamps, types, and element identifiers) to the Anthropic Claude API using <strong>your own API key</strong>.<br><br>
+          Anthropic's handling of this data is governed by their <a href="https://www.anthropic.com/privacy" target="_blank">Privacy Policy</a>. Sevenda does not see, log, or store the API request or response — the transmission happens directly from your browser to Anthropic's servers.
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item" data-category="privacy">
+      <button class="faq-q" onclick="toggleFAQ(this)">
+        <span class="faq-q-text">Is Sevenda GDPR compliant?</span>
+        <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a">
+        <div class="faq-a-inner">
+          Yes. Sevenda is designed with a <strong>local-first, privacy-by-design</strong> architecture:<br><br>
+          • No backend infrastructure — zero data transmitted to Sevenda Lab servers<br>
+          • Explicit user consent required before any AI generation (you must click Generate)<br>
+          • Full user control over stored data — delete sessions at any time<br>
+          • No collection of personally identifiable information (PII)<br><br>
+          Our full Privacy Policy is available at <a href="privacy.html">sevenda.dev/privacy.html</a>. For GDPR-related requests, contact <a href="mailto:hello@sevenda.dev">hello@sevenda.dev</a>.
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item" data-category="privacy">
+      <button class="faq-q" onclick="toggleFAQ(this)">
+        <span class="faq-q-text">Can I use Sevenda to record sessions on client websites?</span>
+        <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a">
+        <div class="faq-a-inner">
+          Technically yes — Sevenda works on any website. However, we recommend <strong>informing your client</strong> that you are conducting a session observation for process documentation purposes, consistent with how you would handle any usability observation or screen-sharing session.<br><br>
+          Sevenda does not capture passwords, payment data, or full form content — the risk profile is similar to a consultant observing a screen during an interview. That said, always check your client's internal data policies before recording.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PRICING ── -->
+  <div class="faq-group" data-category="pricing">
+    <div class="faq-group-label">
+      <div class="faq-group-dot" style="background:#6BB89A;"></div>
+      <span class="faq-group-name">Pricing</span>
+      <span class="faq-group-count">4 questions</span>
+    </div>
+
+    <div class="faq-item" data-category="pricing">
+      <button class="faq-q" onclick="toggleFAQ(this)">
+        <span class="faq-q-text">What's included in the Free plan?</span>
+        <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a">
+        <div class="faq-a-inner">
+          The Free plan includes <strong>10 sessions per month</strong>, BPMN 2.0 generation, export in .bpmn and .svg formats, and full access to the Chrome DevTools panel.<br><br>
+          Features exclusive to Pro and Team plans: Insights &amp; GTM analysis, .docx report export, .png export, Jira and Camunda integration, and team collaboration tools.
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item" data-category="pricing">
+      <button class="faq-q" onclick="toggleFAQ(this)">
+        <span class="faq-q-text">What are the Anthropic API costs and how do I estimate them?</span>
+        <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a">
+        <div class="faq-a-inner">
+          Sevenda uses a <strong>BYOK (Bring Your Own Key)</strong> model — you pay Anthropic directly for API usage, so costs are transparent and under your control.<br><br>
+          Rough estimate: <strong>40 sessions with BPMN or Insights generation costs approximately €15–25 total</strong> using Claude Sonnet. The Analytics Report (.docx) is generated without an API call, so it doesn't add to your costs.<br><br>
+          You can monitor your exact usage in the <a href="https://console.anthropic.com" target="_blank">Anthropic Console</a>. Sevenda includes adaptive rate-limit management to avoid unexpected throttling.
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item" data-category="pricing">
+      <button class="faq-q" onclick="toggleFAQ(this)">
+        <span class="faq-q-text">Can I cancel my subscription at any time?</span>
+        <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a">
+        <div class="faq-a-inner">
+          Yes. There are no long-term commitments. You can cancel your Pro or Team subscription at any time — your access continues until the end of the current billing period, then reverts to the Free plan. No cancellation fees, no data loss.
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item" data-category="pricing">
+      <button class="faq-q" onclick="toggleFAQ(this)">
+        <span class="faq-q-text">Do you offer a trial or a partnership program for consultancies?</span>
+        <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a">
+        <div class="faq-a-inner">
+          Yes — we offer a <strong>Beta Partnership Program</strong> for consulting firms and agencies. Qualified partners receive free access to the Team plan for 60 working days, dedicated onboarding, and direct support from the founder in exchange for structured feedback and a case study.<br><br>
+          If you're interested, write to <a href="mailto:hello@sevenda.dev">hello@sevenda.dev</a> with a brief description of your firm and use case.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer CTA -->
+  <div class="faq-footer">
+    <div class="faq-footer-title">Still have questions?</div>
+    <div class="faq-footer-sub">Read the full documentation or write to us directly.</div>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+      <a href="docs.html">Read the docs →</a>
+      <a href="mailto:hello@sevenda.dev" style="background:transparent;color:var(--green);border:1px solid var(--green);">hello@sevenda.dev</a>
+    </div>
+  </div>
+
+</div><!-- /page -->
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-left">
+    <svg width="20" height="15" viewBox="0 0 36 28" fill="none">
+      <path d="M2 4 Q6 1 10 4 Q14 7 18 4 Q22 1 26 4 Q30 7 34 4" stroke="#6BB89A" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+      <path d="M2 11 Q6 8 10 11 Q14 14 18 11 Q22 8 26 11 Q30 14 34 11" stroke="#6BB89A" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+      <path d="M2 18 Q6 15 10 18 Q14 21 18 18 Q22 15 26 18 Q30 21 34 18" stroke="#6BB89A" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+      <path d="M2 25 Q6 22 10 25 Q14 28 18 25 Q22 22 26 25 Q30 28 34 25" stroke="#6BB89A" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+    </svg>
+    <span class="footer-logo-text">Sevenda</span>
+  </div>
+  <div class="footer-links">
+    <a href="index.html#features">Features</a>
+    <a href="index.html#pricing">Pricing</a>
+    <a href="docs.html">Docs</a>
+    <a href="faq.html">FAQ</a>
+    <a href="privacy.html">Privacy Policy</a>
+  </div>
+  <span class="footer-copy">© 2025 Sevenda · Built with Claude</span>
+</footer>
+
+<script>
+// ── TOGGLE FAQ ──
+function toggleFAQ(btn) {
+  const item = btn.parentElement;
+  const isOpen = item.classList.contains('open');
+  // Close all
+  document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
+  // Open clicked if it was closed
+  if (!isOpen) item.classList.add('open');
+}
+
+// ── FILTER BY CATEGORY ──
+let activeCategory = 'all';
+
+function filterCategory(cat, pill) {
+  activeCategory = cat;
+  document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+  pill.classList.add('active');
+  applyFilters();
+}
+
+// ── SEARCH ──
+function filterFAQ() { applyFilters(); }
+
+function applyFilters() {
+  const query = document.getElementById('faqSearch').value.toLowerCase().trim();
+  let anyVisible = false;
+
+  document.querySelectorAll('.faq-item').forEach(item => {
+    const cat = item.dataset.category;
+    const text = item.querySelector('.faq-q-text').textContent.toLowerCase();
+    const answer = item.querySelector('.faq-a-inner').textContent.toLowerCase();
+
+    const catMatch = activeCategory === 'all' || cat === activeCategory;
+    const queryMatch = !query || text.includes(query) || answer.includes(query);
+
+    const visible = catMatch && queryMatch;
+    item.style.display = visible ? '' : 'none';
+    if (visible) anyVisible = true;
+  });
+
+  // Show/hide group labels
+  document.querySelectorAll('.faq-group').forEach(group => {
+    const cat = group.dataset.category;
+    const catMatch = activeCategory === 'all' || cat === activeCategory;
+    const hasVisible = [...group.querySelectorAll('.faq-item')].some(i => i.style.display !== 'none');
+    group.style.display = catMatch && hasVisible ? '' : 'none';
+  });
+
+  document.getElementById('noResults').style.display = anyVisible ? 'none' : 'block';
+}
+</script>
+
+<script>
+// Nav scroll effect
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 10);
+}, { passive: true });
+
+// Burger menu
+const burger = document.getElementById('burger');
+const drawer = document.getElementById('drawer');
+burger.addEventListener('click', () => {
+  burger.classList.toggle('open');
+  drawer.classList.toggle('open');
+});
+drawer.querySelectorAll('a').forEach(a => {
+  a.addEventListener('click', () => {
+    burger.classList.remove('open');
+    drawer.classList.remove('open');
+  });
+});
+</script>
+
+</body>
+</html>
