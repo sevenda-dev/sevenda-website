@@ -459,38 +459,70 @@
     .ic-desc { font-size:14px;color:var(--muted);line-height:1.65; }
 
     /* ── USE CASES ───────────────────────────────────────────── */
-    #usecases { padding: 0 0 120px; }
-    #usecases .head { text-align:center; margin-bottom: 52px; }
+    #use-cases { padding: 80px 0 120px; }
+    #use-cases .uc-head { text-align: center; margin-bottom: 52px; }
+    #use-cases .uc-head .slabel { color: var(--green); }
 
     .ucgrid {
       display: grid;
-      grid-template-columns: repeat(3,1fr);
-      background: var(--border);
-      gap: 1px;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      overflow: hidden;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      align-items: stretch;
     }
     .uccard {
-      background: var(--bg);
-      padding: 36px 30px;
-      transition: background .2s;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 32px 28px;
+      display: flex;
+      flex-direction: column;
+      border-left-width: 3px;
+      border-left-style: solid;
+      transition: transform .2s ease, background .2s;
     }
-    .uccard:hover { background: var(--surface); }
-    .uc-icon {
-      font-size: 24px;
-      line-height: 1;
-      margin-bottom: 16px;
-      display: block;
-      filter: grayscale(20%);
+    .uccard:hover { transform: translateY(-2px); background: var(--surface-up); }
+
+    .uc-badge {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 500;
+      padding: 3px 10px;
+      border-radius: 20px;
+      border: 1px solid;
+      margin-bottom: 18px;
+      align-self: flex-start;
     }
-    .uc-role {
-      font-size: 16px;
+    .uc-scenario {
+      font-size: 15px;
       font-weight: 600;
       letter-spacing: -.02em;
-      margin-bottom: 10px;
+      line-height: 1.3;
+      margin-bottom: 14px;
     }
-    .uc-desc { font-size:14px;color:var(--muted);line-height:1.65; }
+    .uc-narrative {
+      font-size: 13.5px;
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+    .uc-outputs {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      margin-bottom: 20px;
+      flex: 1;
+    }
+    .uc-outputs li { font-size: 13px; color: var(--text); line-height: 1.4; }
+    .uc-check { color: var(--green); margin-right: 7px; }
+    .uc-time {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
 
     /* ── PRICING ─────────────────────────────────────────────── */
     #pricing { padding: 120px 0; }
@@ -874,6 +906,7 @@
   <ul class="nav-links">
     <li><a href="#features">Features</a></li>
     <li><a href="#insights">Insights</a></li>
+    <li><a href="#use-cases">Use Cases</a></li>
     <li><a href="#how">How it works</a></li>
     <li><a href="#stats">Pricing</a></li>
     <li><a href="/docs.html">Docs</a></li>
@@ -891,6 +924,7 @@
 <div class="nav-drawer" id="drawer">
   <a href="#features" class="drawer-link">Features</a>
   <a href="#insights" class="drawer-link">Insights</a>
+  <a href="#use-cases" class="drawer-link">Use Cases</a>
   <a href="#how" class="drawer-link">How it works</a>
   <a href="#pricing" class="drawer-link">Pricing</a>
   <a href="/docs.html" class="drawer-link">Docs</a>
@@ -1118,6 +1152,62 @@
   </div>
 </section>
 
+<!-- ── USE CASES ──────────────────────────────────────────────── -->
+<section id="use-cases">
+  <div class="wrap">
+    <div class="uc-head reveal">
+      <p class="slabel">USE CASES</p>
+      <h2 class="stitle">Built for the people who document processes.</h2>
+      <p class="ssub">Three teams. Three problems. One tool.</p>
+    </div>
+
+    <div class="ucgrid">
+
+      <!-- Business Analyst -->
+      <div class="uccard reveal" style="transition-delay:.04s;border-left-color:#7aafd4">
+        <span class="uc-badge" style="color:#7aafd4;border-color:#7aafd4">Business Analyst</span>
+        <h3 class="uc-scenario">AS-IS process documentation. Day one.</h3>
+        <p class="uc-narrative">A new client engagement starts Monday. No process documentation exists. The BA opens Chrome DevTools, navigates through the client's web application for 90 seconds, and presses Generate. Sevenda produces a validated BPMN 2.0 diagram — with every task, gateway, and flow captured automatically.</p>
+        <ul class="uc-outputs">
+          <li><span class="uc-check">✓</span>BPMN 2.0 diagram ready for Camunda or Signavio</li>
+          <li><span class="uc-check">✓</span>Analisi Tecnico-Funzionale .docx for stakeholders</li>
+          <li><span class="uc-check">✓</span>Jira issue created with diagram attached</li>
+        </ul>
+        <p class="uc-time">From 8 hours → 90 seconds</p>
+      </div>
+
+      <!-- Marketing & Data Consultant -->
+      <div class="uccard reveal" style="transition-delay:.1s;border-left-color:#6BB89A">
+        <span class="uc-badge" style="color:#6BB89A;border-color:#6BB89A">Marketing &amp; Data Consultant</span>
+        <h3 class="uc-scenario">GTM audit. Full gap report. One session.</h3>
+        <p class="uc-narrative">The client's GA4 is configured, but conversion events are missing from half the funnel. The consultant switches Sevenda to Insights mode, navigates the purchase flow, and clicks Generate. Every untracked interaction is flagged — with CSS selectors, dataLayer.push() snippets, and a ready-to-import Tag Plan.</p>
+        <ul class="uc-outputs">
+          <li><span class="uc-check">✓</span>Tracking gap analysis with element selectors</li>
+          <li><span class="uc-check">✓</span>dataLayer.push() snippets ready for GTM</li>
+          <li><span class="uc-check">✓</span>Tag Plan JSON — importable directly into GTM</li>
+          <li><span class="uc-check">✓</span>Analytics Report .docx for the client</li>
+        </ul>
+        <p class="uc-time">From 3-day audit → 20 minutes</p>
+      </div>
+
+      <!-- Developer / QA -->
+      <div class="uccard reveal" style="transition-delay:.16s;border-left-color:#c8a064">
+        <span class="uc-badge" style="color:#c8a064;border-color:#c8a064">Developer / QA</span>
+        <h3 class="uc-scenario">Ship fast. Document automatically.</h3>
+        <p class="uc-narrative">Release day. No time to update the process docs. The developer records the QA session in Sevenda — every API call, every navigation, every form submission captured in the event stream. One click generates the updated BPMN and a structured report, ready to commit alongside the code.</p>
+        <ul class="uc-outputs">
+          <li><span class="uc-check">✓</span>User flow diagram — always up to date</li>
+          <li><span class="uc-check">✓</span>API interaction log with status codes and timing</li>
+          <li><span class="uc-check">✓</span>Export .svg for README or Confluence</li>
+          <li><span class="uc-check">✓</span>Natural language refinement for edge cases</li>
+        </ul>
+        <p class="uc-time">Documentation that updates itself</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
 <!-- ── FEATURES ──────────────────────────────────────────────── -->
 <section id="features">
   <div class="wrap">
@@ -1207,36 +1297,6 @@
         </svg>
         <h3 class="fh">Multi-format export</h3>
         <p class="fp">.bpmn for process engines, .svg and .png for presentations, .docx reports for stakeholders. One session, every format you need.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ── USE CASES ──────────────────────────────────────────────── -->
-<section id="usecases">
-  <div class="wrap">
-    <div class="head reveal">
-      <p class="slabel">Use cases</p>
-      <h2 class="stitle">Built for every team</h2>
-    </div>
-
-    <div class="ucgrid">
-      <div class="uccard reveal" style="transition-delay:.04s">
-        <span class="uc-icon">👨‍💻</span>
-        <h3 class="uc-role">Developers</h3>
-        <p class="uc-desc">Document APIs, user flows, and system interactions directly from a real browser session. No manual diagramming — just record, generate, and share.</p>
-      </div>
-
-      <div class="uccard reveal" style="transition-delay:.1s">
-        <span class="uc-icon">📊</span>
-        <h3 class="uc-role">Business Analysts</h3>
-        <p class="uc-desc">Map AS-IS processes from real sessions instead of relying on stakeholder interviews. Get accurate, evidence-based process models in minutes.</p>
-      </div>
-
-      <div class="uccard reveal" style="transition-delay:.16s">
-        <span class="uc-icon">📣</span>
-        <h3 class="uc-role">Marketers</h3>
-        <p class="uc-desc">Capture and visualize funnels, customer journeys, and campaign touchpoints without manual diagramming. Export to .docx and share with the team instantly.</p>
       </div>
     </div>
   </div>
