@@ -531,7 +531,7 @@
 
     .pgrid {
       display: grid;
-      grid-template-columns: repeat(3,1fr);
+      grid-template-columns: repeat(4,1fr);
       gap: 16px;
       align-items: start;
     }
@@ -539,24 +539,31 @@
     .pcard {
       background: var(--surface);
       border: 1px solid var(--border-hi);
-      border-radius: 10px;
-      padding: 32px 28px 28px;
+      border-left: 3px solid var(--border-hi);
+      border-radius: 0;
+      padding: 24px;
       display: flex;
       flex-direction: column;
-      gap: 0;
+      position: relative;
       transition: border-color .2s;
     }
     .pcard:hover { border-color: rgba(255,255,255,.22); }
 
-    /* Pro card — elevated */
-    .pcard-pro {
-      background: #161616;
-      border-color: rgba(255,255,255,.7);
-      box-shadow: 0 0 0 1px rgba(255,255,255,.06), 0 24px 60px rgba(0,0,0,.5);
-      position: relative;
-      top: -8px;
+    /* Popular card (Team) */
+    .pcard-popular {
+      padding-top: 38px;
+      border-color: var(--green);
+      border-left-color: var(--green);
     }
-    .pcard-pro:hover { border-color: #fff; }
+    .p-popular-badge {
+      position: absolute;
+      top: 0; left: -1px; right: -1px;
+      background: var(--green); color: var(--bg);
+      font-family: var(--mono);
+      font-size: 9px; font-weight: 600;
+      text-align: center; padding: 5px 0;
+      letter-spacing: 1.5px; text-transform: uppercase;
+    }
 
     .pcard-top {
       display: flex;
@@ -565,10 +572,11 @@
       margin-bottom: 24px;
     }
     .plan-name {
-      font-size: 14px;
-      font-weight: 600;
+      font-size: 16px;
+      font-weight: 700;
       letter-spacing: -.01em;
-      color: var(--text);
+      color: var(--white);
+      margin-bottom: 4px;
     }
     .plan-badge {
       font-family: var(--mono);
@@ -635,7 +643,84 @@
       margin-bottom: 22px;
     }
 
-    .pcard .btn { width:100%; justify-content:center; padding:11px 0; font-size:14px; }
+    .pcard .btn { width:100%; justify-content:center; padding:11px 0; font-size:13px; }
+
+    /* ── PRICING v2 — additions ── */
+    #pricing .slabel { color: var(--green); }
+    #pricing .phead  { margin-bottom: 32px; }
+    #pricing .plan-features { margin-bottom: 8px; }
+    #pricing .plan-features li { font-size: 12px; }
+
+    .p-billing-wrap { display: flex; justify-content: center; margin-bottom: 40px; }
+    .p-billing-toggle {
+      display: inline-flex;
+      background: var(--surface);
+      border: 1px solid var(--border-hi);
+      padding: 3px; gap: 2px;
+    }
+    .p-billing-btn {
+      font-family: var(--mono);
+      font-size: 11px; font-weight: 500;
+      padding: 7px 16px;
+      background: transparent; border: none;
+      cursor: pointer; color: var(--muted);
+      transition: background .15s, color .15s;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .p-billing-btn.active { background: var(--text); color: var(--bg); }
+    .p-billing-badge {
+      font-family: var(--mono);
+      font-size: 10px; color: var(--green);
+      background: rgba(107,184,154,0.12);
+      border: 1px solid rgba(107,184,154,0.25);
+      padding: 2px 7px; border-radius: 2px;
+    }
+
+    .p-accent-muted { border-left-color: var(--muted); }
+    .p-accent-blue  { border-left-color: var(--blue); }
+    .p-accent-green { border-color: var(--green); border-left-color: var(--green); }
+    .p-accent-amber { border-left-color: var(--amber); }
+
+    .p-tagline {
+      font-size: 11px; font-weight: 300;
+      color: var(--muted); margin-bottom: 18px; line-height: 1.4;
+    }
+
+    .p-price-block { margin-bottom: 16px; }
+    .p-price-row { display: flex; align-items: baseline; }
+    .p-price-amount {
+      font-size: 32px; font-weight: 800;
+      color: var(--white); line-height: 1;
+    }
+    .p-price-amount.p-contact { font-size: 20px; font-weight: 700; }
+    .p-price-suffix {
+      font-family: var(--mono);
+      font-size: 11px; color: var(--muted); margin-left: 2px;
+    }
+    .p-price-note {
+      font-family: var(--mono);
+      font-size: 10px; color: var(--muted); margin-top: 4px;
+    }
+
+    .p-see-all {
+      font-family: var(--mono);
+      font-size: 11px; color: var(--muted);
+      display: block; margin-top: 8px; margin-bottom: 12px;
+      transition: color .15s;
+    }
+    .p-see-all:hover { color: var(--green); text-decoration: underline; }
+
+    .p-compare { text-align: center; margin-top: 40px; }
+    .p-compare a {
+      font-family: var(--mono);
+      font-size: 12px; color: var(--green);
+    }
+    .p-compare a:hover { text-decoration: underline; }
+
+    .p-cta-free      { background: transparent; color: var(--muted); border-color: var(--border-hi); }
+    .p-cta-solo      { background: var(--blue);  color: var(--bg);   border-color: var(--blue); }
+    .p-cta-team      { background: var(--green); color: var(--bg);   border-color: var(--green); }
+    .p-cta-enterprise{ background: transparent; color: var(--amber); border-color: var(--amber); }
 
     /* ── STATS ───────────────────────────────────────────────── */
     #stats {
@@ -836,6 +921,10 @@
     }
     .ccard-link:hover { opacity: .7; }
 
+    @media (max-width: 1024px) {
+      .pgrid { grid-template-columns: repeat(2, 1fr); }
+    }
+
     @media (max-width: 768px) {
       /* Contain all sections */
       section, nav, footer { width: 100%; max-width: 100%; }
@@ -866,9 +955,9 @@
       .ucgrid     { grid-template-columns: 1fr; }
       .sgrid      { grid-template-columns: 1fr; }
 
-      /* Pricing: stack, Pro card first */
-      .pgrid      { grid-template-columns: 1fr; }
-      .pcard-pro  { order: -1; top: 0; }
+      /* Pricing: stack, popular card first */
+      .pgrid         { grid-template-columns: 1fr; }
+      .pcard-popular { order: -1; }
 
       /* Documentation */
       .cgrid      { grid-template-columns: 1fr; }
@@ -1325,80 +1414,130 @@
   <div class="wrap">
     <div class="phead reveal">
       <p class="slabel">Pricing</p>
-      <h2 class="stitle">Simple pricing.<br>No surprises.</h2>
-      <p class="psub">Start free, upgrade when you need more.</p>
+      <h2 class="stitle">Simple, transparent, scalable.</h2>
+      <p class="ssub">Start for free. Scale when you need. No surprises.</p>
+    </div>
+
+    <!-- Billing toggle -->
+    <div class="p-billing-wrap">
+      <div class="p-billing-toggle">
+        <button class="p-billing-btn" id="idx-btn-monthly" onclick="setIdxBilling('monthly')">Monthly</button>
+        <button class="p-billing-btn active" id="idx-btn-annual" onclick="setIdxBilling('annual')">
+          Annual
+          <span class="p-billing-badge">Save 25%</span>
+        </button>
+      </div>
     </div>
 
     <div class="pgrid">
 
-      <!-- Free -->
-      <div class="pcard reveal" style="transition-delay:.04s">
-        <div class="pcard-top">
-          <span class="plan-name">Free</span>
-          <span class="plan-badge">Get started</span>
-        </div>
-        <div class="plan-price">
-          <span class="price-amount">€0</span>
-          <span class="price-period">/ forever</span>
+      <!-- FREE -->
+      <div class="pcard p-accent-muted reveal" style="transition-delay:.04s">
+        <div class="plan-name">Free</div>
+        <div class="p-tagline">Start exploring</div>
+        <div class="p-price-block">
+          <div class="p-price-row">
+            <span class="p-price-amount">€0</span>
+          </div>
+          <div class="p-price-note">forever</div>
         </div>
         <div class="plan-divider"></div>
         <ul class="plan-features">
-          <li class="on"><span class="feat-check y">✓</span>10 sessions per month</li>
-          <li class="on"><span class="feat-check y">✓</span>BPMN 2.0 generation</li>
-          <li class="on"><span class="feat-check y">✓</span>Export .bpmn and .svg</li>
-          <li class="on"><span class="feat-check y">✓</span>Chrome DevTools panel</li>
-          <li class="off"><span class="feat-check n">✗</span>Insights &amp; analytics</li>
-          <li class="off"><span class="feat-check n">✗</span>Jira &amp; Camunda integration</li>
+          <li class="on"><span class="feat-check y">✓</span>5 sessions/month</li>
+          <li class="on"><span class="feat-check y">✓</span>10 AI calls (BPMN + Insights)</li>
+          <li class="on"><span class="feat-check y">✓</span>5 exports (XML / SVG)</li>
+          <li class="on"><span class="feat-check y">✓</span>Local workspace</li>
+          <li class="on"><span class="feat-check y">✓</span>Tag Plan JSON export</li>
         </ul>
-        <a href="#" class="btn btn-ghost">Add to Chrome — free</a>
+        <a href="/pricing.html" class="p-see-all">See all features →</a>
+        <a href="#" class="btn p-cta-free">Get started free</a>
       </div>
 
-      <!-- Pro -->
-      <div class="pcard pcard-pro reveal" style="transition-delay:.1s">
-        <div class="pcard-top">
-          <span class="plan-name">Pro</span>
-          <span class="plan-badge plan-badge-accent">Most popular</span>
+      <!-- SOLO -->
+      <div class="pcard p-accent-blue reveal" style="transition-delay:.08s">
+        <div class="plan-name">Solo</div>
+        <div class="p-tagline">For the independent developer</div>
+        <div class="p-price-block"
+             data-annual-price="9"
+             data-annual-suffix="/month"
+             data-annual-note="billed annually"
+             data-monthly-price="12"
+             data-monthly-suffix="/month"
+             data-monthly-note="billed monthly">
+          <div class="p-price-row">
+            <span class="p-price-amount">€9</span>
+            <span class="p-price-suffix">/month</span>
+          </div>
+          <div class="p-price-note">billed annually</div>
         </div>
-        <div class="plan-price">
-          <span class="price-amount">€9</span>
-          <span class="price-period">/ month</span>
+        <div class="plan-divider"></div>
+        <ul class="plan-features">
+          <li class="on"><span class="feat-check y">✓</span>30 sessions/month</li>
+          <li class="on"><span class="feat-check y">✓</span>100 AI calls (BPMN + Insights)</li>
+          <li class="on"><span class="feat-check y">✓</span>50 exports (XML / SVG / PNG)</li>
+          <li class="on"><span class="feat-check y">✓</span>Iterative BPMN feedback (chat)</li>
+          <li class="on"><span class="feat-check y">✓</span>Session history (90 days)</li>
+        </ul>
+        <a href="/pricing.html" class="p-see-all">See all features →</a>
+        <a href="#" class="btn p-cta-solo">Start 14-day free trial</a>
+      </div>
+
+      <!-- TEAM -->
+      <div class="pcard p-accent-green pcard-popular reveal" style="transition-delay:.12s">
+        <div class="p-popular-badge">Most popular</div>
+        <div class="plan-name">Team</div>
+        <div class="p-tagline">For agile teams and consultants</div>
+        <div class="p-price-block"
+             data-annual-price="19"
+             data-annual-suffix="/user/month"
+             data-annual-note="billed annually"
+             data-monthly-price="24"
+             data-monthly-suffix="/user/month"
+             data-monthly-note="billed monthly">
+          <div class="p-price-row">
+            <span class="p-price-amount">€19</span>
+            <span class="p-price-suffix">/user/month</span>
+          </div>
+          <div class="p-price-note">billed annually</div>
+        </div>
+        <div class="plan-divider"></div>
+        <ul class="plan-features">
+          <li class="on"><span class="feat-check y">✓</span>200 sessions/month (pooled)</li>
+          <li class="on"><span class="feat-check y">✓</span>500 AI calls (pooled)</li>
+          <li class="on"><span class="feat-check y">✓</span>300 exports (all formats)</li>
+          <li class="on"><span class="feat-check y">✓</span>Jira integration (all members)</li>
+          <li class="on"><span class="feat-check y">✓</span>Priority support (email)</li>
+        </ul>
+        <a href="/pricing.html" class="p-see-all">See all features →</a>
+        <a href="#" class="btn p-cta-team">Start with your team</a>
+      </div>
+
+      <!-- ENTERPRISE -->
+      <div class="pcard p-accent-amber reveal" style="transition-delay:.16s">
+        <div class="plan-name">Enterprise</div>
+        <div class="p-tagline">For organizations and consulting firms</div>
+        <div class="p-price-block">
+          <div class="p-price-row">
+            <span class="p-price-amount p-contact">Contact us</span>
+          </div>
+          <div class="p-price-note">custom pricing</div>
         </div>
         <div class="plan-divider"></div>
         <ul class="plan-features">
           <li class="on"><span class="feat-check y">✓</span>Unlimited sessions</li>
-          <li class="on"><span class="feat-check y">✓</span>BPMN 2.0 generation</li>
-          <li class="on"><span class="feat-check y">✓</span>Export .bpmn, .svg, .png</li>
-          <li class="on"><span class="feat-check y">✓</span>Export .docx reports</li>
-          <li class="on"><span class="feat-check y">✓</span>Insights &amp; GTM suggestions</li>
-          <li class="on"><span class="feat-check y">✓</span>Jira &amp; Camunda integration</li>
-          <li class="off"><span class="feat-check n">✗</span>Team collaboration</li>
-          <li class="off"><span class="feat-check n">✗</span>Priority support</li>
+          <li class="on"><span class="feat-check y">✓</span>Unlimited AI calls (pooled)</li>
+          <li class="on"><span class="feat-check y">✓</span>Unlimited exports (all formats)</li>
+          <li class="on"><span class="feat-check y">✓</span>Advanced RBAC + audit log</li>
+          <li class="on"><span class="feat-check y">✓</span>Dedicated onboarding + CSM</li>
         </ul>
-        <a href="#" class="btn btn-primary">Start free trial</a>
+        <a href="/pricing.html" class="p-see-all">See all features →</a>
+        <a href="mailto:hello@sevenda.dev?subject=Enterprise Plan" class="btn p-cta-enterprise">Contact us</a>
       </div>
 
-      <!-- Team -->
-      <div class="pcard reveal" style="transition-delay:.16s">
-        <div class="pcard-top">
-          <span class="plan-name">Team</span>
-          <span class="plan-badge">For teams</span>
-        </div>
-        <div class="plan-price">
-          <span class="price-amount">€29</span>
-          <span class="price-period">/ month</span>
-        </div>
-        <div class="plan-divider"></div>
-        <ul class="plan-features">
-          <li class="on"><span class="feat-check y">✓</span>Everything in Pro</li>
-          <li class="on"><span class="feat-check y">✓</span>Up to 10 team members</li>
-          <li class="on"><span class="feat-check y">✓</span>Shared session library</li>
-          <li class="on"><span class="feat-check y">✓</span>Team analytics dashboard</li>
-          <li class="on"><span class="feat-check y">✓</span>Priority support</li>
-          <li class="on"><span class="feat-check y">✓</span>Custom prompt templates</li>
-        </ul>
-        <a href="#" class="btn btn-ghost">Contact us</a>
-      </div>
+    </div>
 
+    <div class="p-compare reveal">
+      <a href="/pricing.html">Compare all features →</a>
     </div>
   </div>
 </section>
@@ -1499,6 +1638,20 @@
       document.body.style.overflow = '';
     });
   });
+
+  // Pricing billing toggle
+  function setIdxBilling(mode) {
+    document.getElementById('idx-btn-annual').classList.toggle('active', mode === 'annual');
+    document.getElementById('idx-btn-monthly').classList.toggle('active', mode === 'monthly');
+    document.querySelectorAll('#pricing .p-price-block[data-annual-price]').forEach(block => {
+      const price  = block.dataset[mode + 'Price'];
+      const suffix = block.dataset[mode + 'Suffix'];
+      const note   = block.dataset[mode + 'Note'];
+      block.querySelector('.p-price-amount').textContent = '€' + price;
+      block.querySelector('.p-price-suffix').textContent = suffix;
+      block.querySelector('.p-price-note').textContent   = note;
+    });
+  }
 
   // Scroll reveal
   const io = new IntersectionObserver(entries => {
