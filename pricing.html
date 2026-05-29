@@ -535,6 +535,80 @@
       .beta-btn { width: 100%; text-align: center; }
       .faq-section { margin-bottom: 60px; }
     }
+
+    /* ── STRIPE CHECKOUT ── */
+    .stripe-notice {
+      margin-top: 8px;
+      padding: 8px 12px;
+      background: rgba(107,184,154,0.08);
+      border: 1px solid rgba(107,184,154,0.2);
+      color: var(--green);
+      font-family: var(--mono);
+      font-size: 11px;
+      line-height: 1.5;
+      text-align: center;
+      animation: fadeIn 0.2s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── ENTERPRISE CONTACT FORM ── */
+    .enterprise-form {
+      display: none;
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-left: 3px solid var(--amber);
+      padding: 24px;
+      margin-top: 16px;
+    }
+    .ent-form-row { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+    .ent-label {
+      font-family: var(--mono);
+      font-size: 9px; font-weight: 500;
+      color: var(--muted);
+      text-transform: uppercase; letter-spacing: 1px;
+    }
+    .ent-input, .ent-select, .ent-textarea {
+      background: var(--bg);
+      border: 1px solid var(--border2);
+      color: var(--white);
+      font-family: var(--sans);
+      font-size: 13px;
+      padding: 9px 12px;
+      width: 100%;
+      outline: none;
+      border-radius: 0;
+      -webkit-appearance: none;
+    }
+    .ent-input:focus, .ent-select:focus, .ent-textarea:focus { border-color: var(--amber); }
+    .ent-select option { background: var(--bg); }
+    .ent-textarea { height: 80px; resize: vertical; }
+    .ent-submit {
+      background: var(--amber); color: var(--bg);
+      font-family: var(--sans);
+      font-size: 13px; font-weight: 700;
+      width: 100%; padding: 10px;
+      border: none; cursor: pointer;
+      transition: opacity .15s;
+    }
+    .ent-submit:hover { opacity: 0.85; }
+
+    /* ── ADDON BUY BUTTON ── */
+    .addon-buy-btn {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--green);
+      background: transparent;
+      border: 1px solid rgba(107,184,154,0.25);
+      padding: 3px 10px;
+      cursor: pointer;
+      transition: background .15s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .addon-buy-btn:hover { background: rgba(107,184,154,0.10); }
   </style>
 </head>
 <body>
@@ -591,8 +665,8 @@
   <!-- 2. BILLING TOGGLE -->
   <div class="billing-wrap">
     <div class="billing-toggle">
-      <button class="billing-btn" id="btn-monthly" onclick="setBilling('monthly')">Monthly</button>
-      <button class="billing-btn active" id="btn-annual" onclick="setBilling('annual')">
+      <button class="billing-btn" id="btn-monthly" data-billing="monthly" onclick="setBilling('monthly')">Monthly</button>
+      <button class="billing-btn active" id="btn-annual" data-billing="annual" onclick="setBilling('annual')">
         Annual
         <span class="billing-badge">Save 25%</span>
       </button>
@@ -637,7 +711,7 @@
         <li class="plan-feature-item"><span class="feat-n">✗</span><span class="feat-excluded">Jira &amp; Camunda integration</span></li>
       </ul>
 
-      <a href="#" class="plan-cta cta-free">Get started free</a>
+      <a href="#" class="plan-cta cta-free" data-action="install">Get started free</a>
     </div>
 
     <!-- SOLO -->
@@ -684,7 +758,10 @@
         <li class="plan-feature-item"><span class="feat-n">✗</span><span class="feat-excluded">Team analytics dashboard</span></li>
       </ul>
 
-      <a href="#" class="plan-cta cta-solo">Start 14-day free trial</a>
+      <a href="#" class="plan-cta cta-solo"
+         data-action="checkout"
+         data-link-annual="https://buy.stripe.com/SOLO_ANNUAL"
+         data-link-monthly="https://buy.stripe.com/SOLO_MONTHLY">Start 14-day free trial</a>
     </div>
 
     <!-- TEAM -->
@@ -732,7 +809,10 @@
         <li class="plan-feature-item"><span class="feat-n">✗</span><span class="feat-excluded">Dedicated SLA</span></li>
       </ul>
 
-      <a href="#" class="plan-cta cta-team">Start with your team</a>
+      <a href="#" class="plan-cta cta-team"
+         data-action="checkout"
+         data-link-annual="https://buy.stripe.com/TEAM_ANNUAL"
+         data-link-monthly="https://buy.stripe.com/TEAM_MONTHLY">Start with your team</a>
     </div>
 
     <!-- ENTERPRISE -->
@@ -771,9 +851,42 @@
         <li class="plan-feature-item"><span class="feat-y">✓</span><span class="feat-included">Custom billing</span></li>
       </ul>
 
-      <a href="mailto:hello@sevenda.dev?subject=Enterprise Plan" class="plan-cta cta-enterprise">Contact us</a>
+      <a href="mailto:hello@sevenda.dev?subject=Enterprise Plan — Sevenda" class="plan-cta cta-enterprise"
+         data-action="contact">Contact us</a>
     </div>
 
+  </div>
+
+  <!-- Enterprise inline contact form (shown on "Contact us" click) -->
+  <div class="enterprise-form" id="enterprise-form">
+    <form id="ent-form" novalidate>
+      <div class="ent-form-row">
+        <label class="ent-label" for="ent-name">Name</label>
+        <input class="ent-input" id="ent-name" type="text" required placeholder="Your name">
+      </div>
+      <div class="ent-form-row">
+        <label class="ent-label" for="ent-company">Company</label>
+        <input class="ent-input" id="ent-company" type="text" required placeholder="Company name">
+      </div>
+      <div class="ent-form-row">
+        <label class="ent-label" for="ent-email">Work email</label>
+        <input class="ent-input" id="ent-email" type="email" required placeholder="you@company.com">
+      </div>
+      <div class="ent-form-row">
+        <label class="ent-label" for="ent-size">Team size</label>
+        <select class="ent-select" id="ent-size">
+          <option value="1-5">1–5</option>
+          <option value="6-20">6–20</option>
+          <option value="21-50">21–50</option>
+          <option value="50+">50+</option>
+        </select>
+      </div>
+      <div class="ent-form-row">
+        <label class="ent-label" for="ent-message">Message (optional)</label>
+        <textarea class="ent-textarea" id="ent-message" placeholder="Tell us about your use case..."></textarea>
+      </div>
+      <button type="submit" class="ent-submit">Send →</button>
+    </form>
   </div>
 
   <!-- 4. RATE LIMITS TABLE -->
@@ -860,14 +973,20 @@
         <div class="addon-tier">
           <span class="addon-tier-label">+10 sessions</span>
           <span class="addon-tier-price">€3</span>
+          <button class="addon-buy-btn" data-addon="sessions-10"
+                  data-link-annual="https://buy.stripe.com/ADDON_PLACEHOLDER">Buy →</button>
         </div>
         <div class="addon-tier">
           <span class="addon-tier-label">+50 sessions</span>
           <span class="addon-tier-price">€12</span>
+          <button class="addon-buy-btn" data-addon="sessions-50"
+                  data-link-annual="https://buy.stripe.com/ADDON_PLACEHOLDER">Buy →</button>
         </div>
         <div class="addon-tier">
           <span class="addon-tier-label">+200 sessions</span>
           <span class="addon-tier-price">€40</span>
+          <button class="addon-buy-btn" data-addon="sessions-200"
+                  data-link-annual="https://buy.stripe.com/ADDON_PLACEHOLDER">Buy →</button>
         </div>
       </div>
 
@@ -878,14 +997,20 @@
         <div class="addon-tier">
           <span class="addon-tier-label">+50 calls</span>
           <span class="addon-tier-price">€4</span>
+          <button class="addon-buy-btn" data-addon="ai-50"
+                  data-link-annual="https://buy.stripe.com/ADDON_PLACEHOLDER">Buy →</button>
         </div>
         <div class="addon-tier">
           <span class="addon-tier-label">+200 calls</span>
           <span class="addon-tier-price">€14</span>
+          <button class="addon-buy-btn" data-addon="ai-200"
+                  data-link-annual="https://buy.stripe.com/ADDON_PLACEHOLDER">Buy →</button>
         </div>
         <div class="addon-tier">
           <span class="addon-tier-label">+1,000 calls</span>
           <span class="addon-tier-price">€55</span>
+          <button class="addon-buy-btn" data-addon="ai-1000"
+                  data-link-annual="https://buy.stripe.com/ADDON_PLACEHOLDER">Buy →</button>
         </div>
       </div>
 
@@ -896,14 +1021,20 @@
         <div class="addon-tier">
           <span class="addon-tier-label">+25 exports</span>
           <span class="addon-tier-price">€3</span>
+          <button class="addon-buy-btn" data-addon="exports-25"
+                  data-link-annual="https://buy.stripe.com/ADDON_PLACEHOLDER">Buy →</button>
         </div>
         <div class="addon-tier">
           <span class="addon-tier-label">+100 exports</span>
           <span class="addon-tier-price">€10</span>
+          <button class="addon-buy-btn" data-addon="exports-100"
+                  data-link-annual="https://buy.stripe.com/ADDON_PLACEHOLDER">Buy →</button>
         </div>
         <div class="addon-tier">
           <span class="addon-tier-label">+500 exports</span>
           <span class="addon-tier-price">€40</span>
+          <button class="addon-buy-btn" data-addon="exports-500"
+                  data-link-annual="https://buy.stripe.com/ADDON_PLACEHOLDER">Buy →</button>
         </div>
       </div>
 
@@ -1021,6 +1152,26 @@
   <span class="footer-copy">© 2025 Sevenda · Built with Claude</span>
 </footer>
 
+<!--
+  STRIPE PAYMENT LINKS — SETUP CHECKLIST
+
+  1. Go to dashboard.stripe.com → Payment Links → Create link
+  2. Create one link per plan/billing combination:
+       Solo Annual    → €9/month × 12 = €108/year  (or monthly €9)
+       Solo Monthly   → €12/month
+       Team Annual    → €19/user/month × 12          (or monthly €24)
+       Team Monthly   → €24/user/month
+  3. For Team plan: enable "Let customers choose quantity"
+     (quantity = number of users)
+  4. Copy each generated URL (https://buy.stripe.com/XXXXXXXX)
+  5. Replace placeholders in data-link-annual / data-link-monthly
+     attributes on the CTA buttons
+  6. For add-ons: create one-time payment links (not subscriptions)
+  7. Enable "Collect customer email" in each Payment Link settings
+  8. Set success redirect URL to: https://sevenda.dev/thank-you.html
+     (create a simple thank-you page)
+  9. Test in Stripe test mode before going live
+-->
 <script>
 // ── NAV SCROLL ──
 const nav = document.getElementById('nav');
@@ -1074,6 +1225,79 @@ const io = new IntersectionObserver(entries => {
   });
 }, { threshold: 0.08 });
 document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+// ── STRIPE CHECKOUT ──
+
+function getActiveBilling() {
+  return document.querySelector('.billing-toggle .billing-btn.active')
+    ?.dataset.billing || 'annual';
+}
+
+function showStripeNotice(anchor) {
+  if (anchor.parentElement.querySelector('.stripe-notice')) return;
+  const notice = document.createElement('div');
+  notice.className = 'stripe-notice';
+  notice.textContent = 'Checkout coming soon — contact us at hello@sevenda.dev';
+  anchor.parentElement.appendChild(notice);
+  setTimeout(() => notice.remove(), 4000);
+}
+
+// Plan CTA redirect
+document.querySelectorAll('[data-action="checkout"]').forEach(btn => {
+  btn.addEventListener('click', e => {
+    e.preventDefault();
+    const billing = getActiveBilling();
+    const link = billing === 'annual' ? btn.dataset.linkAnnual : btn.dataset.linkMonthly;
+    if (link && !link.includes('PLACEHOLDER')) {
+      window.location.href = link;
+    } else {
+      showStripeNotice(btn);
+    }
+  });
+});
+
+// Add-on buy buttons
+document.querySelectorAll('.addon-buy-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const link = btn.dataset.linkAnnual;
+    if (link && !link.includes('PLACEHOLDER')) {
+      window.location.href = link;
+    } else {
+      showStripeNotice(btn);
+    }
+  });
+});
+
+// Enterprise form toggle
+const enterpriseBtn = document.querySelector('[data-action="contact"]');
+const enterpriseForm = document.getElementById('enterprise-form');
+if (enterpriseBtn && enterpriseForm) {
+  enterpriseBtn.addEventListener('click', e => {
+    e.preventDefault();
+    const open = enterpriseForm.style.display === 'block';
+    enterpriseForm.style.display = open ? 'none' : 'block';
+    if (!open) enterpriseForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  });
+}
+
+// Enterprise form submit → mailto
+document.getElementById('ent-form')?.addEventListener('submit', e => {
+  e.preventDefault();
+  const name    = document.getElementById('ent-name').value.trim();
+  const company = document.getElementById('ent-company').value.trim();
+  const email   = document.getElementById('ent-email').value.trim();
+  const size    = document.getElementById('ent-size').value;
+  const message = document.getElementById('ent-message').value.trim();
+  const body = encodeURIComponent(
+    'Name: ' + name + '\n' +
+    'Company: ' + company + '\n' +
+    'Email: ' + email + '\n' +
+    'Team size: ' + size + '\n\n' +
+    message
+  );
+  const subject = encodeURIComponent('Enterprise Plan — ' + company);
+  window.location.href = 'mailto:hello@sevenda.dev?subject=' + subject + '&body=' + body;
+});
 </script>
 </body>
 </html>

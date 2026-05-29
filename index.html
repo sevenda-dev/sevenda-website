@@ -722,6 +722,24 @@
     .p-cta-team      { background: var(--green); color: var(--bg);   border-color: var(--green); }
     .p-cta-enterprise{ background: transparent; color: var(--amber); border-color: var(--amber); }
 
+    /* ── STRIPE CHECKOUT ── */
+    .stripe-notice {
+      margin-top: 8px;
+      padding: 8px 12px;
+      background: rgba(107,184,154,0.08);
+      border: 1px solid rgba(107,184,154,0.2);
+      color: var(--green);
+      font-family: var(--mono);
+      font-size: 11px;
+      line-height: 1.5;
+      text-align: center;
+      animation: fadeIn 0.2s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
     /* ── STATS ───────────────────────────────────────────────── */
     #stats {
       border-top: 1px solid var(--border);
@@ -1421,8 +1439,8 @@
     <!-- Billing toggle -->
     <div class="p-billing-wrap">
       <div class="p-billing-toggle">
-        <button class="p-billing-btn" id="idx-btn-monthly" onclick="setIdxBilling('monthly')">Monthly</button>
-        <button class="p-billing-btn active" id="idx-btn-annual" onclick="setIdxBilling('annual')">
+        <button class="p-billing-btn" id="idx-btn-monthly" data-billing="monthly" onclick="setIdxBilling('monthly')">Monthly</button>
+        <button class="p-billing-btn active" id="idx-btn-annual" data-billing="annual" onclick="setIdxBilling('annual')">
           Annual
           <span class="p-billing-badge">Save 25%</span>
         </button>
@@ -1450,7 +1468,7 @@
           <li class="on"><span class="feat-check y">✓</span>Tag Plan JSON export</li>
         </ul>
         <a href="/pricing.html" class="p-see-all">See all features →</a>
-        <a href="#" class="btn p-cta-free">Get started free</a>
+        <a href="#" class="btn p-cta-free" data-action="install">Get started free</a>
       </div>
 
       <!-- SOLO -->
@@ -1479,7 +1497,10 @@
           <li class="on"><span class="feat-check y">✓</span>Session history (90 days)</li>
         </ul>
         <a href="/pricing.html" class="p-see-all">See all features →</a>
-        <a href="#" class="btn p-cta-solo">Start 14-day free trial</a>
+        <a href="#" class="btn p-cta-solo"
+           data-action="checkout"
+           data-link-annual="https://buy.stripe.com/SOLO_ANNUAL"
+           data-link-monthly="https://buy.stripe.com/SOLO_MONTHLY">Start 14-day free trial</a>
       </div>
 
       <!-- TEAM -->
@@ -1509,7 +1530,10 @@
           <li class="on"><span class="feat-check y">✓</span>Priority support (email)</li>
         </ul>
         <a href="/pricing.html" class="p-see-all">See all features →</a>
-        <a href="#" class="btn p-cta-team">Start with your team</a>
+        <a href="#" class="btn p-cta-team"
+           data-action="checkout"
+           data-link-annual="https://buy.stripe.com/TEAM_ANNUAL"
+           data-link-monthly="https://buy.stripe.com/TEAM_MONTHLY">Start with your team</a>
       </div>
 
       <!-- ENTERPRISE -->
@@ -1531,7 +1555,8 @@
           <li class="on"><span class="feat-check y">✓</span>Dedicated onboarding + CSM</li>
         </ul>
         <a href="/pricing.html" class="p-see-all">See all features →</a>
-        <a href="mailto:hello@sevenda.dev?subject=Enterprise Plan" class="btn p-cta-enterprise">Contact us</a>
+        <a href="mailto:hello@sevenda.dev?subject=Enterprise Plan — Sevenda" class="btn p-cta-enterprise"
+           data-action="contact">Contact us</a>
       </div>
 
     </div>
@@ -1636,6 +1661,34 @@
       burger.classList.remove('open');
       drawer.classList.remove('open');
       document.body.style.overflow = '';
+    });
+  });
+
+  // Stripe checkout helpers
+  function getIdxBilling() {
+    return document.querySelector('#pricing .p-billing-btn.active')
+      ?.dataset.billing || 'annual';
+  }
+
+  function showStripeNotice(anchor) {
+    if (anchor.parentElement.querySelector('.stripe-notice')) return;
+    const notice = document.createElement('div');
+    notice.className = 'stripe-notice';
+    notice.textContent = 'Checkout coming soon — contact us at hello@sevenda.dev';
+    anchor.parentElement.appendChild(notice);
+    setTimeout(() => notice.remove(), 4000);
+  }
+
+  document.querySelectorAll('#pricing [data-action="checkout"]').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.preventDefault();
+      const billing = getIdxBilling();
+      const link = billing === 'annual' ? btn.dataset.linkAnnual : btn.dataset.linkMonthly;
+      if (link && !link.includes('PLACEHOLDER')) {
+        window.location.href = link;
+      } else {
+        showStripeNotice(btn);
+      }
     });
   });
 
