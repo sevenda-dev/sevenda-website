@@ -939,6 +939,30 @@
     }
     .ccard-link:hover { opacity: .7; }
 
+    /* ── LANGUAGE SWITCHER ──────────────────────────────────── */
+    .lang-sw {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      border: 1px solid var(--border-hi);
+      padding: 3px;
+    }
+    .lang-btn {
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: .04em;
+      padding: 5px 8px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: var(--muted);
+      transition: background .15s, color .15s;
+      line-height: 1;
+    }
+    .lang-btn:hover { color: var(--text); }
+    .lang-btn.active { background: var(--text); color: var(--bg); }
+
     @media (max-width: 1024px) {
       .pgrid { grid-template-columns: repeat(2, 1fr); }
     }
@@ -950,6 +974,7 @@
 
       /* Nav */
       .nav-links, nav > .btn { display: none; }
+      nav > .lang-sw { display: none; }
       .nav-burger { display: flex; }
 
       /* Hero */
@@ -1011,16 +1036,23 @@
   </a>
 
   <ul class="nav-links">
-    <li><a href="#features">Features</a></li>
-    <li><a href="#insights">Insights</a></li>
-    <li><a href="#use-cases">Use Cases</a></li>
-    <li><a href="#how">How it works</a></li>
-    <li><a href="/pricing.html">Pricing</a></li>
-    <li><a href="/docs.html">Docs</a></li>
-    <li><a href="/faq.html">FAQ</a></li>
+    <li><a href="#features" data-i18n="nav.features">Features</a></li>
+    <li><a href="#insights" data-i18n="nav.insights">Insights</a></li>
+    <li><a href="#use-cases" data-i18n="nav.usecases">Use Cases</a></li>
+    <li><a href="#how" data-i18n="nav.how">How it works</a></li>
+    <li><a href="/pricing.html" data-i18n="nav.pricing">Pricing</a></li>
+    <li><a href="/docs.html" data-i18n="nav.docs">Docs</a></li>
+    <li><a href="/faq.html" data-i18n="nav.faq">FAQ</a></li>
   </ul>
 
-  <a href="#" class="btn btn-primary">Add to Chrome</a>
+  <div class="lang-sw" id="lang-sw">
+    <button class="lang-btn active" data-lang="en" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" data-lang="it" onclick="setLang('it')">IT</button>
+    <button class="lang-btn" data-lang="es" onclick="setLang('es')">ES</button>
+    <button class="lang-btn" data-lang="fr" onclick="setLang('fr')">FR</button>
+  </div>
+
+  <a href="#" class="btn btn-primary" data-i18n="nav.cta">Add to Chrome</a>
 
   <button class="nav-burger" id="burger" aria-label="Menu">
     <span></span><span></span><span></span>
@@ -1029,26 +1061,32 @@
 
 <!-- Mobile drawer -->
 <div class="nav-drawer" id="drawer">
-  <a href="#features" class="drawer-link">Features</a>
-  <a href="#insights" class="drawer-link">Insights</a>
-  <a href="#use-cases" class="drawer-link">Use Cases</a>
-  <a href="#how" class="drawer-link">How it works</a>
-  <a href="/pricing.html" class="drawer-link">Pricing</a>
-  <a href="/docs.html" class="drawer-link">Docs</a>
-  <a href="/faq.html" class="drawer-link">FAQ</a>
-  <a href="#" class="btn btn-primary drawer-cta">Add to Chrome</a>
+  <a href="#features" class="drawer-link" data-i18n="nav.features">Features</a>
+  <a href="#insights" class="drawer-link" data-i18n="nav.insights">Insights</a>
+  <a href="#use-cases" class="drawer-link" data-i18n="nav.usecases">Use Cases</a>
+  <a href="#how" class="drawer-link" data-i18n="nav.how">How it works</a>
+  <a href="/pricing.html" class="drawer-link" data-i18n="nav.pricing">Pricing</a>
+  <a href="/docs.html" class="drawer-link" data-i18n="nav.docs">Docs</a>
+  <a href="/faq.html" class="drawer-link" data-i18n="nav.faq">FAQ</a>
+  <a href="#" class="btn btn-primary drawer-cta" data-i18n="nav.cta">Add to Chrome</a>
+  <div class="lang-sw" style="margin-top:8px;">
+    <button class="lang-btn active" data-lang="en" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" data-lang="it" onclick="setLang('it')">IT</button>
+    <button class="lang-btn" data-lang="es" onclick="setLang('es')">ES</button>
+    <button class="lang-btn" data-lang="fr" onclick="setLang('fr')">FR</button>
+  </div>
 </div>
 
 <!-- ── HERO ─────────────────────────────────────────────────── -->
 <section id="hero">
   <div class="pill">
     <span class="pill-dot"></span>
-    Now powered by Claude Sonnet 4 →
+    <span data-i18n="hero.pill">Now powered by Claude Sonnet 4 →</span>
   </div>
 
-  <h1>Every click tells a story.<br><span class="dim">Sevenda reads it.</span></h1>
+  <h1 data-i18n-html="hero.h1">Every click tells a story.<br><span class="dim">Sevenda reads it.</span></h1>
 
-  <p class="hero-sub">
+  <p class="hero-sub" data-i18n="hero.sub">
     Sevenda records your browser session and instantly generates BPMN&nbsp;2.0
     process diagrams AND actionable insights — helping developers, business
     analysts and marketing teams understand what really happens inside their
@@ -1056,8 +1094,8 @@
   </p>
 
   <div class="hero-ctas">
-    <a href="#" class="btn btn-primary">Add to Chrome</a>
-    <a href="#" class="btn btn-ghost">▶ Watch demo</a>
+    <a href="#" class="btn btn-primary" data-i18n="hero.cta1">Add to Chrome</a>
+    <a href="#" class="btn btn-ghost" data-i18n="hero.cta2">▶ Watch demo</a>
   </div>
 
   <!-- DevTools panel mockup -->
@@ -1167,9 +1205,9 @@
 <section id="how">
   <div class="wrap">
     <div class="reveal">
-      <p class="slabel">How it works</p>
-      <h2 class="stitle">Three steps to a<br>BPMN diagram</h2>
-      <p class="ssub" style="max-width:260px">From raw browser events to structured process models — without lifting a pen.</p>
+      <p class="slabel" data-i18n="how.label">How it works</p>
+      <h2 class="stitle" data-i18n-html="how.title">Three steps to a<br>BPMN diagram</h2>
+      <p class="ssub" style="max-width:260px" data-i18n="how.sub">From raw browser events to structured process models — without lifting a pen.</p>
     </div>
 
     <div class="steps">
@@ -1179,8 +1217,8 @@
           <div class="step-line"></div>
         </div>
         <div class="step-body">
-          <h3 class="step-h">Record</h3>
-          <p class="step-p">Click start in DevTools. Sevenda captures clicks, form submissions, navigation events, network calls, and DOM mutations — everything that matters.</p>
+          <h3 class="step-h" data-i18n="step1.h">Record</h3>
+          <p class="step-p" data-i18n="step1.p">Click start in DevTools. Sevenda captures clicks, form submissions, navigation events, network calls, and DOM mutations — everything that matters.</p>
           <div class="tags">
             <span class="tag">clicks</span>
             <span class="tag">navigation</span>
@@ -1196,8 +1234,8 @@
           <div class="step-line"></div>
         </div>
         <div class="step-body">
-          <h3 class="step-h">AI generates</h3>
-          <p class="step-p">Claude Sonnet reads the event stream, identifies the process flow, and produces validated BPMN 2.0 XML with correct pools, lanes, gateways, and sequence flows.</p>
+          <h3 class="step-h" data-i18n="step2.h">AI generates</h3>
+          <p class="step-p" data-i18n="step2.p">Claude Sonnet reads the event stream, identifies the process flow, and produces validated BPMN 2.0 XML with correct pools, lanes, gateways, and sequence flows.</p>
           <div class="tags">
             <span class="tag">Claude Sonnet 4</span>
             <span class="tag">BPMN 2.0</span>
@@ -1211,8 +1249,8 @@
           <div class="step-line"></div>
         </div>
         <div class="step-body">
-          <h3 class="step-h">Export</h3>
-          <p class="step-p">Download .bpmn for Camunda, Signavio or Bizagi. Export .svg or .png for presentations. Generate a full process report in .docx format — ready to share with stakeholders, no technical skills required. Refine with natural language chat.</p>
+          <h3 class="step-h" data-i18n="step3.h">Export</h3>
+          <p class="step-p" data-i18n="step3.p">Download .bpmn for Camunda, Signavio or Bizagi. Export .svg or .png for presentations. Generate a full process report in .docx format — ready to share with stakeholders, no technical skills required. Refine with natural language chat.</p>
           <div class="tags">
             <span class="tag">.bpmn</span>
             <span class="tag">.svg</span>
@@ -1232,28 +1270,28 @@
 <section id="insights">
   <div class="wrap">
     <div class="ihead reveal">
-      <p class="slabel">Insights</p>
-      <h2 class="stitle">Beyond diagrams.<br>Real intelligence.</h2>
-      <p class="ihead-sub">Every session becomes a source of insight — not just a process map.</p>
+      <p class="slabel" data-i18n="insights.label">Insights</p>
+      <h2 class="stitle" data-i18n-html="insights.title">Beyond diagrams.<br>Real intelligence.</h2>
+      <p class="ihead-sub" data-i18n="insights.sub">Every session becomes a source of insight — not just a process map.</p>
     </div>
 
     <div class="igrid">
       <div class="icard reveal" style="transition-delay:.04s">
         <span class="ic-icon">📊</span>
-        <h3 class="ic-title">GTM Event Suggestions</h3>
-        <p class="ic-desc">Sevenda analyses your session and recommends Google Tag Manager events to track, so nothing goes unmeasured. Get a ready-to-implement event taxonomy in seconds.</p>
+        <h3 class="ic-title" data-i18n="ic1.title">GTM Event Suggestions</h3>
+        <p class="ic-desc" data-i18n="ic1.desc">Sevenda analyses your session and recommends Google Tag Manager events to track, so nothing goes unmeasured. Get a ready-to-implement event taxonomy in seconds.</p>
       </div>
 
       <div class="icard reveal" style="transition-delay:.1s">
         <span class="ic-icon">🔍</span>
-        <h3 class="ic-title">Tracking Gap Analysis</h3>
-        <p class="ic-desc">Identifies touchpoints in your funnel with missing or incomplete tracking coverage. Know exactly where your analytics blind spots are before they cost you.</p>
+        <h3 class="ic-title" data-i18n="ic2.title">Tracking Gap Analysis</h3>
+        <p class="ic-desc" data-i18n="ic2.desc">Identifies touchpoints in your funnel with missing or incomplete tracking coverage. Know exactly where your analytics blind spots are before they cost you.</p>
       </div>
 
       <div class="icard reveal" style="transition-delay:.16s">
         <span class="ic-icon">📄</span>
-        <h3 class="ic-title">Process Report</h3>
-        <p class="ic-desc">A full .docx report combining the BPMN diagram, event log, insights and recommendations. Ready to share with any stakeholder — no technical skills required.</p>
+        <h3 class="ic-title" data-i18n="ic3.title">Process Report</h3>
+        <p class="ic-desc" data-i18n="ic3.desc">A full .docx report combining the BPMN diagram, event log, insights and recommendations. Ready to share with any stakeholder — no technical skills required.</p>
       </div>
     </div>
   </div>
@@ -1263,52 +1301,52 @@
 <section id="use-cases">
   <div class="wrap">
     <div class="uc-head reveal">
-      <p class="slabel">USE CASES</p>
-      <h2 class="stitle">Built for the people who document processes.</h2>
-      <p class="ssub">Three teams. Three problems. One tool.</p>
+      <p class="slabel" data-i18n="uc.label">USE CASES</p>
+      <h2 class="stitle" data-i18n="uc.title">Built for the people who document processes.</h2>
+      <p class="ssub" data-i18n="uc.sub">Three teams. Three problems. One tool.</p>
     </div>
 
     <div class="ucgrid">
 
       <!-- Business Analyst -->
       <div class="uccard reveal" style="transition-delay:.04s;border-left-color:#7aafd4">
-        <span class="uc-badge" style="color:#7aafd4;border-color:#7aafd4">Business Analyst</span>
-        <h3 class="uc-scenario">AS-IS process documentation. Day one.</h3>
-        <p class="uc-narrative">A new client engagement starts Monday. No process documentation exists. The BA opens Chrome DevTools, navigates through the client's web application for 90 seconds, and presses Generate. Sevenda produces a validated BPMN 2.0 diagram — with every task, gateway, and flow captured automatically.</p>
+        <span class="uc-badge" style="color:#7aafd4;border-color:#7aafd4" data-i18n="uc1.badge">Business Analyst</span>
+        <h3 class="uc-scenario" data-i18n="uc1.scenario">AS-IS process documentation. Day one.</h3>
+        <p class="uc-narrative" data-i18n="uc1.narrative">A new client engagement starts Monday. No process documentation exists. The BA opens Chrome DevTools, navigates through the client's web application for 90 seconds, and presses Generate. Sevenda produces a validated BPMN 2.0 diagram — with every task, gateway, and flow captured automatically.</p>
         <ul class="uc-outputs">
-          <li><span class="uc-check">✓</span>BPMN 2.0 diagram ready for Camunda or Signavio</li>
-          <li><span class="uc-check">✓</span>Analisi Tecnico-Funzionale .docx for stakeholders</li>
-          <li><span class="uc-check">✓</span>Jira issue created with diagram attached</li>
+          <li><span class="uc-check">✓</span><span data-i18n="uc1.o1">BPMN 2.0 diagram ready for Camunda or Signavio</span></li>
+          <li><span class="uc-check">✓</span><span data-i18n="uc1.o2">Analisi Tecnico-Funzionale .docx for stakeholders</span></li>
+          <li><span class="uc-check">✓</span><span data-i18n="uc1.o3">Jira issue created with diagram attached</span></li>
         </ul>
-        <p class="uc-time">From 8 hours → 90 seconds</p>
+        <p class="uc-time" data-i18n="uc1.time">From 8 hours → 90 seconds</p>
       </div>
 
       <!-- Marketing & Data Consultant -->
       <div class="uccard reveal" style="transition-delay:.1s;border-left-color:#6BB89A">
-        <span class="uc-badge" style="color:#6BB89A;border-color:#6BB89A">Marketing &amp; Data Consultant</span>
-        <h3 class="uc-scenario">GTM audit. Full gap report. One session.</h3>
-        <p class="uc-narrative">The client's GA4 is configured, but conversion events are missing from half the funnel. The consultant switches Sevenda to Insights mode, navigates the purchase flow, and clicks Generate. Every untracked interaction is flagged — with CSS selectors, dataLayer.push() snippets, and a ready-to-import Tag Plan.</p>
+        <span class="uc-badge" style="color:#6BB89A;border-color:#6BB89A" data-i18n="uc2.badge">Marketing &amp; Data Consultant</span>
+        <h3 class="uc-scenario" data-i18n="uc2.scenario">GTM audit. Full gap report. One session.</h3>
+        <p class="uc-narrative" data-i18n="uc2.narrative">The client's GA4 is configured, but conversion events are missing from half the funnel. The consultant switches Sevenda to Insights mode, navigates the purchase flow, and clicks Generate. Every untracked interaction is flagged — with CSS selectors, dataLayer.push() snippets, and a ready-to-import Tag Plan.</p>
         <ul class="uc-outputs">
-          <li><span class="uc-check">✓</span>Tracking gap analysis with element selectors</li>
-          <li><span class="uc-check">✓</span>dataLayer.push() snippets ready for GTM</li>
-          <li><span class="uc-check">✓</span>Tag Plan JSON — importable directly into GTM</li>
-          <li><span class="uc-check">✓</span>Analytics Report .docx for the client</li>
+          <li><span class="uc-check">✓</span><span data-i18n="uc2.o1">Tracking gap analysis with element selectors</span></li>
+          <li><span class="uc-check">✓</span><span data-i18n="uc2.o2">dataLayer.push() snippets ready for GTM</span></li>
+          <li><span class="uc-check">✓</span><span data-i18n="uc2.o3">Tag Plan JSON — importable directly into GTM</span></li>
+          <li><span class="uc-check">✓</span><span data-i18n="uc2.o4">Analytics Report .docx for the client</span></li>
         </ul>
-        <p class="uc-time">From 3-day audit → 20 minutes</p>
+        <p class="uc-time" data-i18n="uc2.time">From 3-day audit → 20 minutes</p>
       </div>
 
       <!-- Developer / QA -->
       <div class="uccard reveal" style="transition-delay:.16s;border-left-color:#c8a064">
-        <span class="uc-badge" style="color:#c8a064;border-color:#c8a064">Developer / QA</span>
-        <h3 class="uc-scenario">Ship fast. Document automatically.</h3>
-        <p class="uc-narrative">Release day. No time to update the process docs. The developer records the QA session in Sevenda — every API call, every navigation, every form submission captured in the event stream. One click generates the updated BPMN and a structured report, ready to commit alongside the code.</p>
+        <span class="uc-badge" style="color:#c8a064;border-color:#c8a064" data-i18n="uc3.badge">Developer / QA</span>
+        <h3 class="uc-scenario" data-i18n="uc3.scenario">Ship fast. Document automatically.</h3>
+        <p class="uc-narrative" data-i18n="uc3.narrative">Release day. No time to update the process docs. The developer records the QA session in Sevenda — every API call, every navigation, every form submission captured in the event stream. One click generates the updated BPMN and a structured report, ready to commit alongside the code.</p>
         <ul class="uc-outputs">
-          <li><span class="uc-check">✓</span>User flow diagram — always up to date</li>
-          <li><span class="uc-check">✓</span>API interaction log with status codes and timing</li>
-          <li><span class="uc-check">✓</span>Export .svg for README or Confluence</li>
-          <li><span class="uc-check">✓</span>Natural language refinement for edge cases</li>
+          <li><span class="uc-check">✓</span><span data-i18n="uc3.o1">User flow diagram — always up to date</span></li>
+          <li><span class="uc-check">✓</span><span data-i18n="uc3.o2">API interaction log with status codes and timing</span></li>
+          <li><span class="uc-check">✓</span><span data-i18n="uc3.o3">Export .svg for README or Confluence</span></li>
+          <li><span class="uc-check">✓</span><span data-i18n="uc3.o4">Natural language refinement for edge cases</span></li>
         </ul>
-        <p class="uc-time">Documentation that updates itself</p>
+        <p class="uc-time" data-i18n="uc3.time">Documentation that updates itself</p>
       </div>
 
     </div>
@@ -1319,8 +1357,8 @@
 <section id="features">
   <div class="wrap">
     <div class="head reveal">
-      <p class="slabel">Features</p>
-      <h2 class="stitle">Built for process professionals</h2>
+      <p class="slabel" data-i18n="feat.label">Features</p>
+      <h2 class="stitle" data-i18n="feat.title">Built for process professionals</h2>
     </div>
 
     <div class="fgrid">
@@ -1333,8 +1371,8 @@
           <line x1="3"  y1="20" x2="10" y2="20" stroke="rgba(255,255,255,.18)" stroke-width="1.5" stroke-linecap="round"/>
           <line x1="30" y1="20" x2="37" y2="20" stroke="rgba(255,255,255,.18)" stroke-width="1.5" stroke-linecap="round"/>
         </svg>
-        <h3 class="fh">Real-time event capture</h3>
-        <p class="fp">Captures clicks, form submissions, API calls, navigation events, and DOM mutations with zero configuration — works on any website.</p>
+        <h3 class="fh" data-i18n="f1.h">Real-time event capture</h3>
+        <p class="fp" data-i18n="f1.p">Captures clicks, form submissions, API calls, navigation events, and DOM mutations with zero configuration — works on any website.</p>
       </div>
 
       <div class="fcard reveal" style="transition-delay:.08s">
@@ -1344,8 +1382,8 @@
           <circle cx="11" cy="30" r="2.5" fill="rgba(107,184,154,.3)" stroke="rgba(107,184,154,.5)" stroke-width="1"/>
           <line x1="16" y1="30" x2="30" y2="30" stroke="rgba(255,255,255,.1)" stroke-width="1.5" stroke-linecap="round"/>
         </svg>
-        <h3 class="fh">Claude Sonnet AI</h3>
-        <p class="fp">Anthropic's most capable model understands context, identifies decision points, and produces accurate process models — not just a sequence of steps.</p>
+        <h3 class="fh" data-i18n="f2.h">Claude Sonnet AI</h3>
+        <p class="fp" data-i18n="f2.p">Anthropic's most capable model understands context, identifies decision points, and produces accurate process models — not just a sequence of steps.</p>
       </div>
 
       <div class="fcard reveal" style="transition-delay:.12s">
@@ -1356,8 +1394,8 @@
           <rect x="27" y="17" width="7" height="8" rx="1" stroke="rgba(255,255,255,.2)" stroke-width="1"/>
           <circle cx="37" cy="21" r="3" stroke="rgba(255,255,255,.3)" stroke-width="1.5"/>
         </svg>
-        <h3 class="fh">BPMN 2.0 standard</h3>
-        <p class="fp">Output is fully compliant BPMN 2.0 XML. Open directly in Camunda Modeler, Signavio, Bizagi, or any standards-compliant tool.</p>
+        <h3 class="fh" data-i18n="f3.h">BPMN 2.0 standard</h3>
+        <p class="fp" data-i18n="f3.p">Output is fully compliant BPMN 2.0 XML. Open directly in Camunda Modeler, Signavio, Bizagi, or any standards-compliant tool.</p>
       </div>
 
       <div class="fcard reveal" style="transition-delay:.16s">
@@ -1369,8 +1407,8 @@
           <circle cx="30" cy="28" r="7" fill="rgba(122,175,212,.1)" stroke="rgba(122,175,212,.35)" stroke-width="1"/>
           <path d="M27,28 L29.5,30.5 L33,26" stroke="rgba(122,175,212,.8)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        <h3 class="fh">Iterative refinement</h3>
-        <p class="fp">Chat with the diagram. "Add an error path after the API call" and Sevenda updates the BPMN while preserving the rest of the model exactly.</p>
+        <h3 class="fh" data-i18n="f4.h">Iterative refinement</h3>
+        <p class="fp" data-i18n="f4.p">Chat with the diagram. "Add an error path after the API call" and Sevenda updates the BPMN while preserving the rest of the model exactly.</p>
       </div>
 
       <div class="fcard reveal" style="transition-delay:.2s">
@@ -1387,8 +1425,8 @@
           <path d="M11,23 L17,27" stroke="rgba(200,160,100,.3)" stroke-width="1"/>
           <path d="M23,27 L29,23" stroke="rgba(200,160,100,.3)" stroke-width="1"/>
         </svg>
-        <h3 class="fh">Marketing &amp; Funnel Mapping</h3>
-        <p class="fp">Visualize customer journeys, campaign flows, and conversion funnels automatically — no diagramming tools, no manual work, no technical skills required.</p>
+        <h3 class="fh" data-i18n="f5.h">Marketing &amp; Funnel Mapping</h3>
+        <p class="fp" data-i18n="f5.p">Visualize customer journeys, campaign flows, and conversion funnels automatically — no diagramming tools, no manual work, no technical skills required.</p>
       </div>
 
       <div class="fcard reveal" style="transition-delay:.24s">
@@ -1402,8 +1440,8 @@
           <text x="28" y="27" text-anchor="middle" fill="rgba(122,175,212,.7)" font-size="5" font-family="Geist Mono,monospace">.png</text>
           <text x="12" y="31" text-anchor="middle" fill="rgba(200,160,100,.7)" font-size="5" font-family="Geist Mono,monospace">.docx</text>
         </svg>
-        <h3 class="fh">Multi-format export</h3>
-        <p class="fp">.bpmn for process engines, .svg and .png for presentations, .docx reports for stakeholders. One session, every format you need.</p>
+        <h3 class="fh" data-i18n="f6.h">Multi-format export</h3>
+        <p class="fp" data-i18n="f6.p">.bpmn for process engines, .svg and .png for presentations, .docx reports for stakeholders. One session, every format you need.</p>
       </div>
     </div>
   </div>
@@ -1414,15 +1452,15 @@
   <div class="sgrid reveal">
     <div class="scell">
       <span class="sval">&lt;&thinsp;60s</span>
-      <span class="slbl">to first diagram</span>
+      <span class="slbl" data-i18n="stat1.lbl">to first diagram</span>
     </div>
     <div class="scell">
       <span class="sval" style="line-height:1.1">BPMN&thinsp;2.0<br><span style="font-size:.55em;letter-spacing:-.02em">+ Insights</span></span>
-      <span class="slbl">diagrams and intelligence</span>
+      <span class="slbl" data-i18n="stat2.lbl">diagrams and intelligence</span>
     </div>
     <div class="scell">
       <span class="sval">MV3</span>
-      <span class="slbl">Chrome extension</span>
+      <span class="slbl" data-i18n="stat3.lbl">Chrome extension</span>
     </div>
   </div>
 </section>
@@ -1431,18 +1469,18 @@
 <section id="pricing">
   <div class="wrap">
     <div class="phead reveal">
-      <p class="slabel">Pricing</p>
-      <h2 class="stitle">Simple, transparent, scalable.</h2>
-      <p class="ssub">Start for free. Scale when you need. No surprises.</p>
+      <p class="slabel" data-i18n="pricing.label">Pricing</p>
+      <h2 class="stitle" data-i18n="pricing.title">Simple, transparent, scalable.</h2>
+      <p class="ssub" data-i18n="pricing.sub">Start for free. Scale when you need. No surprises.</p>
     </div>
 
     <!-- Billing toggle -->
     <div class="p-billing-wrap">
       <div class="p-billing-toggle">
-        <button class="p-billing-btn" id="idx-btn-monthly" data-billing="monthly" onclick="setIdxBilling('monthly')">Monthly</button>
+        <button class="p-billing-btn" id="idx-btn-monthly" data-billing="monthly" onclick="setIdxBilling('monthly')" data-i18n="billing.monthly">Monthly</button>
         <button class="p-billing-btn active" id="idx-btn-annual" data-billing="annual" onclick="setIdxBilling('annual')">
-          Annual
-          <span class="p-billing-badge">Save 25%</span>
+          <span data-i18n="billing.annual">Annual</span>
+          <span class="p-billing-badge" data-i18n="billing.save">Save 25%</span>
         </button>
       </div>
     </div>
@@ -1452,29 +1490,29 @@
       <!-- FREE -->
       <div class="pcard p-accent-muted reveal" style="transition-delay:.04s">
         <div class="plan-name">Free</div>
-        <div class="p-tagline">Start exploring</div>
+        <div class="p-tagline" data-i18n="plan.free.tagline">Start exploring</div>
         <div class="p-price-block">
           <div class="p-price-row">
             <span class="p-price-amount">€0</span>
           </div>
-          <div class="p-price-note">forever</div>
+          <div class="p-price-note" data-i18n="plan.free.note">forever</div>
         </div>
         <div class="plan-divider"></div>
         <ul class="plan-features">
-          <li class="on"><span class="feat-check y">✓</span>5 sessions/month</li>
-          <li class="on"><span class="feat-check y">✓</span>10 AI calls (BPMN + Insights)</li>
-          <li class="on"><span class="feat-check y">✓</span>5 exports (XML / SVG)</li>
-          <li class="on"><span class="feat-check y">✓</span>Local workspace</li>
-          <li class="on"><span class="feat-check y">✓</span>Tag Plan JSON export</li>
+          <li class="on"><span class="feat-check y">✓</span><span data-i18n="pf.free.1">5 sessions/month</span></li>
+          <li class="on"><span class="feat-check y">✓</span><span data-i18n="pf.free.2">10 AI calls (BPMN + Insights)</span></li>
+          <li class="on"><span class="feat-check y">✓</span><span data-i18n="pf.free.3">5 exports (XML / SVG)</span></li>
+          <li class="on"><span class="feat-check y">✓</span><span data-i18n="pf.free.4">Local workspace</span></li>
+          <li class="on"><span class="feat-check y">✓</span><span data-i18n="pf.free.5">Tag Plan JSON export</span></li>
         </ul>
-        <a href="/pricing.html" class="p-see-all">See all features →</a>
-        <a href="#" class="btn p-cta-free" data-action="install">Get started free</a>
+        <a href="/pricing.html" class="p-see-all" data-i18n="plan.see-all">See all features →</a>
+        <a href="#" class="btn p-cta-free" data-action="install" data-i18n="plan.free.cta">Get started free</a>
       </div>
 
       <!-- SOLO -->
       <div class="pcard p-accent-blue reveal" style="transition-delay:.08s">
         <div class="plan-name">Solo</div>
-        <div class="p-tagline">For the independent developer</div>
+        <div class="p-tagline" data-i18n="plan.solo.tagline">For the independent developer</div>
         <div class="p-price-block"
              data-annual-price="9"
              data-annual-suffix="/month"
@@ -1490,24 +1528,25 @@
         </div>
         <div class="plan-divider"></div>
         <ul class="plan-features">
-          <li class="on"><span class="feat-check y">✓</span>30 sessions/month</li>
-          <li class="on"><span class="feat-check y">✓</span>100 AI calls (BPMN + Insights)</li>
-          <li class="on"><span class="feat-check y">✓</span>50 exports (XML / SVG / PNG)</li>
-          <li class="on"><span class="feat-check y">✓</span>Iterative BPMN feedback (chat)</li>
-          <li class="on"><span class="feat-check y">✓</span>Session history (90 days)</li>
+          <li class="on"><span class="feat-check y">✓</span><span data-i18n="pf.solo.1">30 sessions/month</span></li>
+          <li class="on"><span class="feat-check y">✓</span><span data-i18n="pf.solo.2">100 AI calls (BPMN + Insights)</span></li>
+          <li class="on"><span class="feat-check y">✓</span><span data-i18n="pf.solo.3">50 exports (XML / SVG / PNG)</span></li>
+          <li class="on"><span class="feat-check y">✓</span><span data-i18n="pf.solo.4">Iterative BPMN feedback (chat)</span></li>
+          <li class="on"><span class="feat-check y">✓</span><span data-i18n="pf.solo.5">Session history (90 days)</span></li>
         </ul>
-        <a href="/pricing.html" class="p-see-all">See all features →</a>
+        <a href="/pricing.html" class="p-see-all" data-i18n="plan.see-all">See all features →</a>
         <a href="#" class="btn p-cta-solo"
            data-action="checkout"
            data-link-annual="https://buy.stripe.com/SOLO_ANNUAL"
-           data-link-monthly="https://buy.stripe.com/SOLO_MONTHLY">Start 14-day free trial</a>
+           data-link-monthly="https://buy.stripe.com/SOLO_MONTHLY"
+           data-i18n="plan.solo.cta">Start 14-day free trial</a>
       </div>
 
       <!-- TEAM -->
       <div class="pcard p-accent-green pcard-popular reveal" style="transition-delay:.12s">
-        <div class="p-popular-badge">Most popular</div>
+        <div class="p-popular-badge" data-i18n="plan.team.popular">Most popular</div>
         <div class="plan-name">Team</div>
-        <div class="p-tagline">For agile teams and consultants</div>
+        <div class="p-tagline" data-i18n="plan.team.tagline">For agile teams and consultants</div>
         <div class="p-price-block"
              data-annual-price="19"
              data-annual-suffix="/user/month"
@@ -1523,46 +1562,47 @@
         </div>
         <div class="plan-divider"></div>
         <ul class="plan-features">
-          <li class="on"><span class="feat-check y">✓</span>200 sessions/month (pooled)</li>
-          <li class="on"><span class="feat-check y">✓</span>500 AI calls (pooled)</li>
-          <li class="on"><span class="feat-check y">✓</span>300 exports (all formats)</li>
-          <li class="on"><span class="feat-check y">✓</span>Jira integration (all members)</li>
-          <li class="on"><span class="feat-check y">✓</span>Priority support (email)</li>
+          <li class="on"><span class="feat-check y">✓</span><span data-i18n="pf.team.1">200 sessions/month (pooled)</span></li>
+          <li class="on"><span class="feat-check y">✓</span><span data-i18n="pf.team.2">500 AI calls (pooled)</span></li>
+          <li class="on"><span class="feat-check y">✓</span><span data-i18n="pf.team.3">300 exports (all formats)</span></li>
+          <li class="on"><span class="feat-check y">✓</span><span data-i18n="pf.team.4">Jira integration (all members)</span></li>
+          <li class="on"><span class="feat-check y">✓</span><span data-i18n="pf.team.5">Priority support (email)</span></li>
         </ul>
-        <a href="/pricing.html" class="p-see-all">See all features →</a>
+        <a href="/pricing.html" class="p-see-all" data-i18n="plan.see-all">See all features →</a>
         <a href="#" class="btn p-cta-team"
            data-action="checkout"
            data-link-annual="https://buy.stripe.com/TEAM_ANNUAL"
-           data-link-monthly="https://buy.stripe.com/TEAM_MONTHLY">Start with your team</a>
+           data-link-monthly="https://buy.stripe.com/TEAM_MONTHLY"
+           data-i18n="plan.team.cta">Start with your team</a>
       </div>
 
       <!-- ENTERPRISE -->
       <div class="pcard p-accent-amber reveal" style="transition-delay:.16s">
         <div class="plan-name">Enterprise</div>
-        <div class="p-tagline">For organizations and consulting firms</div>
+        <div class="p-tagline" data-i18n="plan.enterprise.tagline">For organizations and consulting firms</div>
         <div class="p-price-block">
           <div class="p-price-row">
-            <span class="p-price-amount p-contact">Contact us</span>
+            <span class="p-price-amount p-contact" data-i18n="plan.enterprise.price">Contact us</span>
           </div>
-          <div class="p-price-note">custom pricing</div>
+          <div class="p-price-note" data-i18n="plan.enterprise.note">custom pricing</div>
         </div>
         <div class="plan-divider"></div>
         <ul class="plan-features">
-          <li class="on"><span class="feat-check y">✓</span>Unlimited sessions</li>
-          <li class="on"><span class="feat-check y">✓</span>Unlimited AI calls (pooled)</li>
-          <li class="on"><span class="feat-check y">✓</span>Unlimited exports (all formats)</li>
-          <li class="on"><span class="feat-check y">✓</span>Advanced RBAC + audit log</li>
-          <li class="on"><span class="feat-check y">✓</span>Dedicated onboarding + CSM</li>
+          <li class="on"><span class="feat-check y">✓</span><span data-i18n="pf.ent.1">Unlimited sessions</span></li>
+          <li class="on"><span class="feat-check y">✓</span><span data-i18n="pf.ent.2">Unlimited AI calls (pooled)</span></li>
+          <li class="on"><span class="feat-check y">✓</span><span data-i18n="pf.ent.3">Unlimited exports (all formats)</span></li>
+          <li class="on"><span class="feat-check y">✓</span><span data-i18n="pf.ent.4">Advanced RBAC + audit log</span></li>
+          <li class="on"><span class="feat-check y">✓</span><span data-i18n="pf.ent.5">Dedicated onboarding + CSM</span></li>
         </ul>
-        <a href="/pricing.html" class="p-see-all">See all features →</a>
+        <a href="/pricing.html" class="p-see-all" data-i18n="plan.see-all">See all features →</a>
         <a href="mailto:hello@sevenda.dev?subject=Enterprise Plan — Sevenda" class="btn p-cta-enterprise"
-           data-action="contact">Contact us</a>
+           data-action="contact" data-i18n="plan.enterprise.cta">Contact us</a>
       </div>
 
     </div>
 
     <div class="p-compare reveal">
-      <a href="/pricing.html">Compare all features →</a>
+      <a href="/pricing.html" data-i18n="pricing.compare">Compare all features →</a>
     </div>
   </div>
 </section>
@@ -1571,31 +1611,31 @@
 <section id="documentation">
   <div class="wrap">
     <div class="doc-head reveal">
-      <p class="slabel">Documentation</p>
-      <h2 class="stitle">Everything you need to get started.</h2>
-      <p class="ssub" style="max-width:540px;margin:0 auto;">From installation to advanced BPMN generation — the complete guide is one click away.</p>
+      <p class="slabel" data-i18n="docs.label">Documentation</p>
+      <h2 class="stitle" data-i18n="docs.title">Everything you need to get started.</h2>
+      <p class="ssub" style="max-width:540px;margin:0 auto;" data-i18n="docs.sub">From installation to advanced BPMN generation — the complete guide is one click away.</p>
     </div>
 
     <div class="cgrid" style="margin-top:52px;">
       <div class="ccard reveal" style="transition-delay:.04s">
         <span class="ccard-icon">🚀</span>
-        <div class="ccard-title">Quick Start</div>
-        <div class="ccard-desc">Install Sevenda, configure your API key and generate your first BPMN diagram in under 60 seconds.</div>
-        <a href="/docs.html#quickstart" class="ccard-link">Read guide →</a>
+        <div class="ccard-title" data-i18n="doc1.title">Quick Start</div>
+        <div class="ccard-desc" data-i18n="doc1.desc">Install Sevenda, configure your API key and generate your first BPMN diagram in under 60 seconds.</div>
+        <a href="/docs.html#quickstart" class="ccard-link" data-i18n="doc1.link">Read guide →</a>
       </div>
 
       <div class="ccard reveal" style="transition-delay:.1s">
         <span class="ccard-icon">⚡</span>
-        <div class="ccard-title">Event Capture</div>
-        <div class="ccard-desc">Understand how Sevenda captures NAV, UI, NET, ERR and DOM events and how to filter them for better results.</div>
-        <a href="/docs.html#events" class="ccard-link">Read guide →</a>
+        <div class="ccard-title" data-i18n="doc2.title">Event Capture</div>
+        <div class="ccard-desc" data-i18n="doc2.desc">Understand how Sevenda captures NAV, UI, NET, ERR and DOM events and how to filter them for better results.</div>
+        <a href="/docs.html#events" class="ccard-link" data-i18n="doc2.link">Read guide →</a>
       </div>
 
       <div class="ccard reveal" style="transition-delay:.16s">
         <span class="ccard-icon">🧩</span>
-        <div class="ccard-title">BPMN &amp; Insights</div>
-        <div class="ccard-desc">Generate BPMN 2.0 diagrams, refine them with natural language and export to Camunda, Jira or .docx.</div>
-        <a href="/docs.html#bpmn" class="ccard-link">Read guide →</a>
+        <div class="ccard-title" data-i18n="doc3.title">BPMN &amp; Insights</div>
+        <div class="ccard-desc" data-i18n="doc3.desc">Generate BPMN 2.0 diagrams, refine them with natural language and export to Camunda, Jira or .docx.</div>
+        <a href="/docs.html#bpmn" class="ccard-link" data-i18n="doc3.link">Read guide →</a>
       </div>
     </div>
   </div>
@@ -1604,12 +1644,12 @@
 <!-- ── CTA FOOTER ────────────────────────────────────────────── -->
 <section id="cta-foot">
   <div class="cta-foot-inner reveal">
-    <p class="cta-h">Start documenting<br>in seconds.</p>
-    <p class="cta-sub">Join developers, analysts and marketers who let Sevenda do the heavy lifting.</p>
-    <a href="#" class="btn btn-primary" style="font-size:15px;padding:13px 28px;">
+    <p class="cta-h" data-i18n-html="ctaf.h">Start documenting<br>in seconds.</p>
+    <p class="cta-sub" data-i18n="ctaf.sub">Join developers, analysts and marketers who let Sevenda do the heavy lifting.</p>
+    <a href="#" class="btn btn-primary" style="font-size:15px;padding:13px 28px;" data-i18n="ctaf.cta">
       Add to Chrome — it's free
     </a>
-    <p class="cta-note">No account required · Free forever plan available</p>
+    <p class="cta-note" data-i18n="ctaf.note">No account required · Free forever plan available</p>
   </div>
 </section>
 
@@ -1628,20 +1668,278 @@
     </div>
 
     <ul class="foot-links">
-      <li><a href="#features">Features</a></li>
-      <li><a href="#insights">Insights</a></li>
-      <li><a href="#pricing">Pricing</a></li>
-      <li><a href="#">GitHub</a></li>
-      <li><a href="/privacy.html">Privacy Policy</a></li>
-      <li><a href="/docs.html">Docs</a></li>
-      <li><a href="/faq.html">FAQ</a></li>
+      <li><a href="#features" data-i18n="foot.features">Features</a></li>
+      <li><a href="#insights" data-i18n="foot.insights">Insights</a></li>
+      <li><a href="#pricing" data-i18n="foot.pricing">Pricing</a></li>
+      <li><a href="#" data-i18n="foot.github">GitHub</a></li>
+      <li><a href="/privacy.html" data-i18n="foot.privacy">Privacy Policy</a></li>
+      <li><a href="/docs.html" data-i18n="foot.docs">Docs</a></li>
+      <li><a href="/faq.html" data-i18n="foot.faq">FAQ</a></li>
     </ul>
 
-    <span class="foot-copy">© 2025 Sevenda · Built with Claude</span>
+    <span class="foot-copy" data-i18n="foot.copy">© 2025 Sevenda · Built with Claude</span>
   </div>
 </footer>
 
 <script>
+  // ── I18N ─────────────────────────────────────────────────────
+  const i18n = {
+    en: {
+      'nav.features':'Features','nav.insights':'Insights','nav.usecases':'Use Cases',
+      'nav.how':'How it works','nav.pricing':'Pricing','nav.docs':'Docs','nav.faq':'FAQ',
+      'nav.cta':'Add to Chrome',
+      'hero.pill':'Now powered by Claude Sonnet 4 →',
+      'hero.h1':'Every click tells a story.<br><span class="dim">Sevenda reads it.</span>',
+      'hero.sub':'Sevenda records your browser session and instantly generates BPMN 2.0 process diagrams AND actionable insights — helping developers, business analysts and marketing teams understand what really happens inside their digital processes.',
+      'hero.cta1':'Add to Chrome','hero.cta2':'▶ Watch demo',
+      'how.label':'How it works',
+      'how.title':'Three steps to a<br>BPMN diagram',
+      'how.sub':'From raw browser events to structured process models — without lifting a pen.',
+      'step1.h':'Record','step1.p':'Click start in DevTools. Sevenda captures clicks, form submissions, navigation events, network calls, and DOM mutations — everything that matters.',
+      'step2.h':'AI generates','step2.p':'Claude Sonnet reads the event stream, identifies the process flow, and produces validated BPMN 2.0 XML with correct pools, lanes, gateways, and sequence flows.',
+      'step3.h':'Export','step3.p':'Download .bpmn for Camunda, Signavio or Bizagi. Export .svg or .png for presentations. Generate a full process report in .docx format — ready to share with stakeholders, no technical skills required. Refine with natural language chat.',
+      'insights.label':'Insights',
+      'insights.title':'Beyond diagrams.<br>Real intelligence.',
+      'insights.sub':'Every session becomes a source of insight — not just a process map.',
+      'ic1.title':'GTM Event Suggestions','ic1.desc':'Sevenda analyses your session and recommends Google Tag Manager events to track, so nothing goes unmeasured. Get a ready-to-implement event taxonomy in seconds.',
+      'ic2.title':'Tracking Gap Analysis','ic2.desc':'Identifies touchpoints in your funnel with missing or incomplete tracking coverage. Know exactly where your analytics blind spots are before they cost you.',
+      'ic3.title':'Process Report','ic3.desc':'A full .docx report combining the BPMN diagram, event log, insights and recommendations. Ready to share with any stakeholder — no technical skills required.',
+      'uc.label':'USE CASES','uc.title':'Built for the people who document processes.','uc.sub':'Three teams. Three problems. One tool.',
+      'uc1.badge':'Business Analyst','uc1.scenario':'AS-IS process documentation. Day one.',
+      'uc1.narrative':'A new client engagement starts Monday. No process documentation exists. The BA opens Chrome DevTools, navigates through the client\'s web application for 90 seconds, and presses Generate. Sevenda produces a validated BPMN 2.0 diagram — with every task, gateway, and flow captured automatically.',
+      'uc1.o1':'BPMN 2.0 diagram ready for Camunda or Signavio','uc1.o2':'Analisi Tecnico-Funzionale .docx for stakeholders','uc1.o3':'Jira issue created with diagram attached','uc1.time':'From 8 hours → 90 seconds',
+      'uc2.badge':'Marketing & Data Consultant','uc2.scenario':'GTM audit. Full gap report. One session.',
+      'uc2.narrative':'The client\'s GA4 is configured, but conversion events are missing from half the funnel. The consultant switches Sevenda to Insights mode, navigates the purchase flow, and clicks Generate. Every untracked interaction is flagged — with CSS selectors, dataLayer.push() snippets, and a ready-to-import Tag Plan.',
+      'uc2.o1':'Tracking gap analysis with element selectors','uc2.o2':'dataLayer.push() snippets ready for GTM','uc2.o3':'Tag Plan JSON — importable directly into GTM','uc2.o4':'Analytics Report .docx for the client','uc2.time':'From 3-day audit → 20 minutes',
+      'uc3.badge':'Developer / QA','uc3.scenario':'Ship fast. Document automatically.',
+      'uc3.narrative':'Release day. No time to update the process docs. The developer records the QA session in Sevenda — every API call, every navigation, every form submission captured in the event stream. One click generates the updated BPMN and a structured report, ready to commit alongside the code.',
+      'uc3.o1':'User flow diagram — always up to date','uc3.o2':'API interaction log with status codes and timing','uc3.o3':'Export .svg for README or Confluence','uc3.o4':'Natural language refinement for edge cases','uc3.time':'Documentation that updates itself',
+      'feat.label':'Features','feat.title':'Built for process professionals',
+      'f1.h':'Real-time event capture','f1.p':'Captures clicks, form submissions, API calls, navigation events, and DOM mutations with zero configuration — works on any website.',
+      'f2.h':'Claude Sonnet AI','f2.p':'Anthropic\'s most capable model understands context, identifies decision points, and produces accurate process models — not just a sequence of steps.',
+      'f3.h':'BPMN 2.0 standard','f3.p':'Output is fully compliant BPMN 2.0 XML. Open directly in Camunda Modeler, Signavio, Bizagi, or any standards-compliant tool.',
+      'f4.h':'Iterative refinement','f4.p':'Chat with the diagram. "Add an error path after the API call" and Sevenda updates the BPMN while preserving the rest of the model exactly.',
+      'f5.h':'Marketing & Funnel Mapping','f5.p':'Visualize customer journeys, campaign flows, and conversion funnels automatically — no diagramming tools, no manual work, no technical skills required.',
+      'f6.h':'Multi-format export','f6.p':'.bpmn for process engines, .svg and .png for presentations, .docx reports for stakeholders. One session, every format you need.',
+      'stat1.lbl':'to first diagram','stat2.lbl':'diagrams and intelligence','stat3.lbl':'Chrome extension',
+      'pricing.label':'Pricing','pricing.title':'Simple, transparent, scalable.','pricing.sub':'Start for free. Scale when you need. No surprises.',
+      'billing.monthly':'Monthly','billing.annual':'Annual','billing.save':'Save 25%',
+      'plan.free.tagline':'Start exploring','plan.free.note':'forever',
+      'plan.solo.tagline':'For the independent developer',
+      'plan.team.tagline':'For agile teams and consultants','plan.team.popular':'Most popular',
+      'plan.enterprise.tagline':'For organizations and consulting firms','plan.enterprise.price':'Contact us','plan.enterprise.note':'custom pricing',
+      'plan.see-all':'See all features →','plan.free.cta':'Get started free','plan.solo.cta':'Start 14-day free trial','plan.team.cta':'Start with your team','plan.enterprise.cta':'Contact us',
+      'pricing.compare':'Compare all features →',
+      'pf.free.1':'5 sessions/month','pf.free.2':'10 AI calls (BPMN + Insights)','pf.free.3':'5 exports (XML / SVG)','pf.free.4':'Local workspace','pf.free.5':'Tag Plan JSON export',
+      'pf.solo.1':'30 sessions/month','pf.solo.2':'100 AI calls (BPMN + Insights)','pf.solo.3':'50 exports (XML / SVG / PNG)','pf.solo.4':'Iterative BPMN feedback (chat)','pf.solo.5':'Session history (90 days)',
+      'pf.team.1':'200 sessions/month (pooled)','pf.team.2':'500 AI calls (pooled)','pf.team.3':'300 exports (all formats)','pf.team.4':'Jira integration (all members)','pf.team.5':'Priority support (email)',
+      'pf.ent.1':'Unlimited sessions','pf.ent.2':'Unlimited AI calls (pooled)','pf.ent.3':'Unlimited exports (all formats)','pf.ent.4':'Advanced RBAC + audit log','pf.ent.5':'Dedicated onboarding + CSM',
+      'docs.label':'Documentation','docs.title':'Everything you need to get started.','docs.sub':'From installation to advanced BPMN generation — the complete guide is one click away.',
+      'doc1.title':'Quick Start','doc1.desc':'Install Sevenda, configure your API key and generate your first BPMN diagram in under 60 seconds.','doc1.link':'Read guide →',
+      'doc2.title':'Event Capture','doc2.desc':'Understand how Sevenda captures NAV, UI, NET, ERR and DOM events and how to filter them for better results.','doc2.link':'Read guide →',
+      'doc3.title':'BPMN & Insights','doc3.desc':'Generate BPMN 2.0 diagrams, refine them with natural language and export to Camunda, Jira or .docx.','doc3.link':'Read guide →',
+      'ctaf.h':'Start documenting<br>in seconds.','ctaf.sub':'Join developers, analysts and marketers who let Sevenda do the heavy lifting.','ctaf.cta':'Add to Chrome — it\'s free','ctaf.note':'No account required · Free forever plan available',
+      'foot.copy':'© 2025 Sevenda · Built with Claude','foot.features':'Features','foot.insights':'Insights','foot.pricing':'Pricing','foot.github':'GitHub','foot.privacy':'Privacy Policy','foot.docs':'Docs','foot.faq':'FAQ',
+    },
+    it: {
+      'nav.features':'Funzionalità','nav.insights':'Insights','nav.usecases':'Casi d\'uso',
+      'nav.how':'Come funziona','nav.pricing':'Prezzi','nav.docs':'Docs','nav.faq':'FAQ',
+      'nav.cta':'Aggiungi a Chrome',
+      'hero.pill':'Ora con Claude Sonnet 4 →',
+      'hero.h1':'Ogni click racconta una storia.<br><span class="dim">Sevenda la legge.</span>',
+      'hero.sub':'Sevenda registra la tua sessione browser e genera istantaneamente diagrammi di processo BPMN 2.0 e insight operativi — aiutando developer, business analyst e team marketing a capire cosa succede davvero nei loro processi digitali.',
+      'hero.cta1':'Aggiungi a Chrome','hero.cta2':'▶ Guarda il demo',
+      'how.label':'Come funziona',
+      'how.title':'Tre passi verso il<br>diagramma BPMN',
+      'how.sub':'Da eventi browser grezzi a modelli di processo strutturati — senza alzare una penna.',
+      'step1.h':'Registra','step1.p':'Clicca start nei DevTools. Sevenda cattura click, invii di form, eventi di navigazione, chiamate di rete e mutazioni DOM — tutto ciò che conta.',
+      'step2.h':'L\'AI genera','step2.p':'Claude Sonnet legge il flusso di eventi, identifica il processo e produce BPMN 2.0 XML validato con pool, corsie, gateway e flussi di sequenza corretti.',
+      'step3.h':'Esporta','step3.p':'Scarica .bpmn per Camunda, Signavio o Bizagi. Esporta .svg o .png per le presentazioni. Genera un report di processo completo in formato .docx — pronto da condividere con gli stakeholder, senza competenze tecniche. Affina con chat in linguaggio naturale.',
+      'insights.label':'Insights',
+      'insights.title':'Oltre i diagrammi.<br>Vera intelligenza.',
+      'insights.sub':'Ogni sessione diventa una fonte di insight — non solo una mappa di processo.',
+      'ic1.title':'Suggerimenti GTM','ic1.desc':'Sevenda analizza la tua sessione e suggerisce gli eventi Google Tag Manager da tracciare. Ottieni una tassonomia eventi pronta da implementare in pochi secondi.',
+      'ic2.title':'Analisi dei Gap di Tracking','ic2.desc':'Identifica i touchpoint del tuo funnel con copertura di tracking assente o incompleta. Sappi esattamente dove sono i punti ciechi della tua analytics prima che ti costino.',
+      'ic3.title':'Report di Processo','ic3.desc':'Un report .docx completo che unisce diagramma BPMN, log degli eventi, insight e raccomandazioni. Pronto da condividere con qualsiasi stakeholder — nessuna competenza tecnica richiesta.',
+      'uc.label':'CASI D\'USO','uc.title':'Fatto per chi documenta i processi.','uc.sub':'Tre team. Tre problemi. Uno strumento.',
+      'uc1.badge':'Business Analyst','uc1.scenario':'Documentazione AS-IS del processo. Giorno uno.',
+      'uc1.narrative':'Un nuovo incarico parte lunedì. Non esiste documentazione di processo. Il BA apre Chrome DevTools, naviga nell\'applicazione web del cliente per 90 secondi e preme Genera. Sevenda produce un diagramma BPMN 2.0 validato — con ogni task, gateway e flusso catturato automaticamente.',
+      'uc1.o1':'Diagramma BPMN 2.0 pronto per Camunda o Signavio','uc1.o2':'Analisi Tecnico-Funzionale .docx per gli stakeholder','uc1.o3':'Issue Jira creata con il diagramma allegato','uc1.time':'Da 8 ore → 90 secondi',
+      'uc2.badge':'Consulente Marketing & Data','uc2.scenario':'Audit GTM. Report completo dei gap. Una sessione.',
+      'uc2.narrative':'Il GA4 del cliente è configurato, ma gli eventi di conversione mancano dalla metà del funnel. Il consulente attiva la modalità Insights di Sevenda, naviga il flusso di acquisto e clicca Genera. Ogni interazione non tracciata viene segnalata — con selettori CSS, snippet dataLayer.push() e un Tag Plan pronto da importare.',
+      'uc2.o1':'Analisi dei gap di tracking con selettori di elementi','uc2.o2':'Snippet dataLayer.push() pronti per GTM','uc2.o3':'Tag Plan JSON — importabile direttamente in GTM','uc2.o4':'Analytics Report .docx per il cliente','uc2.time':'Da audit di 3 giorni → 20 minuti',
+      'uc3.badge':'Developer / QA','uc3.scenario':'Rilascia veloce. Documenta automaticamente.',
+      'uc3.narrative':'Giorno di rilascio. Nessun tempo per aggiornare i documenti di processo. Il developer registra la sessione QA in Sevenda — ogni chiamata API, ogni navigazione, ogni invio di form catturato nell\'event stream. Un click genera il BPMN aggiornato e un report strutturato, pronti da committare insieme al codice.',
+      'uc3.o1':'Diagramma del flusso utente — sempre aggiornato','uc3.o2':'Log interazioni API con status code e tempi','uc3.o3':'Esporta .svg per README o Confluence','uc3.o4':'Raffinamento in linguaggio naturale per i casi limite','uc3.time':'Documentazione che si aggiorna da sola',
+      'feat.label':'Funzionalità','feat.title':'Fatto per i professionisti del processo',
+      'f1.h':'Cattura eventi in tempo reale','f1.p':'Cattura click, invii di form, chiamate API, eventi di navigazione e mutazioni DOM senza configurazione — funziona su qualsiasi sito.',
+      'f2.h':'Claude Sonnet AI','f2.p':'Il modello più capace di Anthropic comprende il contesto, identifica i punti di decisione e produce modelli di processo accurati — non solo una sequenza di passi.',
+      'f3.h':'Standard BPMN 2.0','f3.p':'L\'output è BPMN 2.0 XML completamente conforme. Apribile direttamente in Camunda Modeler, Signavio, Bizagi o qualsiasi tool conforme agli standard.',
+      'f4.h':'Raffinamento iterativo','f4.p':'Chatta con il diagramma. "Aggiungi un percorso di errore dopo la chiamata API" e Sevenda aggiorna il BPMN preservando esattamente il resto del modello.',
+      'f5.h':'Mapping Marketing & Funnel','f5.p':'Visualizza automaticamente customer journey, flussi di campagna e funnel di conversione — nessuno strumento di diagrammazione, nessun lavoro manuale, nessuna competenza tecnica richiesta.',
+      'f6.h':'Esportazione multi-formato','f6.p':'.bpmn per i process engine, .svg e .png per le presentazioni, report .docx per gli stakeholder. Una sessione, tutti i formati di cui hai bisogno.',
+      'stat1.lbl':'al primo diagramma','stat2.lbl':'diagrammi e intelligenza','stat3.lbl':'estensione Chrome',
+      'pricing.label':'Prezzi','pricing.title':'Semplice, trasparente, scalabile.','pricing.sub':'Inizia gratis. Scala quando ne hai bisogno. Nessuna sorpresa.',
+      'billing.monthly':'Mensile','billing.annual':'Annuale','billing.save':'Risparmia 25%',
+      'plan.free.tagline':'Inizia ad esplorare','plan.free.note':'per sempre',
+      'plan.solo.tagline':'Per il developer indipendente',
+      'plan.team.tagline':'Per team agili e consulenti','plan.team.popular':'Più popolare',
+      'plan.enterprise.tagline':'Per organizzazioni e società di consulenza','plan.enterprise.price':'Contattaci','plan.enterprise.note':'prezzo personalizzato',
+      'plan.see-all':'Vedi tutte le funzionalità →','plan.free.cta':'Inizia gratis','plan.solo.cta':'Prova gratuita 14 giorni','plan.team.cta':'Inizia con il tuo team','plan.enterprise.cta':'Contattaci',
+      'pricing.compare':'Confronta tutte le funzionalità →',
+      'pf.free.1':'5 sessioni/mese','pf.free.2':'10 chiamate AI (BPMN + Insights)','pf.free.3':'5 esportazioni (XML / SVG)','pf.free.4':'Workspace locale','pf.free.5':'Esportazione Tag Plan JSON',
+      'pf.solo.1':'30 sessioni/mese','pf.solo.2':'100 chiamate AI (BPMN + Insights)','pf.solo.3':'50 esportazioni (XML / SVG / PNG)','pf.solo.4':'Feedback BPMN iterativo (chat)','pf.solo.5':'Storico sessioni (90 giorni)',
+      'pf.team.1':'200 sessioni/mese (condivise)','pf.team.2':'500 chiamate AI (condivise)','pf.team.3':'300 esportazioni (tutti i formati)','pf.team.4':'Integrazione Jira (tutti i membri)','pf.team.5':'Supporto prioritario (email)',
+      'pf.ent.1':'Sessioni illimitate','pf.ent.2':'Chiamate AI illimitate (condivise)','pf.ent.3':'Esportazioni illimitate (tutti i formati)','pf.ent.4':'RBAC avanzato + audit log','pf.ent.5':'Onboarding dedicato + CSM',
+      'docs.label':'Documentazione','docs.title':'Tutto quello che ti serve per iniziare.','docs.sub':'Dall\'installazione alla generazione BPMN avanzata — la guida completa è a un click.',
+      'doc1.title':'Quick Start','doc1.desc':'Installa Sevenda, configura la tua API key e genera il primo diagramma BPMN in meno di 60 secondi.','doc1.link':'Leggi la guida →',
+      'doc2.title':'Cattura Eventi','doc2.desc':'Scopri come Sevenda cattura eventi NAV, UI, NET, ERR e DOM e come filtrarli per ottenere risultati migliori.','doc2.link':'Leggi la guida →',
+      'doc3.title':'BPMN & Insights','doc3.desc':'Genera diagrammi BPMN 2.0, affinali con linguaggio naturale ed esporta verso Camunda, Jira o .docx.','doc3.link':'Leggi la guida →',
+      'ctaf.h':'Inizia a documentare<br>in pochi secondi.','ctaf.sub':'Unisciti a developer, analisti e marketer che lasciano che Sevenda faccia il lavoro pesante.','ctaf.cta':'Aggiungi a Chrome — è gratis','ctaf.note':'Nessun account richiesto · Piano gratuito per sempre disponibile',
+      'foot.copy':'© 2025 Sevenda · Realizzato con Claude','foot.features':'Funzionalità','foot.insights':'Insights','foot.pricing':'Prezzi','foot.github':'GitHub','foot.privacy':'Privacy Policy','foot.docs':'Docs','foot.faq':'FAQ',
+    },
+    es: {
+      'nav.features':'Funciones','nav.insights':'Insights','nav.usecases':'Casos de uso',
+      'nav.how':'Cómo funciona','nav.pricing':'Precios','nav.docs':'Docs','nav.faq':'FAQ',
+      'nav.cta':'Añadir a Chrome',
+      'hero.pill':'Ahora con Claude Sonnet 4 →',
+      'hero.h1':'Cada clic cuenta una historia.<br><span class="dim">Sevenda la lee.</span>',
+      'hero.sub':'Sevenda graba tu sesión de navegador y genera instantáneamente diagramas de proceso BPMN 2.0 e insights accionables — ayudando a desarrolladores, analistas de negocio y equipos de marketing a entender qué ocurre realmente en sus procesos digitales.',
+      'hero.cta1':'Añadir a Chrome','hero.cta2':'▶ Ver demo',
+      'how.label':'Cómo funciona',
+      'how.title':'Tres pasos hacia un<br>diagrama BPMN',
+      'how.sub':'De eventos brutos del navegador a modelos de proceso estructurados — sin levantar un lápiz.',
+      'step1.h':'Grabar','step1.p':'Haz clic en inicio en DevTools. Sevenda captura clics, envíos de formularios, eventos de navegación, llamadas de red y mutaciones del DOM — todo lo que importa.',
+      'step2.h':'La IA genera','step2.p':'Claude Sonnet lee el flujo de eventos, identifica el flujo del proceso y produce XML BPMN 2.0 validado con pools, carriles, gateways y flujos de secuencia correctos.',
+      'step3.h':'Exportar','step3.p':'Descarga .bpmn para Camunda, Signavio o Bizagi. Exporta .svg o .png para presentaciones. Genera un informe de proceso completo en formato .docx — listo para compartir con los interesados, sin habilidades técnicas. Refina con chat en lenguaje natural.',
+      'insights.label':'Insights',
+      'insights.title':'Más allá de los diagramas.<br>Inteligencia real.',
+      'insights.sub':'Cada sesión se convierte en una fuente de insight — no solo un mapa de procesos.',
+      'ic1.title':'Sugerencias de Eventos GTM','ic1.desc':'Sevenda analiza tu sesión y recomienda eventos de Google Tag Manager a rastrear. Obtén una taxonomía de eventos lista para implementar en segundos.',
+      'ic2.title':'Análisis de Brechas de Tracking','ic2.desc':'Identifica los puntos de contacto en tu embudo con cobertura de rastreo ausente o incompleta. Sabe exactamente dónde están tus puntos ciegos de analítica.',
+      'ic3.title':'Informe de Proceso','ic3.desc':'Un informe .docx completo que combina el diagrama BPMN, el registro de eventos, insights y recomendaciones. Listo para compartir con cualquier interesado — sin habilidades técnicas.',
+      'uc.label':'CASOS DE USO','uc.title':'Hecho para quienes documentan procesos.','uc.sub':'Tres equipos. Tres problemas. Una herramienta.',
+      'uc1.badge':'Analista de Negocio','uc1.scenario':'Documentación AS-IS del proceso. Día uno.',
+      'uc1.narrative':'Un nuevo proyecto comienza el lunes. No existe documentación de procesos. El analista abre Chrome DevTools, navega por la aplicación web del cliente durante 90 segundos y pulsa Generar. Sevenda produce un diagrama BPMN 2.0 validado — con cada tarea, gateway y flujo capturado automáticamente.',
+      'uc1.o1':'Diagrama BPMN 2.0 listo para Camunda o Signavio','uc1.o2':'Análisis Técnico-Funcional .docx para interesados','uc1.o3':'Issue de Jira creada con diagrama adjunto','uc1.time':'De 8 horas → 90 segundos',
+      'uc2.badge':'Consultor de Marketing & Datos','uc2.scenario':'Auditoría GTM. Informe completo de brechas. Una sesión.',
+      'uc2.narrative':'El GA4 del cliente está configurado, pero los eventos de conversión faltan en la mitad del embudo. El consultor activa el modo Insights de Sevenda, navega por el flujo de compra y hace clic en Generar. Cada interacción no rastreada se señala — con selectores CSS, fragmentos dataLayer.push() y un Plan de Tags listo para importar.',
+      'uc2.o1':'Análisis de brechas de tracking con selectores de elementos','uc2.o2':'Fragmentos dataLayer.push() listos para GTM','uc2.o3':'Tag Plan JSON — importable directamente en GTM','uc2.o4':'Analytics Report .docx para el cliente','uc2.time':'De auditoría de 3 días → 20 minutos',
+      'uc3.badge':'Developer / QA','uc3.scenario':'Lanza rápido. Documenta automáticamente.',
+      'uc3.narrative':'Día de lanzamiento. Sin tiempo para actualizar los documentos de proceso. El desarrollador graba la sesión QA en Sevenda — cada llamada API, cada navegación, cada envío de formulario capturado en el flujo de eventos. Un clic genera el BPMN actualizado y un informe estructurado, listos para confirmar junto al código.',
+      'uc3.o1':'Diagrama de flujo de usuario — siempre actualizado','uc3.o2':'Registro de interacciones API con códigos de estado y tiempos','uc3.o3':'Exporta .svg para README o Confluence','uc3.o4':'Refinamiento en lenguaje natural para casos extremos','uc3.time':'Documentación que se actualiza sola',
+      'feat.label':'Funciones','feat.title':'Hecho para profesionales del proceso',
+      'f1.h':'Captura de eventos en tiempo real','f1.p':'Captura clics, envíos de formularios, llamadas API, eventos de navegación y mutaciones del DOM sin configuración — funciona en cualquier sitio web.',
+      'f2.h':'Claude Sonnet AI','f2.p':'El modelo más capaz de Anthropic entiende el contexto, identifica los puntos de decisión y produce modelos de proceso precisos — no solo una secuencia de pasos.',
+      'f3.h':'Estándar BPMN 2.0','f3.p':'El output es XML BPMN 2.0 completamente conforme. Ábrelo directamente en Camunda Modeler, Signavio, Bizagi o cualquier herramienta compatible.',
+      'f4.h':'Refinamiento iterativo','f4.p':'Chatea con el diagrama. "Añade un camino de error después de la llamada API" y Sevenda actualiza el BPMN preservando exactamente el resto del modelo.',
+      'f5.h':'Mapping de Marketing & Embudo','f5.p':'Visualiza automáticamente los recorridos de clientes, flujos de campaña y embudos de conversión — sin herramientas de diagramación, sin trabajo manual, sin habilidades técnicas.',
+      'f6.h':'Exportación multi-formato','f6.p':'.bpmn para motores de proceso, .svg y .png para presentaciones, informes .docx para interesados. Una sesión, todos los formatos que necesitas.',
+      'stat1.lbl':'al primer diagrama','stat2.lbl':'diagramas e inteligencia','stat3.lbl':'extensión de Chrome',
+      'pricing.label':'Precios','pricing.title':'Simple, transparente, escalable.','pricing.sub':'Empieza gratis. Escala cuando lo necesites. Sin sorpresas.',
+      'billing.monthly':'Mensual','billing.annual':'Anual','billing.save':'Ahorra 25%',
+      'plan.free.tagline':'Empieza a explorar','plan.free.note':'para siempre',
+      'plan.solo.tagline':'Para el desarrollador independiente',
+      'plan.team.tagline':'Para equipos ágiles y consultores','plan.team.popular':'Más popular',
+      'plan.enterprise.tagline':'Para organizaciones y firmas consultoras','plan.enterprise.price':'Contáctanos','plan.enterprise.note':'precio personalizado',
+      'plan.see-all':'Ver todas las funciones →','plan.free.cta':'Empezar gratis','plan.solo.cta':'Prueba gratuita de 14 días','plan.team.cta':'Empieza con tu equipo','plan.enterprise.cta':'Contáctanos',
+      'pricing.compare':'Comparar todas las funciones →',
+      'pf.free.1':'5 sesiones/mes','pf.free.2':'10 llamadas IA (BPMN + Insights)','pf.free.3':'5 exportaciones (XML / SVG)','pf.free.4':'Espacio de trabajo local','pf.free.5':'Exportación Tag Plan JSON',
+      'pf.solo.1':'30 sesiones/mes','pf.solo.2':'100 llamadas IA (BPMN + Insights)','pf.solo.3':'50 exportaciones (XML / SVG / PNG)','pf.solo.4':'Feedback BPMN iterativo (chat)','pf.solo.5':'Historial de sesiones (90 días)',
+      'pf.team.1':'200 sesiones/mes (compartidas)','pf.team.2':'500 llamadas IA (compartidas)','pf.team.3':'300 exportaciones (todos los formatos)','pf.team.4':'Integración Jira (todos los miembros)','pf.team.5':'Soporte prioritario (email)',
+      'pf.ent.1':'Sesiones ilimitadas','pf.ent.2':'Llamadas IA ilimitadas (compartidas)','pf.ent.3':'Exportaciones ilimitadas (todos los formatos)','pf.ent.4':'RBAC avanzado + registro de auditoría','pf.ent.5':'Onboarding dedicado + CSM',
+      'docs.label':'Documentación','docs.title':'Todo lo que necesitas para empezar.','docs.sub':'Desde la instalación hasta la generación avanzada de BPMN — la guía completa está a un clic.',
+      'doc1.title':'Inicio Rápido','doc1.desc':'Instala Sevenda, configura tu API key y genera tu primer diagrama BPMN en menos de 60 segundos.','doc1.link':'Leer guía →',
+      'doc2.title':'Captura de Eventos','doc2.desc':'Entiende cómo Sevenda captura eventos NAV, UI, NET, ERR y DOM y cómo filtrarlos para mejores resultados.','doc2.link':'Leer guía →',
+      'doc3.title':'BPMN & Insights','doc3.desc':'Genera diagramas BPMN 2.0, refínalos con lenguaje natural y exporta a Camunda, Jira o .docx.','doc3.link':'Leer guía →',
+      'ctaf.h':'Empieza a documentar<br>en segundos.','ctaf.sub':'Únete a desarrolladores, analistas y marketers que dejan que Sevenda haga el trabajo pesado.','ctaf.cta':'Añadir a Chrome — es gratis','ctaf.note':'Sin cuenta requerida · Plan gratuito para siempre disponible',
+      'foot.copy':'© 2025 Sevenda · Hecho con Claude','foot.features':'Funciones','foot.insights':'Insights','foot.pricing':'Precios','foot.github':'GitHub','foot.privacy':'Política de privacidad','foot.docs':'Docs','foot.faq':'FAQ',
+    },
+    fr: {
+      'nav.features':'Fonctionnalités','nav.insights':'Insights','nav.usecases':'Cas d\'usage',
+      'nav.how':'Comment ça marche','nav.pricing':'Tarifs','nav.docs':'Docs','nav.faq':'FAQ',
+      'nav.cta':'Ajouter à Chrome',
+      'hero.pill':'Maintenant avec Claude Sonnet 4 →',
+      'hero.h1':'Chaque clic raconte une histoire.<br><span class="dim">Sevenda la lit.</span>',
+      'hero.sub':'Sevenda enregistre votre session de navigation et génère instantanément des diagrammes de processus BPMN 2.0 et des insights actionnables — aidant les développeurs, analystes métier et équipes marketing à comprendre ce qui se passe vraiment dans leurs processus digitaux.',
+      'hero.cta1':'Ajouter à Chrome','hero.cta2':'▶ Voir la démo',
+      'how.label':'Comment ça marche',
+      'how.title':'Trois étapes vers un<br>diagramme BPMN',
+      'how.sub':'Des événements bruts du navigateur aux modèles de processus structurés — sans lever le stylo.',
+      'step1.h':'Enregistrer','step1.p':'Cliquez sur démarrer dans DevTools. Sevenda capture les clics, soumissions de formulaires, événements de navigation, appels réseau et mutations DOM — tout ce qui compte.',
+      'step2.h':'L\'IA génère','step2.p':'Claude Sonnet lit le flux d\'événements, identifie le flux de processus et produit un XML BPMN 2.0 validé avec des pools, couloirs, passerelles et flux de séquence corrects.',
+      'step3.h':'Exporter','step3.p':'Téléchargez .bpmn pour Camunda, Signavio ou Bizagi. Exportez .svg ou .png pour les présentations. Générez un rapport de processus complet au format .docx — prêt à partager avec les parties prenantes, sans compétences techniques. Affinez avec un chat en langage naturel.',
+      'insights.label':'Insights',
+      'insights.title':'Au-delà des diagrammes.<br>Une vraie intelligence.',
+      'insights.sub':'Chaque session devient une source d\'insight — pas seulement une carte de processus.',
+      'ic1.title':'Suggestions d\'événements GTM','ic1.desc':'Sevenda analyse votre session et recommande des événements Google Tag Manager à suivre. Obtenez une taxonomie d\'événements prête à implémenter en quelques secondes.',
+      'ic2.title':'Analyse des lacunes de tracking','ic2.desc':'Identifie les points de contact de votre entonnoir avec une couverture de suivi manquante ou incomplète. Sachez exactement où sont vos angles morts analytiques.',
+      'ic3.title':'Rapport de processus','ic3.desc':'Un rapport .docx complet combinant le diagramme BPMN, le journal d\'événements, les insights et recommandations. Prêt à partager avec n\'importe quelle partie prenante — sans compétences techniques.',
+      'uc.label':'CAS D\'USAGE','uc.title':'Fait pour ceux qui documentent les processus.','uc.sub':'Trois équipes. Trois problèmes. Un outil.',
+      'uc1.badge':'Analyste Métier','uc1.scenario':'Documentation AS-IS du processus. Jour un.',
+      'uc1.narrative':'Une nouvelle mission client commence lundi. Aucune documentation de processus n\'existe. L\'analyste ouvre Chrome DevTools, navigue dans l\'application web du client pendant 90 secondes et appuie sur Générer. Sevenda produit un diagramme BPMN 2.0 validé — avec chaque tâche, passerelle et flux capturé automatiquement.',
+      'uc1.o1':'Diagramme BPMN 2.0 prêt pour Camunda ou Signavio','uc1.o2':'Analyse Technico-Fonctionnelle .docx pour les parties prenantes','uc1.o3':'Issue Jira créée avec le diagramme en pièce jointe','uc1.time':'De 8 heures → 90 secondes',
+      'uc2.badge':'Consultant Marketing & Data','uc2.scenario':'Audit GTM. Rapport complet des lacunes. Une session.',
+      'uc2.narrative':'Le GA4 du client est configuré, mais les événements de conversion manquent dans la moitié de l\'entonnoir. Le consultant active le mode Insights de Sevenda, navigue dans le flux d\'achat et clique sur Générer. Chaque interaction non suivie est signalée — avec des sélecteurs CSS, des extraits dataLayer.push() et un Plan de Tags prêt à importer.',
+      'uc2.o1':'Analyse des lacunes de tracking avec sélecteurs d\'éléments','uc2.o2':'Extraits dataLayer.push() prêts pour GTM','uc2.o3':'Tag Plan JSON — importable directement dans GTM','uc2.o4':'Analytics Report .docx pour le client','uc2.time':'D\'un audit de 3 jours → 20 minutes',
+      'uc3.badge':'Developer / QA','uc3.scenario':'Livrez vite. Documentez automatiquement.',
+      'uc3.narrative':'Jour de release. Pas le temps de mettre à jour les documents de processus. Le développeur enregistre la session QA dans Sevenda — chaque appel API, chaque navigation, chaque soumission de formulaire capturé dans le flux d\'événements. Un clic génère le BPMN mis à jour et un rapport structuré, prêts à commiter avec le code.',
+      'uc3.o1':'Diagramme de flux utilisateur — toujours à jour','uc3.o2':'Journal d\'interactions API avec codes de statut et temps','uc3.o3':'Exporter .svg pour README ou Confluence','uc3.o4':'Raffinement en langage naturel pour les cas limites','uc3.time':'Documentation qui se met à jour elle-même',
+      'feat.label':'Fonctionnalités','feat.title':'Fait pour les professionnels du processus',
+      'f1.h':'Capture d\'événements en temps réel','f1.p':'Capture les clics, soumissions de formulaires, appels API, événements de navigation et mutations DOM sans configuration — fonctionne sur n\'importe quel site.',
+      'f2.h':'Claude Sonnet AI','f2.p':'Le modèle le plus capable d\'Anthropic comprend le contexte, identifie les points de décision et produit des modèles de processus précis — pas seulement une séquence d\'étapes.',
+      'f3.h':'Standard BPMN 2.0','f3.p':'La sortie est un XML BPMN 2.0 entièrement conforme. Ouvrez-le directement dans Camunda Modeler, Signavio, Bizagi ou tout outil conforme aux standards.',
+      'f4.h':'Raffinement itératif','f4.p':'Discutez avec le diagramme. "Ajoutez un chemin d\'erreur après l\'appel API" et Sevenda met à jour le BPMN en préservant exactement le reste du modèle.',
+      'f5.h':'Mapping Marketing & Entonnoir','f5.p':'Visualisez automatiquement les parcours clients, flux de campagne et entonnoirs de conversion — sans outils de diagramme, sans travail manuel, sans compétences techniques.',
+      'f6.h':'Export multi-format','f6.p':'.bpmn pour les moteurs de processus, .svg et .png pour les présentations, rapports .docx pour les parties prenantes. Une session, tous les formats dont vous avez besoin.',
+      'stat1.lbl':'au premier diagramme','stat2.lbl':'diagrammes et intelligence','stat3.lbl':'extension Chrome',
+      'pricing.label':'Tarifs','pricing.title':'Simple, transparent, évolutif.','pricing.sub':'Commencez gratuitement. Montez en charge quand vous en avez besoin. Sans surprises.',
+      'billing.monthly':'Mensuel','billing.annual':'Annuel','billing.save':'Économisez 25%',
+      'plan.free.tagline':'Commencez à explorer','plan.free.note':'pour toujours',
+      'plan.solo.tagline':'Pour le développeur indépendant',
+      'plan.team.tagline':'Pour les équipes agiles et consultants','plan.team.popular':'Le plus populaire',
+      'plan.enterprise.tagline':'Pour les organisations et cabinets de conseil','plan.enterprise.price':'Contactez-nous','plan.enterprise.note':'tarif personnalisé',
+      'plan.see-all':'Voir toutes les fonctionnalités →','plan.free.cta':'Commencer gratuitement','plan.solo.cta':'Essai gratuit 14 jours','plan.team.cta':'Démarrer avec votre équipe','plan.enterprise.cta':'Contactez-nous',
+      'pricing.compare':'Comparer toutes les fonctionnalités →',
+      'pf.free.1':'5 sessions/mois','pf.free.2':'10 appels IA (BPMN + Insights)','pf.free.3':'5 exports (XML / SVG)','pf.free.4':'Espace de travail local','pf.free.5':'Export Tag Plan JSON',
+      'pf.solo.1':'30 sessions/mois','pf.solo.2':'100 appels IA (BPMN + Insights)','pf.solo.3':'50 exports (XML / SVG / PNG)','pf.solo.4':'Retour BPMN itératif (chat)','pf.solo.5':'Historique des sessions (90 jours)',
+      'pf.team.1':'200 sessions/mois (mutualisées)','pf.team.2':'500 appels IA (mutualisés)','pf.team.3':'300 exports (tous formats)','pf.team.4':'Intégration Jira (tous les membres)','pf.team.5':'Support prioritaire (email)',
+      'pf.ent.1':'Sessions illimitées','pf.ent.2':'Appels IA illimités (mutualisés)','pf.ent.3':'Exports illimités (tous formats)','pf.ent.4':'RBAC avancé + journal d\'audit','pf.ent.5':'Onboarding dédié + CSM',
+      'docs.label':'Documentation','docs.title':'Tout ce dont vous avez besoin pour commencer.','docs.sub':'De l\'installation à la génération BPMN avancée — le guide complet est à un clic.',
+      'doc1.title':'Démarrage rapide','doc1.desc':'Installez Sevenda, configurez votre clé API et générez votre premier diagramme BPMN en moins de 60 secondes.','doc1.link':'Lire le guide →',
+      'doc2.title':'Capture d\'événements','doc2.desc':'Comprenez comment Sevenda capture les événements NAV, UI, NET, ERR et DOM et comment les filtrer pour de meilleurs résultats.','doc2.link':'Lire le guide →',
+      'doc3.title':'BPMN & Insights','doc3.desc':'Générez des diagrammes BPMN 2.0, affinez-les en langage naturel et exportez vers Camunda, Jira ou .docx.','doc3.link':'Lire le guide →',
+      'ctaf.h':'Commencez à documenter<br>en quelques secondes.','ctaf.sub':'Rejoignez les développeurs, analystes et marketers qui laissent Sevenda faire le travail.','ctaf.cta':'Ajouter à Chrome — c\'est gratuit','ctaf.note':'Aucun compte requis · Plan gratuit à vie disponible',
+      'foot.copy':'© 2025 Sevenda · Réalisé avec Claude','foot.features':'Fonctionnalités','foot.insights':'Insights','foot.pricing':'Tarifs','foot.github':'GitHub','foot.privacy':'Politique de confidentialité','foot.docs':'Docs','foot.faq':'FAQ',
+    }
+  };
+
+  let currentLang = localStorage.getItem('sevenda-lang') || 'en';
+
+  function setLang(lang) {
+    if (!i18n[lang]) return;
+    currentLang = lang;
+    localStorage.setItem('sevenda-lang', lang);
+    document.documentElement.lang = lang;
+
+    const t = i18n[lang];
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.dataset.i18n;
+      if (t[key] !== undefined) el.textContent = t[key];
+    });
+    document.querySelectorAll('[data-i18n-html]').forEach(el => {
+      const key = el.dataset.i18nHtml;
+      if (t[key] !== undefined) el.innerHTML = t[key];
+    });
+
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.lang === lang);
+    });
+  }
+
+  // Apply saved/default language on load
+  setLang(currentLang);
+
   // Nav scroll state
   const nav = document.getElementById('nav');
   window.addEventListener('scroll', () => {
