@@ -1061,8 +1061,8 @@
 .demo-logo svg { opacity: 0.9; }
 .demo-badge {
   font-size: 10px;
-  color: #888;
-  background: #222;
+  color: var(--muted);
+  background: var(--surface);
   border: 1px solid var(--border);
   padding: 2px 6px;
   border-radius: 4px;
@@ -1070,7 +1070,7 @@
 }
 .demo-label {
   font-size: 11px;
-  color: #555;
+  color: var(--dim);
   margin-left: auto;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -1093,7 +1093,7 @@
   border-radius: 4px;
   border: 1px solid var(--border);
   background: transparent;
-  color: #888;
+  color: var(--muted);
   cursor: pointer;
   transition: all 0.15s;
   white-space: nowrap;
@@ -1128,7 +1128,7 @@
   bottom: 125%;
   left: 50%;
   transform: translateX(-50%);
-  background: #222;
+  background: var(--surface);
   color: var(--text);
   padding: 6px 10px;
   border-radius: 4px;
@@ -1150,7 +1150,7 @@
   border-radius: 6px;
   border: 1px solid var(--border);
   background: transparent;
-  color: #888;
+  color: var(--muted);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -1159,7 +1159,7 @@
   transition: all 0.15s;
   margin-left: 12px;
 }
-.demo-close:hover { background: #222; color: var(--text); }
+.demo-close:hover { background: var(--surface); color: var(--text); }
 
 /* ── MODE TABS ────────────────────────────────────────────────────────── */
 .demo-tabs {
@@ -1186,8 +1186,8 @@
 }
 .demo-tab:hover { color: var(--text); }
 .demo-tab.active {
-  background: var(--surface);
-  border-color: var(--border);
+  background: var(--surface-up);
+  border-color: var(--border-hi);
   color: var(--text);
 }
 .demo-tab.bpmn.active { color: var(--green); }
@@ -1226,13 +1226,13 @@
 .browser-dot.g { background: #28c840; }
 .browser-url {
   flex: 1;
-  background: #222;
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 4px 10px;
   font-size: 11px;
   font-family: var(--mono);
-  color: #888;
+  color: var(--muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1394,15 +1394,15 @@
   letter-spacing: 0.04em;
 }
 .panel-tab-btn.active {
-  background: #222;
+  background: var(--surface);
   color: var(--text);
-  border-color: #333;
+  border-color: var(--border-hi);
 }
 .panel-spacer { flex: 1; }
 .rec-dot {
   width: 7px; height: 7px;
   border-radius: 50%;
-  background: #555;
+  background: var(--dim);
   transition: background 0.3s;
 }
 .rec-dot.recording { background: var(--red); animation: demoBlink 1s infinite; }
@@ -1438,7 +1438,7 @@
   padding: 4px 0;
 }
 .panel-stream::-webkit-scrollbar { width: 3px; }
-.panel-stream::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+.panel-stream::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 2px; }
 
 .event-row {
   display: flex;
@@ -1467,9 +1467,9 @@
 .evt-badge.err { background: rgba(224,85,85,0.2);  color: var(--red); }
 .evt-badge.dom { background: rgba(255,255,255,0.08); color: #888; }
 
-.evt-text { color: #888; line-height: 1.4; font-size: 10px; flex: 1; }
+.evt-text { color: var(--muted); line-height: 1.4; font-size: 10px; flex: 1; }
 .evt-text strong { color: var(--text); font-weight: 500; }
-.evt-time { color: #555; font-family: var(--mono); font-size: 9px; flex-shrink: 0; }
+.evt-time { color: var(--dim); font-family: var(--mono); font-size: 9px; flex-shrink: 0; }
 
 .panel-footer {
   padding: 6px 10px;
@@ -1479,7 +1479,7 @@
   justify-content: space-between;
   flex-shrink: 0;
 }
-.evt-count { color: #888; font-size: 10px; }
+.evt-count { color: var(--muted); font-size: 10px; }
 .evt-count span { color: var(--text); font-weight: 600; }
 
 /* ── AI OUTPUT PANEL ──────────────────────────────────────────────────── */
@@ -1498,15 +1498,15 @@
   align-items: center;
   gap: 8px;
   padding: 10px;
-  background: #222;
+  background: var(--surface);
   border-radius: 8px;
   border: 1px solid var(--border);
-  color: #888;
+  color: var(--muted);
   font-size: 10px;
 }
 .ai-spinner {
   width: 14px; height: 14px;
-  border: 2px solid #333;
+  border: 2px solid var(--border-hi);
   border-top-color: var(--green);
   border-radius: 50%;
   animation: demoSpin 0.8s linear infinite;
@@ -1594,7 +1594,7 @@
 .insight-cards { display: flex; flex-direction: column; gap: 6px; display: none; }
 .insight-cards.active { display: flex; }
 .insight-card {
-  background: #222;
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 10px;
@@ -1618,7 +1618,7 @@
 .badge-gap { background: rgba(224,85,85,0.2); color: var(--red); }
 .badge-ok  { background: rgba(107,184,154,0.2); color: var(--green); }
 .badge-warn { background: rgba(232,168,56,0.2); color: var(--amber); }
-.insight-card p { font-size: 9px; color: #888; line-height: 1.5; }
+.insight-card p { font-size: 9px; color: var(--muted); line-height: 1.5; }
 
 .export-row {
   display: flex;
@@ -1632,15 +1632,15 @@
   padding: 5px 0;
   border-radius: 5px;
   border: 1px solid var(--border);
-  background: #222;
-  color: #888;
+  background: var(--surface);
+  color: var(--muted);
   font-size: 9px;
   font-weight: 600;
   cursor: pointer;
   text-align: center;
   transition: all 0.15s;
 }
-.exp-btn:hover { border-color: #333; color: var(--text); }
+.exp-btn:hover { border-color: var(--border-hi); color: var(--text); }
 .exp-btn.jira { border-color: rgba(91,141,238,0.4); color: var(--blue); }
 
 /* ── STEP INDICATOR ───────────────────────────────────────────────────── */
@@ -1657,7 +1657,7 @@
 .step-dot {
   width: 6px; height: 6px;
   border-radius: 50%;
-  background: #333;
+  background: var(--border-hi);
   cursor: pointer;
   transition: all 0.2s;
 }
@@ -1665,7 +1665,7 @@
 .step-dot.active.purple { background: #9d6ef8; }
 .step-nav {
   font-size: 10px;
-  color: #888;
+  color: var(--muted);
   background: transparent;
   border: 1px solid var(--border);
   padding: 4px 12px;
@@ -1673,11 +1673,11 @@
   cursor: pointer;
   transition: all 0.15s;
 }
-.step-nav:hover { border-color: #333; color: var(--text); }
+.step-nav:hover { border-color: var(--border-hi); color: var(--text); }
 .step-nav:disabled { opacity: 0.3; pointer-events: none; }
 .step-label {
   font-size: 10px;
-  color: #555;
+  color: var(--dim);
   min-width: 60px;
   text-align: right;
 }
@@ -1725,7 +1725,7 @@
 }
 .step-caption-num.purple { background: #9d6ef8; }
 .step-caption-text { font-size: 12px; color: var(--text); flex: 1; }
-.step-caption-sub  { font-size: 10px; color: #888; }
+.step-caption-sub  { font-size: 10px; color: var(--muted); }
 
 /* ── PROBLEM VIEW ──────────────────────────────────────────────────────── */
 .problem-container {
@@ -1758,8 +1758,8 @@
   flex-direction: column;
   gap: 8px;
   text-align: left;
-  background: rgba(224,85,85,0.05);
-  border: 1px solid rgba(224,85,85,0.2);
+  background: rgba(220, 88, 88, 0.05);
+  border: 1px solid rgba(220, 88, 88, 0.2);
   border-radius: 8px;
   padding: 16px;
   max-width: 260px;
@@ -1890,8 +1890,8 @@
   width: 100%;
   max-width: 280px;
   padding: 12px;
-  background: rgba(107,184,154,0.05);
-  border: 1px solid rgba(107,184,154,0.15);
+  background: rgba(107, 184, 154, 0.05);
+  border: 1px solid rgba(107, 184, 154, 0.15);
   border-radius: 8px;
   font-size: 10px;
 }
@@ -2921,7 +2921,7 @@
       { num: 4, caption: 'Generate Insights with AI', sub: 'Claude analyses the session and identifies tracking gaps, anomalies and recommendations', url: 'https://shop.example.com/signup', site: 'ecom', panel: 'generating' },
       { num: 5, caption: 'Insights report is ready', sub: 'Gaps, warnings and confirmed tags — each with a concrete recommendation', url: 'https://shop.example.com/signup', site: 'ecom', panel: 'insights' },
       { num: 6, caption: 'Export and act', sub: 'Download a full .docx Analytics Report or open the tag plan in GTM directly', url: 'https://shop.example.com/signup', site: 'ecom', panel: 'export-insights' },
-      { num: 7, caption: 'Audit GTM in minutes', sub: 'Stop guessing. Find tracking gaps before they cost you revenue', url: 'https://shop.example.com/signup', site: 'ecom', panel: 'cta-final' }
+      { num: 7, caption: 'Audit GTM in minutes', sub: 'Find tracking gaps before they cost you revenue', url: 'https://shop.example.com/signup', site: 'ecom', panel: 'cta-final' }
     ]
   };
 
@@ -3139,7 +3139,7 @@
         if (isInsights) {
           ctaTitle.textContent = 'Audit GTM in minutes, not days';
         } else {
-          ctaTitle.textContent = 'Ready to transform your workflows?';
+          ctaTitle.textContent = 'Ready to transform?';
         }
         break;
     }
@@ -3210,7 +3210,6 @@
       <button class="persona-tab" onclick="setPersona('marketing')">📈 Marketing Manager</button>
       <button class="persona-tab" onclick="setPersona('developer')">👨‍💻 Developer</button>
     </div>
-    <span class="demo-label">Interactive Demo</span>
     <button class="demo-close" onclick="closeDemo()">✕</button>
   </div>
 
@@ -3445,7 +3444,7 @@
 
         <!-- CTA Final -->
         <div class="cta-final-container" id="ctaFinal">
-          <div class="cta-final-title" id="ctaFinalTitle">Ready to transform your workflows?</div>
+          <div class="cta-final-title" id="ctaFinalTitle">Ready to transform?</div>
           <div class="cta-final-subtitle">Join 2,000+ developers & analysts saving 8 hours per process</div>
           <div class="cta-final-benefits">
             <div class="cta-benefit">Automated process documentation</div>
