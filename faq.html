@@ -458,17 +458,17 @@ footer {
   <div class="faq-group" data-category="general">
     <div class="faq-group-label">
       <div class="faq-group-dot" style="background:#6BB89A;"></div>
-      <span class="faq-group-name">General</span>
-      <span class="faq-group-count">6 questions</span>
+      <span class="faq-group-name" data-i18n="fpage.f.general">General</span>
+      <span class="faq-group-count">6</span>
     </div>
 
     <div class="faq-item" data-category="general">
       <button class="faq-q" onclick="toggleFAQ(this)">
-        <span class="faq-q-text">What is Sevenda and what does it do?</span>
+        <span class="faq-q-text" data-i18n="faq.g1.q">What is Sevenda and what does it do?</span>
         <span class="faq-icon">+</span>
       </button>
       <div class="faq-a">
-        <div class="faq-a-inner">
+        <div class="faq-a-inner" data-i18n-html="faq.g1.a">
           Sevenda is a Chrome Extension (MV3) that records your browser sessions and automatically generates <strong>BPMN 2.0 process diagrams</strong> and <strong>GTM/GA4 analytics insights</strong> — powered by Claude Sonnet AI.<br><br>
           It works in two modes: <strong>🧩 BPMN mode</strong> maps user flows and processes from real browser interactions; <strong>📊 Insights mode</strong> analyzes your tracking setup, identifies missing GTM events, and generates a ready-to-use Tag Plan. No code changes, no SDK, no setup required on the target site.
         </div>
@@ -477,11 +477,11 @@ footer {
 
     <div class="faq-item" data-category="general">
       <button class="faq-q" onclick="toggleFAQ(this)">
-        <span class="faq-q-text">Who is Sevenda for?</span>
+        <span class="faq-q-text" data-i18n="faq.g2.q">Who is Sevenda for?</span>
         <span class="faq-icon">+</span>
       </button>
       <div class="faq-a">
-        <div class="faq-a-inner">
+        <div class="faq-a-inner" data-i18n-html="faq.g1.a">
           Sevenda is built for three main audiences:<br><br>
           <strong>Developers &amp; Business Analysts</strong> — document AS-IS processes, user flows, and API interactions directly from the browser, without manual diagramming.<br><br>
           <strong>Marketing &amp; Data teams</strong> — audit GTM/GA4 tracking coverage, identify funnel gaps, and generate Tag Plans without manual inspection.<br><br>
@@ -492,11 +492,11 @@ footer {
 
     <div class="faq-item" data-category="general">
       <button class="faq-q" onclick="toggleFAQ(this)">
-        <span class="faq-q-text">What browsers does Sevenda support?</span>
+        <span class="faq-q-text" data-i18n="faq.g3.q">What browsers does Sevenda support?</span>
         <span class="faq-icon">+</span>
       </button>
       <div class="faq-a">
-        <div class="faq-a-inner">
+        <div class="faq-a-inner" data-i18n-html="faq.g2.a">
           Sevenda is a <strong>Chrome Extension Manifest V3</strong> and works on <strong>Google Chrome</strong> and any Chromium-based browser (Brave, Edge, Arc). It requires access to Chrome DevTools, so it runs on desktop only — not on mobile browsers.
         </div>
       </div>
@@ -504,11 +504,11 @@ footer {
 
     <div class="faq-item" data-category="general">
       <button class="faq-q" onclick="toggleFAQ(this)">
-        <span class="faq-q-text">How long does it take to generate the first diagram?</span>
+        <span class="faq-q-text" data-i18n="faq.g4.q">How long does it take to generate the first diagram?</span>
         <span class="faq-icon">+</span>
       </button>
       <div class="faq-a">
-        <div class="faq-a-inner">
+        <div class="faq-a-inner" data-i18n-html="faq.g3.a">
           From installation to your first BPMN diagram: <strong>under 60 seconds</strong>.<br><br>
           The generation itself (Claude Sonnet processing the event stream) typically takes <strong>15–30 seconds</strong> depending on session length and API response time. The Analytics Report in Insights mode is <strong>instantaneous</strong> — it's generated from cached data without an additional API call.
         </div>
@@ -517,11 +517,11 @@ footer {
 
     <div class="faq-item" data-category="general">
       <button class="faq-q" onclick="toggleFAQ(this)">
-        <span class="faq-q-text">Can I use Sevenda on any website?</span>
+        <span class="faq-q-text" data-i18n="faq.g5.q">Can I use Sevenda on any website?</span>
         <span class="faq-icon">+</span>
       </button>
       <div class="faq-a">
-        <div class="faq-a-inner">
+        <div class="faq-a-inner" data-i18n-html="faq.g4.a">
           Yes. Sevenda uses <code>&lt;all_urls&gt;</code> host permissions because the target site is not known in advance — you can record any website you navigate to. It does not inject any visible code or modify the target site in any way.<br><br>
           Some sites with very aggressive Content Security Policies (CSP) may limit which events Sevenda can capture — in particular, some XHR/fetch calls may be partially blocked. The BPMN and Insights output will still be generated from the events that were successfully captured.
         </div>
@@ -530,11 +530,11 @@ footer {
 
     <div class="faq-item" data-category="general">
       <button class="faq-q" onclick="toggleFAQ(this)">
-        <span class="faq-q-text">Does Sevenda work on localhost and internal tools?</span>
+        <span class="faq-q-text" data-i18n="faq.g6.q">Does Sevenda work on localhost and internal tools?</span>
         <span class="faq-icon">+</span>
       </button>
       <div class="faq-a">
-        <div class="faq-a-inner">
+        <div class="faq-a-inner" data-i18n-html="faq.g5.a">
           Yes — Sevenda works on <code>localhost</code>, internal tools, and staging environments just like on public websites. This makes it particularly useful for documenting internal workflows, admin dashboards, and pre-production user flows before they go live.
         </div>
       </div>
@@ -551,11 +551,11 @@ footer {
 
     <div class="faq-item" data-category="setup">
       <button class="faq-q" onclick="toggleFAQ(this)">
-        <span class="faq-q-text">How do I install Sevenda?</span>
+        <span class="faq-q-text" data-i18n="faq.s1.q">How do I install Sevenda?</span>
         <span class="faq-icon">+</span>
       </button>
       <div class="faq-a">
-        <div class="faq-a-inner">
+        <div class="faq-a-inner" data-i18n-html="faq.g6.a">
           1. Install the extension from the <strong>Chrome Web Store</strong> (search for "Sevenda").<br>
           2. Click the Sevenda icon in the Chrome toolbar — a popup appears.<br>
           3. Go to <strong>Settings → AI Models</strong> and enter your <a href="https://console.anthropic.com" target="_blank">Anthropic API key</a>.<br>
@@ -567,11 +567,11 @@ footer {
 
     <div class="faq-item" data-category="setup">
       <button class="faq-q" onclick="toggleFAQ(this)">
-        <span class="faq-q-text">Where do I get an Anthropic API key?</span>
+        <span class="faq-q-text" data-i18n="faq.s2.q">Where do I get an Anthropic API key?</span>
         <span class="faq-icon">+</span>
       </button>
       <div class="faq-a">
-        <div class="faq-a-inner">
+        <div class="faq-a-inner" data-i18n-html="faq.s1.a">
           1. Create an account at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>.<br>
           2. Go to <strong>API Keys</strong> and click <strong>Create Key</strong>.<br>
           3. Copy the key (starts with <code>sk-ant-</code>) — you'll only see it once.<br>
@@ -583,11 +583,11 @@ footer {
 
     <div class="faq-item" data-category="setup">
       <button class="faq-q" onclick="toggleFAQ(this)">
-        <span class="faq-q-text">I see "Idle" in the panel but nothing happens when I record. What's wrong?</span>
+        <span class="faq-q-text" data-i18n="faq.s3.q">I see "Idle" in the panel but nothing happens when I record. What's wrong?</span>
         <span class="faq-icon">+</span>
       </button>
       <div class="faq-a">
-        <div class="faq-a-inner">
+        <div class="faq-a-inner" data-i18n-html="faq.s2.a">
           A few things to check:<br><br>
           • Make sure you're on an <strong>http:// or https:// page</strong> — Sevenda doesn't work on Chrome internal pages (<code>chrome://</code>) or the New Tab page.<br>
           • Check that the <strong>Sevenda panel is the active tab</strong> in DevTools when you press start.<br>
@@ -599,11 +599,11 @@ footer {
 
     <div class="faq-item" data-category="setup">
       <button class="faq-q" onclick="toggleFAQ(this)">
-        <span class="faq-q-text">How do I switch between BPMN mode and Insights mode?</span>
+        <span class="faq-q-text" data-i18n="faq.s4.q">How do I switch between BPMN mode and Insights mode?</span>
         <span class="faq-icon">+</span>
       </button>
       <div class="faq-a">
-        <div class="faq-a-inner">
+        <div class="faq-a-inner" data-i18n-html="faq.s3.a">
           Click the <strong>Sevenda icon</strong> in the Chrome toolbar — the popup shows a toggle between <strong>🧩 BPMN</strong> and <strong>📊 Insights</strong>. Your selection is saved in <code>chrome.storage.sync</code> and persists across sessions.<br><br>
           Switching modes also changes the event capture filters automatically — Insights mode enables DOM observation and network tracking optimized for tag detection, while BPMN mode prioritizes navigation and interaction events.
         </div>
@@ -612,11 +612,11 @@ footer {
 
     <div class="faq-item" data-category="setup">
       <button class="faq-q" onclick="toggleFAQ(this)">
-        <span class="faq-q-text">Can multiple team members use Sevenda simultaneously?</span>
+        <span class="faq-q-text" data-i18n="faq.s5.q">Can multiple team members use Sevenda simultaneously?</span>
         <span class="faq-icon">+</span>
       </button>
       <div class="faq-a">
-        <div class="faq-a-inner">
+        <div class="faq-a-inner" data-i18n-html="faq.s4.a">
           Yes. Each team member installs Sevenda on their own Chrome and configures their own API key. Sessions are stored locally per device — there is no shared session storage in the Free and Pro plans.<br><br>
           The <strong>Team plan</strong> (€29/month) adds a shared session library and team analytics dashboard, allowing up to 10 team members to access and replay each other's sessions.
         </div>
@@ -634,11 +634,11 @@ footer {
 
     <div class="faq-item" data-category="bpmn">
       <button class="faq-q" onclick="toggleFAQ(this)">
-        <span class="faq-q-text">Is the generated BPMN compliant with the BPMN 2.0 standard?</span>
+        <span class="faq-q-text" data-i18n="faq.b1.q">Is the generated BPMN compliant with the BPMN 2.0 standard?</span>
         <span class="faq-icon">+</span>
       </button>
       <div class="faq-a">
-        <div class="faq-a-inner">
+        <div class="faq-a-inner" data-i18n-html="faq.s5.a">
           Yes. Sevenda generates <strong>BPMN 2.0 XML</strong> that is standards-compliant and compatible with the major BPMN tools:<br><br>
           • <strong>Camunda Modeler &amp; Camunda Platform</strong> (native .bpmn export with <code>adaptForCamunda()</code>)<br>
           • <strong>Signavio</strong><br>
@@ -651,11 +651,11 @@ footer {
 
     <div class="faq-item" data-category="bpmn">
       <button class="faq-q" onclick="toggleFAQ(this)">
-        <span class="faq-q-text">How accurate is the generated BPMN? Can I use it directly with clients?</span>
+        <span class="faq-q-text" data-i18n="faq.b2.q">How accurate is the generated BPMN? Can I use it directly with clients?</span>
         <span class="faq-icon">+</span>
       </button>
       <div class="faq-a">
-        <div class="faq-a-inner">
+        <div class="faq-a-inner" data-i18n-html="faq.b1.a">
           Accuracy depends on the quality of the recorded session. A well-structured session — with clear navigation, meaningful interactions, and a short context description — typically produces a BPMN that can be delivered with minimal edits.<br><br>
           Sevenda is designed as a <strong>starting point accelerator</strong>, not a replacement for expert review. The iterative feedback feature (natural language refinement) is specifically built to let you tune the diagram in seconds — add gateways, rename tasks, restructure flows — without leaving the panel.
         </div>
@@ -664,11 +664,11 @@ footer {
 
     <div class="faq-item" data-category="bpmn">
       <button class="faq-q" onclick="toggleFAQ(this)">
-        <span class="faq-q-text">What formats can I export the BPMN in?</span>
+        <span class="faq-q-text" data-i18n="faq.b3.q">What formats can I export the BPMN in?</span>
         <span class="faq-icon">+</span>
       </button>
       <div class="faq-a">
-        <div class="faq-a-inner">
+        <div class="faq-a-inner" data-i18n-html="faq.b2.a">
           From the BPMN panel toolbar you can export:<br><br>
           • <strong>.bpmn</strong> — BPMN 2.0 XML, ready for Camunda Modeler, Signavio or Bizagi<br>
           • <strong>.svg</strong> — vector image, scalable for presentations and documentation<br>
@@ -682,11 +682,11 @@ footer {
 
     <div class="faq-item" data-category="bpmn">
       <button class="faq-q" onclick="toggleFAQ(this)">
-        <span class="faq-q-text">Can I refine the BPMN after it's generated?</span>
+        <span class="faq-q-text" data-i18n="faq.b4.q">Can I refine the BPMN after it's generated?</span>
         <span class="faq-icon">+</span>
       </button>
       <div class="faq-a">
-        <div class="faq-a-inner">
+        <div class="faq-a-inner" data-i18n-html="faq.b3.a">
           Yes — this is one of Sevenda's core features. The <strong>Iterative Feedback</strong> section in the panel lets you type natural language instructions to modify the diagram:<br><br>
           <em>"Add an exclusive gateway after the login task with two paths: registered user and guest."</em><br>
           <em>"Rename 'Click Submit' to 'Form Submission — Newsletter'"</em><br>
@@ -698,11 +698,11 @@ footer {
 
     <div class="faq-item" data-category="bpmn">
       <button class="faq-q" onclick="toggleFAQ(this)">
-        <span class="faq-q-text">What events does Sevenda capture to build the BPMN?</span>
+        <span class="faq-q-text" data-i18n="faq.b5.q">What events does Sevenda capture to build the BPMN?</span>
         <span class="faq-icon">+</span>
       </button>
       <div class="faq-a">
-        <div class="faq-a-inner">
+        <div class="faq-a-inner" data-i18n-html="faq.b4.a">
           Sevenda captures five categories of events, each color-coded in the live stream:<br><br>
           • <strong style="color:#7aafd4">NAV</strong> — page navigations, History API pushState/replaceState, URL changes<br>
           • <strong style="color:#a78bfa">UI</strong> — clicks, form submissions, keyboard interactions, button presses<br>
@@ -716,11 +716,11 @@ footer {
 
     <div class="faq-item" data-category="bpmn">
       <button class="faq-q" onclick="toggleFAQ(this)">
-        <span class="faq-q-text">Can I import an existing BPMN XML into Sevenda?</span>
+        <span class="faq-q-text" data-i18n="faq.b6.q">Can I import an existing BPMN XML into Sevenda?</span>
         <span class="faq-icon">+</span>
       </button>
       <div class="faq-a">
-        <div class="faq-a-inner">
+        <div class="faq-a-inner" data-i18n-html="faq.b5.a">
           Yes. In the BPMN panel, click <strong>Incolla XML</strong> to paste any valid BPMN 2.0 XML and render it in the viewer. You can then use the Iterative Feedback feature to ask Claude to modify it — effectively using Sevenda as an AI-powered BPMN editor even without recording a new session.
         </div>
       </div>
@@ -737,11 +737,11 @@ footer {
 
     <div class="faq-item" data-category="insights">
       <button class="faq-q" onclick="toggleFAQ(this)">
-        <span class="faq-q-text">Which tracking tools does Sevenda detect automatically?</span>
+        <span class="faq-q-text" data-i18n="faq.i1.q">Which tracking tools does Sevenda detect automatically?</span>
         <span class="faq-icon">+</span>
       </button>
       <div class="faq-a">
-        <div class="faq-a-inner">
+        <div class="faq-a-inner" data-i18n-html="faq.b6.a">
           Sevenda automatically detects the presence and configuration of:<br><br>
           • <strong>Google Tag Manager</strong> (GTM ID, dataLayer presence)<br>
           • <strong>Google Analytics 4</strong> (measurement ID, gtag.js)<br>
@@ -755,11 +755,11 @@ footer {
 
     <div class="faq-item" data-category="insights">
       <button class="faq-q" onclick="toggleFAQ(this)">
-        <span class="faq-q-text">What is the Tag Plan JSON export and how do I use it?</span>
+        <span class="faq-q-text" data-i18n="faq.i2.q">What is the Tag Plan JSON export and how do I use it?</span>
         <span class="faq-icon">+</span>
       </button>
       <div class="faq-a">
-        <div class="faq-a-inner">
+        <div class="faq-a-inner" data-i18n-html="faq.i1.a">
           The Tag Plan JSON is a structured file containing all the suggested GTM events, triggers, variables, and dataLayer pushes identified during the session analysis. It follows a standardized format that can be:<br><br>
           • <strong>Imported directly into Google Tag Manager</strong> (via GTM JSON import)<br>
           • <strong>Shared with a developer</strong> as a complete implementation spec<br>
@@ -771,11 +771,11 @@ footer {
 
     <div class="faq-item" data-category="insights">
       <button class="faq-q" onclick="toggleFAQ(this)">
-        <span class="faq-q-text">How does Sevenda identify tracking gaps?</span>
+        <span class="faq-q-text" data-i18n="faq.i3.q">How does Sevenda identify tracking gaps?</span>
         <span class="faq-icon">+</span>
       </button>
       <div class="faq-a">
-        <div class="faq-a-inner">
+        <div class="faq-a-inner" data-i18n-html="faq.i2.a">
           During the session, Sevenda captures every user interaction (clicks, form fills, navigation, CTA interactions) and compares them against the GTM events actually fired in the dataLayer. Interactions that happened but weren't tracked become <strong>tracking gaps</strong>.<br><br>
           Each gap is reported with the specific <strong>CSS selector</strong> and <strong>XPath</strong> of the untriggered element, so developers can implement the fix precisely. Claude then generates the corresponding <code>dataLayer.push()</code> snippet ready to paste into GTM.
         </div>
@@ -784,11 +784,11 @@ footer {
 
     <div class="faq-item" data-category="insights">
       <button class="faq-q" onclick="toggleFAQ(this)">
-        <span class="faq-q-text">Why is the Analytics Report generated instantly while BPMN takes longer?</span>
+        <span class="faq-q-text" data-i18n="faq.i4.q">Why is the Analytics Report generated instantly while BPMN takes longer?</span>
         <span class="faq-icon">+</span>
       </button>
       <div class="faq-a">
-        <div class="faq-a-inner">
+        <div class="faq-a-inner" data-i18n-html="faq.i3.a">
           The Analytics Report (.docx) is built directly from the <strong>cached Insights data</strong> already generated in the current session — it doesn't require a new API call to Claude. It renders instantly from the structured JSON that Claude produced during the Insights analysis.<br><br>
           The BPMN and Insights generation (the initial AI call) take 15–30 seconds because Claude Sonnet is processing the full event stream. Once that's done, all derivative outputs (report, Tag Plan) are immediate.
         </div>
@@ -797,11 +797,11 @@ footer {
 
     <div class="faq-item" data-category="insights">
       <button class="faq-q" onclick="toggleFAQ(this)">
-        <span class="faq-q-text">Can I run both BPMN and Insights analysis on the same session?</span>
+        <span class="faq-q-text" data-i18n="faq.i5.q">Can I run both BPMN and Insights analysis on the same session?</span>
         <span class="faq-icon">+</span>
       </button>
       <div class="faq-a">
-        <div class="faq-a-inner">
+        <div class="faq-a-inner" data-i18n-html="faq.i4.a">
           Yes. From the session replay view (Sessions tab), you can run both BPMN and Insights generation on any saved session — regardless of which mode was active when it was recorded. Switch to the session, then use the <strong>BPMN</strong> and <strong>Insights</strong> buttons independently to generate both outputs from the same event data.
         </div>
       </div>
@@ -818,11 +818,11 @@ footer {
 
     <div class="faq-item" data-category="privacy">
       <button class="faq-q" onclick="toggleFAQ(this)">
-        <span class="faq-q-text">Where is my session data stored?</span>
+        <span class="faq-q-text" data-i18n="faq.p1.q">Where is my session data stored?</span>
         <span class="faq-icon">+</span>
       </button>
       <div class="faq-a">
-        <div class="faq-a-inner">
+        <div class="faq-a-inner" data-i18n-html="faq.i5.a">
           All session data is stored <strong>locally on your device</strong> using the browser's <code>IndexedDB</code> API (database name: <code>flowlens</code>). Your settings and API key are stored in <code>chrome.storage.sync</code>, which is synced across your Chrome devices by Google — not by Sevenda.<br><br>
           <strong>Sevenda Lab operates no backend infrastructure.</strong> There is no server that receives, stores, or processes your session data. You can delete all sessions at any time from the Sessions tab → Delete, or by uninstalling the extension.
         </div>
@@ -831,11 +831,11 @@ footer {
 
     <div class="faq-item" data-category="privacy">
       <button class="faq-q" onclick="toggleFAQ(this)">
-        <span class="faq-q-text">Does Sevenda capture passwords or sensitive form data?</span>
+        <span class="faq-q-text" data-i18n="faq.p2.q">Does Sevenda capture passwords or sensitive form data?</span>
         <span class="faq-icon">+</span>
       </button>
       <div class="faq-a">
-        <div class="faq-a-inner">
+        <div class="faq-a-inner" data-i18n-html="faq.p1.a">
           No. Sevenda does <strong>not</strong> capture:<br><br>
           • Passwords or any <code>type="password"</code> field values<br>
           • Credit card numbers or payment data<br>
@@ -849,11 +849,11 @@ footer {
 
     <div class="faq-item" data-category="privacy">
       <button class="faq-q" onclick="toggleFAQ(this)">
-        <span class="faq-q-text">What data is sent to the Anthropic Claude API?</span>
+        <span class="faq-q-text" data-i18n="faq.p3.q">What data is sent to the Anthropic Claude API?</span>
         <span class="faq-icon">+</span>
       </button>
       <div class="faq-a">
-        <div class="faq-a-inner">
+        <div class="faq-a-inner" data-i18n-html="faq.p2.a">
           When you click <strong>Generate</strong>, Sevenda sends the recorded event stream (a structured list of events with timestamps, types, and element identifiers) to the Anthropic Claude API using <strong>your own API key</strong>.<br><br>
           Anthropic's handling of this data is governed by their <a href="https://www.anthropic.com/privacy" target="_blank">Privacy Policy</a>. Sevenda does not see, log, or store the API request or response — the transmission happens directly from your browser to Anthropic's servers.
         </div>
@@ -862,11 +862,11 @@ footer {
 
     <div class="faq-item" data-category="privacy">
       <button class="faq-q" onclick="toggleFAQ(this)">
-        <span class="faq-q-text">Is Sevenda GDPR compliant?</span>
+        <span class="faq-q-text" data-i18n="faq.p4.q">Is Sevenda GDPR compliant?</span>
         <span class="faq-icon">+</span>
       </button>
       <div class="faq-a">
-        <div class="faq-a-inner">
+        <div class="faq-a-inner" data-i18n-html="faq.p3.a">
           Yes. Sevenda is designed with a <strong>local-first, privacy-by-design</strong> architecture:<br><br>
           • No backend infrastructure — zero data transmitted to Sevenda Lab servers<br>
           • Explicit user consent required before any AI generation (you must click Generate)<br>
@@ -879,11 +879,11 @@ footer {
 
     <div class="faq-item" data-category="privacy">
       <button class="faq-q" onclick="toggleFAQ(this)">
-        <span class="faq-q-text">Can I use Sevenda to record sessions on client websites?</span>
+        <span class="faq-q-text" data-i18n="faq.p5.q">Can I use Sevenda to record sessions on client websites?</span>
         <span class="faq-icon">+</span>
       </button>
       <div class="faq-a">
-        <div class="faq-a-inner">
+        <div class="faq-a-inner" data-i18n-html="faq.p4.a">
           Technically yes — Sevenda works on any website. However, we recommend <strong>informing your client</strong> that you are conducting a session observation for process documentation purposes, consistent with how you would handle any usability observation or screen-sharing session.<br><br>
           Sevenda does not capture passwords, payment data, or full form content — the risk profile is similar to a consultant observing a screen during an interview. That said, always check your client's internal data policies before recording.
         </div>
@@ -901,11 +901,11 @@ footer {
 
     <div class="faq-item" data-category="pricing">
       <button class="faq-q" onclick="toggleFAQ(this)">
-        <span class="faq-q-text">What's included in the Free plan?</span>
+        <span class="faq-q-text" data-i18n="faq.pr1.q">What's included in the Free plan?</span>
         <span class="faq-icon">+</span>
       </button>
       <div class="faq-a">
-        <div class="faq-a-inner">
+        <div class="faq-a-inner" data-i18n-html="faq.p5.a">
           The Free plan includes <strong>10 sessions per month</strong>, BPMN 2.0 generation, export in .bpmn and .svg formats, and full access to the Chrome DevTools panel.<br><br>
           Features exclusive to Pro and Team plans: Insights &amp; GTM analysis, .docx report export, .png export, Jira and Camunda integration, and team collaboration tools.
         </div>
@@ -914,11 +914,11 @@ footer {
 
     <div class="faq-item" data-category="pricing">
       <button class="faq-q" onclick="toggleFAQ(this)">
-        <span class="faq-q-text">What are the Anthropic API costs and how do I estimate them?</span>
+        <span class="faq-q-text" data-i18n="faq.pr2.q">What are the Anthropic API costs and how do I estimate them?</span>
         <span class="faq-icon">+</span>
       </button>
       <div class="faq-a">
-        <div class="faq-a-inner">
+        <div class="faq-a-inner" data-i18n-html="faq.pr1.a">
           Sevenda uses a <strong>BYOK (Bring Your Own Key)</strong> model — you pay Anthropic directly for API usage, so costs are transparent and under your control.<br><br>
           Rough estimate: <strong>40 sessions with BPMN or Insights generation costs approximately €15–25 total</strong> using Claude Sonnet. The Analytics Report (.docx) is generated without an API call, so it doesn't add to your costs.<br><br>
           You can monitor your exact usage in the <a href="https://console.anthropic.com" target="_blank">Anthropic Console</a>. Sevenda includes adaptive rate-limit management to avoid unexpected throttling.
@@ -928,11 +928,11 @@ footer {
 
     <div class="faq-item" data-category="pricing">
       <button class="faq-q" onclick="toggleFAQ(this)">
-        <span class="faq-q-text">Can I cancel my subscription at any time?</span>
+        <span class="faq-q-text" data-i18n="faq.pr3.q">Can I cancel my subscription at any time?</span>
         <span class="faq-icon">+</span>
       </button>
       <div class="faq-a">
-        <div class="faq-a-inner">
+        <div class="faq-a-inner" data-i18n-html="faq.pr2.a">
           Yes. There are no long-term commitments. You can cancel your Pro or Team subscription at any time — your access continues until the end of the current billing period, then reverts to the Free plan. No cancellation fees, no data loss.
         </div>
       </div>
@@ -940,11 +940,11 @@ footer {
 
     <div class="faq-item" data-category="pricing">
       <button class="faq-q" onclick="toggleFAQ(this)">
-        <span class="faq-q-text">Do you offer a trial or a partnership program for consultancies?</span>
+        <span class="faq-q-text" data-i18n="faq.pr4.q">Do you offer a trial or a partnership program for consultancies?</span>
         <span class="faq-icon">+</span>
       </button>
       <div class="faq-a">
-        <div class="faq-a-inner">
+        <div class="faq-a-inner" data-i18n-html="faq.pr3.a">
           Yes — we offer a <strong>Beta Partnership Program</strong> for consulting firms and agencies. Qualified partners receive free access to the Team plan for 60 working days, dedicated onboarding, and direct support from the founder in exchange for structured feedback and a case study.<br><br>
           If you're interested, write to <a href="mailto:hello@sevenda.dev">hello@sevenda.dev</a> with a brief description of your firm and use case.
         </div>
