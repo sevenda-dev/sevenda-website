@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sevenda — From clicks to BPMN. Automatically.</title>
+  <script defer src="i18n.js"></script>
   <meta name="description" content="Sevenda records your browser session and generates production-ready BPMN 2.0 diagrams — no manual work required.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -939,29 +940,7 @@
     }
     .ccard-link:hover { opacity: .7; }
 
-    /* ── LANGUAGE SWITCHER ──────────────────────────────────── */
-    .lang-sw {
-      display: flex;
-      align-items: center;
-      gap: 2px;
-      border: 1px solid var(--border-hi);
-      padding: 3px;
-    }
-    .lang-btn {
-      font-family: var(--mono);
-      font-size: 10px;
-      font-weight: 500;
-      letter-spacing: .04em;
-      padding: 5px 8px;
-      background: transparent;
-      border: none;
-      cursor: pointer;
-      color: var(--muted);
-      transition: background .15s, color .15s;
-      line-height: 1;
-    }
-    .lang-btn:hover { color: var(--text); }
-    .lang-btn.active { background: var(--text); color: var(--bg); }
+    /* .lang-sw / .lang-btn → gestiti da i18n.js */
 
     @media (max-width: 1024px) {
       .pgrid { grid-template-columns: repeat(2, 1fr); }
@@ -1682,8 +1661,9 @@
 </footer>
 
 <script>
-  // ── I18N ─────────────────────────────────────────────────────
-  const i18n = {
+  // ── I18N: gestito da i18n.js (defer in <head>) ───────────────
+  // Placeholder rimosso — tutto in i18n.js
+  const _i18n_placeholder = {
     en: {
       'nav.features':'Features','nav.insights':'Insights','nav.usecases':'Use Cases',
       'nav.how':'How it works','nav.pricing':'Pricing','nav.docs':'Docs','nav.faq':'FAQ',
@@ -1914,31 +1894,7 @@
     }
   };
 
-  let currentLang = localStorage.getItem('sevenda-lang') || 'en';
-
-  function setLang(lang) {
-    if (!i18n[lang]) return;
-    currentLang = lang;
-    localStorage.setItem('sevenda-lang', lang);
-    document.documentElement.lang = lang;
-
-    const t = i18n[lang];
-    document.querySelectorAll('[data-i18n]').forEach(el => {
-      const key = el.dataset.i18n;
-      if (t[key] !== undefined) el.textContent = t[key];
-    });
-    document.querySelectorAll('[data-i18n-html]').forEach(el => {
-      const key = el.dataset.i18nHtml;
-      if (t[key] !== undefined) el.innerHTML = t[key];
-    });
-
-    document.querySelectorAll('.lang-btn').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.lang === lang);
-    });
-  }
-
-  // Apply saved/default language on load
-  setLang(currentLang);
+  // setLang e applicazione lingua → gestiti da i18n.js
 
   // Nav scroll state
   const nav = document.getElementById('nav');
