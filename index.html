@@ -1075,6 +1075,75 @@
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
+
+/* ── PERSONA TABS ───────────────────────────────────────────────────────── */
+.persona-tabs-wrapper {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex: 1;
+  justify-content: center;
+  margin: 0 16px;
+}
+
+.persona-tab {
+  font-size: 9px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: #888;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+}
+
+.persona-tab:hover {
+  border-color: var(--green);
+  color: var(--text);
+}
+
+.persona-tab.active {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+
+@media (max-width: 900px) {
+  .persona-tabs-wrapper {
+    display: none;
+  }
+}
+
+/* ── TOOLTIPS ──────────────────────────────────────────────────────────── */
+.tooltip-hover {
+  position: relative;
+}
+
+.tooltip-hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #222;
+  color: var(--text);
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 9px;
+  white-space: nowrap;
+  border: 1px solid var(--border);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  z-index: 100;
+}
+
+.tooltip-hover:hover::after {
+  opacity: 1;
+}
 .demo-close {
   width: 28px;
   height: 28px;
@@ -1456,6 +1525,72 @@
 .bpmn-mini.active { display: block; }
 .bpmn-mini svg { width: 100%; height: auto; }
 
+/* BPMN Animation */
+.bpmn-mini.animated circle:first-child {
+  animation: bpmnElementFadeIn 0.4s ease forwards;
+}
+.bpmn-mini.animated line:nth-of-type(1) {
+  animation: bpmnElementFadeIn 0.4s ease 0.2s forwards;
+  opacity: 0;
+}
+.bpmn-mini.animated rect:nth-of-type(1) {
+  animation: bpmnElementFadeIn 0.4s ease 0.4s forwards;
+  opacity: 0;
+}
+.bpmn-mini.animated text:nth-of-type(1),
+.bpmn-mini.animated text:nth-of-type(2) {
+  animation: bpmnElementFadeIn 0.4s ease 0.4s forwards;
+  opacity: 0;
+}
+.bpmn-mini.animated line:nth-of-type(2) {
+  animation: bpmnElementFadeIn 0.4s ease 0.6s forwards;
+  opacity: 0;
+}
+.bpmn-mini.animated polygon {
+  animation: bpmnElementFadeIn 0.4s ease 0.8s forwards;
+  opacity: 0;
+}
+.bpmn-mini.animated line:nth-of-type(3),
+.bpmn-mini.animated line:nth-of-type(4) {
+  animation: bpmnElementFadeIn 0.4s ease 1s forwards;
+  opacity: 0;
+}
+.bpmn-mini.animated rect:nth-of-type(2) {
+  animation: bpmnElementFadeIn 0.4s ease 1.2s forwards;
+  opacity: 0;
+}
+.bpmn-mini.animated text:nth-of-type(3),
+.bpmn-mini.animated text:nth-of-type(4) {
+  animation: bpmnElementFadeIn 0.4s ease 1.2s forwards;
+  opacity: 0;
+}
+.bpmn-mini.animated rect:nth-of-type(3) {
+  animation: bpmnElementFadeIn 0.4s ease 1.4s forwards;
+  opacity: 0;
+}
+.bpmn-mini.animated text:nth-of-type(5),
+.bpmn-mini.animated text:nth-of-type(6) {
+  animation: bpmnElementFadeIn 0.4s ease 1.4s forwards;
+  opacity: 0;
+}
+.bpmn-mini.animated line:nth-of-type(5),
+.bpmn-mini.animated line:nth-of-type(6) {
+  animation: bpmnElementFadeIn 0.4s ease 1.6s forwards;
+  opacity: 0;
+}
+.bpmn-mini.animated circle:last-of-type {
+  animation: bpmnElementFadeIn 0.4s ease 1.8s forwards;
+  opacity: 0;
+}
+.bpmn-mini.animated defs {
+  animation: bpmnElementFadeIn 0.4s ease forwards;
+}
+
+@keyframes bpmnElementFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 .insight-cards { display: flex; flex-direction: column; gap: 6px; display: none; }
 .insight-cards.active { display: flex; }
 .insight-card {
@@ -1591,6 +1726,196 @@
 .step-caption-num.purple { background: #9d6ef8; }
 .step-caption-text { font-size: 12px; color: var(--text); flex: 1; }
 .step-caption-sub  { font-size: 10px; color: #888; }
+
+/* ── PROBLEM VIEW ──────────────────────────────────────────────────────── */
+.problem-container {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 20px;
+  background: linear-gradient(135deg, rgba(224,85,85,0.08) 0%, rgba(224,85,85,0.04) 100%);
+  border-radius: 12px;
+  text-align: center;
+  min-height: 300px;
+  gap: 16px;
+}
+.problem-container.active { display: flex; }
+
+.problem-icon {
+  font-size: 48px;
+}
+
+.problem-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+.problem-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+  background: rgba(224,85,85,0.05);
+  border: 1px solid rgba(224,85,85,0.2);
+  border-radius: 8px;
+  padding: 16px;
+  max-width: 260px;
+  font-size: 11px;
+}
+
+.problem-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  color: var(--text);
+  line-height: 1.4;
+}
+
+.problem-item::before {
+  content: '✗';
+  color: var(--red);
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.problem-cta {
+  font-size: 11px;
+  color: var(--green);
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+/* ── CTA FINAL VIEW ────────────────────────────────────────────────────── */
+.cta-final-container {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 20px;
+  background: linear-gradient(135deg, rgba(107,184,154,0.08) 0%, rgba(157,110,248,0.08) 100%);
+  border-radius: 12px;
+  text-align: center;
+  min-height: 300px;
+  gap: 20px;
+}
+.cta-final-container.active { display: flex; }
+
+.cta-final-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+  max-width: 320px;
+}
+
+.cta-final-subtitle {
+  font-size: 12px;
+  color: #888;
+  max-width: 280px;
+}
+
+.cta-final-benefits {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 280px;
+}
+
+.cta-benefit {
+  font-size: 11px;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cta-benefit::before {
+  content: '✓';
+  color: var(--green);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.cta-final-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 280px;
+  margin-top: 8px;
+}
+
+.cta-btn {
+  padding: 10px 16px;
+  border-radius: 6px;
+  border: none;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.01em;
+}
+
+.cta-btn.primary {
+  background: var(--green);
+  color: #fff;
+}
+
+.cta-btn.primary:hover {
+  background: #5aa88a;
+  box-shadow: 0 8px 16px rgba(107,184,154,0.2);
+}
+
+.cta-btn.secondary {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.cta-btn.secondary:hover {
+  border-color: var(--green);
+  color: var(--green);
+}
+
+.cta-trust-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  max-width: 280px;
+  padding: 12px;
+  background: rgba(107,184,154,0.05);
+  border: 1px solid rgba(107,184,154,0.15);
+  border-radius: 8px;
+  font-size: 10px;
+}
+
+.trust-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.trust-item::before {
+  content: '✓';
+  color: var(--green);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.trust-divider {
+  height: 1px;
+  background: rgba(107,184,154,0.2);
+  margin: 6px 0;
+}
 
 /* ── RESPONSIVE ───────────────────────────────────────────────────────── */
 @media (max-width: 680px) {
@@ -2573,29 +2898,43 @@
   let eventCount  = 0;
   let streamTimer = null;
   let autoTimer   = null;
+  let generationTimer = null;
+  let generationSeconds = 0;
+  let currentPersona = 'analyst';
 
   const STEPS = {
     bpmn: [
+      { num: 0, caption: 'The old way: 8 hours of manual documentation', sub: 'Without Sevenda, documenting processes is slow, error-prone, and tedious', url: 'https://docs.example.com', site: 'ecom', panel: 'problem', problem: 'bpmn' },
       { num: 1, caption: 'Open the Sevenda panel in Chrome DevTools', sub: 'Navigate to a site — here shop.example.com — and press F12 → Sevenda tab', url: 'https://shop.example.com', site: 'ecom', panel: 'idle' },
       { num: 2, caption: 'Start recording the session', sub: 'Click "Start" — Sevenda begins capturing navigation, clicks and network calls', url: 'https://shop.example.com', site: 'ecom', panel: 'recording', events: [ { type:'nav', text:'<strong>Page view</strong> — /home', t:'0.0s' }, { type:'ui', text:'<strong>Click</strong> "See all plans →"', t:'1.2s' }, { type:'nav', text:'<strong>Navigation</strong> → /pricing', t:'1.3s' }, { type:'net', text:'<strong>GET</strong> /api/plans 200 OK', t:'1.5s' } ] },
       { num: 3, caption: 'User navigates and interacts', sub: 'Sevenda captures every meaningful event in real time', url: 'https://shop.example.com/signup', site: 'ecom', panel: 'recording', events: [ { type:'ui', text:'<strong>Click</strong> "Sign up"', t:'2.8s' }, { type:'nav', text:'<strong>Navigation</strong> → /signup', t:'2.9s' }, { type:'ui', text:'<strong>Submit</strong> #signup-form', t:'5.1s' }, { type:'net', text:'<strong>POST</strong> /api/register 201', t:'5.2s' }, { type:'nav', text:'<strong>Navigation</strong> → /checkout', t:'5.4s' }, { type:'net', text:'<strong>POST</strong> /api/payment 200', t:'9.3s' } ] },
       { num: 4, caption: 'Stop recording and generate BPMN', sub: 'Sevenda sends the session to Claude — BPMN 2.0 XML is generated in seconds', url: 'https://shop.example.com/checkout', site: 'checkout', panel: 'generating' },
       { num: 5, caption: 'BPMN diagram is ready', sub: 'Review the process flow, then export to XML, SVG, .docx or push to Jira', url: 'https://shop.example.com/checkout', site: 'checkout', panel: 'bpmn' },
-      { num: 6, caption: 'Export and share', sub: 'Download the diagram or push it directly to your Jira project as a task', url: 'https://shop.example.com/checkout', site: 'checkout', panel: 'export' }
+      { num: 6, caption: 'Export and share', sub: 'Download the diagram or push it directly to your Jira project as a task', url: 'https://shop.example.com/checkout', site: 'checkout', panel: 'export' },
+      { num: 7, caption: 'Ready to transform your workflows?', sub: 'Join developers, analysts and marketers saving 8 hours per process documentation', url: 'https://shop.example.com/checkout', site: 'checkout', panel: 'cta-final' }
     ],
     insights: [
+      { num: 0, caption: 'The old way: Manual GTM audits take days', sub: 'Finding tracking gaps without Sevenda means inspecting hundreds of events manually', url: 'https://analytics.example.com', site: 'ecom', panel: 'problem', problem: 'insights' },
       { num: 1, caption: 'Switch to Insights mode', sub: 'Click the Insights tab in the Sevenda popup — optimised for GTM/GA4 analysis', url: 'https://shop.example.com', site: 'ecom', panel: 'idle' },
       { num: 2, caption: 'Record the user journey', sub: 'Sevenda intercepts every network call and dataLayer push alongside user actions', url: 'https://shop.example.com', site: 'ecom', panel: 'recording', events: [ { type:'nav', text:'<strong>Page view</strong> GA4 — /home', t:'0.0s' }, { type:'net', text:'<strong>GA4</strong> collect hit detected', t:'0.1s' }, { type:'ui', text:'<strong>Click</strong> "See all plans →"', t:'1.2s' }, { type:'net', text:'<strong>GTM</strong> no trigger matched ⚠', t:'1.2s' } ] },
       { num: 3, caption: 'Navigate through the funnel', sub: 'Sevenda flags missing tags and untracked interactions automatically', url: 'https://shop.example.com/signup', site: 'ecom', panel: 'recording', events: [ { type:'nav', text:'<strong>Page view</strong> GA4 — /signup', t:'2.1s' }, { type:'net', text:'<strong>GA4</strong> collect hit detected', t:'2.2s' }, { type:'ui', text:'<strong>Submit</strong> #signup-form', t:'5.1s' }, { type:'err', text:'<strong>dataLayer</strong> push missing ⚠', t:'5.1s' }, { type:'net', text:'<strong>POST</strong> /api/register 201', t:'5.2s' } ] },
       { num: 4, caption: 'Generate Insights with AI', sub: 'Claude analyses the session and identifies tracking gaps, anomalies and recommendations', url: 'https://shop.example.com/signup', site: 'ecom', panel: 'generating' },
       { num: 5, caption: 'Insights report is ready', sub: 'Gaps, warnings and confirmed tags — each with a concrete recommendation', url: 'https://shop.example.com/signup', site: 'ecom', panel: 'insights' },
-      { num: 6, caption: 'Export and act', sub: 'Download a full .docx Analytics Report or open the tag plan in GTM directly', url: 'https://shop.example.com/signup', site: 'ecom', panel: 'export-insights' }
+      { num: 6, caption: 'Export and act', sub: 'Download a full .docx Analytics Report or open the tag plan in GTM directly', url: 'https://shop.example.com/signup', site: 'ecom', panel: 'export-insights' },
+      { num: 7, caption: 'Audit GTM in minutes', sub: 'Stop guessing. Find tracking gaps before they cost you revenue', url: 'https://shop.example.com/signup', site: 'ecom', panel: 'cta-final' }
     ]
   };
 
   function openDemo() { document.getElementById('demoOverlay').classList.add('active'); currentStep = 0; renderStep(); }
   function closeDemo() { document.getElementById('demoOverlay').classList.remove('active'); clearAllTimers(); }
   document.getElementById('demoOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeDemo(); });
+
+  function setPersona(persona) {
+    currentPersona = persona;
+    document.querySelectorAll('.persona-tab').forEach(t => t.classList.remove('active'));
+    document.querySelector(`.persona-tab[onclick="setPersona('${persona}')"]`).classList.add('active');
+    renderStep();
+  }
 
   function switchMode(mode) {
     clearAllTimers();
@@ -2635,8 +2974,20 @@
 
     document.getElementById('captionNum').textContent = step.num;
     document.getElementById('captionNum').className = 'step-caption-num' + (isInsights ? ' purple' : '');
-    document.getElementById('captionText').textContent = step.caption;
-    document.getElementById('captionSub').textContent  = step.sub;
+    let caption = step.caption;
+    let sub = step.sub;
+
+    // Personalize captions based on persona
+    if (currentPersona === 'marketing' && isInsights) {
+      if (currentStep === 1) sub = 'Every click matters for your funnel — see what you\'re missing';
+      if (currentStep === 5) caption = 'Get instant GTM recommendations';
+    } else if (currentPersona === 'developer' && !isInsights) {
+      if (currentStep === 1) sub = 'Keep process docs up-to-date automatically';
+      if (currentStep === 5) caption = 'Export to Camunda or keep in Jira';
+    }
+
+    document.getElementById('captionText').textContent = caption;
+    document.getElementById('captionSub').textContent  = sub;
     document.getElementById('progressBar').style.width = ((currentStep + 1) / total * 100) + '%';
     document.getElementById('btnPrev').disabled = currentStep === 0;
     document.getElementById('btnNext').disabled = currentStep === total - 1;
@@ -2669,6 +3020,8 @@
     bpmnMini.classList.remove('active');
     insightCards.classList.remove('active');
     exportRow.classList.remove('active');
+    document.getElementById('ctaFinal').classList.remove('active');
+    document.getElementById('problemContainer').classList.remove('active');
     recDot.className = 'rec-dot';
     panelStream.innerHTML = '<div style="padding:20px 10px;text-align:center;color:#555;font-size:10px;">No active session<br/><span style="font-size:9px;">Press Start to capture events</span></div>';
     document.getElementById('evtCount').textContent = '0';
@@ -2676,6 +3029,24 @@
     btnGen.className = 'ctrl-btn ' + (isInsights ? 'gen-insight' : 'gen-bpmn') + ' disabled';
 
     switch (step.panel) {
+      case 'problem':
+        btnSS.textContent = '● Start';
+        btnSS.className = 'ctrl-btn start';
+        const problemContainer = document.getElementById('problemContainer');
+        const problemIcon = document.getElementById('problemIcon');
+        const problemTitle = document.getElementById('problemTitle');
+        problemContainer.classList.add('active');
+        if (step.problem === 'insights') {
+          problemIcon.textContent = '📊';
+          problemTitle.textContent = 'Manual GTM audits are slow';
+          problemContainer.querySelector('.problem-list').innerHTML = `
+            <div class="problem-item">Days spent inspecting tracking</div>
+            <div class="problem-item">Tracking gaps go unnoticed</div>
+            <div class="problem-item">Lost revenue from incomplete funnels</div>
+            <div class="problem-item">No structured implementation plan</div>
+          `;
+        }
+        break;
       case 'idle':
         btnSS.textContent = '● Start';
         btnSS.className = 'ctrl-btn start';
@@ -2704,8 +3075,17 @@
         panelStream.style.display = 'none';
         aiOutput.classList.add('active');
         aiThinking.style.display = 'flex';
-        document.getElementById('aiThinkingText').textContent = isInsights ? 'Detecting tracking gaps with Claude…' : 'Analysing session with Claude…';
-        autoTimer = setTimeout(() => nextStep(), 2200);
+        const thinkingText = document.getElementById('aiThinkingText');
+        const baseName = isInsights ? 'Detecting tracking gaps' : 'Analysing session';
+        generationSeconds = 0;
+        generationTimer = setInterval(() => {
+          generationSeconds += 0.1;
+          thinkingText.textContent = `${baseName} with Claude… ${generationSeconds.toFixed(1)}s`;
+          if (generationSeconds >= 1.2) {
+            clearInterval(generationTimer);
+            nextStep();
+          }
+        }, 100);
         break;
       case 'bpmn':
         btnSS.textContent = '● Start';
@@ -2714,6 +3094,8 @@
         aiOutput.classList.add('active');
         aiThinking.style.display = 'none';
         bpmnMini.classList.add('active');
+        // Trigger animation on next frame
+        setTimeout(() => bpmnMini.classList.add('animated'), 10);
         break;
       case 'insights':
         btnSS.textContent = '● Start';
@@ -2741,6 +3123,24 @@
         insightCards.classList.add('active');
         exportRow.classList.add('active');
         exportRow.innerHTML = `<button class="exp-btn">⬇ .docx</button><button class="exp-btn jira">GTM ↗</button><button class="exp-btn" style="color:var(--green);border-color:rgba(107,184,154,0.4)">Tag Plan</button>`;
+        break;
+      case 'cta-final':
+        btnSS.textContent = '● Start';
+        btnSS.className = 'ctrl-btn start';
+        panelStream.style.display = 'none';
+        aiOutput.classList.add('active');
+        aiThinking.style.display = 'none';
+        bpmnMini.classList.remove('active');
+        insightCards.classList.remove('active');
+        exportRow.classList.remove('active');
+        const ctaFinal = document.getElementById('ctaFinal');
+        const ctaTitle = document.getElementById('ctaFinalTitle');
+        ctaFinal.classList.add('active');
+        if (isInsights) {
+          ctaTitle.textContent = 'Audit GTM in minutes, not days';
+        } else {
+          ctaTitle.textContent = 'Ready to transform your workflows?';
+        }
         break;
     }
   }
@@ -2780,6 +3180,7 @@
   function clearAllTimers() {
     clearTimeout(streamTimer);
     clearTimeout(autoTimer);
+    clearInterval(generationTimer);
   }
 
   document.addEventListener('keydown', e => {
@@ -2803,6 +3204,11 @@
         <path d="M2,18.5 Q8,16 14,18.5 Q20,21 26,18.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
       </svg>
       Sevenda
+    </div>
+    <div class="persona-tabs-wrapper">
+      <button class="persona-tab active" onclick="setPersona('analyst')">📊 Business Analyst</button>
+      <button class="persona-tab" onclick="setPersona('marketing')">📈 Marketing Manager</button>
+      <button class="persona-tab" onclick="setPersona('developer')">👨‍💻 Developer</button>
     </div>
     <span class="demo-label">Interactive Demo</span>
     <button class="demo-close" onclick="closeDemo()">✕</button>
@@ -2973,7 +3379,13 @@
               </marker>
             </defs>
           </svg>
-          <div style="font-size:9px;color:#888;margin-top:8px;text-align:center;">BPMN 2.0 · 4 tasks · 1 gateway · ready to export</div>
+          <!-- BPMN Stats -->
+          <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);justify-content:center;font-size:9px;">
+            <div style="text-align:center;"><div style="font-weight:600;color:var(--green);font-size:11px;">4</div><div style="color:#888;">Tasks</div></div>
+            <div style="text-align:center;"><div style="font-weight:600;color:var(--amber);font-size:11px;">1</div><div style="color:#888;">Gateway</div></div>
+            <div style="text-align:center;"><div style="font-weight:600;color:var(--blue);font-size:11px;">3</div><div style="color:#888;">Flows</div></div>
+            <div style="text-align:center;"><div style="font-weight:600;color:var(--text);font-size:11px;">✓</div><div style="color:#888;">Ready</div></div>
+          </div>
         </div>
 
         <!-- Insight cards -->
@@ -3002,14 +3414,57 @@
             </div>
             <p>Signup form submit has no dataLayer push. Recommended: add <code style="font-size:8px;color:var(--text)">generate_lead</code> event on successful submission.</p>
           </div>
+          <!-- Insights Stats -->
+          <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);justify-content:center;font-size:9px;background:rgba(224,85,85,0.03);border-radius:8px;padding:12px;">
+            <div style="text-align:center;"><div style="font-weight:600;color:var(--red);font-size:11px;">3</div><div style="color:#888;">Gaps Found</div></div>
+            <div style="text-align:center;"><div style="font-weight:600;color:var(--green);font-size:11px;">1</div><div style="color:#888;">Working Fine</div></div>
+            <div style="text-align:center;"><div style="font-weight:600;color:var(--amber);font-size:11px;">~€5k</div><div style="color:#888;">Lost/Month</div></div>
+          </div>
         </div>
 
         <!-- Export row -->
         <div class="export-row" id="exportRow">
-          <button class="exp-btn">⬇ BPMN</button>
-          <button class="exp-btn">⬇ SVG</button>
-          <button class="exp-btn">⬇ .docx</button>
-          <button class="exp-btn jira">Jira ↗</button>
+          <button class="exp-btn tooltip-hover" data-tooltip="BPMN 2.0 XML for engines">⬇ BPMN</button>
+          <button class="exp-btn tooltip-hover" data-tooltip="Vector image for slides">⬇ SVG</button>
+          <button class="exp-btn tooltip-hover" data-tooltip="Full report with diagrams">⬇ .docx</button>
+          <button class="exp-btn jira tooltip-hover" data-tooltip="Push directly to Jira">Jira ↗</button>
+        </div>
+
+        <!-- Problem View -->
+        <div class="problem-container" id="problemContainer">
+          <div class="problem-icon" id="problemIcon">📋</div>
+          <div class="problem-title" id="problemTitle">The old way takes forever</div>
+          <div class="problem-list">
+            <div class="problem-item">8 hours per process documentation</div>
+            <div class="problem-item">Manual errors and inconsistencies</div>
+            <div class="problem-item">Hard to keep up with changes</div>
+            <div class="problem-item">No visibility into tracking gaps</div>
+          </div>
+          <div class="problem-cta">→ Let's show you a better way</div>
+        </div>
+
+        <!-- CTA Final -->
+        <div class="cta-final-container" id="ctaFinal">
+          <div class="cta-final-title" id="ctaFinalTitle">Ready to transform your workflows?</div>
+          <div class="cta-final-subtitle">Join 2,000+ developers & analysts saving 8 hours per process</div>
+          <div class="cta-final-benefits">
+            <div class="cta-benefit">Automated process documentation</div>
+            <div class="cta-benefit">GTM tracking audits in minutes</div>
+            <div class="cta-benefit">Export to Camunda, Jira, .docx</div>
+          </div>
+          <div class="cta-final-actions">
+            <button class="cta-btn primary" onclick="window.open('https://chrome.google.com/webstore', '_blank')">Add to Chrome — It's Free</button>
+            <button class="cta-btn secondary" onclick="alert('Schedule demo would open Calendly')">Schedule 15-min Demo</button>
+          </div>
+          <!-- Trust Elements -->
+          <div class="cta-trust-section">
+            <div class="trust-item">✓ No credit card required</div>
+            <div class="trust-item">✓ Free forever plan (5 sessions/mo)</div>
+            <div class="trust-divider"></div>
+            <div style="font-size:10px;color:#888;margin-top:8px;">
+              <strong style="color:var(--text);">4.8★</strong> — <strong style="color:var(--text);">2,000+</strong> users on Chrome Web Store
+            </div>
+          </div>
         </div>
 
       </div>
