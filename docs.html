@@ -263,15 +263,22 @@
   </a>
 
   <ul class="nav-links">
-    <li><a href="/#features">Features</a></li>
-    <li><a href="/#insights">Insights</a></li>
-    <li><a href="/#how">How it works</a></li>
-    <li><a href="/pricing.html">Pricing</a></li>
-    <li><a href="/docs.html" class="active">Docs</a></li>
-    <li><a href="/faq.html">FAQ</a></li>
+    <li><a href="/#features" data-i18n="nav.features">Features</a></li>
+    <li><a href="/#insights" data-i18n="nav.insights">Insights</a></li>
+    <li><a href="/#how" data-i18n="nav.how">How it works</a></li>
+    <li><a href="/pricing.html" data-i18n="nav.pricing">Pricing</a></li>
+    <li><a href="/docs.html" class="active" data-i18n="nav.docs">Docs</a></li>
+    <li><a href="/faq.html" data-i18n="nav.faq">FAQ</a></li>
   </ul>
 
-  <a href="#" class="btn btn-primary">Add to Chrome</a>
+  <div class="lang-sw">
+    <button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" data-lang="it" onclick="setLang('it')">IT</button>
+    <button class="lang-btn" data-lang="es" onclick="setLang('es')">ES</button>
+    <button class="lang-btn" data-lang="fr" onclick="setLang('fr')">FR</button>
+  </div>
+
+  <a href="#" class="btn btn-primary" data-i18n="nav.cta">Add to Chrome</a>
 
   <button class="nav-burger" id="burger" aria-label="Menu">
     <span></span><span></span><span></span>
@@ -280,26 +287,32 @@
 
 <!-- Mobile drawer -->
 <div class="nav-drawer" id="drawer">
-  <a href="/#features" class="drawer-link">Features</a>
-  <a href="/#insights" class="drawer-link">Insights</a>
-  <a href="/#how" class="drawer-link">How it works</a>
-  <a href="/pricing.html" class="drawer-link">Pricing</a>
-  <a href="/docs.html" class="drawer-link">Docs</a>
-  <a href="/faq.html" class="drawer-link">FAQ</a>
-  <a href="#" class="btn btn-primary drawer-cta">Add to Chrome</a>
+  <a href="/#features" class="drawer-link" data-i18n="nav.features">Features</a>
+  <a href="/#insights" class="drawer-link" data-i18n="nav.insights">Insights</a>
+  <a href="/#how" class="drawer-link" data-i18n="nav.how">How it works</a>
+  <a href="/pricing.html" class="drawer-link" data-i18n="nav.pricing">Pricing</a>
+  <a href="/docs.html" class="drawer-link" data-i18n="nav.docs">Docs</a>
+  <a href="/faq.html" class="drawer-link" data-i18n="nav.faq">FAQ</a>
+  <a href="#" class="btn btn-primary drawer-cta" data-i18n="nav.cta">Add to Chrome</a>
+  <div class="lang-sw" style="margin-top:8px;">
+    <button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" data-lang="it" onclick="setLang('it')">IT</button>
+    <button class="lang-btn" data-lang="es" onclick="setLang('es')">ES</button>
+    <button class="lang-btn" data-lang="fr" onclick="setLang('fr')">FR</button>
+  </div>
 </div>
 
 <!-- ── HERO ─────────────────────────────────────────────────── -->
 <section id="hero">
-  <div class="pill fade"><div class="pill-dot"></div>User Manual · Version 0.2.0</div>
-  <h1 class="fade">Sevenda<br>Complete Guide</h1>
-  <p class="hero-sub fade">Complete guide to the Chrome extension that records browser sessions and generates BPMN 2.0 diagrams and GTM analysis using AI.</p>
+  <div class="pill fade"><div class="pill-dot"></div><span data-i18n="dpage.pill">User Manual · Version 0.2.0</span></div>
+  <h1 class="fade" data-i18n-html="dpage.h1">Sevenda<br>Complete Guide</h1>
+  <p class="hero-sub fade" data-i18n="dpage.sub">Complete guide to the Chrome extension that records browser sessions and generates BPMN 2.0 diagrams and GTM analysis using AI.</p>
   <div class="hero-meta fade">
     </span><span>18 sections</span><span>·</span><span>Chrome Extension MV3</span>
   </div>
   <div class="wrap">
     <div class="toc fade">
-      <div class="toc-title">Table of contents</div>
+      <div class="toc-title" data-i18n="dpage.toc">Table of contents</div>
       <ul class="toc-list" style="columns:2;gap:32px;">
         <li><a href="#intro"><span class="toc-num">01</span>Introduction</a></li>
         <li><a href="#quickstart"><span class="toc-num">02</span>Installation</a></li>
@@ -841,16 +854,16 @@
     </div>
 
     <ul class="foot-links">
-      <li><a href="/#features">Features</a></li>
-      <li><a href="/#insights">Insights</a></li>
-      <li><a href="/pricing.html">Pricing</a></li>
-      <li><a href="#">GitHub</a></li>
-      <li><a href="/privacy.html">Privacy Policy</a></li>
-      <li><a href="/docs.html">Docs</a></li>
-      <li><a href="/faq.html">FAQ</a></li>
+      <li><a href="/#features" data-i18n="foot.features">Features</a></li>
+      <li><a href="/#insights" data-i18n="foot.insights">Insights</a></li>
+      <li><a href="/pricing.html" data-i18n="foot.pricing">Pricing</a></li>
+      <li><a href="#" data-i18n="foot.github">GitHub</a></li>
+      <li><a href="/privacy.html" data-i18n="foot.privacy">Privacy Policy</a></li>
+      <li><a href="/docs.html" data-i18n="foot.docs">Docs</a></li>
+      <li><a href="/faq.html" data-i18n="foot.faq">FAQ</a></li>
     </ul>
 
-    <span class="foot-copy">© 2025 Sevenda · hello@sevenda.dev</span>
+    <span class="foot-copy" data-i18n="foot.copy">© 2025 Sevenda · hello@sevenda.dev</span>
   </div>
 </footer>
 
@@ -882,5 +895,6 @@
   }, { threshold: 0.1 });
   document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 </script>
+<script src="/i18n.js"></script>
 </body>
 </html>

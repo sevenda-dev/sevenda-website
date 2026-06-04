@@ -626,15 +626,22 @@
   </a>
 
   <ul class="nav-links">
-    <li><a href="/#features">Features</a></li>
-    <li><a href="/#insights">Insights</a></li>
-    <li><a href="/#how">How it works</a></li>
-    <li><a href="/pricing.html" class="active">Pricing</a></li>
-    <li><a href="/docs.html">Docs</a></li>
-    <li><a href="/faq.html">FAQ</a></li>
+    <li><a href="/#features" data-i18n="nav.features">Features</a></li>
+    <li><a href="/#insights" data-i18n="nav.insights">Insights</a></li>
+    <li><a href="/#how" data-i18n="nav.how">How it works</a></li>
+    <li><a href="/pricing.html" class="active" data-i18n="nav.pricing">Pricing</a></li>
+    <li><a href="/docs.html" data-i18n="nav.docs">Docs</a></li>
+    <li><a href="/faq.html" data-i18n="nav.faq">FAQ</a></li>
   </ul>
 
-  <a href="#" class="btn btn-primary">Add to Chrome</a>
+  <div class="lang-sw">
+    <button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" data-lang="it" onclick="setLang('it')">IT</button>
+    <button class="lang-btn" data-lang="es" onclick="setLang('es')">ES</button>
+    <button class="lang-btn" data-lang="fr" onclick="setLang('fr')">FR</button>
+  </div>
+
+  <a href="#" class="btn btn-primary" data-i18n="nav.cta">Add to Chrome</a>
 
   <button class="nav-burger" id="burger" aria-label="Menu">
     <span></span><span></span><span></span>
@@ -643,13 +650,19 @@
 
 <!-- Mobile drawer -->
 <div class="nav-drawer" id="drawer">
-  <a href="/#features">Features</a>
-  <a href="/#insights">Insights</a>
-  <a href="/#how">How it works</a>
-  <a href="/pricing.html">Pricing</a>
-  <a href="/docs.html">Docs</a>
-  <a href="/faq.html">FAQ</a>
-  <a href="#" class="drawer-cta">Add to Chrome</a>
+  <a href="/#features" data-i18n="nav.features">Features</a>
+  <a href="/#insights" data-i18n="nav.insights">Insights</a>
+  <a href="/#how" data-i18n="nav.how">How it works</a>
+  <a href="/pricing.html" data-i18n="nav.pricing">Pricing</a>
+  <a href="/docs.html" data-i18n="nav.docs">Docs</a>
+  <a href="/faq.html" data-i18n="nav.faq">FAQ</a>
+  <a href="#" class="drawer-cta" data-i18n="nav.cta">Add to Chrome</a>
+  <div class="lang-sw" style="margin-top:8px;">
+    <button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" data-lang="it" onclick="setLang('it')">IT</button>
+    <button class="lang-btn" data-lang="es" onclick="setLang('es')">ES</button>
+    <button class="lang-btn" data-lang="fr" onclick="setLang('fr')">FR</button>
+  </div>
 </div>
 
 <!-- ── PAGE ── -->
@@ -657,18 +670,18 @@
 
   <!-- 1. PAGE HEADER -->
   <div class="page-header reveal">
-    <div class="page-label">PRICING</div>
-    <h1 class="page-title">Simple, transparent,<br>scalable.</h1>
-    <p class="page-sub">Start for free. Scale when you need. No surprises.</p>
+    <div class="page-label" data-i18n="pricing.label">PRICING</div>
+    <h1 class="page-title" data-i18n-html="p.title">Simple, transparent,<br>scalable.</h1>
+    <p class="page-sub" data-i18n="pricing.sub">Start for free. Scale when you need. No surprises.</p>
   </div>
 
   <!-- 2. BILLING TOGGLE -->
   <div class="billing-wrap">
     <div class="billing-toggle">
-      <button class="billing-btn" id="btn-monthly" data-billing="monthly" onclick="setBilling('monthly')">Monthly</button>
+      <button class="billing-btn" id="btn-monthly" data-billing="monthly" onclick="setBilling('monthly')" data-i18n="billing.monthly">Monthly</button>
       <button class="billing-btn active" id="btn-annual" data-billing="annual" onclick="setBilling('annual')">
-        Annual
-        <span class="billing-badge">Save 25%</span>
+        <span data-i18n="billing.annual">Annual</span>
+        <span class="billing-badge" data-i18n="billing.save">Save 25%</span>
       </button>
     </div>
   </div>
@@ -679,13 +692,13 @@
     <!-- FREE -->
     <div class="plan-card plan-accent-muted reveal">
       <div class="plan-name">Free</div>
-      <div class="plan-tagline">Start exploring</div>
+      <div class="plan-tagline" data-i18n="plan.free.tagline">Start exploring</div>
 
       <div class="plan-price-block">
         <div class="plan-price-row">
           <span class="plan-price-amount">€0</span>
         </div>
-        <div class="plan-price-note">forever</div>
+        <div class="plan-price-note" data-i18n="plan.free.note">forever</div>
       </div>
 
       <div class="plan-divider"></div>
@@ -711,13 +724,13 @@
         <li class="plan-feature-item"><span class="feat-n">✗</span><span class="feat-excluded">Jira &amp; Camunda integration</span></li>
       </ul>
 
-      <a href="#" class="plan-cta cta-free" data-action="install">Get started free</a>
+      <a href="#" class="plan-cta cta-free" data-action="install" data-i18n="plan.free.cta">Get started free</a>
     </div>
 
     <!-- SOLO -->
     <div class="plan-card plan-accent-blue reveal">
       <div class="plan-name">Solo</div>
-      <div class="plan-tagline">For the independent developer</div>
+      <div class="plan-tagline" data-i18n="plan.solo.tagline">For the independent developer</div>
 
       <div class="plan-price-block"
            data-annual-price="9"
@@ -761,14 +774,15 @@
       <a href="#" class="plan-cta cta-solo"
          data-action="checkout"
          data-link-annual="https://buy.stripe.com/SOLO_ANNUAL"
-         data-link-monthly="https://buy.stripe.com/SOLO_MONTHLY">Start 14-day free trial</a>
+         data-link-monthly="https://buy.stripe.com/SOLO_MONTHLY"
+         data-i18n="plan.solo.cta">Start 14-day free trial</a>
     </div>
 
     <!-- TEAM -->
     <div class="plan-card plan-accent-green plan-card-popular reveal">
-      <div class="plan-popular-badge">Most popular</div>
+      <div class="plan-popular-badge" data-i18n="plan.team.popular">Most popular</div>
       <div class="plan-name">Team</div>
-      <div class="plan-tagline">For agile teams and consultants</div>
+      <div class="plan-tagline" data-i18n="plan.team.tagline">For agile teams and consultants</div>
 
       <div class="plan-price-block"
            data-annual-price="19"
@@ -812,19 +826,20 @@
       <a href="#" class="plan-cta cta-team"
          data-action="checkout"
          data-link-annual="https://buy.stripe.com/TEAM_ANNUAL"
-         data-link-monthly="https://buy.stripe.com/TEAM_MONTHLY">Start with your team</a>
+         data-link-monthly="https://buy.stripe.com/TEAM_MONTHLY"
+         data-i18n="plan.team.cta">Start with your team</a>
     </div>
 
     <!-- ENTERPRISE -->
     <div class="plan-card plan-accent-amber reveal">
       <div class="plan-name">Enterprise</div>
-      <div class="plan-tagline">For organizations and consulting firms</div>
+      <div class="plan-tagline" data-i18n="plan.enterprise.tagline">For organizations and consulting firms</div>
 
       <div class="plan-price-block">
         <div class="plan-price-row">
-          <span class="plan-price-amount contact-price">Contact us</span>
+          <span class="plan-price-amount contact-price" data-i18n="plan.enterprise.price">Contact us</span>
         </div>
-        <div class="plan-price-note">custom pricing</div>
+        <div class="plan-price-note" data-i18n="plan.enterprise.note">custom pricing</div>
       </div>
 
       <div class="plan-divider"></div>
@@ -852,7 +867,7 @@
       </ul>
 
       <a href="mailto:hello@sevenda.dev?subject=Enterprise Plan — Sevenda" class="plan-cta cta-enterprise"
-         data-action="contact">Contact us</a>
+         data-action="contact" data-i18n="plan.enterprise.cta">Contact us</a>
     </div>
 
   </div>
@@ -892,9 +907,9 @@
   <!-- 4. RATE LIMITS TABLE -->
   <div class="section reveal">
     <div class="section-head">
-      <div class="section-eyebrow">USAGE LIMITS</div>
-      <h2 class="section-title">Rate limits by plan</h2>
-      <p class="section-sub">All limits reset on the first of each month.<br>Team and Enterprise plans share pooled limits across members.</p>
+      <div class="section-eyebrow" data-i18n="p.limits.eyebrow">USAGE LIMITS</div>
+      <h2 class="section-title" data-i18n="p.limits.title">Rate limits by plan</h2>
+      <p class="section-sub" data-i18n="p.limits.sub">All limits reset on the first of each month. Team and Enterprise plans share pooled limits across members.</p>
     </div>
 
     <div class="rate-table-wrap">
@@ -959,9 +974,9 @@
   <!-- 5. ADD-ONS -->
   <div class="section reveal">
     <div class="section-head">
-      <div class="section-eyebrow">ADD-ONS</div>
-      <h2 class="section-title">Pay-as-you-go add-ons</h2>
-      <p class="section-sub">Purchase at any time, added on top of your plan limits. Never expire.</p>
+      <div class="section-eyebrow" data-i18n="p.addons.eyebrow">ADD-ONS</div>
+      <h2 class="section-title" data-i18n="p.addons.title">Pay-as-you-go add-ons</h2>
+      <p class="section-sub" data-i18n="p.addons.sub">Purchase at any time, added on top of your plan limits. Never expire.</p>
     </div>
 
     <div class="addons-grid">
@@ -1044,15 +1059,15 @@
   <!-- 6. BETA PARTNERSHIP CALLOUT -->
   <div class="beta-callout reveal">
     <div class="beta-left">
-      <div class="beta-eyebrow">🤝 BETA PARTNERSHIP PROGRAM</div>
-      <div class="beta-title">Are you a data-driven consulting firm?</div>
-      <div class="beta-desc">
+      <div class="beta-eyebrow" data-i18n="p.beta.eyebrow">🤝 BETA PARTNERSHIP PROGRAM</div>
+      <div class="beta-title" data-i18n="p.beta.title">Are you a data-driven consulting firm?</div>
+      <div class="beta-desc" data-i18n="p.beta.desc">
         Join the Beta Partnership Program with special terms,
         dedicated onboarding, and direct influence on the roadmap.
         Limited to 10 partners.
       </div>
     </div>
-    <a href="mailto:hello@sevenda.dev?subject=Beta Partnership Program" class="beta-btn">
+    <a href="mailto:hello@sevenda.dev?subject=Beta Partnership Program" class="beta-btn" data-i18n="p.beta.cta">
       Apply to the program →
     </a>
   </div>
@@ -1060,8 +1075,8 @@
   <!-- 7. FAQ -->
   <div class="faq-section reveal">
     <div class="section-head section-head-center">
-      <div class="section-eyebrow">FAQ</div>
-      <h2 class="section-title">Frequently asked questions</h2>
+      <div class="section-eyebrow" data-i18n="p.faq.eyebrow">FAQ</div>
+      <h2 class="section-title" data-i18n="p.faq.title">Frequently asked questions</h2>
     </div>
 
     <div class="faq-list">
@@ -1143,13 +1158,13 @@
     <span class="footer-logo-text">Sevenda</span>
   </div>
   <div class="footer-links">
-    <a href="index.html#features">Features</a>
-    <a href="pricing.html">Pricing</a>
-    <a href="docs.html">Docs</a>
-    <a href="faq.html">FAQ</a>
-    <a href="privacy.html">Privacy Policy</a>
+    <a href="index.html#features" data-i18n="foot.features">Features</a>
+    <a href="pricing.html" data-i18n="foot.pricing">Pricing</a>
+    <a href="docs.html" data-i18n="foot.docs">Docs</a>
+    <a href="faq.html" data-i18n="foot.faq">FAQ</a>
+    <a href="privacy.html" data-i18n="foot.privacy">Privacy Policy</a>
   </div>
-  <span class="footer-copy">© 2025 Sevenda · Built with Claude</span>
+  <span class="footer-copy" data-i18n="foot.copy">© 2025 Sevenda · Built with Claude</span>
 </footer>
 
 <!--
@@ -1299,5 +1314,6 @@ document.getElementById('ent-form')?.addEventListener('submit', e => {
   window.location.href = 'mailto:hello@sevenda.dev?subject=' + subject + '&body=' + body;
 });
 </script>
+<script src="/i18n.js"></script>
 </body>
 </html>

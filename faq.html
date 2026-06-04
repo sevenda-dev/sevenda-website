@@ -389,14 +389,20 @@ footer {
     <span>Sevenda</span>
   </a>
   <ul class="nav-links">
-    <li><a href="index.html#features">Features</a></li>
-    <li><a href="index.html#insights">Insights</a></li>
-    <li><a href="index.html#how-it-works">How it works</a></li>
-    <li><a href="pricing.html">Pricing</a></li>
-    <li><a href="docs.html">Docs</a></li>
-    <li><a href="faq.html" class="active">FAQ</a></li>
-    <li><a href="#" class="nav-cta">Add to Chrome</a></li>
+    <li><a href="index.html#features" data-i18n="nav.features">Features</a></li>
+    <li><a href="index.html#insights" data-i18n="nav.insights">Insights</a></li>
+    <li><a href="index.html#how-it-works" data-i18n="nav.how">How it works</a></li>
+    <li><a href="pricing.html" data-i18n="nav.pricing">Pricing</a></li>
+    <li><a href="docs.html" data-i18n="nav.docs">Docs</a></li>
+    <li><a href="faq.html" class="active" data-i18n="nav.faq">FAQ</a></li>
+    <li><a href="#" class="nav-cta" data-i18n="nav.cta">Add to Chrome</a></li>
   </ul>
+  <div class="lang-sw">
+    <button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" data-lang="it" onclick="setLang('it')">IT</button>
+    <button class="lang-btn" data-lang="es" onclick="setLang('es')">ES</button>
+    <button class="lang-btn" data-lang="fr" onclick="setLang('fr')">FR</button>
+  </div>
   <button class="nav-burger" id="burger" aria-label="Menu">
     <span></span><span></span><span></span>
   </button>
@@ -404,42 +410,48 @@ footer {
 
 <!-- Mobile drawer -->
 <div class="nav-drawer" id="drawer">
-  <a href="index.html#features">Features</a>
-  <a href="index.html#insights">Insights</a>
-  <a href="index.html#how-it-works">How it works</a>
-  <a href="pricing.html">Pricing</a>
-  <a href="docs.html">Docs</a>
-  <a href="faq.html">FAQ</a>
-  <a href="#" class="drawer-cta">Add to Chrome</a>
+  <a href="index.html#features" data-i18n="nav.features">Features</a>
+  <a href="index.html#insights" data-i18n="nav.insights">Insights</a>
+  <a href="index.html#how-it-works" data-i18n="nav.how">How it works</a>
+  <a href="pricing.html" data-i18n="nav.pricing">Pricing</a>
+  <a href="docs.html" data-i18n="nav.docs">Docs</a>
+  <a href="faq.html" data-i18n="nav.faq">FAQ</a>
+  <a href="#" class="drawer-cta" data-i18n="nav.cta">Add to Chrome</a>
+  <div class="lang-sw" style="margin-top:8px;">
+    <button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" data-lang="it" onclick="setLang('it')">IT</button>
+    <button class="lang-btn" data-lang="es" onclick="setLang('es')">ES</button>
+    <button class="lang-btn" data-lang="fr" onclick="setLang('fr')">FR</button>
+  </div>
 </div>
 
 <!-- ── PAGE ── -->
 <div class="page">
 
   <div class="page-header">
-    <div class="page-label">FAQ</div>
-    <div class="page-title">Frequently Asked<br>Questions</div>
-    <div class="page-sub">Everything you need to know about Sevenda — from installation to advanced BPMN generation and GTM analysis.</div>
+    <div class="page-label" data-i18n="fpage.label">FAQ</div>
+    <div class="page-title" data-i18n-html="fpage.title">Frequently Asked<br>Questions</div>
+    <div class="page-sub" data-i18n="fpage.sub">Everything you need to know about Sevenda — from installation to advanced BPMN generation and GTM analysis.</div>
   </div>
 
   <!-- Search -->
   <div class="faq-search-wrap">
-    <input class="faq-search" type="text" placeholder="Search questions…" id="faqSearch" oninput="filterFAQ()">
+    <input class="faq-search" type="text" placeholder="Search questions…" id="faqSearch" oninput="filterFAQ()" data-i18n-placeholder="fpage.search">
     <span class="search-icon">⌕</span>
   </div>
 
   <!-- Filters -->
   <div class="faq-filters">
-    <button class="filter-pill active" onclick="filterCategory('all', this)">All</button>
-    <button class="filter-pill" onclick="filterCategory('general', this)">General</button>
-    <button class="filter-pill" onclick="filterCategory('setup', this)">Setup &amp; Install</button>
-    <button class="filter-pill" onclick="filterCategory('bpmn', this)">BPMN</button>
-    <button class="filter-pill" onclick="filterCategory('insights', this)">Insights &amp; GTM</button>
-    <button class="filter-pill" onclick="filterCategory('privacy', this)">Privacy &amp; Data</button>
-    <button class="filter-pill" onclick="filterCategory('pricing', this)">Pricing</button>
+    <button class="filter-pill active" onclick="filterCategory('all', this)" data-i18n="fpage.f.all">All</button>
+    <button class="filter-pill" onclick="filterCategory('general', this)" data-i18n="fpage.f.general">General</button>
+    <button class="filter-pill" onclick="filterCategory('setup', this)" data-i18n="fpage.f.setup">Setup &amp; Install</button>
+    <button class="filter-pill" onclick="filterCategory('bpmn', this)" data-i18n="fpage.f.bpmn">BPMN</button>
+    <button class="filter-pill" onclick="filterCategory('insights', this)" data-i18n="fpage.f.insights">Insights &amp; GTM</button>
+    <button class="filter-pill" onclick="filterCategory('privacy', this)" data-i18n="fpage.f.privacy">Privacy &amp; Data</button>
+    <button class="filter-pill" onclick="filterCategory('pricing', this)" data-i18n="fpage.f.pricing">Pricing</button>
   </div>
 
-  <div id="noResults" class="no-results">No questions match your search.</div>
+  <div id="noResults" class="no-results" data-i18n="fpage.noresults">No questions match your search.</div>
 
   <!-- ── GENERAL ── -->
   <div class="faq-group" data-category="general">
@@ -941,10 +953,10 @@ footer {
 
   <!-- Footer CTA -->
   <div class="faq-footer">
-    <div class="faq-footer-title">Still have questions?</div>
-    <div class="faq-footer-sub">Read the full documentation or write to us directly.</div>
+    <div class="faq-footer-title" data-i18n="fpage.cta.title">Still have questions?</div>
+    <div class="faq-footer-sub" data-i18n="fpage.cta.sub">Read the full documentation or write to us directly.</div>
     <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
-      <a href="docs.html">Read the docs →</a>
+      <a href="docs.html" data-i18n="fpage.cta.docs">Read the docs →</a>
       <a href="mailto:hello@sevenda.dev" style="background:transparent;color:var(--green);border:1px solid var(--green);">hello@sevenda.dev</a>
     </div>
   </div>
@@ -963,13 +975,13 @@ footer {
     <span class="footer-logo-text">Sevenda</span>
   </div>
   <div class="footer-links">
-    <a href="index.html#features">Features</a>
-    <a href="pricing.html">Pricing</a>
-    <a href="docs.html">Docs</a>
-    <a href="faq.html">FAQ</a>
-    <a href="privacy.html">Privacy Policy</a>
+    <a href="index.html#features" data-i18n="foot.features">Features</a>
+    <a href="pricing.html" data-i18n="foot.pricing">Pricing</a>
+    <a href="docs.html" data-i18n="foot.docs">Docs</a>
+    <a href="faq.html" data-i18n="foot.faq">FAQ</a>
+    <a href="privacy.html" data-i18n="foot.privacy">Privacy Policy</a>
   </div>
-  <span class="footer-copy">© 2025 Sevenda · Built with Claude</span>
+  <span class="footer-copy" data-i18n="foot.copy">© 2025 Sevenda · Built with Claude</span>
 </footer>
 
 <script>
@@ -1025,6 +1037,10 @@ function applyFilters() {
 }
 </script>
 
+<script>
+// i18n
+</script>
+<script src="/i18n.js"></script>
 <script>
 // Nav scroll effect
 const nav = document.getElementById('nav');
