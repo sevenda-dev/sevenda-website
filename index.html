@@ -999,6 +999,605 @@
       .foot-copy  { text-align: center; }
     }
   </style>
+
+  <!-- ── DEMO MODAL CSS ────────────────────────────────────────────────────── -->
+  <style>
+/* ── MODAL OVERLAY ────────────────────────────────────────────────────── */
+.demo-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.88);
+  backdrop-filter: blur(6px);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: demoFadeIn 0.2s ease;
+}
+.demo-overlay.active { display: flex; }
+
+@keyframes demoFadeIn { from { opacity:0 } to { opacity:1 } }
+
+/* ── MODAL SHELL ──────────────────────────────────────────────────────── */
+.demo-modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  width: 100%;
+  max-width: 960px;
+  height: min(90vh, 640px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 40px 120px rgba(0,0,0,0.8);
+  animation: demoSlideUp 0.3s cubic-bezier(0.16,1,0.3,1);
+}
+
+@keyframes demoSlideUp {
+  from { transform: translateY(20px); opacity:0 }
+  to   { transform: translateY(0);    opacity:1 }
+}
+
+/* ── MODAL TOPBAR ─────────────────────────────────────────────────────── */
+.demo-topbar {
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  height: 48px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  flex-shrink: 0;
+  gap: 12px;
+}
+.demo-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.demo-logo svg { opacity: 0.9; }
+.demo-badge {
+  font-size: 10px;
+  color: #888;
+  background: #222;
+  border: 1px solid var(--border);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: var(--mono);
+}
+.demo-label {
+  font-size: 11px;
+  color: #555;
+  margin-left: auto;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.demo-close {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: #888;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: all 0.15s;
+  margin-left: 12px;
+}
+.demo-close:hover { background: #222; color: var(--text); }
+
+/* ── MODE TABS ────────────────────────────────────────────────────────── */
+.demo-tabs {
+  display: flex;
+  padding: 10px 20px 0;
+  gap: 4px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  flex-shrink: 0;
+}
+.demo-tab {
+  padding: 6px 16px;
+  border-radius: 6px 6px 0 0;
+  border: 1px solid transparent;
+  border-bottom: none;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  background: transparent;
+  color: #888;
+  transition: all 0.15s;
+  position: relative;
+  bottom: -1px;
+}
+.demo-tab:hover { color: var(--text); }
+.demo-tab.active {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
+}
+.demo-tab.bpmn.active { color: var(--green); }
+.demo-tab.insights.active { color: #9d6ef8; }
+
+/* ── CONTENT AREA ─────────────────────────────────────────────────────── */
+.demo-content {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+/* ── BROWSER CHROME (left side) ───────────────────────────────────────── */
+.browser-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border);
+  min-width: 0;
+}
+.browser-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #1a1a1a;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.browser-dots { display: flex; gap: 5px; }
+.browser-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+}
+.browser-dot.r { background: #ff5f57; }
+.browser-dot.y { background: #febc2e; }
+.browser-dot.g { background: #28c840; }
+.browser-url {
+  flex: 1;
+  background: #222;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-family: var(--mono);
+  color: #888;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.browser-page {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background: #f5f5f5;
+}
+
+/* ── FAKE WEBSITE CONTENT ─────────────────────────────────────────────── */
+.fake-site {
+  width: 100%;
+  height: 100%;
+  display: none;
+  flex-direction: column;
+  font-family: 'Inter', sans-serif;
+}
+.fake-site.active { display: flex; }
+.fake-nav {
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+}
+.fake-nav-logo {
+  font-weight: 700;
+  font-size: 16px;
+  color: #111;
+}
+.fake-nav-links { display: flex; gap: 16px; }
+.fake-nav-link { font-size: 12px; color: #6b7280; cursor: pointer; }
+.fake-nav-btn {
+  margin-left: auto;
+  background: #111;
+  color: #fff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.fake-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  background: #fafafa;
+}
+.fake-hero {
+  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+  border-radius: 12px;
+  padding: 28px 24px;
+  margin-bottom: 20px;
+  color: white;
+}
+.fake-hero h1 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+.fake-hero p { font-size: 13px; opacity: 0.85; }
+.fake-hero-cta {
+  margin-top: 16px;
+  background: white;
+  color: #1e40af;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.fake-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.fake-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 14px;
+}
+.fake-card h3 { font-size: 13px; font-weight: 600; color: #111; margin-bottom: 4px; }
+.fake-card p  { font-size: 11px; color: #6b7280; }
+.fake-card-price { font-size: 18px; font-weight: 700; color: #1e40af; margin-top: 8px; }
+.fake-form {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 12px;
+}
+.fake-form h3 { font-size: 14px; font-weight: 600; color: #111; margin-bottom: 14px; }
+.fake-input {
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 12px;
+  margin-bottom: 10px;
+  background: #fff;
+  color: #111;
+}
+.fake-submit {
+  background: #1e40af;
+  color: white;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+}
+
+/* ── CLICK RIPPLE ─────────────────────────────────────────────────────── */
+.click-ripple {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50%;
+  background: rgba(107, 184, 154, 0.35);
+  width: 30px;
+  height: 30px;
+  transform: translate(-50%,-50%) scale(0);
+  animation: demoRipple 0.5s ease-out forwards;
+}
+@keyframes demoRipple {
+  to { transform: translate(-50%,-50%) scale(2.5); opacity:0; }
+}
+
+/* ── SEVENDA PANEL (right side) ───────────────────────────────────────── */
+.panel-wrap {
+  width: 320px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  font-size: 11px;
+}
+
+.panel-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px;
+  height: 36px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  flex-shrink: 0;
+}
+.panel-tab-btn {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: #888;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.panel-tab-btn.active {
+  background: #222;
+  color: var(--text);
+  border-color: #333;
+}
+.panel-spacer { flex: 1; }
+.rec-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #555;
+  transition: background 0.3s;
+}
+.rec-dot.recording { background: var(--red); animation: demoBlink 1s infinite; }
+@keyframes demoBlink { 50% { opacity: 0.3 } }
+
+.panel-controls {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.ctrl-btn {
+  flex: 1;
+  padding: 5px 0;
+  border-radius: 5px;
+  border: none;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  transition: all 0.15s;
+}
+.ctrl-btn.start { background: var(--green); color: #fff; }
+.ctrl-btn.stop  { background: var(--red);   color: #fff; }
+.ctrl-btn.gen-bpmn    { background: var(--green); color: #fff; }
+.ctrl-btn.gen-insight { background: #7c3aed; color: #fff; }
+.ctrl-btn.disabled { opacity: 0.35; pointer-events: none; }
+
+.panel-stream {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+.panel-stream::-webkit-scrollbar { width: 3px; }
+.panel-stream::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+
+.event-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 5px 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  animation: demoEventIn 0.2s ease;
+}
+@keyframes demoEventIn {
+  from { opacity:0; transform: translateX(6px) }
+  to   { opacity:1; transform: translateX(0) }
+}
+.evt-badge {
+  font-size: 8px;
+  font-weight: 700;
+  font-family: var(--mono);
+  padding: 1px 4px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.evt-badge.nav { background: rgba(91,141,238,0.2); color: var(--blue); }
+.evt-badge.ui  { background: rgba(107,184,154,0.2); color: var(--green); }
+.evt-badge.net { background: rgba(232,168,56,0.2); color: var(--amber); }
+.evt-badge.err { background: rgba(224,85,85,0.2);  color: var(--red); }
+.evt-badge.dom { background: rgba(255,255,255,0.08); color: #888; }
+
+.evt-text { color: #888; line-height: 1.4; font-size: 10px; flex: 1; }
+.evt-text strong { color: var(--text); font-weight: 500; }
+.evt-time { color: #555; font-family: var(--mono); font-size: 9px; flex-shrink: 0; }
+
+.panel-footer {
+  padding: 6px 10px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.evt-count { color: #888; font-size: 10px; }
+.evt-count span { color: var(--text); font-weight: 600; }
+
+/* ── AI OUTPUT PANEL ──────────────────────────────────────────────────── */
+.ai-output {
+  display: none;
+  flex-direction: column;
+  padding: 10px;
+  gap: 8px;
+  overflow-y: auto;
+  flex: 1;
+}
+.ai-output.active { display: flex; }
+
+.ai-thinking {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  background: #222;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  color: #888;
+  font-size: 10px;
+}
+.ai-spinner {
+  width: 14px; height: 14px;
+  border: 2px solid #333;
+  border-top-color: var(--green);
+  border-radius: 50%;
+  animation: demoSpin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+.ai-spinner.purple { border-top-color: #9d6ef8; }
+@keyframes demoSpin { to { transform: rotate(360deg) } }
+
+.bpmn-mini {
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  padding: 12px;
+  display: none;
+}
+.bpmn-mini.active { display: block; }
+.bpmn-mini svg { width: 100%; height: auto; }
+
+.insight-cards { display: flex; flex-direction: column; gap: 6px; display: none; }
+.insight-cards.active { display: flex; }
+.insight-card {
+  background: #222;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px;
+}
+.insight-card-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 5px;
+}
+.insight-card-icon { font-size: 13px; }
+.insight-card-title { font-size: 10px; font-weight: 600; color: var(--text); }
+.insight-card-badge {
+  margin-left: auto;
+  font-size: 8px;
+  font-weight: 700;
+  font-family: var(--mono);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+.badge-gap { background: rgba(224,85,85,0.2); color: var(--red); }
+.badge-ok  { background: rgba(107,184,154,0.2); color: var(--green); }
+.badge-warn { background: rgba(232,168,56,0.2); color: var(--amber); }
+.insight-card p { font-size: 9px; color: #888; line-height: 1.5; }
+
+.export-row {
+  display: flex;
+  gap: 5px;
+  margin-top: 4px;
+  display: none;
+}
+.export-row.active { display: flex; }
+.exp-btn {
+  flex: 1;
+  padding: 5px 0;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  background: #222;
+  color: #888;
+  font-size: 9px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s;
+}
+.exp-btn:hover { border-color: #333; color: var(--text); }
+.exp-btn.jira { border-color: rgba(91,141,238,0.4); color: var(--blue); }
+
+/* ── STEP INDICATOR ───────────────────────────────────────────────────── */
+.step-bar {
+  padding: 8px 20px;
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.step-dots { display: flex; gap: 5px; flex: 1; justify-content: center; }
+.step-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #333;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.step-dot.active { background: var(--green); transform: scale(1.3); }
+.step-dot.active.purple { background: #9d6ef8; }
+.step-nav {
+  font-size: 10px;
+  color: #888;
+  background: transparent;
+  border: 1px solid var(--border);
+  padding: 4px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.step-nav:hover { border-color: #333; color: var(--text); }
+.step-nav:disabled { opacity: 0.3; pointer-events: none; }
+.step-label {
+  font-size: 10px;
+  color: #555;
+  min-width: 60px;
+  text-align: right;
+}
+
+/* ── PROGRESS BAR ─────────────────────────────────────────────────────── */
+.progress-bar-wrap {
+  height: 2px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: var(--green);
+  transition: width 0.4s ease, background 0.3s;
+}
+.progress-bar-fill.purple { background: #9d6ef8; }
+
+/* ── STEP CAPTION ─────────────────────────────────────────────────────── */
+.step-caption {
+  padding: 0 20px;
+  height: 0;
+  overflow: hidden;
+  transition: height 0.3s;
+  background: var(--bg);
+}
+.step-caption.open {
+  height: 48px;
+  border-bottom: 1px solid var(--border);
+}
+.step-caption-inner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 48px;
+}
+.step-caption-num {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--green);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.step-caption-num.purple { background: #9d6ef8; }
+.step-caption-text { font-size: 12px; color: var(--text); flex: 1; }
+.step-caption-sub  { font-size: 10px; color: #888; }
+
+/* ── RESPONSIVE ───────────────────────────────────────────────────────── */
+@media (max-width: 680px) {
+  .browser-wrap { display: none; }
+  .panel-wrap { width: 100%; }
+}
+  </style>
 </head>
 <body>
 
@@ -1074,7 +1673,7 @@
 
   <div class="hero-ctas">
     <a href="#" class="btn btn-primary" data-i18n="hero.cta1">Add to Chrome</a>
-    <a href="#" class="btn btn-ghost" data-i18n="hero.cta2">▶ Watch demo</a>
+    <a href="#" class="btn btn-ghost" data-i18n="hero.cta2" onclick="openDemo(); return false;">▶ Watch demo</a>
   </div>
 
   <!-- DevTools panel mockup -->
@@ -1967,6 +2566,473 @@
     });
   }, { threshold: 0.1 });
   document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  // ── DEMO MODAL SCRIPT ──────────────────────────────────────────────────────
+  let currentMode = 'bpmn';
+  let currentStep = 0;
+  let eventCount  = 0;
+  let streamTimer = null;
+  let autoTimer   = null;
+
+  const STEPS = {
+    bpmn: [
+      { num: 1, caption: 'Open the Sevenda panel in Chrome DevTools', sub: 'Navigate to a site — here shop.example.com — and press F12 → Sevenda tab', url: 'https://shop.example.com', site: 'ecom', panel: 'idle' },
+      { num: 2, caption: 'Start recording the session', sub: 'Click "Start" — Sevenda begins capturing navigation, clicks and network calls', url: 'https://shop.example.com', site: 'ecom', panel: 'recording', events: [ { type:'nav', text:'<strong>Page view</strong> — /home', t:'0.0s' }, { type:'ui', text:'<strong>Click</strong> "See all plans →"', t:'1.2s' }, { type:'nav', text:'<strong>Navigation</strong> → /pricing', t:'1.3s' }, { type:'net', text:'<strong>GET</strong> /api/plans 200 OK', t:'1.5s' } ] },
+      { num: 3, caption: 'User navigates and interacts', sub: 'Sevenda captures every meaningful event in real time', url: 'https://shop.example.com/signup', site: 'ecom', panel: 'recording', events: [ { type:'ui', text:'<strong>Click</strong> "Sign up"', t:'2.8s' }, { type:'nav', text:'<strong>Navigation</strong> → /signup', t:'2.9s' }, { type:'ui', text:'<strong>Submit</strong> #signup-form', t:'5.1s' }, { type:'net', text:'<strong>POST</strong> /api/register 201', t:'5.2s' }, { type:'nav', text:'<strong>Navigation</strong> → /checkout', t:'5.4s' }, { type:'net', text:'<strong>POST</strong> /api/payment 200', t:'9.3s' } ] },
+      { num: 4, caption: 'Stop recording and generate BPMN', sub: 'Sevenda sends the session to Claude — BPMN 2.0 XML is generated in seconds', url: 'https://shop.example.com/checkout', site: 'checkout', panel: 'generating' },
+      { num: 5, caption: 'BPMN diagram is ready', sub: 'Review the process flow, then export to XML, SVG, .docx or push to Jira', url: 'https://shop.example.com/checkout', site: 'checkout', panel: 'bpmn' },
+      { num: 6, caption: 'Export and share', sub: 'Download the diagram or push it directly to your Jira project as a task', url: 'https://shop.example.com/checkout', site: 'checkout', panel: 'export' }
+    ],
+    insights: [
+      { num: 1, caption: 'Switch to Insights mode', sub: 'Click the Insights tab in the Sevenda popup — optimised for GTM/GA4 analysis', url: 'https://shop.example.com', site: 'ecom', panel: 'idle' },
+      { num: 2, caption: 'Record the user journey', sub: 'Sevenda intercepts every network call and dataLayer push alongside user actions', url: 'https://shop.example.com', site: 'ecom', panel: 'recording', events: [ { type:'nav', text:'<strong>Page view</strong> GA4 — /home', t:'0.0s' }, { type:'net', text:'<strong>GA4</strong> collect hit detected', t:'0.1s' }, { type:'ui', text:'<strong>Click</strong> "See all plans →"', t:'1.2s' }, { type:'net', text:'<strong>GTM</strong> no trigger matched ⚠', t:'1.2s' } ] },
+      { num: 3, caption: 'Navigate through the funnel', sub: 'Sevenda flags missing tags and untracked interactions automatically', url: 'https://shop.example.com/signup', site: 'ecom', panel: 'recording', events: [ { type:'nav', text:'<strong>Page view</strong> GA4 — /signup', t:'2.1s' }, { type:'net', text:'<strong>GA4</strong> collect hit detected', t:'2.2s' }, { type:'ui', text:'<strong>Submit</strong> #signup-form', t:'5.1s' }, { type:'err', text:'<strong>dataLayer</strong> push missing ⚠', t:'5.1s' }, { type:'net', text:'<strong>POST</strong> /api/register 201', t:'5.2s' } ] },
+      { num: 4, caption: 'Generate Insights with AI', sub: 'Claude analyses the session and identifies tracking gaps, anomalies and recommendations', url: 'https://shop.example.com/signup', site: 'ecom', panel: 'generating' },
+      { num: 5, caption: 'Insights report is ready', sub: 'Gaps, warnings and confirmed tags — each with a concrete recommendation', url: 'https://shop.example.com/signup', site: 'ecom', panel: 'insights' },
+      { num: 6, caption: 'Export and act', sub: 'Download a full .docx Analytics Report or open the tag plan in GTM directly', url: 'https://shop.example.com/signup', site: 'ecom', panel: 'export-insights' }
+    ]
+  };
+
+  function openDemo() { document.getElementById('demoOverlay').classList.add('active'); currentStep = 0; renderStep(); }
+  function closeDemo() { document.getElementById('demoOverlay').classList.remove('active'); clearAllTimers(); }
+  document.getElementById('demoOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeDemo(); });
+
+  function switchMode(mode) {
+    clearAllTimers();
+    currentMode = mode;
+    currentStep = 0;
+    document.querySelectorAll('.demo-tab').forEach(t => t.classList.remove('active'));
+    document.querySelector(`.demo-tab.${mode}`).classList.add('active');
+    const isInsights = mode === 'insights';
+    document.getElementById('progressBar').className = 'progress-bar-fill' + (isInsights ? ' purple' : '');
+    document.getElementById('modeLabel').textContent = isInsights ? 'Insights mode' : 'BPMN mode';
+    document.getElementById('aiSpinner').className = 'ai-spinner' + (isInsights ? ' purple' : '');
+    renderStep();
+  }
+
+  function nextStep() { const steps = STEPS[currentMode]; if (currentStep < steps.length - 1) { currentStep++; renderStep(); } }
+  function prevStep() { if (currentStep > 0) { currentStep--; renderStep(); } }
+
+  function buildDots() {
+    const container = document.getElementById('stepDots');
+    const steps = STEPS[currentMode];
+    container.innerHTML = '';
+    steps.forEach((_, i) => {
+      const d = document.createElement('div');
+      d.className = 'step-dot' + (i === currentStep ? (' active' + (currentMode === 'insights' ? ' purple' : '')) : '');
+      d.onclick = () => { currentStep = i; renderStep(); };
+      container.appendChild(d);
+    });
+  }
+
+  function renderStep() {
+    clearAllTimers();
+    eventCount = 0;
+    const steps = STEPS[currentMode];
+    const step  = steps[currentStep];
+    const total = steps.length;
+    const isInsights = currentMode === 'insights';
+
+    document.getElementById('captionNum').textContent = step.num;
+    document.getElementById('captionNum').className = 'step-caption-num' + (isInsights ? ' purple' : '');
+    document.getElementById('captionText').textContent = step.caption;
+    document.getElementById('captionSub').textContent  = step.sub;
+    document.getElementById('progressBar').style.width = ((currentStep + 1) / total * 100) + '%';
+    document.getElementById('btnPrev').disabled = currentStep === 0;
+    document.getElementById('btnNext').disabled = currentStep === total - 1;
+    document.getElementById('stepLabel').textContent = `${currentStep + 1} / ${total}`;
+    buildDots();
+    document.getElementById('browserUrl').textContent = step.url;
+    document.querySelectorAll('.fake-site').forEach(s => s.classList.remove('active'));
+    const siteEl = document.getElementById(step.site === 'checkout' ? 'fakeSiteCheckout' : 'fakeSiteEcom');
+    siteEl.classList.add('active');
+    const form = document.getElementById('fakeSignupForm');
+    form.style.display = (step.site !== 'checkout' && currentStep >= 2) ? 'block' : 'none';
+    applyPanelState(step);
+  }
+
+  function applyPanelState(step) {
+    const isInsights = currentMode === 'insights';
+    const panelStream = document.getElementById('panelStream');
+    const aiOutput    = document.getElementById('aiOutput');
+    const aiThinking  = document.getElementById('aiThinking');
+    const bpmnMini    = document.getElementById('bpmnMini');
+    const insightCards= document.getElementById('insightCards');
+    const exportRow   = document.getElementById('exportRow');
+    const recDot      = document.getElementById('recDot');
+    const btnSS       = document.getElementById('btnStartStop');
+    const btnGen      = document.getElementById('btnGenerate');
+
+    panelStream.style.display = 'flex';
+    aiOutput.classList.remove('active');
+    aiThinking.style.display = 'none';
+    bpmnMini.classList.remove('active');
+    insightCards.classList.remove('active');
+    exportRow.classList.remove('active');
+    recDot.className = 'rec-dot';
+    panelStream.innerHTML = '<div style="padding:20px 10px;text-align:center;color:#555;font-size:10px;">No active session<br/><span style="font-size:9px;">Press Start to capture events</span></div>';
+    document.getElementById('evtCount').textContent = '0';
+    btnGen.textContent = isInsights ? '📊 Insights' : '✦ Generate BPMN';
+    btnGen.className = 'ctrl-btn ' + (isInsights ? 'gen-insight' : 'gen-bpmn') + ' disabled';
+
+    switch (step.panel) {
+      case 'idle':
+        btnSS.textContent = '● Start';
+        btnSS.className = 'ctrl-btn start';
+        break;
+      case 'recording':
+        btnSS.textContent = '■ Stop';
+        btnSS.className = 'ctrl-btn stop';
+        recDot.classList.add('recording');
+        panelStream.innerHTML = '';
+        if (step.events) {
+          step.events.forEach((ev, i) => { streamTimer = setTimeout(() => addEvent(ev), i * 600 + 200); });
+          const enableDelay = step.events.length * 600 + 400;
+          streamTimer = setTimeout(() => { btnGen.classList.remove('disabled'); }, enableDelay);
+        }
+        break;
+      case 'generating':
+        btnSS.textContent = '● Start';
+        btnSS.className = 'ctrl-btn start';
+        const prevStep = STEPS[currentMode][currentStep - 1];
+        if (prevStep && prevStep.events) {
+          panelStream.innerHTML = '';
+          prevStep.events.forEach(ev => addEventImmediate(ev));
+          eventCount = prevStep.events.length;
+          document.getElementById('evtCount').textContent = eventCount;
+        }
+        panelStream.style.display = 'none';
+        aiOutput.classList.add('active');
+        aiThinking.style.display = 'flex';
+        document.getElementById('aiThinkingText').textContent = isInsights ? 'Detecting tracking gaps with Claude…' : 'Analysing session with Claude…';
+        autoTimer = setTimeout(() => nextStep(), 2200);
+        break;
+      case 'bpmn':
+        btnSS.textContent = '● Start';
+        btnSS.className = 'ctrl-btn start';
+        panelStream.style.display = 'none';
+        aiOutput.classList.add('active');
+        aiThinking.style.display = 'none';
+        bpmnMini.classList.add('active');
+        break;
+      case 'insights':
+        btnSS.textContent = '● Start';
+        btnSS.className = 'ctrl-btn start';
+        panelStream.style.display = 'none';
+        aiOutput.classList.add('active');
+        aiThinking.style.display = 'none';
+        insightCards.classList.add('active');
+        break;
+      case 'export':
+        btnSS.textContent = '● Start';
+        btnSS.className = 'ctrl-btn start';
+        panelStream.style.display = 'none';
+        aiOutput.classList.add('active');
+        aiThinking.style.display = 'none';
+        bpmnMini.classList.add('active');
+        exportRow.classList.add('active');
+        break;
+      case 'export-insights':
+        btnSS.textContent = '● Start';
+        btnSS.className = 'ctrl-btn start';
+        panelStream.style.display = 'none';
+        aiOutput.classList.add('active');
+        aiThinking.style.display = 'none';
+        insightCards.classList.add('active');
+        exportRow.classList.add('active');
+        exportRow.innerHTML = `<button class="exp-btn">⬇ .docx</button><button class="exp-btn jira">GTM ↗</button><button class="exp-btn" style="color:var(--green);border-color:rgba(107,184,154,0.4)">Tag Plan</button>`;
+        break;
+    }
+  }
+
+  function addEvent(ev) {
+    eventCount++;
+    document.getElementById('evtCount').textContent = eventCount;
+    const stream = document.getElementById('panelStream');
+    const row = buildEventRow(ev);
+    stream.appendChild(row);
+    stream.scrollTop = stream.scrollHeight;
+    spawnRipple();
+  }
+
+  function addEventImmediate(ev) {
+    const stream = document.getElementById('panelStream');
+    stream.appendChild(buildEventRow(ev));
+  }
+
+  function buildEventRow(ev) {
+    const row = document.createElement('div');
+    row.className = 'event-row';
+    row.innerHTML = `<span class="evt-badge ${ev.type}">${ev.type.toUpperCase()}</span><span class="evt-text">${ev.text}</span><span class="evt-time">${ev.t}</span>`;
+    return row;
+  }
+
+  function spawnRipple() {
+    const page = document.getElementById('browserPage');
+    const r = document.createElement('div');
+    r.className = 'click-ripple';
+    r.style.left = (20 + Math.random() * 60) + '%';
+    r.style.top  = (20 + Math.random() * 60) + '%';
+    page.appendChild(r);
+    setTimeout(() => r.remove(), 600);
+  }
+
+  function clearAllTimers() {
+    clearTimeout(streamTimer);
+    clearTimeout(autoTimer);
+  }
+
+  document.addEventListener('keydown', e => {
+    if (!document.getElementById('demoOverlay').classList.contains('active')) return;
+    if (e.key === 'ArrowRight') nextStep();
+    if (e.key === 'ArrowLeft')  prevStep();
+    if (e.key === 'Escape')     closeDemo();
+  });
 </script>
+<!-- ─────────────────────── DEMO MODAL ─────────────────────────────────── -->
+<div class="demo-overlay" id="demoOverlay">
+<div class="demo-modal">
+
+  <!-- Topbar -->
+  <div class="demo-topbar">
+    <div class="demo-logo">
+      <svg width="20" height="14" viewBox="0 0 80 56" fill="none">
+        <path d="M0 28 Q20 8 40 28 Q60 48 80 28" stroke="#6BB89A" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <path d="M0 20 Q20 0 40 20 Q60 40 80 20" stroke="#6BB89A" stroke-width="5" fill="none" stroke-linecap="round" opacity="0.55"/>
+        <path d="M0 36 Q20 16 40 36 Q60 56 80 36" stroke="#6BB89A" stroke-width="5" fill="none" stroke-linecap="round" opacity="0.3"/>
+      </svg>
+      Sevenda
+      <span class="demo-badge">v0.2.1</span>
+    </div>
+    <span class="demo-label">Interactive Demo</span>
+    <button class="demo-close" onclick="closeDemo()">✕</button>
+  </div>
+
+  <!-- Mode tabs -->
+  <div class="demo-tabs">
+    <button class="demo-tab bpmn active" onclick="switchMode('bpmn')">🧩 BPMN Mode</button>
+    <button class="demo-tab insights" onclick="switchMode('insights')">📊 Insights Mode</button>
+  </div>
+
+  <!-- Progress bar -->
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="progressBar" style="width:16.6%"></div>
+  </div>
+
+  <!-- Step caption -->
+  <div class="step-caption open" id="stepCaption">
+    <div class="step-caption-inner">
+      <div class="step-caption-num" id="captionNum">1</div>
+      <div>
+        <div class="step-caption-text" id="captionText">Open the Sevenda panel in Chrome DevTools</div>
+        <div class="step-caption-sub" id="captionSub">Navigate to a site and press F12 → Sevenda tab</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="demo-content">
+
+    <!-- Browser -->
+    <div class="browser-wrap">
+      <div class="browser-bar">
+        <div class="browser-dots">
+          <div class="browser-dot r"></div>
+          <div class="browser-dot y"></div>
+          <div class="browser-dot g"></div>
+        </div>
+        <div class="browser-url" id="browserUrl">https://shop.example.com</div>
+      </div>
+      <div class="browser-page" id="browserPage">
+
+        <!-- FAKE SITE: e-commerce -->
+        <div class="fake-site active" id="fakeSiteEcom">
+          <div class="fake-nav">
+            <span class="fake-nav-logo">ShopFlow</span>
+            <div class="fake-nav-links">
+              <span class="fake-nav-link">Products</span>
+              <span class="fake-nav-link">Pricing</span>
+              <span class="fake-nav-link">About</span>
+            </div>
+            <button class="fake-nav-btn" id="fakeBtnSignup">Sign up</button>
+          </div>
+          <div class="fake-body">
+            <div class="fake-hero">
+              <h1>Find your perfect plan</h1>
+              <p>Choose from Starter, Pro, or Enterprise — scale as you grow.</p>
+              <button class="fake-hero-cta" id="fakeBtnSeeMore">See all plans →</button>
+            </div>
+            <div class="fake-grid">
+              <div class="fake-card">
+                <h3>Starter</h3>
+                <p>For individuals and small teams</p>
+                <div class="fake-card-price">€ 0 / mo</div>
+              </div>
+              <div class="fake-card">
+                <h3>Pro</h3>
+                <p>For growing businesses</p>
+                <div class="fake-card-price">€ 29 / mo</div>
+              </div>
+            </div>
+            <div class="fake-form" id="fakeSignupForm" style="display:none">
+              <h3>Create your account</h3>
+              <input class="fake-input" placeholder="Email address" />
+              <input class="fake-input" placeholder="Password" type="password" />
+              <button class="fake-submit" id="fakeBtnSubmit">Get started →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- FAKE SITE: checkout -->
+        <div class="fake-site" id="fakeSiteCheckout">
+          <div class="fake-nav">
+            <span class="fake-nav-logo">ShopFlow</span>
+            <div class="fake-nav-links">
+              <span class="fake-nav-link">← Back</span>
+            </div>
+          </div>
+          <div class="fake-body">
+            <div class="fake-form">
+              <h3>Complete your order</h3>
+              <input class="fake-input" placeholder="Card number" />
+              <input class="fake-input" placeholder="Expiry date" />
+              <button class="fake-submit" id="fakeBtnPay">Pay now →</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Sevenda Panel -->
+    <div class="panel-wrap">
+      <div class="panel-toolbar">
+        <button class="panel-tab-btn active" id="tbLive">Live</button>
+        <button class="panel-tab-btn" id="tbSessions">Sessions</button>
+        <div class="panel-spacer"></div>
+        <div class="rec-dot" id="recDot"></div>
+      </div>
+
+      <div class="panel-controls">
+        <button class="ctrl-btn start" id="btnStartStop">● Start</button>
+        <button class="ctrl-btn gen-bpmn disabled" id="btnGenerate">✦ Generate BPMN</button>
+      </div>
+
+      <!-- Stream view -->
+      <div class="panel-stream" id="panelStream">
+        <div style="padding:20px 10px;text-align:center;color:#555;font-size:10px;">
+          No active session<br/>
+          <span style="font-size:9px;">Press Start to capture events</span>
+        </div>
+      </div>
+
+      <!-- AI output -->
+      <div class="ai-output" id="aiOutput">
+        <div class="ai-thinking" id="aiThinking">
+          <div class="ai-spinner" id="aiSpinner"></div>
+          <span id="aiThinkingText">Analysing session with Claude…</span>
+        </div>
+
+        <!-- BPMN mini SVG -->
+        <div class="bpmn-mini" id="bpmnMini">
+          <svg viewBox="0 0 280 110" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif">
+            <!-- Start -->
+            <circle cx="20" cy="55" r="12" fill="none" stroke="#6BB89A" stroke-width="2"/>
+            <!-- Arrow -->
+            <line x1="32" y1="55" x2="52" y2="55" stroke="#666" stroke-width="1.5" marker-end="url(#arr)"/>
+            <!-- Task 1: Landing -->
+            <rect x="52" y="38" width="60" height="34" rx="5" fill="none" stroke="#5b8dee" stroke-width="1.5"/>
+            <text x="82" y="53" text-anchor="middle" font-size="7" fill="#5b8dee" font-weight="600">Landing</text>
+            <text x="82" y="63" text-anchor="middle" font-size="6" fill="#888">Page View</text>
+            <!-- Arrow -->
+            <line x1="112" y1="55" x2="130" y2="55" stroke="#666" stroke-width="1.5" marker-end="url(#arr)"/>
+            <!-- Gateway -->
+            <polygon points="140,45 150,55 140,65 130,55" fill="none" stroke="#e8a838" stroke-width="1.5"/>
+            <!-- Arrow top -->
+            <line x1="150" y1="55" x2="165" y2="30" stroke="#666" stroke-width="1.5" marker-end="url(#arr)"/>
+            <!-- Arrow bottom -->
+            <line x1="150" y1="55" x2="165" y2="78" stroke="#666" stroke-width="1.5" marker-end="url(#arr)"/>
+            <!-- Task: Sign up -->
+            <rect x="165" y="16" width="56" height="28" rx="5" fill="none" stroke="#5b8dee" stroke-width="1.5"/>
+            <text x="193" y="29" text-anchor="middle" font-size="7" fill="#5b8dee" font-weight="600">Sign Up</text>
+            <text x="193" y="38" text-anchor="middle" font-size="6" fill="#888">Form Submit</text>
+            <!-- Task: Checkout -->
+            <rect x="165" y="64" width="56" height="28" rx="5" fill="none" stroke="#5b8dee" stroke-width="1.5"/>
+            <text x="193" y="77" text-anchor="middle" font-size="7" fill="#5b8dee" font-weight="600">Checkout</text>
+            <text x="193" y="86" text-anchor="middle" font-size="6" fill="#888">Payment</text>
+            <!-- Arrows to end -->
+            <line x1="221" y1="30" x2="248" y2="45" stroke="#666" stroke-width="1.5" marker-end="url(#arr)"/>
+            <line x1="221" y1="78" x2="248" y2="65" stroke="#666" stroke-width="1.5" marker-end="url(#arr)"/>
+            <!-- End -->
+            <circle cx="260" cy="55" r="12" fill="none" stroke="#e05555" stroke-width="3"/>
+            <circle cx="260" cy="55" r="7" fill="#e05555"/>
+            <!-- Arrowhead marker -->
+            <defs>
+              <marker id="arr" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+                <path d="M0,0 L6,3 L0,6 Z" fill="#666"/>
+              </marker>
+            </defs>
+          </svg>
+          <div style="font-size:9px;color:#888;margin-top:8px;text-align:center;">BPMN 2.0 · 4 tasks · 1 gateway · ready to export</div>
+        </div>
+
+        <!-- Insight cards -->
+        <div class="insight-cards" id="insightCards">
+          <div class="insight-card">
+            <div class="insight-card-head">
+              <span class="insight-card-icon">⚠️</span>
+              <span class="insight-card-title">Missing conversion event</span>
+              <span class="insight-card-badge badge-gap">GAP</span>
+            </div>
+            <p>The "Get started" CTA click on the hero is not tracked. Add a GTM trigger on <code style="font-size:8px;color:var(--text)">.fake-hero-cta</code> to capture funnel entry.</p>
+          </div>
+          <div class="insight-card">
+            <div class="insight-card-head">
+              <span class="insight-card-icon">✅</span>
+              <span class="insight-card-title">Page view firing correctly</span>
+              <span class="insight-card-badge badge-ok">OK</span>
+            </div>
+            <p>GA4 pageview fires on every navigation. 3 events captured — consistent with expected behaviour.</p>
+          </div>
+          <div class="insight-card">
+            <div class="insight-card-head">
+              <span class="insight-card-icon">🔍</span>
+              <span class="insight-card-title">Form submit not tagged</span>
+              <span class="insight-card-badge badge-warn">WARN</span>
+            </div>
+            <p>Signup form submit has no dataLayer push. Recommended: add <code style="font-size:8px;color:var(--text)">generate_lead</code> event on successful submission.</p>
+          </div>
+        </div>
+
+        <!-- Export row -->
+        <div class="export-row" id="exportRow">
+          <button class="exp-btn">⬇ BPMN</button>
+          <button class="exp-btn">⬇ SVG</button>
+          <button class="exp-btn">⬇ .docx</button>
+          <button class="exp-btn jira">Jira ↗</button>
+        </div>
+
+      </div>
+
+      <!-- Footer counter -->
+      <div class="panel-footer">
+        <span class="evt-count">Events: <span id="evtCount">0</span></span>
+        <span style="font-size:9px;color:#555" id="modeLabel">BPMN mode</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Step bar -->
+  <div class="step-bar">
+    <button class="step-nav" id="btnPrev" onclick="prevStep()" disabled>← Prev</button>
+    <div class="step-dots" id="stepDots"></div>
+    <span class="step-label" id="stepLabel">1 / 6</span>
+    <button class="step-nav" id="btnNext" onclick="nextStep()">Next →</button>
+  </div>
+
+</div><!-- /demo-modal -->
+</div><!-- /demo-overlay -->
+
 </body>
 </html>
