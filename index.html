@@ -1376,11 +1376,37 @@
   align-items: center;
   gap: 6px;
   padding: 0 10px;
-  height: 36px;
+  min-height: 36px;
   border-bottom: 1px solid var(--border);
   background: var(--bg);
   flex-shrink: 0;
+  flex-wrap: wrap;
 }
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 5px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: opacity 0.12s;
+  font-family: var(--sans);
+  user-select: none;
+}
+.filter-chip:hover { opacity: 0.8; }
+
+.panel-btn {
+  transition: all 0.15s;
+  font-family: var(--sans);
+}
+
+.panel-btn.primary:hover { opacity: 0.9; }
+.panel-btn.ghost:hover { background: var(--surface); color: var(--text); }
+.panel-btn.danger:hover { opacity: 0.9; }
 .panel-tab-btn {
   font-size: 10px;
   font-weight: 600;
@@ -3311,16 +3337,48 @@
 
     <!-- Sevenda Panel -->
     <div class="panel-wrap">
-      <div class="panel-toolbar">
-        <button class="panel-tab-btn active" id="tbLive">Live</button>
-        <button class="panel-tab-btn" id="tbSessions">Sessions</button>
+      <!-- Real panel toolbar from panel.html -->
+      <div style="display:flex;align-items:center;gap:8px;padding:9px 10px;background:var(--bg);border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap;">
+        <button class="panel-btn primary" id="tbStart" style="background:var(--green);color:#fff;border:none;padding:6px 10px;border-radius:3px;font-size:10px;font-weight:600;cursor:pointer;">● Start Recording</button>
+        <button class="panel-btn danger" id="tbStop" style="background:var(--red);color:#fff;border:none;padding:6px 10px;border-radius:3px;font-size:10px;font-weight:600;cursor:pointer;opacity:0.35;pointer-events:none;">Stop</button>
+        <div style="width:1px;height:18px;background:var(--border);margin:0 2px;flex-shrink:0;"></div>
+        <button class="panel-btn ghost" id="tbClear" style="background:transparent;border:1px solid var(--border);padding:4px 8px;border-radius:3px;font-size:10px;font-weight:600;cursor:pointer;color:var(--muted);">✕ Clear</button>
+        <div style="width:1px;height:18px;background:var(--border);margin:0 2px;flex-shrink:0;"></div>
+        <button class="panel-tab-btn active" id="tbLive" style="margin:0;">Live</button>
+        <button class="panel-tab-btn" id="tbSessions" style="margin:0;">Sessions</button>
         <div class="panel-spacer"></div>
-        <div class="rec-dot" id="recDot"></div>
+        <div style="font-size:9px;color:var(--dim);font-family:var(--mono);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" id="sessionInfo">—</div>
+        <div class="rec-dot" id="recDot" style="margin-left:8px;"></div>
       </div>
 
-      <div class="panel-controls">
-        <button class="ctrl-btn start" id="btnStartStop">● Start</button>
-        <button class="ctrl-btn gen-bpmn disabled" id="btnGenerate">✦ Generate BPMN</button>
+      <!-- Context bar from panel.html -->
+      <div style="padding:12px 10px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;display:flex;gap:10px;align-items:flex-end;">
+        <div style="flex:1;">
+          <div style="font-size:9px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--dim);margin-bottom:6px;">Session context</div>
+          <textarea style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:3px;color:var(--text);font-family:var(--sans);font-size:10px;padding:6px 8px;outline:none;resize:none;line-height:1.5;height:48px;" id="contextInput" placeholder="Describe what you are testing…"></textarea>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+          <span style="font-size:10px;color:var(--muted);font-weight:500;white-space:nowrap;">Generate</span>
+          <span style="font-size:11px;color:var(--dim);">→</span>
+          <button class="ctrl-btn gen-bpmn disabled" id="btnGenerate" style="padding:0 12px;height:48px;border-radius:3px;">BPMN</button>
+          <button class="ctrl-btn gen-insight disabled" id="btnGenerateInsight" style="padding:0 12px;height:48px;border-radius:3px;background:#7c3aed;color:#fff;border:none;">📊 Insights</button>
+        </div>
+      </div>
+
+      <!-- Log header with accent bar -->
+      <div style="padding:8px 10px;font-size:9px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--dim);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-shrink:0;background:var(--surface);">
+        <div style="width:2px;height:12px;background:var(--green);border-radius:1px;opacity:0.4;flex-shrink:0;"></div>
+        <span>Event Stream</span>
+        <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--dim);font-size:9px;margin-left:2px;">— real time</span>
+      </div>
+
+      <!-- Filter bar -->
+      <div style="display:flex;align-items:center;gap:6px;padding:8px 10px;background:var(--bg);border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap;">
+        <button class="filter-chip" style="background:rgba(91,141,238,0.12);color:#5b8dee;border:1px solid rgba(91,141,238,0.2);">NAV</button>
+        <button class="filter-chip" style="background:rgba(107,184,154,0.12);color:var(--green);border:1px solid rgba(107,184,154,0.2);">UI</button>
+        <button class="filter-chip" style="background:rgba(232,168,56,0.12);color:var(--amber);border:1px solid rgba(232,168,56,0.2);">NET</button>
+        <button class="filter-chip" style="background:rgba(224,85,85,0.12);color:var(--red);border:1px solid rgba(224,85,85,0.2);">ERR</button>
+        <button class="filter-chip" style="background:rgba(232,168,56,0.12);color:#888;border:1px solid rgba(255,255,255,0.08);">DOM</button>
       </div>
 
       <!-- Stream view -->
