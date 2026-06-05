@@ -3037,7 +3037,8 @@
     const insightCards= document.getElementById('insightCards');
     const exportRow   = document.getElementById('exportRow');
     const recDot      = document.getElementById('recDot');
-    const btnSS       = document.getElementById('btnStartStop');
+    const tbStart     = document.getElementById('tbStart');
+    const tbStop      = document.getElementById('tbStop');
     const btnGen      = document.getElementById('btnGenerate');
 
     panelStream.style.display = 'flex';
@@ -3056,8 +3057,9 @@
 
     switch (step.panel) {
       case 'problem':
-        btnSS.textContent = '● Start';
-        btnSS.className = 'ctrl-btn start';
+        tbStart.textContent = '● Start Recording';
+        tbStop.style.opacity = '0.35';
+        tbStop.style.pointerEvents = 'none';
         const problemContainer = document.getElementById('problemContainer');
         const problemIcon = document.getElementById('problemIcon');
         const problemTitle = document.getElementById('problemTitle');
@@ -3074,12 +3076,15 @@
         }
         break;
       case 'idle':
-        btnSS.textContent = '● Start';
-        btnSS.className = 'ctrl-btn start';
+        tbStart.textContent = '● Start Recording';
+        tbStop.style.opacity = '0.35';
+        tbStop.style.pointerEvents = 'none';
         break;
       case 'recording':
-        btnSS.textContent = '■ Stop';
-        btnSS.className = 'ctrl-btn stop';
+        tbStart.textContent = '● Recording…';
+        tbStart.style.opacity = '0.35';
+        tbStop.style.opacity = '1';
+        tbStop.style.pointerEvents = 'auto';
         recDot.classList.add('recording');
         panelStream.innerHTML = '';
         if (step.events) {
@@ -3089,8 +3094,10 @@
         }
         break;
       case 'generating':
-        btnSS.textContent = '● Start';
-        btnSS.className = 'ctrl-btn start';
+        tbStart.textContent = '● Start Recording';
+        tbStart.style.opacity = '1';
+        tbStop.style.opacity = '0.35';
+        tbStop.style.pointerEvents = 'none';
         const prevStep = STEPS[currentMode][currentStep - 1];
         if (prevStep && prevStep.events) {
           panelStream.innerHTML = '';
@@ -3114,8 +3121,10 @@
         }, 100);
         break;
       case 'bpmn':
-        btnSS.textContent = '● Start';
-        btnSS.className = 'ctrl-btn start';
+        tbStart.textContent = '● Start Recording';
+        tbStart.style.opacity = '1';
+        tbStop.style.opacity = '0.35';
+        tbStop.style.pointerEvents = 'none';
         panelStream.style.display = 'none';
         aiOutput.classList.add('active');
         aiThinking.style.display = 'none';
@@ -3124,16 +3133,20 @@
         setTimeout(() => bpmnMini.classList.add('animated'), 10);
         break;
       case 'insights':
-        btnSS.textContent = '● Start';
-        btnSS.className = 'ctrl-btn start';
+        tbStart.textContent = '● Start Recording';
+        tbStart.style.opacity = '1';
+        tbStop.style.opacity = '0.35';
+        tbStop.style.pointerEvents = 'none';
         panelStream.style.display = 'none';
         aiOutput.classList.add('active');
         aiThinking.style.display = 'none';
         insightCards.classList.add('active');
         break;
       case 'export':
-        btnSS.textContent = '● Start';
-        btnSS.className = 'ctrl-btn start';
+        tbStart.textContent = '● Start Recording';
+        tbStart.style.opacity = '1';
+        tbStop.style.opacity = '0.35';
+        tbStop.style.pointerEvents = 'none';
         panelStream.style.display = 'none';
         aiOutput.classList.add('active');
         aiThinking.style.display = 'none';
@@ -3141,8 +3154,10 @@
         exportRow.classList.add('active');
         break;
       case 'export-insights':
-        btnSS.textContent = '● Start';
-        btnSS.className = 'ctrl-btn start';
+        tbStart.textContent = '● Start Recording';
+        tbStart.style.opacity = '1';
+        tbStop.style.opacity = '0.35';
+        tbStop.style.pointerEvents = 'none';
         panelStream.style.display = 'none';
         aiOutput.classList.add('active');
         aiThinking.style.display = 'none';
@@ -3151,8 +3166,10 @@
         exportRow.innerHTML = `<button class="exp-btn">⬇ .docx</button><button class="exp-btn jira">GTM ↗</button><button class="exp-btn" style="color:var(--green);border-color:rgba(107,184,154,0.4)">Tag Plan</button>`;
         break;
       case 'cta-final':
-        btnSS.textContent = '● Start';
-        btnSS.className = 'ctrl-btn start';
+        tbStart.textContent = '● Start Recording';
+        tbStart.style.opacity = '1';
+        tbStop.style.opacity = '0.35';
+        tbStop.style.pointerEvents = 'none';
         panelStream.style.display = 'none';
         aiOutput.classList.add('active');
         aiThinking.style.display = 'none';
