@@ -1200,175 +1200,16 @@
   overflow: hidden;
 }
 
-/* ── BROWSER CHROME (left side) ───────────────────────────────────────── */
-.browser-wrap {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  border-right: 1px solid var(--border);
-  min-width: 0;
-}
-.browser-bar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  background: #1a1a1a;
-  border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
-}
-.browser-dots { display: flex; gap: 5px; }
-.browser-dot {
-  width: 10px; height: 10px; border-radius: 50%;
-}
-.browser-dot.r { background: #ff5f57; }
-.browser-dot.y { background: #febc2e; }
-.browser-dot.g { background: #28c840; }
-.browser-url {
-  flex: 1;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 4px 10px;
-  font-size: 11px;
-  font-family: var(--mono);
-  color: var(--muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.browser-page {
-  flex: 1;
-  position: relative;
-  overflow: hidden;
-  background: #f5f5f5;
-}
+/* Browser and fake site CSS removed — demo now shows panel only */
 
-/* ── FAKE WEBSITE CONTENT ─────────────────────────────────────────────── */
-.fake-site {
-  width: 100%;
-  height: 100%;
-  display: none;
-  flex-direction: column;
-  font-family: 'Inter', sans-serif;
-}
-.fake-site.active { display: flex; }
-.fake-nav {
-  background: #fff;
-  border-bottom: 1px solid #e5e7eb;
-  padding: 12px 20px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex-shrink: 0;
-}
-.fake-nav-logo {
-  font-weight: 700;
-  font-size: 16px;
-  color: #111;
-}
-.fake-nav-links { display: flex; gap: 16px; }
-.fake-nav-link { font-size: 12px; color: #6b7280; cursor: pointer; }
-.fake-nav-btn {
-  margin-left: auto;
-  background: #111;
-  color: #fff;
-  border: none;
-  padding: 6px 14px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-}
-.fake-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 20px;
-  background: #fafafa;
-}
-.fake-hero {
-  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
-  border-radius: 12px;
-  padding: 28px 24px;
-  margin-bottom: 20px;
-  color: white;
-}
-.fake-hero h1 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
-.fake-hero p { font-size: 13px; opacity: 0.85; }
-.fake-hero-cta {
-  margin-top: 16px;
-  background: white;
-  color: #1e40af;
-  border: none;
-  padding: 8px 18px;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-}
-.fake-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.fake-card {
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 14px;
-}
-.fake-card h3 { font-size: 13px; font-weight: 600; color: #111; margin-bottom: 4px; }
-.fake-card p  { font-size: 11px; color: #6b7280; }
-.fake-card-price { font-size: 18px; font-weight: 700; color: #1e40af; margin-top: 8px; }
-.fake-form {
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 20px;
-  margin-top: 12px;
-}
-.fake-form h3 { font-size: 14px; font-weight: 600; color: #111; margin-bottom: 14px; }
-.fake-input {
-  width: 100%;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  padding: 8px 10px;
-  font-size: 12px;
-  margin-bottom: 10px;
-  background: #fff;
-  color: #111;
-}
-.fake-submit {
-  background: #1e40af;
-  color: white;
-  border: none;
-  padding: 8px 20px;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  width: 100%;
-}
-
-/* ── CLICK RIPPLE ─────────────────────────────────────────────────────── */
-.click-ripple {
-  position: absolute;
-  pointer-events: none;
-  border-radius: 50%;
-  background: rgba(107, 184, 154, 0.35);
-  width: 30px;
-  height: 30px;
-  transform: translate(-50%,-50%) scale(0);
-  animation: demoRipple 0.5s ease-out forwards;
-}
-@keyframes demoRipple {
-  to { transform: translate(-50%,-50%) scale(2.5); opacity:0; }
-}
-
-/* ── SEVENDA PANEL (right side) ───────────────────────────────────────── */
+/* ── SEVENDA PANEL (full width) ───────────────────────────────────────── */
 .panel-wrap {
-  width: 320px;
-  flex-shrink: 0;
+  flex: 1;
   display: flex;
   flex-direction: column;
   background: var(--surface);
   font-size: 11px;
+  min-width: 0;
 }
 
 .panel-toolbar {
@@ -3019,12 +2860,6 @@
     document.getElementById('btnNext').disabled = currentStep === total - 1;
     document.getElementById('stepLabel').textContent = `${currentStep + 1} / ${total}`;
     buildDots();
-    document.getElementById('browserUrl').textContent = step.url;
-    document.querySelectorAll('.fake-site').forEach(s => s.classList.remove('active'));
-    const siteEl = document.getElementById(step.site === 'checkout' ? 'fakeSiteCheckout' : 'fakeSiteEcom');
-    siteEl.classList.add('active');
-    const form = document.getElementById('fakeSignupForm');
-    form.style.display = (step.site !== 'checkout' && currentStep >= 2) ? 'block' : 'none';
     applyPanelState(step);
   }
 
@@ -3195,7 +3030,6 @@
     const row = buildEventRow(ev);
     stream.appendChild(row);
     stream.scrollTop = stream.scrollHeight;
-    spawnRipple();
   }
 
   function addEventImmediate(ev) {
@@ -3208,16 +3042,6 @@
     row.className = 'event-row';
     row.innerHTML = `<span class="evt-badge ${ev.type}">${ev.type.toUpperCase()}</span><span class="evt-text">${ev.text}</span><span class="evt-time">${ev.t}</span>`;
     return row;
-  }
-
-  function spawnRipple() {
-    const page = document.getElementById('browserPage');
-    const r = document.createElement('div');
-    r.className = 'click-ripple';
-    r.style.left = (20 + Math.random() * 60) + '%';
-    r.style.top  = (20 + Math.random() * 60) + '%';
-    page.appendChild(r);
-    setTimeout(() => r.remove(), 600);
   }
 
   function clearAllTimers() {
@@ -3281,78 +3105,7 @@
   <!-- Content -->
   <div class="demo-content">
 
-    <!-- Browser -->
-    <div class="browser-wrap">
-      <div class="browser-bar">
-        <div class="browser-dots">
-          <div class="browser-dot r"></div>
-          <div class="browser-dot y"></div>
-          <div class="browser-dot g"></div>
-        </div>
-        <div class="browser-url" id="browserUrl">https://shop.example.com</div>
-      </div>
-      <div class="browser-page" id="browserPage">
-
-        <!-- FAKE SITE: e-commerce -->
-        <div class="fake-site active" id="fakeSiteEcom">
-          <div class="fake-nav">
-            <span class="fake-nav-logo">ShopFlow</span>
-            <div class="fake-nav-links">
-              <span class="fake-nav-link">Products</span>
-              <span class="fake-nav-link">Pricing</span>
-              <span class="fake-nav-link">About</span>
-            </div>
-            <button class="fake-nav-btn" id="fakeBtnSignup">Sign up</button>
-          </div>
-          <div class="fake-body">
-            <div class="fake-hero">
-              <h1>Find your perfect plan</h1>
-              <p>Choose from Starter, Pro, or Enterprise — scale as you grow.</p>
-              <button class="fake-hero-cta" id="fakeBtnSeeMore">See all plans →</button>
-            </div>
-            <div class="fake-grid">
-              <div class="fake-card">
-                <h3>Starter</h3>
-                <p>For individuals and small teams</p>
-                <div class="fake-card-price">€ 0 / mo</div>
-              </div>
-              <div class="fake-card">
-                <h3>Pro</h3>
-                <p>For growing businesses</p>
-                <div class="fake-card-price">€ 29 / mo</div>
-              </div>
-            </div>
-            <div class="fake-form" id="fakeSignupForm" style="display:none">
-              <h3>Create your account</h3>
-              <input class="fake-input" placeholder="Email address" />
-              <input class="fake-input" placeholder="Password" type="password" />
-              <button class="fake-submit" id="fakeBtnSubmit">Get started →</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- FAKE SITE: checkout -->
-        <div class="fake-site" id="fakeSiteCheckout">
-          <div class="fake-nav">
-            <span class="fake-nav-logo">ShopFlow</span>
-            <div class="fake-nav-links">
-              <span class="fake-nav-link">← Back</span>
-            </div>
-          </div>
-          <div class="fake-body">
-            <div class="fake-form">
-              <h3>Complete your order</h3>
-              <input class="fake-input" placeholder="Card number" />
-              <input class="fake-input" placeholder="Expiry date" />
-              <button class="fake-submit" id="fakeBtnPay">Pay now →</button>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- Sevenda Panel -->
+    <!-- Sevenda Panel (full width) -->
     <div class="panel-wrap">
       <!-- Real panel toolbar from panel.html -->
       <div style="display:flex;align-items:center;gap:8px;padding:9px 10px;background:var(--bg);border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap;">
