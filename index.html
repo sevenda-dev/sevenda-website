@@ -1789,6 +1789,106 @@
   .browser-wrap { display: none; }
   .panel-wrap { width: 100%; }
 }
+
+  /* ── ROLE SELECTOR MODAL ──────────────────────────────────────────────── */
+  .role-selector-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.88);
+    backdrop-filter: blur(6px);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    animation: fadeIn 0.2s ease;
+  }
+  .role-selector-overlay:not(.hidden) { display: flex; }
+  .role-selector-overlay.hidden { display: none; }
+
+  .role-selector-modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    width: 100%;
+    max-width: 600px;
+    overflow: hidden;
+    box-shadow: 0 40px 120px rgba(0,0,0,0.8);
+    animation: slideUp 0.3s cubic-bezier(0.16,1,0.3,1);
+  }
+
+  @keyframes slideUp {
+    from { transform: translateY(20px); opacity:0 }
+    to   { transform: translateY(0);    opacity:1 }
+  }
+
+  .role-selector-content {
+    padding: 48px 32px;
+    text-align: center;
+  }
+
+  .role-selector-header h2 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--text);
+  }
+
+  .role-selector-header p {
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 40px;
+  }
+
+  .role-selector-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  @media (max-width: 640px) {
+    .role-selector-options { grid-template-columns: 1fr; }
+  }
+
+  .role-option {
+    background: var(--bg);
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 28px 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    text-align: center;
+  }
+
+  .role-option:hover {
+    border-color: #fff;
+    background: var(--surface);
+    transform: translateY(-4px);
+  }
+
+  .role-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .role-desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .role-cta {
+    font-size: 12px;
+    color: var(--text);
+    font-weight: 600;
+    margin-top: 8px;
+  }
+
   </style>
 </head>
 <body>
@@ -1865,7 +1965,7 @@
 
   <div class="hero-ctas">
     <a href="#" class="btn btn-primary" data-i18n="hero.cta1">Add to Chrome</a>
-    <a href="#" class="btn btn-ghost" data-i18n="hero.cta2" onclick="openDemo(); return false;">▶ Watch demo</a>
+    <a href="#" class="btn btn-ghost" onclick="openRoleSelector(); return false;">Choose your role →</a>
   </div>
 
   <!-- DevTools panel mockup -->
@@ -3056,6 +3156,23 @@
     if (e.key === 'ArrowLeft')  prevStep();
     if (e.key === 'Escape')     closeDemo();
   });
+
+  // ── ROLE SELECTOR ────────────────────────────────────────────────────
+  function openRoleSelector() {
+    document.getElementById('roleSelectorOverlay').classList.remove('hidden');
+  }
+
+  function selectRole(role) {
+    localStorage.setItem('sevendaUserRole', role);
+    window.location.href = role === 'bpmn' ? '/bpmn/' : '/insights/';
+  }
+
+  // Close selector on overlay click
+  document.getElementById('roleSelectorOverlay').addEventListener('click', e => {
+    if (e.target === e.currentTarget) {
+      e.currentTarget.classList.add('hidden');
+    }
+  });
 </script>
 <!-- ─────────────────────── DEMO MODAL ─────────────────────────────────── -->
 <div class="demo-overlay" id="demoOverlay">
@@ -3315,6 +3432,32 @@
 
 </div><!-- /demo-modal -->
 </div><!-- /demo-overlay -->
+
+<!-- ROLE SELECTOR MODAL -->
+<div class="role-selector-overlay hidden" id="roleSelectorOverlay">
+<div class="role-selector-modal">
+  <div class="role-selector-content">
+    <div class="role-selector-header">
+      <h2>What's your role?</h2>
+      <p>Choose to get personalized features for your workflow</p>
+    </div>
+
+    <div class="role-selector-options">
+      <button class="role-option" onclick="selectRole('bpmn')">
+        <div class="role-title">Process Expert</div>
+        <div class="role-desc">Business Analysts, QA Testers, Product Owners, Project Managers</div>
+        <div class="role-cta">I document & automate business processes →</div>
+      </button>
+
+      <button class="role-option" onclick="selectRole('insights')">
+        <div class="role-title">Digital Marketer</div>
+        <div class="role-desc">Growth Managers, Marketing Directors, Analytics Leads</div>
+        <div class="role-cta">I audit & optimize marketing tracking →</div>
+      </button>
+    </div>
+  </div>
+</div>
+</div><!-- /role-selector-overlay -->
 
 </body>
 </html>
