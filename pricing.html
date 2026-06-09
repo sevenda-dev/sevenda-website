@@ -3,1317 +3,1413 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Simple, transparent, scalable plans for analysts, teams, and organizations. Start for free.">
   <title>Pricing — Sevenda</title>
-  <script defer src="i18n.js"></script>
-  <meta name="description" content="Simple, transparent, and scalable plans for developers, teams, and organizations. Start for free.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=Geist+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
+    /* ─── DESIGN TOKENS ─────────────────────────────── */
     :root {
-      --bg:         #0d0d0d;
-      --surface:    #131313;
-      --elev:       #1c1c1c;
-      --surface-up: #1a1a1a;
-      --border:     rgba(255,255,255,0.07);
-      --border-hi:  rgba(255,255,255,0.13);
-      --border2:    rgba(255,255,255,0.10);
-      --white:      #ffffff;
-      --off:        #e8e8e6;
-      --text:       #e8e8e6;
-      --muted:      #6e6e6a;
-      --dim:        #3a3a36;
-      --green:      #6BB89A;
-      --blue:       #7aafd4;
-      --amber:      #c8a064;
-      --red:        #dc5858;
-      --sans:       'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
-      --mono:       'Geist Mono', 'Fira Code', monospace;
-      --max:        1120px;
-      --r:          6px;
+      --bg:           #0d0d0d;
+      --surface:      #111111;
+      --surface-2:    #191919;
+      --border:       #1e1e1e;
+      --border-2:     #2a2a2a;
+      --green:        #6BB89A;
+      --green-dim:    rgba(107,184,154,.09);
+      --green-glow:   rgba(107,184,154,.18);
+      --green-border: rgba(107,184,154,.28);
+      --blue:         #7EABD4;
+      --blue-dim:     rgba(126,171,212,.09);
+      --blue-border:  rgba(126,171,212,.28);
+      --purple:       #C49BD6;
+      --purple-dim:   rgba(196,155,214,.09);
+      --purple-border:rgba(196,155,214,.28);
+      --text:         #f0f0f0;
+      --text-2:       #8a8a8a;
+      --text-3:       #4a4a4a;
+      --font:         'Geist', -apple-system, sans-serif;
+      --mono:         'Geist Mono', 'Courier New', monospace;
+      --r:            12px;
+      --r-sm:         8px;
     }
 
-    html {
-      color-scheme: dark;
-      scroll-behavior: smooth;
-      width: 100%;
-      overflow-x: hidden;
-    }
-
-    body {
+    /* ─── RESET ─────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html  { scroll-behavior: smooth; }
+    body  {
+      font-family: var(--font);
       background: var(--bg);
       color: var(--text);
-      font-family: var(--sans);
+      line-height: 1.6;
       -webkit-font-smoothing: antialiased;
-      width: 100%;
       overflow-x: hidden;
-      min-height: 100vh;
     }
+    a       { color: inherit; text-decoration: none; }
+    button  { cursor: pointer; font-family: var(--font); border: none; outline: none; background: none; }
+    ul, ol  { list-style: none; }
 
-    body::before {
-      content: '';
-      position: fixed; inset: 0;
-      background-image:
-        linear-gradient(rgba(255,255,255,0.024) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.024) 1px, transparent 1px);
-      background-size: 44px 44px;
-      pointer-events: none; z-index: 0;
-    }
-
-    body::after {
-      content: '';
-      position: fixed; inset: 0;
-      background: radial-gradient(ellipse 100% 60% at 50% 0%, transparent 30%, rgba(13,13,13,0.7) 100%);
-      pointer-events: none; z-index: 0;
-    }
-
-    a { color: inherit; text-decoration: none; }
-
-    /* ── NAV ── */
-    nav {
-      position: sticky;
-      top: 0; z-index: 100;
-      height: 58px; padding: 0 28px;
+    /* ─── NAV ────────────────────────────────────────── */
+    .nav {
+      position: sticky; top: 0; z-index: 100;
       display: flex; align-items: center; justify-content: space-between;
-      border-bottom: 1px solid transparent;
-      transition: background .25s, border-color .25s, backdrop-filter .25s;
+      padding: 0 36px; height: 58px;
+      background: rgba(13,13,13,.92);
+      backdrop-filter: blur(14px) saturate(1.4);
+      border-bottom: 1px solid var(--border);
     }
-    nav.scrolled {
-      background: rgba(13,13,13,.88);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border-color: var(--border);
+    .nav-logo { font-size: 15px; font-weight: 600; letter-spacing: -.03em; }
+    .nav-logo em { font-style: normal; color: var(--green); }
+    .nav-links {
+      display: flex; gap: 28px;
+    }
+    .nav-links a {
+      font-size: 13px; color: var(--text-2); transition: color .18s;
+    }
+    .nav-links a:hover, .nav-links a[aria-current] { color: var(--text); }
+    .nav-right { display: flex; align-items: center; gap: 14px; }
+    .nav-lang  { display: flex; gap: 6px; }
+    .nav-lang span {
+      font-size: 11px; letter-spacing: .04em; color: var(--text-3);
+      cursor: pointer; transition: color .18s;
+    }
+    .nav-lang span:hover, .nav-lang span.on { color: var(--text-2); }
+    .btn-chrome {
+      font-size: 12px; font-weight: 500;
+      padding: 7px 16px; border-radius: 6px;
+      background: var(--green); color: #0c0c0c;
+      transition: opacity .2s;
+    }
+    .btn-chrome:hover { opacity: .82; }
+
+    /* ─── HERO ───────────────────────────────────────── */
+    .hero {
+      text-align: center;
+      padding: 88px 24px 60px;
+    }
+    .hero-eyebrow {
+      font-size: 10.5px; font-weight: 500; letter-spacing: .14em;
+      text-transform: uppercase; color: var(--green);
+      margin-bottom: 18px;
+    }
+    .hero h1 {
+      font-size: clamp(38px, 6.5vw, 68px);
+      font-weight: 600; letter-spacing: -.045em; line-height: 1.03;
+      margin-bottom: 18px;
+    }
+    .hero-sub {
+      font-size: 15.5px; color: var(--text-2);
+      max-width: 420px; margin: 0 auto;
+      line-height: 1.55;
     }
 
-    .nav-logo {
-      display: flex; align-items: center; gap: 9px;
-      font-weight: 600; font-size: 15px; letter-spacing: -.02em;
-    }
-    .logo-svg { width: 26px; height: 19px; flex-shrink: 0; }
-
-    .nav-links { display: flex; align-items: center; gap: 28px; list-style: none; }
-    .nav-links a { font-size: 14px; color: var(--muted); transition: color .15s; }
-    .nav-links a:hover, .nav-links a.active { color: var(--text); }
-
-    .btn {
-      display: inline-flex; align-items: center; gap: 6px;
-      font-family: var(--sans); font-weight: 500;
-      border-radius: var(--r); border: 1px solid transparent;
-      cursor: pointer; transition: all .15s; white-space: nowrap; line-height: 1;
-    }
-    .btn-primary {
-      background: #fff; color: #0d0d0d; border-color: #fff;
-      padding: 9px 17px; font-size: 14px;
-    }
-    .btn-primary:hover { background: #e0e0de; box-shadow: 0 0 0 3px rgba(255,255,255,.1); }
-
-    .nav-burger {
-      display: none; background: none; border: none; cursor: pointer;
-      padding: 6px; flex-direction: column; gap: 5px; z-index: 110;
-    }
-    .nav-burger span {
-      display: block; width: 22px; height: 1.5px;
-      background: var(--text); border-radius: 2px;
-      transition: transform .25s, opacity .25s;
-    }
-    .nav-burger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
-    .nav-burger.open span:nth-child(2) { opacity: 0; }
-    .nav-burger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
-
-    .nav-drawer {
-      display: none; position: fixed; inset: 0;
-      background: #0d0d0d; z-index: 100;
-      flex-direction: column; align-items: center; justify-content: center; gap: 36px;
-    }
-    .nav-drawer.open { display: flex; }
-    .nav-drawer a { font-size: 24px; font-weight: 600; color: #fff; text-decoration: none; letter-spacing: -.02em; }
-    .nav-drawer .drawer-cta {
-      margin-top: 8px; background: #fff; color: #000;
-      font-weight: 600; padding: 12px 28px; border-radius: 6px;
+    /* ─── CONTROLS ───────────────────────────────────── */
+    .controls {
+      max-width: 960px; margin: 0 auto;
+      padding: 0 24px 44px;
+      display: flex; flex-direction: column; align-items: center; gap: 14px;
     }
 
-    /* ── PAGE ── */
-    .page {
-      position: relative; z-index: 1;
-      max-width: var(--max);
-      margin: 0 auto;
-      padding: 120px 24px 80px;
+    /* Billing toggle */
+    .billing-row {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 12.5px; color: var(--text-2);
+    }
+    .tog {
+      position: relative; width: 42px; height: 23px;
+      background: var(--surface-2); border-radius: 12px;
+      border: 1px solid var(--border-2); cursor: pointer;
+      transition: background .22s;
+    }
+    .tog.on { background: var(--green); border-color: var(--green); }
+    .tog::after {
+      content: ''; position: absolute;
+      width: 17px; height: 17px; border-radius: 50%;
+      background: #fff; top: 2px; left: 2px;
+      transition: transform .22s;
+      box-shadow: 0 1px 3px rgba(0,0,0,.4);
+    }
+    .tog.on::after { transform: translateX(19px); }
+    .save-pill {
+      font-size: 10.5px; font-weight: 500;
+      padding: 2px 9px; border-radius: 20px;
+      background: var(--green-dim); color: var(--green);
+      border: 1px solid var(--green-border);
     }
 
-    /* ── PAGE HEADER ── */
-    .page-header { text-align: center; margin-bottom: 52px; }
-
-    .page-label {
-      font-family: var(--mono);
-      font-size: 11px; font-weight: 500;
-      color: var(--green); letter-spacing: 2px;
-      text-transform: uppercase;
-      margin-bottom: 16px;
+    /* Track toggle */
+    .track-row {
+      display: flex; gap: 3px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 3px;
     }
-
-    .page-title {
-      font-size: clamp(36px, 5vw, 48px);
-      font-weight: 800; color: var(--white);
-      line-height: 1.05; letter-spacing: -1px;
-      margin-bottom: 16px;
+    .track-btn {
+      font-size: 13px; font-weight: 500;
+      padding: 8px 22px; border-radius: 7px;
+      color: var(--text-2); transition: all .2s;
     }
-
-    .page-sub {
-      font-size: 16px; font-weight: 300;
-      color: var(--muted); line-height: 1.65;
+    .track-btn:hover { color: var(--text); }
+    .track-btn.on {
+      background: var(--surface-2);
+      border: 1px solid var(--border-2);
     }
+    .track-btn.on[data-track="process"]   { color: var(--green); }
+    .track-btn.on[data-track="analytics"] { color: var(--blue); }
+    .track-btn.on[data-track="suite"]     { color: var(--purple); }
 
-    /* ── BILLING TOGGLE ── */
-    .billing-wrap { display: flex; justify-content: center; margin-bottom: 48px; }
-
-    .billing-toggle {
-      display: inline-flex;
+    /* Seat selector */
+    .seat-row { display: flex; align-items: center; gap: 10px; }
+    .seat-label { font-size: 12px; color: var(--text-3); }
+    .seat-btns  { display: flex; gap: 3px; }
+    .seat-btn {
+      font-size: 12px; font-weight: 500;
+      padding: 5px 15px; border-radius: 6px;
+      color: var(--text-2);
+      border: 1px solid var(--border);
       background: var(--surface);
-      border: 1px solid var(--border2);
-      padding: 3px; gap: 2px;
+      transition: all .2s;
+    }
+    .seat-btn:hover { border-color: var(--border-2); color: var(--text); }
+    .seat-btn.on {
+      background: var(--surface-2);
+      border-color: var(--border-2);
+      color: var(--text);
     }
 
-    .billing-btn {
-      font-family: var(--mono);
-      font-size: 11px; font-weight: 500;
-      padding: 7px 16px;
-      background: transparent; border: none;
-      cursor: pointer; color: var(--muted);
-      transition: background .15s, color .15s;
-      display: flex; align-items: center; gap: 8px;
+    /* ─── PLAN CARDS ─────────────────────────────────── */
+    .cards-wrap {
+      max-width: 1100px; margin: 0 auto;
+      padding: 0 24px 52px;
     }
-    .billing-btn.active { background: var(--white); color: var(--bg); }
-
-    .billing-badge {
-      font-family: var(--mono);
-      font-size: 10px; color: var(--green);
-      background: rgba(107,184,154,0.12);
-      border: 1px solid rgba(107,184,154,0.25);
-      padding: 2px 7px; border-radius: 2px;
-    }
-
-    /* ── PLAN CARDS ── */
-    .plans-grid {
+    .cards-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-      margin-bottom: 80px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
       align-items: start;
     }
 
-    .plan-card {
-      background: var(--surface);
-      border: 1px solid var(--border2);
-      border-left: 3px solid var(--border2);
-      padding: 28px;
+    /* Base card */
+    .card {
       position: relative;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .plan-accent-muted { border-left-color: var(--muted); }
-    .plan-accent-blue  { border-left-color: var(--blue); }
-    .plan-accent-green {
-      border-color: var(--green);
-      border-left-color: var(--green);
-      border-left-width: 3px;
-    }
-    .plan-accent-amber { border-left-color: var(--amber); }
-
-    .plan-card-popular { padding-top: 42px; }
-
-    .plan-popular-badge {
-      position: absolute;
-      top: 0; left: -1px; right: -1px;
-      background: var(--green); color: var(--bg);
-      font-family: var(--mono);
-      font-size: 9px; font-weight: 600;
-      text-align: center; padding: 6px 0;
-      letter-spacing: 1.5px; text-transform: uppercase;
-    }
-
-    .plan-name {
-      font-size: 18px; font-weight: 700;
-      color: var(--white); margin-bottom: 4px;
-    }
-
-    .plan-tagline {
-      font-size: 12px; font-weight: 300;
-      color: var(--muted); margin-bottom: 24px; line-height: 1.4;
-    }
-
-    .plan-price-block { margin-bottom: 20px; }
-
-    .plan-price-row { display: flex; align-items: baseline; gap: 0; }
-
-    .plan-price-amount {
-      font-size: 36px; font-weight: 800;
-      color: var(--white); line-height: 1;
-    }
-    .plan-price-amount.contact-price {
-      font-size: 22px; font-weight: 700;
-    }
-
-    .plan-price-suffix {
-      font-family: var(--mono);
-      font-size: 12px; color: var(--muted); margin-left: 2px;
-    }
-
-    .plan-price-note {
-      font-family: var(--mono);
-      font-size: 10px; color: var(--muted); margin-top: 5px;
-    }
-
-    .plan-divider { height: 1px; background: var(--border); margin: 16px 0; }
-
-    .plan-limits {
-      display: flex; align-items: center;
-      gap: 6px; flex-wrap: wrap;
-      font-family: var(--mono);
-      font-size: 11px; color: var(--muted);
-    }
-    .plan-limits-sep { color: var(--dim); }
-
-    .plan-features-list {
-      list-style: none;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 28px 26px 26px;
       display: flex; flex-direction: column;
-      gap: 8px; flex: 1; margin-bottom: 20px;
+      transition: border-color .28s, opacity .28s, transform .24s;
+      overflow: hidden;
+    }
+    /* Top shimmer line */
+    .card::before {
+      content: ''; position: absolute;
+      top: 0; left: 0; right: 0; height: 1px;
+      opacity: 0; transition: opacity .3s;
     }
 
-    .plan-feature-item {
-      display: flex; align-items: flex-start;
-      gap: 8px; font-size: 12px; line-height: 1.5;
+    /* Featured state */
+    .card.feat-process  { border-color: var(--green-border);  background: linear-gradient(170deg, var(--green-dim) 0%, var(--surface) 55%); }
+    .card.feat-analytics{ border-color: var(--blue-border);   background: linear-gradient(170deg, var(--blue-dim)  0%, var(--surface) 55%); }
+    .card.feat-suite    { border-color: var(--purple-border);  background: linear-gradient(170deg, var(--purple-dim) 0%, var(--surface) 55%); }
+
+    .card.feat-process::before  { background: linear-gradient(90deg,transparent,var(--green),transparent); opacity:1; }
+    .card.feat-analytics::before{ background: linear-gradient(90deg,transparent,var(--blue),transparent);  opacity:1; }
+    .card.feat-suite::before    { background: linear-gradient(90deg,transparent,var(--purple),transparent); opacity:1; }
+
+    /* Enterprise dashed */
+    .card.ent  { border-style: dashed; border-color: var(--border-2); }
+    .card.feat-process.ent,
+    .card.feat-analytics.ent,
+    .card.feat-suite.ent { border-style: solid; }
+
+    /* Dimmed */
+    .card.dim { opacity: .38; pointer-events: none; }
+
+    /* Badge */
+    .card-badge {
+      position: absolute; top: 20px; right: 20px;
+      font-size: 9.5px; font-weight: 600; letter-spacing: .07em;
+      text-transform: uppercase;
+      padding: 3px 10px; border-radius: 20px;
+    }
+    .badge-pop  { background: var(--green-dim);  color: var(--green);  border: 1px solid var(--green-border); }
+    .badge-val  { background: var(--purple-dim); color: var(--purple); border: 1px solid var(--purple-border); }
+    .badge-ent  { background: var(--surface-2);  color: var(--text-3); border: 1px solid var(--border-2); }
+
+    /* Card anatomy */
+    .card-track {
+      font-size: 10px; font-weight: 500; letter-spacing: .11em;
+      text-transform: uppercase; color: var(--text-3);
+      margin-bottom: 7px;
+    }
+    .card-name {
+      font-size: 22px; font-weight: 600; letter-spacing: -.025em;
+      margin-bottom: 3px;
+    }
+    .card-tag  {
+      font-size: 12.5px; color: var(--text-2); margin-bottom: 22px;
     }
 
-    .feat-y { color: var(--green); flex-shrink: 0; }
-    .feat-n { color: var(--dim); flex-shrink: 0; }
-    .feat-included { color: var(--off); }
-    .feat-excluded { color: var(--dim); }
-
-    .plan-cta {
-      display: block; width: 100%;
-      padding: 10px; text-align: center;
-      font-family: var(--sans);
-      font-size: 13px; font-weight: 700;
-      border-radius: 2px; cursor: pointer;
-      transition: opacity .15s;
-      text-decoration: none;
-      border: 1px solid transparent;
-    }
-    .plan-cta:hover { opacity: 0.85; }
-
-    .cta-free       { background: transparent; color: var(--muted); border-color: var(--border2); }
-    .cta-solo       { background: var(--blue); color: var(--bg); }
-    .cta-team       { background: var(--green); color: var(--bg); }
-    .cta-enterprise { background: transparent; color: var(--amber); border-color: var(--amber); }
-
-    /* ── SECTION SHARED ── */
-    .section { margin-bottom: 80px; }
-
-    .section-head { margin-bottom: 36px; }
-    .section-head-center { text-align: center; }
-
-    .section-eyebrow {
-      font-family: var(--mono);
+    /* Pricing block */
+    .price-block { margin-bottom: 22px; }
+    .price-row   { display: flex; align-items: baseline; gap: 3px; }
+    .p-cur  { font-size: 15px; color: var(--text-2); line-height: 1; padding-bottom: 2px; }
+    .p-amt  { font-size: 42px; font-weight: 700; letter-spacing: -.045em; line-height: 1; }
+    .p-per  { font-size: 13px; color: var(--text-2); }
+    .p-sub  { font-size: 11px; color: var(--text-3); margin-top: 5px; }
+    .p-save {
+      display: inline-block; margin-top: 8px;
       font-size: 11px; font-weight: 500;
-      color: var(--green); letter-spacing: 2px;
-      text-transform: uppercase; margin-bottom: 10px;
+      padding: 2px 9px; border-radius: 20px;
+    }
+    .p-save.process-save  { background: var(--green-dim);  color: var(--green);  border: 1px solid var(--green-border); }
+    .p-save.suite-save    { background: var(--purple-dim); color: var(--purple); border: 1px solid var(--purple-border); }
+    .p-custom { font-size: 22px; font-weight: 600; color: var(--text-2); }
+
+    /* Bulk quantity counter */
+    .bulk-counter {
+      display: flex; align-items: center; gap: 8px; margin-top: 10px;
+      padding: 8px 12px; border-radius: 8px;
+      background: var(--surface-2); border: 1px solid var(--border-2);
+    }
+    .bulk-label {
+      font-size: 11px; color: var(--text-3); flex: 1;
+    }
+    .bulk-ctrl {
+      display: flex; align-items: center; gap: 6px;
+    }
+    .bulk-btn {
+      width: 22px; height: 22px;
+      border-radius: 4px; border: 1px solid var(--border);
+      background: var(--surface); color: var(--text-2);
+      font-size: 12px; font-weight: 600;
+      display: flex; align-items: center; justify-content: center;
+      transition: all .18s;
+      cursor: pointer;
+    }
+    .bulk-btn:hover {
+      background: var(--border); color: var(--text);
+    }
+    .bulk-value {
+      font-size: 12px; font-weight: 600; color: var(--text-2);
+      min-width: 20px; text-align: center;
     }
 
-    .section-title {
-      font-size: clamp(22px, 3.5vw, 32px);
-      font-weight: 700; color: var(--white);
-      letter-spacing: -0.03em; line-height: 1.15; margin-bottom: 10px;
-    }
+    /* Divider */
+    .card-div { height: 1px; background: var(--border); margin-bottom: 18px; }
 
-    .section-sub {
-      font-size: 14px; font-weight: 300;
-      color: var(--muted); line-height: 1.65;
+    /* Features list */
+    .card-feats  { flex: 1; margin-bottom: 22px; }
+    .card-feats li {
+      display: flex; gap: 9px; align-items: flex-start;
+      font-size: 13px; color: var(--text-2); padding: 4.5px 0;
     }
-
-    /* ── RATE LIMITS TABLE ── */
-    .rate-table-wrap {
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
+    .feat-icon {
+      width: 17px; height: 17px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 2px;
     }
+    .feat-icon svg { width: 8px; height: 8px; }
 
-    .rate-table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 560px;
-    }
+    /* Per-track colors */
+    .process-icon  { background: var(--green-dim);  border: 1px solid var(--green-border);  color: var(--green); }
+    .analytics-icon{ background: var(--blue-dim);   border: 1px solid var(--blue-border);   color: var(--blue);  }
+    .suite-icon    { background: var(--purple-dim);  border: 1px solid var(--purple-border); color: var(--purple);}
+    .ent-icon      { background: var(--surface-2);   border: 1px solid var(--border-2);      color: var(--text-3);}
 
-    .rate-table thead tr {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border2);
-    }
-
-    .rate-table th {
-      font-family: var(--mono);
-      font-size: 10px; font-weight: 500;
-      text-transform: uppercase; letter-spacing: 1.5px;
-      padding: 14px 16px; text-align: center;
-    }
-    .rate-table th:first-child { text-align: left; color: var(--muted); }
-    .th-free       { color: var(--muted); }
-    .th-solo       { color: var(--blue); }
-    .th-team       { color: var(--green); }
-    .th-enterprise { color: var(--amber); }
-
-    .rate-table tbody tr:nth-child(odd)  { background: var(--bg); }
-    .rate-table tbody tr:nth-child(even) { background: var(--surface); }
-    .rate-table tbody tr { border-bottom: 1px solid var(--border); }
-
-    .rate-table td {
-      padding: 14px 16px;
-      font-family: var(--mono);
-      font-size: 12px; color: var(--muted); text-align: center;
-    }
-    .rate-table td:first-child {
-      font-family: var(--sans);
+    /* CTA */
+    .card-cta {
+      display: block; text-align: center;
       font-size: 13px; font-weight: 500;
-      color: var(--off); text-align: left;
+      padding: 10.5px 20px; border-radius: var(--r-sm);
+      transition: all .2s;
     }
-    .td-dash { color: var(--dim); }
-
-    /* ── ADD-ONS ── */
-    .addons-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
+    .cta-primary-process  { background: var(--green);  color: #0c0c0c; }
+    .cta-primary-analytics{ background: var(--blue);   color: #0c0c0c; }
+    .cta-primary-suite    { background: var(--purple);  color: #0c0c0c; }
+    .cta-primary-process:hover,
+    .cta-primary-analytics:hover,
+    .cta-primary-suite:hover  { opacity: .82; }
+    .cta-secondary {
+      border: 1px solid var(--border-2); color: var(--text-2);
     }
-
-    .addon-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      padding: 24px;
+    .cta-secondary:hover { border-color: var(--text-3); color: var(--text); }
+    .cta-ghost {
+      border: 1px dashed var(--border-2); color: var(--text-3);
     }
+    .cta-ghost:hover { color: var(--text-2); border-color: var(--text-3); }
 
-    .addon-icon { font-size: 28px; display: block; margin-bottom: 10px; line-height: 1; }
-    .addon-name { font-size: 15px; font-weight: 700; color: var(--white); margin-bottom: 6px; }
-    .addon-desc { font-size: 12px; font-weight: 300; color: var(--muted); margin-bottom: 12px; line-height: 1.6; }
-
-    .addon-tier {
-      display: flex; justify-content: space-between; align-items: center;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      padding: 9px 14px; margin-top: 6px;
-    }
-    .addon-tier-label { font-family: var(--mono); font-size: 12px; color: var(--muted); }
-    .addon-tier-price { font-size: 15px; font-weight: 700; color: var(--white); }
-
-    /* ── BETA CALLOUT ── */
-    .beta-callout {
-      display: flex;
-      justify-content: space-between; align-items: center;
-      gap: 32px; flex-wrap: wrap;
-      background: var(--surface);
-      border: 1px solid rgba(107,184,154,0.2);
-      border-left: 4px solid var(--green);
-      padding: 36px 40px;
-      margin-bottom: 80px;
-    }
-
-    .beta-left { max-width: 560px; }
-
-    .beta-eyebrow {
-      font-family: var(--mono);
-      font-size: 10px; font-weight: 500;
-      color: var(--green); letter-spacing: 2px;
-      text-transform: uppercase; margin-bottom: 10px;
-    }
-
-    .beta-title {
-      font-size: 22px; font-weight: 800;
-      color: var(--white); margin-bottom: 10px;
-      letter-spacing: -0.02em; line-height: 1.2;
-    }
-
-    .beta-desc {
-      font-size: 14px; font-weight: 300;
-      color: var(--muted); line-height: 1.65;
-      max-width: 480px;
-    }
-
-    .beta-btn {
-      display: inline-block;
-      background: var(--green); color: var(--bg);
-      font-family: var(--sans);
-      font-size: 14px; font-weight: 700;
-      padding: 12px 26px; border-radius: 2px;
-      text-decoration: none; white-space: nowrap;
-      transition: opacity .15s; flex-shrink: 0;
-    }
-    .beta-btn:hover { opacity: 0.85; }
-
-    /* ── FAQ ── */
-    .faq-section {
-      max-width: 720px; margin: 0 auto 80px;
-      text-align: left;
-    }
-
-    .faq-list { margin-top: 36px; }
-
-    .faq-item { border-bottom: 1px solid var(--border); }
-    .faq-item:first-child { border-top: 1px solid var(--border); }
-
-    .faq-q {
-      width: 100%; background: none; border: none;
-      display: flex; align-items: flex-start; justify-content: space-between;
-      gap: 16px; padding: 18px 0;
-      cursor: pointer; text-align: left;
-    }
-
-    .faq-q-text {
-      font-size: 15px; font-weight: 600;
-      color: var(--white); line-height: 1.45;
-      transition: color .15s;
-    }
-    .faq-item:hover .faq-q-text { color: var(--green); }
-    .faq-item.open  .faq-q-text { color: var(--green); }
-
-    .faq-icon {
-      font-family: var(--mono); font-size: 18px;
-      color: var(--green); flex-shrink: 0; margin-top: 1px;
-      transition: transform .25s ease; line-height: 1;
-    }
-    .faq-item.open .faq-icon { transform: rotate(45deg); }
-
-    .faq-a {
-      max-height: 0; overflow: hidden;
-      transition: max-height .35s ease, padding .25s ease;
-    }
-    .faq-item.open .faq-a { max-height: 400px; padding-bottom: 18px; }
-
-    .faq-a-inner {
-      font-size: 14px; font-weight: 300;
-      color: var(--muted); line-height: 1.7;
-    }
-    .faq-a-inner a { color: var(--green); }
-
-    /* ── FOOTER ── */
-    footer {
-      position: relative; z-index: 1;
-      border-top: 1px solid var(--border);
-      padding: 28px 40px;
-      display: flex; align-items: center; justify-content: space-between;
-      flex-wrap: wrap; gap: 12px;
-    }
-    .footer-left { display: flex; align-items: center; gap: 8px; }
-    .footer-logo-text { font-size: 13px; font-weight: 600; color: var(--white); }
-    .footer-links { display: flex; gap: 20px; }
-    .footer-links a { font-size: 12px; color: var(--muted); text-decoration: none; transition: color .15s; }
-    .footer-links a:hover { color: var(--white); }
-    .footer-copy { font-family: var(--mono); font-size: 11px; color: var(--dim); }
-
-    /* ── REVEAL ── */
-    .reveal {
-      opacity: 0; transform: translateY(18px);
-      transition: opacity .55s ease, transform .55s ease;
-    }
-    .reveal.vis { opacity: 1; transform: translateY(0); }
-
-    /* ── RESPONSIVE ── */
-    @media (max-width: 1024px) {
-      .plans-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-
-    @media (max-width: 768px) {
-      .nav-links, nav > .btn { display: none; }
-      .nav-burger { display: flex; }
-      footer { padding: 24px 20px; flex-direction: column; text-align: center; }
-      .footer-links { justify-content: center; flex-wrap: wrap; }
-    }
-
-    @media (max-width: 640px) {
-      .page { padding: 100px 20px 60px; }
-      .plans-grid { grid-template-columns: 1fr; }
-      .plan-card-popular { order: -1; }
-      .addons-grid { grid-template-columns: 1fr; }
-      .beta-callout { flex-direction: column; padding: 28px 24px; }
-      .beta-btn { width: 100%; text-align: center; }
-      .faq-section { margin-bottom: 60px; }
-    }
-
-    /* ── STRIPE CHECKOUT ── */
-    .stripe-notice {
-      margin-top: 8px;
-      padding: 8px 12px;
-      background: rgba(107,184,154,0.08);
-      border: 1px solid rgba(107,184,154,0.2);
-      color: var(--green);
-      font-family: var(--mono);
-      font-size: 11px;
-      line-height: 1.5;
-      text-align: center;
-      animation: fadeIn 0.2s ease;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-4px); }
+    /* card entry animation */
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(10px); }
       to   { opacity: 1; transform: translateY(0); }
     }
+    .card { animation: cardIn .3s ease both; }
 
-    /* ── ENTERPRISE CONTACT FORM ── */
-    .enterprise-form {
-      display: none;
-      background: var(--surface);
-      border: 1px solid var(--border2);
-      border-left: 3px solid var(--amber);
-      padding: 24px;
-      margin-top: 16px;
+    /* ─── FREE BANNER ────────────────────────────────── */
+    .free-wrap { max-width: 1100px; margin: 0 auto 52px; padding: 0 24px; }
+    .free-banner {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r-sm); padding: 16px 22px;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      flex-wrap: wrap;
     }
-    .ent-form-row { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
-    .ent-label {
-      font-family: var(--mono);
-      font-size: 9px; font-weight: 500;
-      color: var(--muted);
-      text-transform: uppercase; letter-spacing: 1px;
+    .free-left { font-size: 13px; color: var(--text-2); }
+    .free-left strong { color: var(--text); }
+    .free-pills {
+      display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px;
     }
-    .ent-input, .ent-select, .ent-textarea {
-      background: var(--bg);
-      border: 1px solid var(--border2);
-      color: var(--white);
-      font-family: var(--sans);
-      font-size: 13px;
-      padding: 9px 12px;
-      width: 100%;
-      outline: none;
-      border-radius: 0;
-      -webkit-appearance: none;
+    .free-pill {
+      font-size: 11px; font-family: var(--mono);
+      padding: 2px 9px; border-radius: 20px;
+      background: var(--surface-2); border: 1px solid var(--border-2);
+      color: var(--text-3);
     }
-    .ent-input:focus, .ent-select:focus, .ent-textarea:focus { border-color: var(--amber); }
-    .ent-select option { background: var(--bg); }
-    .ent-textarea { height: 80px; resize: vertical; }
-    .ent-submit {
-      background: var(--amber); color: var(--bg);
-      font-family: var(--sans);
-      font-size: 13px; font-weight: 700;
-      width: 100%; padding: 10px;
-      border: none; cursor: pointer;
-      transition: opacity .15s;
+    .free-cta {
+      font-size: 13px; font-weight: 500;
+      padding: 8px 18px; border-radius: var(--r-sm);
+      border: 1px solid var(--border-2); color: var(--text-2);
+      white-space: nowrap; transition: all .2s;
     }
-    .ent-submit:hover { opacity: 0.85; }
+    .free-cta:hover { border-color: var(--text-3); color: var(--text); }
 
-    /* ── ADDON BUY BUTTON ── */
-    .addon-buy-btn {
-      font-family: var(--mono);
-      font-size: 10px;
+    /* ─── SECTION SHARED ─────────────────────────────── */
+    .section {
+      max-width: 1100px; margin: 0 auto;
+      padding: 0 24px 68px;
+    }
+    .s-eye {
+      font-size: 10px; font-weight: 500; letter-spacing: .13em;
+      text-transform: uppercase; color: var(--green);
+      margin-bottom: 8px;
+    }
+    .s-title {
+      font-size: 26px; font-weight: 600; letter-spacing: -.03em;
+      margin-bottom: 6px;
+    }
+    .s-sub {
+      font-size: 13.5px; color: var(--text-2); margin-bottom: 30px;
+    }
+
+    /* ─── ADD-ONS ─────────────────────────────────────── */
+    .addons-grid {
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 14px;
+    }
+    .ao-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 22px;
+    }
+    .ao-icon { font-size: 22px; margin-bottom: 10px; }
+    .ao-name { font-size: 13.5px; font-weight: 600; margin-bottom: 3px; }
+    .ao-desc { font-size: 12px; color: var(--text-2); margin-bottom: 14px; }
+    .ao-rows { display: flex; flex-direction: column; gap: 7px; }
+    .ao-row  {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 7px 11px; border-radius: 7px;
+      background: var(--surface-2); border: 1px solid var(--border);
+      font-size: 12px;
+    }
+    .ao-label { color: var(--text-2); }
+    .ao-price { font-family: var(--mono); font-weight: 500; }
+    .ao-buy   { font-size: 10.5px; color: var(--green); margin-left: 8px; opacity: .65; cursor: pointer; transition: opacity .18s; }
+    .ao-buy:hover { opacity: 1; }
+
+    /* ─── FEATURE MATRIX ─────────────────────────────── */
+    .matrix-wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px 68px; }
+    .matrix-tabs {
+      display: flex; gap: 3px; margin-bottom: 22px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r-sm); padding: 3px; width: fit-content;
+    }
+    .m-tab {
+      font-size: 12px; font-weight: 500;
+      padding: 6px 17px; border-radius: 6px;
+      color: var(--text-2); transition: all .2s;
+    }
+    .m-tab:hover { color: var(--text); }
+    .m-tab.on {
+      background: var(--surface-2);
+      border: 1px solid var(--border-2);
+      color: var(--text);
+    }
+    .m-tab.on[data-mtab="process"]   { color: var(--green); }
+    .m-tab.on[data-mtab="analytics"] { color: var(--blue);  }
+    .m-tab.on[data-mtab="suite"]     { color: var(--purple);}
+
+    .m-table { width: 100%; border-collapse: collapse; display: none; }
+    .m-table.on { display: table; }
+
+    .m-table th {
+      font-size: 11.5px; font-weight: 600;
+      padding: 11px 14px; text-align: left;
+      color: var(--text-2);
+      border-bottom: 1px solid var(--border);
+    }
+    .m-table th:first-child { width: 36%; }
+    .m-table td {
+      font-size: 12.5px; padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-2); vertical-align: middle;
+    }
+    .m-table tr:last-child td { border-bottom: none; }
+    .m-table td:first-child { color: var(--text); font-weight: 450; }
+
+    .m-sect td {
+      font-size: 9.5px; font-weight: 600; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--text-3);
+      padding: 18px 14px 7px;
+      background: transparent !important;
+    }
+
+    .m-chk {
+      width: 18px; height: 18px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      background: var(--green-dim); border: 1px solid var(--green-border);
       color: var(--green);
-      background: transparent;
-      border: 1px solid rgba(107,184,154,0.25);
-      padding: 3px 10px;
-      cursor: pointer;
-      transition: background .15s;
-      white-space: nowrap;
-      flex-shrink: 0;
     }
-    .addon-buy-btn:hover { background: rgba(107,184,154,0.10); }
+    .m-chk svg { width: 8px; height: 8px; }
+    .m-dash    { color: var(--text-3); font-size: 13px; }
+    .m-val     { font-family: var(--mono); font-size: 11.5px; color: var(--text); }
+
+    /* ─── BETA CARD ──────────────────────────────────── */
+    .beta-wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px 68px; }
+    .beta-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 40px 44px;
+      display: flex; align-items: center; justify-content: space-between; gap: 32px;
+    }
+    .beta-eye  { font-size: 10px; font-weight: 500; letter-spacing: .13em; text-transform: uppercase; color: var(--green); margin-bottom: 8px; }
+    .beta-h    { font-size: 20px; font-weight: 600; letter-spacing: -.025em; margin-bottom: 7px; }
+    .beta-p    { font-size: 13px; color: var(--text-2); max-width: 460px; }
+    .beta-btn  {
+      font-size: 13px; font-weight: 500; white-space: nowrap;
+      padding: 11px 24px; border-radius: var(--r-sm);
+      background: var(--green); color: #0c0c0c; transition: opacity .2s;
+    }
+    .beta-btn:hover { opacity: .82; }
+
+    /* ─── FAQ ─────────────────────────────────────────── */
+    .faq-wrap { max-width: 720px; margin: 0 auto; padding: 0 24px 88px; }
+    .faq-item { border-bottom: 1px solid var(--border); }
+    .faq-q {
+      width: 100%; text-align: left;
+      display: flex; justify-content: space-between; align-items: center; gap: 16px;
+      padding: 19px 0; font-size: 13.5px; font-weight: 500; color: var(--text);
+      transition: color .18s;
+    }
+    .faq-q:hover { color: var(--green); }
+    .faq-ico {
+      width: 20px; height: 20px; flex-shrink: 0;
+      border: 1px solid var(--border-2); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      transition: transform .22s, background .22s, border-color .22s;
+    }
+    .faq-ico svg { width: 9px; height: 9px; transition: transform .22s; }
+    .faq-item.open .faq-ico { background: var(--green-dim); border-color: var(--green-border); }
+    .faq-item.open .faq-ico svg { transform: rotate(45deg); }
+    .faq-a {
+      display: none; padding-bottom: 18px;
+      font-size: 13px; color: var(--text-2); line-height: 1.72;
+    }
+    .faq-item.open .faq-a { display: block; }
+
+    /* ─── FOOTER ──────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 28px 36px;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 14px;
+    }
+    .foot-links { display: flex; gap: 20px; }
+    .foot-links a { font-size: 12px; color: var(--text-3); transition: color .18s; }
+    .foot-links a:hover { color: var(--text-2); }
+    .foot-copy  { font-size: 12px; color: var(--text-3); }
+
+    /* ─── RESPONSIVE ──────────────────────────────────── */
+    @media (max-width: 800px) {
+      .nav-links { display: none; }
+      .cards-grid, .addons-grid { grid-template-columns: 1fr; }
+      .beta-card { flex-direction: column; text-align: center; }
+      .beta-p    { max-width: none; }
+      .hero h1   { font-size: 34px; }
+      .seat-row  { flex-wrap: wrap; }
+    }
   </style>
 </head>
 <body>
 
-<!-- ── NAV ── -->
-<nav id="nav">
-  <a href="/" class="nav-logo">
-    <svg class="logo-svg" viewBox="0 0 28 20" fill="none">
-      <path d="M2,3.5 Q8,1 14,3.5 Q20,6 26,3.5"   stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
-      <path d="M2,8.5 Q8,6 14,8.5 Q20,11 26,8.5"  stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
-      <path d="M2,13.5 Q8,11 14,13.5 Q20,16 26,13.5" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
-      <path d="M2,18.5 Q8,16 14,18.5 Q20,21 26,18.5" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
-    </svg>
-    Sevenda
-  </a>
-
+<!-- ════════════════════════════════════
+  NAV
+════════════════════════════════════ -->
+<nav class="nav">
+  <a href="/" class="nav-logo">Seven<em>da</em></a>
   <ul class="nav-links">
-    <li><a href="/#features" data-i18n="nav.features">Features</a></li>
-    <li><a href="/#insights" data-i18n="nav.insights">Insights</a></li>
-    <li><a href="/#how" data-i18n="nav.how">How it works</a></li>
-    <li><a href="/pricing.html" class="active" data-i18n="nav.pricing">Pricing</a></li>
-    <li><a href="/docs.html" data-i18n="nav.docs">Docs</a></li>
-    <li><a href="/faq.html" data-i18n="nav.faq">FAQ</a></li>
+    <li><a href="/#features">Features</a></li>
+    <li><a href="/#insights">Insights</a></li>
+    <li><a href="/#how">How it works</a></li>
+    <li><a href="/pricing.html" aria-current="page">Pricing</a></li>
+    <li><a href="/docs.html">Docs</a></li>
+    <li><a href="/faq.html">FAQ</a></li>
   </ul>
-
-  <div class="lang-sw">
-    <button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
-    <button class="lang-btn" data-lang="it" onclick="setLang('it')">IT</button>
-    <button class="lang-btn" data-lang="es" onclick="setLang('es')">ES</button>
-    <button class="lang-btn" data-lang="fr" onclick="setLang('fr')">FR</button>
+  <div class="nav-right">
+    <div class="nav-lang">
+      <span class="on">EN</span><span>IT</span><span>ES</span><span>FR</span>
+    </div>
+    <a href="#" class="btn-chrome">Add to Chrome</a>
   </div>
-
-  <a href="#" class="btn btn-primary" data-i18n="nav.cta">Add to Chrome</a>
-
-  <button class="nav-burger" id="burger" aria-label="Menu">
-    <span></span><span></span><span></span>
-  </button>
 </nav>
 
-<!-- Mobile drawer -->
-<div class="nav-drawer" id="drawer">
-  <a href="/#features" data-i18n="nav.features">Features</a>
-  <a href="/#insights" data-i18n="nav.insights">Insights</a>
-  <a href="/#how" data-i18n="nav.how">How it works</a>
-  <a href="/pricing.html" data-i18n="nav.pricing">Pricing</a>
-  <a href="/docs.html" data-i18n="nav.docs">Docs</a>
-  <a href="/faq.html" data-i18n="nav.faq">FAQ</a>
-  <a href="#" class="drawer-cta" data-i18n="nav.cta">Add to Chrome</a>
-  <div class="lang-sw" style="margin-top:8px;">
-    <button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
-    <button class="lang-btn" data-lang="it" onclick="setLang('it')">IT</button>
-    <button class="lang-btn" data-lang="es" onclick="setLang('es')">ES</button>
-    <button class="lang-btn" data-lang="fr" onclick="setLang('fr')">FR</button>
+<!-- ════════════════════════════════════
+  HERO
+════════════════════════════════════ -->
+<section class="hero">
+  <p class="hero-eyebrow">Pricing</p>
+  <h1>Simple, transparent,<br>scalable.</h1>
+  <p class="hero-sub">Start free. Scale when you need.<br>No surprises.</p>
+</section>
+
+<!-- ════════════════════════════════════
+  CONTROLS
+════════════════════════════════════ -->
+<div class="controls">
+
+  <!-- Billing toggle -->
+  <div class="billing-row">
+    <span>Monthly</span>
+    <div class="tog on" id="billingTog" role="switch" aria-checked="true" tabindex="0"></div>
+    <span>Annual</span>
+    <span class="save-pill">Save 25%</span>
+  </div>
+
+  <!-- Track toggle -->
+  <div class="track-row">
+    <button class="track-btn on" data-track="process">Process</button>
+    <button class="track-btn"     data-track="analytics">Analytics</button>
+    <button class="track-btn"     data-track="suite">Suite</button>
+  </div>
+
+  <!-- Seat selector -->
+  <div class="seat-row">
+    <span class="seat-label">How many users?</span>
+    <div class="seat-btns">
+      <button class="seat-btn on" data-seats="1">1</button>
+      <button class="seat-btn"   data-seats="2-5">2 – 5</button>
+      <button class="seat-btn"   data-seats="6-20">6 – 20</button>
+      <button class="seat-btn"   data-seats="20+">20+</button>
+    </div>
   </div>
 </div>
 
-<!-- ── PAGE ── -->
-<div class="page">
+<!-- ════════════════════════════════════
+  PLAN CARDS
+════════════════════════════════════ -->
+<div class="cards-wrap">
+  <div class="cards-grid" id="cardsGrid"><!-- rendered by JS --></div>
+</div>
 
-  <!-- 1. PAGE HEADER -->
-  <div class="page-header reveal">
-    <div class="page-label" data-i18n="pricing.label">PRICING</div>
-    <h1 class="page-title" data-i18n="pricing.title">Simple, transparent, scalable.</h1>
-    <p class="page-sub" data-i18n="pricing.sub">Start for free. Scale when you need. No surprises.</p>
+<!-- ════════════════════════════════════
+  FREE BANNER
+════════════════════════════════════ -->
+<div class="free-wrap">
+  <div class="free-banner">
+    <div class="free-left">
+      <strong>Try Sevenda for free</strong> — no credit card required.
+      <div class="free-pills">
+        <span class="free-pill">🎬 5 sessions</span>
+        <span class="free-pill">✦ 10 AI calls</span>
+        <span class="free-pill">⬇ 5 exports</span>
+        <span class="free-pill">BPMN + Insights</span>
+        <span class="free-pill">7-day retention</span>
+      </div>
+    </div>
+    <a href="#" class="free-cta">Get started free →</a>
   </div>
+</div>
 
-  <!-- 2. BILLING TOGGLE -->
-  <div class="billing-wrap">
-    <div class="billing-toggle">
-      <button class="billing-btn" id="btn-monthly" data-billing="monthly" onclick="setBilling('monthly')" data-i18n="billing.monthly">Monthly</button>
-      <button class="billing-btn active" id="btn-annual" data-billing="annual" onclick="setBilling('annual')">
-        <span data-i18n="billing.annual">Annual</span>
-        <span class="billing-badge" data-i18n="billing.save">Save 25%</span>
-      </button>
+<!-- ════════════════════════════════════
+  ADD-ONS
+════════════════════════════════════ -->
+<div class="section">
+  <p class="s-eye">ADD-ONS</p>
+  <h2 class="s-title">Pay-as-you-go add-ons</h2>
+  <p class="s-sub">On top of your plan limits. Purchase anytime. Never expire.</p>
+  <div class="addons-grid">
+    <div class="ao-card">
+      <div class="ao-icon">🎬</div>
+      <div class="ao-name">Extra sessions</div>
+      <div class="ao-desc">Additional recording sessions beyond your monthly plan limit</div>
+      <div class="ao-rows">
+        <div class="ao-row"><span class="ao-label">+10 sessions</span><span><span class="ao-price">€4</span><span class="ao-buy">Buy →</span></span></div>
+        <div class="ao-row"><span class="ao-label">+50 sessions</span><span><span class="ao-price">€15</span><span class="ao-buy">Buy →</span></span></div>
+        <div class="ao-row"><span class="ao-label">+200 sessions</span><span><span class="ao-price">€49</span><span class="ao-buy">Buy →</span></span></div>
+      </div>
     </div>
-  </div>
-
-  <!-- 3. PLANS GRID -->
-  <div class="plans-grid">
-
-    <!-- FREE -->
-    <div class="plan-card plan-accent-muted reveal">
-      <div class="plan-name">Free</div>
-      <div class="plan-tagline" data-i18n="plan.free.tagline">Start exploring</div>
-
-      <div class="plan-price-block">
-        <div class="plan-price-row">
-          <span class="plan-price-amount">€0</span>
-        </div>
-        <div class="plan-price-note" data-i18n="plan.free.note">forever</div>
+    <div class="ao-card">
+      <div class="ao-icon">✦</div>
+      <div class="ao-name">Extra AI credits</div>
+      <div class="ao-desc">Additional AI calls for BPMN generation and Insights analysis</div>
+      <div class="ao-rows">
+        <div class="ao-row"><span class="ao-label">+50 credits</span><span><span class="ao-price">€5</span><span class="ao-buy">Buy →</span></span></div>
+        <div class="ao-row"><span class="ao-label">+200 credits</span><span><span class="ao-price">€17</span><span class="ao-buy">Buy →</span></span></div>
+        <div class="ao-row"><span class="ao-label">+1,000 credits</span><span><span class="ao-price">€67</span><span class="ao-buy">Buy →</span></span></div>
       </div>
-
-      <div class="plan-divider"></div>
-
-      <div class="plan-limits">
-        <span>🎬 5 sessions</span>
-        <span class="plan-limits-sep">·</span>
-        <span>✦ 10 AI calls</span>
-        <span class="plan-limits-sep">·</span>
-        <span>⬇ 5 exports</span>
-      </div>
-
-      <div class="plan-divider"></div>
-
-      <ul class="plan-features-list">
-        <li class="plan-feature-item"><span class="feat-y">✓</span><span class="feat-included">BPMN 2.0 generation</span></li>
-        <li class="plan-feature-item"><span class="feat-y">✓</span><span class="feat-included">Export .bpmn and .svg</span></li>
-        <li class="plan-feature-item"><span class="feat-y">✓</span><span class="feat-included">Chrome DevTools panel</span></li>
-        <li class="plan-feature-item"><span class="feat-y">✓</span><span class="feat-included">5 saved sessions</span></li>
-        <li class="plan-feature-item"><span class="feat-n">✗</span><span class="feat-excluded">Insights &amp; GTM analysis</span></li>
-        <li class="plan-feature-item"><span class="feat-n">✗</span><span class="feat-excluded">Export .docx and .png</span></li>
-        <li class="plan-feature-item"><span class="feat-n">✗</span><span class="feat-excluded">Natural language refinement</span></li>
-        <li class="plan-feature-item"><span class="feat-n">✗</span><span class="feat-excluded">Jira &amp; Camunda integration</span></li>
-      </ul>
-
-      <a href="#" class="plan-cta cta-free" data-action="install" data-i18n="plan.free.cta">Get started free</a>
     </div>
-
-    <!-- SOLO -->
-    <div class="plan-card plan-accent-blue reveal">
-      <div class="plan-name">Solo</div>
-      <div class="plan-tagline" data-i18n="plan.solo.tagline">For the independent developer</div>
-
-      <div class="plan-price-block"
-           data-annual-price="9"
-           data-annual-suffix="/month"
-           data-annual-note="billed annually"
-           data-monthly-price="12"
-           data-monthly-suffix="/month"
-           data-monthly-note="billed monthly">
-        <div class="plan-price-row">
-          <span class="plan-price-amount">€9</span>
-          <span class="plan-price-suffix">/month</span>
-        </div>
-        <div class="plan-price-note">billed annually</div>
+    <div class="ao-card">
+      <div class="ao-icon">⬇</div>
+      <div class="ao-name">Extra exports</div>
+      <div class="ao-desc">All formats: .bpmn, .svg, .png, .docx, Jira, Camunda</div>
+      <div class="ao-rows">
+        <div class="ao-row"><span class="ao-label">+25 exports</span><span><span class="ao-price">€4</span><span class="ao-buy">Buy →</span></span></div>
+        <div class="ao-row"><span class="ao-label">+100 exports</span><span><span class="ao-price">€13</span><span class="ao-buy">Buy →</span></span></div>
+        <div class="ao-row"><span class="ao-label">+500 exports</span><span><span class="ao-price">€49</span><span class="ao-buy">Buy →</span></span></div>
       </div>
-
-      <div class="plan-divider"></div>
-
-      <div class="plan-limits">
-        <span>🎬 30 sessions</span>
-        <span class="plan-limits-sep">·</span>
-        <span>✦ 100 AI calls</span>
-        <span class="plan-limits-sep">·</span>
-        <span>⬇ 50 exports</span>
-      </div>
-
-      <div class="plan-divider"></div>
-
-      <ul class="plan-features-list">
-        <li class="plan-feature-item"><span class="feat-y">✓</span><span class="feat-included">BPMN 2.0 generation</span></li>
-        <li class="plan-feature-item"><span class="feat-y">✓</span><span class="feat-included">Export .bpmn, .svg, .png</span></li>
-        <li class="plan-feature-item"><span class="feat-y">✓</span><span class="feat-included">Export .docx reports</span></li>
-        <li class="plan-feature-item"><span class="feat-y">✓</span><span class="feat-included">Insights &amp; GTM suggestions</span></li>
-        <li class="plan-feature-item"><span class="feat-y">✓</span><span class="feat-included">Tracking gap analysis</span></li>
-        <li class="plan-feature-item"><span class="feat-y">✓</span><span class="feat-included">Natural language refinement</span></li>
-        <li class="plan-feature-item"><span class="feat-y">✓</span><span class="feat-included">Jira &amp; Camunda integration</span></li>
-        <li class="plan-feature-item"><span class="feat-y">✓</span><span class="feat-included">Session history (90 days)</span></li>
-        <li class="plan-feature-item"><span class="feat-n">✗</span><span class="feat-excluded">Shared session pool</span></li>
-        <li class="plan-feature-item"><span class="feat-n">✗</span><span class="feat-excluded">Team analytics dashboard</span></li>
-      </ul>
-
-      <a href="#" class="plan-cta cta-solo"
-         data-action="checkout"
-         data-link-annual="https://buy.stripe.com/SOLO_ANNUAL"
-         data-link-monthly="https://buy.stripe.com/SOLO_MONTHLY"
-         data-i18n="plan.solo.cta">Start 14-day free trial</a>
-    </div>
-
-    <!-- TEAM -->
-    <div class="plan-card plan-accent-green plan-card-popular reveal">
-      <div class="plan-popular-badge" data-i18n="plan.team.popular">Most popular</div>
-      <div class="plan-name">Team</div>
-      <div class="plan-tagline" data-i18n="plan.team.tagline">For agile teams and consultants</div>
-
-      <div class="plan-price-block"
-           data-annual-price="19"
-           data-annual-suffix="/user/month"
-           data-annual-note="billed annually"
-           data-monthly-price="24"
-           data-monthly-suffix="/user/month"
-           data-monthly-note="billed monthly">
-        <div class="plan-price-row">
-          <span class="plan-price-amount">€19</span>
-          <span class="plan-price-suffix">/user/month</span>
-        </div>
-        <div class="plan-price-note">billed annually</div>
-      </div>
-
-      <div class="plan-divider"></div>
-
-      <div class="plan-limits">
-        <span>🎬 200 pool</span>
-        <span class="plan-limits-sep">·</span>
-        <span>✦ 500 AI calls</span>
-        <span class="plan-limits-sep">·</span>
-        <span>⬇ 300 exports</span>
-      </div>
-
-      <div class="plan-divider"></div>
-
-      <ul class="plan-features-list">
-        <li class="plan-feature-item"><span class="feat-y">✓</span><span class="feat-included">Everything in Solo</span></li>
-        <li class="plan-feature-item"><span class="feat-y">✓</span><span class="feat-included">Shared pool across members</span></li>
-        <li class="plan-feature-item"><span class="feat-y">✓</span><span class="feat-included">Team analytics dashboard</span></li>
-        <li class="plan-feature-item"><span class="feat-y">✓</span><span class="feat-included">Shared sessions library</span></li>
-        <li class="plan-feature-item"><span class="feat-y">✓</span><span class="feat-included">Custom prompt templates</span></li>
-        <li class="plan-feature-item"><span class="feat-y">✓</span><span class="feat-included">Priority support</span></li>
-        <li class="plan-feature-item"><span class="feat-y">✓</span><span class="feat-included">Guided onboarding</span></li>
-        <li class="plan-feature-item"><span class="feat-y">✓</span><span class="feat-included">Session history (12 months)</span></li>
-        <li class="plan-feature-item"><span class="feat-n">✗</span><span class="feat-excluded">Enterprise SSO</span></li>
-        <li class="plan-feature-item"><span class="feat-n">✗</span><span class="feat-excluded">Dedicated SLA</span></li>
-      </ul>
-
-      <a href="#" class="plan-cta cta-team"
-         data-action="checkout"
-         data-link-annual="https://buy.stripe.com/TEAM_ANNUAL"
-         data-link-monthly="https://buy.stripe.com/TEAM_MONTHLY"
-         data-i18n="plan.team.cta">Start with your team</a>
-    </div>
-
-    <!-- ENTERPRISE -->
-    <div class="plan-card plan-accent-amber reveal">
-      <div class="plan-name">Enterprise</div>
-      <div class="plan-tagline" data-i18n="plan.enterprise.tagline">For organizations and consulting firms</div>
-
-      <div class="plan-price-block">
-        <div class="plan-price-row">
-          <span class="plan-price-amount contact-price" data-i18n="plan.enterprise.price">Contact us</span>
-        </div>
-        <div class="plan-price-note" data-i18n="plan.enterprise.note">custom pricing</div>
-      </div>
-
-      <div class="plan-divider"></div>
-
-      <div class="plan-limits">
-        <span>🎬 Unlimited</span>
-        <span class="plan-limits-sep">·</span>
-        <span>✦ Unlimited</span>
-        <span class="plan-limits-sep">·</span>
-        <span>⬇ Unlimited</span>
-      </div>
-
-      <div class="plan-divider"></div>
-
-      <ul class="plan-features-list">
-        <li class="plan-feature-item"><span class="feat-y">✓</span><span class="feat-included">Everything in Team</span></li>
-        <li class="plan-feature-item"><span class="feat-y">✓</span><span class="feat-included">Unlimited sessions</span></li>
-        <li class="plan-feature-item"><span class="feat-y">✓</span><span class="feat-included">SSO &amp; advanced security</span></li>
-        <li class="plan-feature-item"><span class="feat-y">✓</span><span class="feat-included">Dedicated SLA (99.9%)</span></li>
-        <li class="plan-feature-item"><span class="feat-y">✓</span><span class="feat-included">Dedicated onboarding</span></li>
-        <li class="plan-feature-item"><span class="feat-y">✓</span><span class="feat-included">Dedicated account manager</span></li>
-        <li class="plan-feature-item"><span class="feat-y">✓</span><span class="feat-included">Custom integrations</span></li>
-        <li class="plan-feature-item"><span class="feat-y">✓</span><span class="feat-included">Audit logs &amp; compliance</span></li>
-        <li class="plan-feature-item"><span class="feat-y">✓</span><span class="feat-included">Custom billing</span></li>
-      </ul>
-
-      <a href="mailto:hello@sevenda.dev?subject=Enterprise Plan — Sevenda" class="plan-cta cta-enterprise"
-         data-action="contact" data-i18n="plan.enterprise.cta">Contact us</a>
-    </div>
-
-  </div>
-
-  <!-- Enterprise inline contact form (shown on "Contact us" click) -->
-  <div class="enterprise-form" id="enterprise-form">
-    <form id="ent-form" novalidate>
-      <div class="ent-form-row">
-        <label class="ent-label" for="ent-name">Name</label>
-        <input class="ent-input" id="ent-name" type="text" required placeholder="Your name">
-      </div>
-      <div class="ent-form-row">
-        <label class="ent-label" for="ent-company">Company</label>
-        <input class="ent-input" id="ent-company" type="text" required placeholder="Company name">
-      </div>
-      <div class="ent-form-row">
-        <label class="ent-label" for="ent-email">Work email</label>
-        <input class="ent-input" id="ent-email" type="email" required placeholder="you@company.com">
-      </div>
-      <div class="ent-form-row">
-        <label class="ent-label" for="ent-size">Team size</label>
-        <select class="ent-select" id="ent-size">
-          <option value="1-5">1–5</option>
-          <option value="6-20">6–20</option>
-          <option value="21-50">21–50</option>
-          <option value="50+">50+</option>
-        </select>
-      </div>
-      <div class="ent-form-row">
-        <label class="ent-label" for="ent-message">Message (optional)</label>
-        <textarea class="ent-textarea" id="ent-message" placeholder="Tell us about your use case..."></textarea>
-      </div>
-      <button type="submit" class="ent-submit">Send →</button>
-    </form>
-  </div>
-
-  <!-- 4. RATE LIMITS TABLE -->
-  <div class="section reveal">
-    <div class="section-head">
-      <div class="section-eyebrow" data-i18n="p.limits.eyebrow">USAGE LIMITS</div>
-      <h2 class="section-title" data-i18n="p.limits.title">Rate limits by plan</h2>
-      <p class="section-sub" data-i18n="p.limits.sub">All limits reset on the first of each month. Team and Enterprise plans share pooled limits across members.</p>
-    </div>
-
-    <div class="rate-table-wrap">
-      <table class="rate-table">
-        <thead>
-          <tr>
-            <th>Metric</th>
-            <th class="th-free">Free</th>
-            <th class="th-solo">Solo</th>
-            <th class="th-team">Team</th>
-            <th class="th-enterprise">Enterprise</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Sessions / month</td>
-            <td>5</td>
-            <td>30</td>
-            <td>200 (pooled)</td>
-            <td>Unlimited</td>
-          </tr>
-          <tr>
-            <td>AI calls / month</td>
-            <td>10</td>
-            <td>100</td>
-            <td>500 (pooled)</td>
-            <td>Unlimited</td>
-          </tr>
-          <tr>
-            <td>Exports / month</td>
-            <td>5</td>
-            <td>50</td>
-            <td>300 (pooled)</td>
-            <td>Unlimited</td>
-          </tr>
-          <tr>
-            <td>Max events / session</td>
-            <td>500</td>
-            <td>2,000</td>
-            <td>5,000</td>
-            <td>Unlimited</td>
-          </tr>
-          <tr>
-            <td>Saved sessions (retention)</td>
-            <td>7 days</td>
-            <td>90 days</td>
-            <td>12 months</td>
-            <td>Unlimited</td>
-          </tr>
-          <tr>
-            <td>Team members</td>
-            <td class="td-dash">—</td>
-            <td class="td-dash">—</td>
-            <td>up to 20</td>
-            <td>Unlimited</td>
-          </tr>
-        </tbody>
-      </table>
     </div>
   </div>
+</div>
 
-  <!-- 5. ADD-ONS -->
-  <div class="section reveal">
-    <div class="section-head">
-      <div class="section-eyebrow" data-i18n="p.addons.eyebrow">ADD-ONS</div>
-      <h2 class="section-title" data-i18n="p.addons.title">Pay-as-you-go add-ons</h2>
-      <p class="section-sub" data-i18n="p.addons.sub">Purchase at any time, added on top of your plan limits. Never expire.</p>
-    </div>
+<!-- ════════════════════════════════════
+  FEATURE MATRIX
+════════════════════════════════════ -->
+<div class="matrix-wrap">
+  <p class="s-eye">COMPARE PLANS</p>
+  <h2 class="s-title">Full feature comparison</h2>
+  <p class="s-sub">Everything you need to make the right call.</p>
 
-    <div class="addons-grid">
-
-      <div class="addon-card">
-        <span class="addon-icon">🎬</span>
-        <div class="addon-name">Extra sessions</div>
-        <div class="addon-desc">Additional packages beyond your monthly plan limit</div>
-        <div class="addon-tier">
-          <span class="addon-tier-label">+10 sessions</span>
-          <span class="addon-tier-price">€3</span>
-          <button class="addon-buy-btn" data-addon="sessions-10"
-                  data-link-annual="https://buy.stripe.com/ADDON_PLACEHOLDER">Buy →</button>
-        </div>
-        <div class="addon-tier">
-          <span class="addon-tier-label">+50 sessions</span>
-          <span class="addon-tier-price">€12</span>
-          <button class="addon-buy-btn" data-addon="sessions-50"
-                  data-link-annual="https://buy.stripe.com/ADDON_PLACEHOLDER">Buy →</button>
-        </div>
-        <div class="addon-tier">
-          <span class="addon-tier-label">+200 sessions</span>
-          <span class="addon-tier-price">€40</span>
-          <button class="addon-buy-btn" data-addon="sessions-200"
-                  data-link-annual="https://buy.stripe.com/ADDON_PLACEHOLDER">Buy →</button>
-        </div>
-      </div>
-
-      <div class="addon-card">
-        <span class="addon-icon">✦</span>
-        <div class="addon-name">Extra AI credits</div>
-        <div class="addon-desc">Additional AI calls (BPMN generation + Insights mode)</div>
-        <div class="addon-tier">
-          <span class="addon-tier-label">+50 calls</span>
-          <span class="addon-tier-price">€4</span>
-          <button class="addon-buy-btn" data-addon="ai-50"
-                  data-link-annual="https://buy.stripe.com/ADDON_PLACEHOLDER">Buy →</button>
-        </div>
-        <div class="addon-tier">
-          <span class="addon-tier-label">+200 calls</span>
-          <span class="addon-tier-price">€14</span>
-          <button class="addon-buy-btn" data-addon="ai-200"
-                  data-link-annual="https://buy.stripe.com/ADDON_PLACEHOLDER">Buy →</button>
-        </div>
-        <div class="addon-tier">
-          <span class="addon-tier-label">+1,000 calls</span>
-          <span class="addon-tier-price">€55</span>
-          <button class="addon-buy-btn" data-addon="ai-1000"
-                  data-link-annual="https://buy.stripe.com/ADDON_PLACEHOLDER">Buy →</button>
-        </div>
-      </div>
-
-      <div class="addon-card">
-        <span class="addon-icon">⬇</span>
-        <div class="addon-name">Extra exports</div>
-        <div class="addon-desc">Additional exports beyond plan limits (all formats)</div>
-        <div class="addon-tier">
-          <span class="addon-tier-label">+25 exports</span>
-          <span class="addon-tier-price">€3</span>
-          <button class="addon-buy-btn" data-addon="exports-25"
-                  data-link-annual="https://buy.stripe.com/ADDON_PLACEHOLDER">Buy →</button>
-        </div>
-        <div class="addon-tier">
-          <span class="addon-tier-label">+100 exports</span>
-          <span class="addon-tier-price">€10</span>
-          <button class="addon-buy-btn" data-addon="exports-100"
-                  data-link-annual="https://buy.stripe.com/ADDON_PLACEHOLDER">Buy →</button>
-        </div>
-        <div class="addon-tier">
-          <span class="addon-tier-label">+500 exports</span>
-          <span class="addon-tier-price">€40</span>
-          <button class="addon-buy-btn" data-addon="exports-500"
-                  data-link-annual="https://buy.stripe.com/ADDON_PLACEHOLDER">Buy →</button>
-        </div>
-      </div>
-
-    </div>
+  <div class="matrix-tabs">
+    <button class="m-tab on" data-mtab="process">Process</button>
+    <button class="m-tab"    data-mtab="analytics">Analytics</button>
+    <button class="m-tab"    data-mtab="suite">Suite</button>
   </div>
 
-  <!-- 6. BETA PARTNERSHIP CALLOUT -->
-  <div class="beta-callout reveal">
-    <div class="beta-left">
-      <div class="beta-eyebrow" data-i18n="p.beta.eyebrow">🤝 BETA PARTNERSHIP PROGRAM</div>
-      <div class="beta-title" data-i18n="p.beta.title">Are you a data-driven consulting firm?</div>
-      <div class="beta-desc" data-i18n="p.beta.desc">
-        Join the Beta Partnership Program with special terms,
-        dedicated onboarding, and direct influence on the roadmap.
-        Limited to 10 partners.
-      </div>
+  <!-- ── PROCESS MATRIX ── -->
+  <table class="m-table on" id="matrix-process">
+    <thead>
+      <tr>
+        <th>Feature</th><th>Free</th><th>Analyst</th><th>Studio</th><th>Enterprise</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="m-sect"><td colspan="5">Sessions &amp; Limits</td></tr>
+      <tr><td>Sessions / month</td><td class="m-val">5</td><td class="m-val">30</td><td class="m-val">200 pool</td><td class="m-val">Unlimited</td></tr>
+      <tr><td>AI calls / month</td><td class="m-val">10</td><td class="m-val">100</td><td class="m-val">500 pool</td><td class="m-val">Unlimited</td></tr>
+      <tr><td>Max events / session</td><td class="m-val">500</td><td class="m-val">2,000</td><td class="m-val">5,000</td><td class="m-val">Unlimited</td></tr>
+      <tr><td>Session retention</td><td class="m-val">7 days</td><td class="m-val">90 days</td><td class="m-val">12 months</td><td class="m-val">Unlimited</td></tr>
+      <tr class="m-sect"><td colspan="5">Export &amp; Deliverables</td></tr>
+      <tr><td>Export .bpmn + .svg</td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+      </tr>
+      <tr><td>Export .png</td>
+        <td><span class="m-dash">—</span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+      </tr>
+      <tr><td>Export .docx reports</td>
+        <td><span class="m-dash">—</span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+      </tr>
+      <tr class="m-sect"><td colspan="5">Integrations</td></tr>
+      <tr><td>Jira Cloud</td>
+        <td><span class="m-dash">—</span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+      </tr>
+      <tr><td>Camunda-compatible export</td>
+        <td><span class="m-dash">—</span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+      </tr>
+      <tr><td>Custom integrations</td>
+        <td><span class="m-dash">—</span></td><td><span class="m-dash">—</span></td><td><span class="m-dash">—</span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+      </tr>
+      <tr class="m-sect"><td colspan="5">AI &amp; Refinement</td></tr>
+      <tr><td>BPMN 2.0 generation</td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+      </tr>
+      <tr><td>Natural language refinement</td>
+        <td><span class="m-dash">—</span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+      </tr>
+      <tr><td>Custom prompt templates</td>
+        <td><span class="m-dash">—</span></td><td><span class="m-dash">—</span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+      </tr>
+      <tr class="m-sect"><td colspan="5">Collaboration &amp; Security</td></tr>
+      <tr><td>Shared session library</td>
+        <td><span class="m-dash">—</span></td><td><span class="m-dash">—</span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+      </tr>
+      <tr><td>Team analytics dashboard</td>
+        <td><span class="m-dash">—</span></td><td><span class="m-dash">—</span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+      </tr>
+      <tr><td>SSO &amp; advanced security</td>
+        <td><span class="m-dash">—</span></td><td><span class="m-dash">—</span></td><td><span class="m-dash">—</span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+      </tr>
+      <tr><td>Dedicated SLA (99.9%)</td>
+        <td><span class="m-dash">—</span></td><td><span class="m-dash">—</span></td><td><span class="m-dash">—</span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+      </tr>
+      <tr><td>Audit logs &amp; compliance</td>
+        <td><span class="m-dash">—</span></td><td><span class="m-dash">—</span></td><td><span class="m-dash">—</span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ── ANALYTICS MATRIX ── -->
+  <table class="m-table" id="matrix-analytics">
+    <thead>
+      <tr><th>Feature</th><th>Free</th><th>Auditor</th><th>Agency</th><th>Enterprise</th></tr>
+    </thead>
+    <tbody>
+      <tr class="m-sect"><td colspan="5">Audits &amp; Limits</td></tr>
+      <tr><td>Audits / month</td><td class="m-val">5</td><td class="m-val">20</td><td class="m-val">100 pool</td><td class="m-val">Unlimited</td></tr>
+      <tr><td>Tracked properties</td><td class="m-val">1</td><td class="m-val">1</td><td class="m-val">Unlimited</td><td class="m-val">Unlimited</td></tr>
+      <tr><td>AI calls / month</td><td class="m-val">10</td><td class="m-val">100</td><td class="m-val">500 pool</td><td class="m-val">Unlimited</td></tr>
+      <tr><td>Session retention</td><td class="m-val">7 days</td><td class="m-val">90 days</td><td class="m-val">12 months</td><td class="m-val">Unlimited</td></tr>
+      <tr class="m-sect"><td colspan="5">Analysis &amp; Reports</td></tr>
+      <tr><td>Tracking gap analysis</td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+      </tr>
+      <tr><td>Tag plan export (.docx)</td>
+        <td><span class="m-dash">—</span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+      </tr>
+      <tr><td>GA4 report generation</td>
+        <td><span class="m-dash">—</span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+      </tr>
+      <tr><td>DNA Fingerprint + Narrative</td>
+        <td><span class="m-dash">—</span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+      </tr>
+      <tr class="m-sect"><td colspan="5">Collaboration &amp; Security</td></tr>
+      <tr><td>Multi-client dashboard</td>
+        <td><span class="m-dash">—</span></td><td><span class="m-dash">—</span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+      </tr>
+      <tr><td>Priority support</td>
+        <td><span class="m-dash">—</span></td><td><span class="m-dash">—</span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+      </tr>
+      <tr><td>SSO &amp; advanced security</td>
+        <td><span class="m-dash">—</span></td><td><span class="m-dash">—</span></td><td><span class="m-dash">—</span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+      </tr>
+      <tr><td>Dedicated SLA (99.9%)</td>
+        <td><span class="m-dash">—</span></td><td><span class="m-dash">—</span></td><td><span class="m-dash">—</span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ── SUITE MATRIX ── -->
+  <table class="m-table" id="matrix-suite">
+    <thead>
+      <tr><th>Feature</th><th>Free</th><th>Suite Solo</th><th>Suite Team</th><th>Enterprise</th></tr>
+    </thead>
+    <tbody>
+      <tr class="m-sect"><td colspan="5">Sessions &amp; Limits</td></tr>
+      <tr><td>Sessions / month</td><td class="m-val">5</td><td class="m-val">50</td><td class="m-val">400 pool</td><td class="m-val">Unlimited</td></tr>
+      <tr><td>Audits / month</td><td class="m-val">5</td><td class="m-val">30</td><td class="m-val">200 pool</td><td class="m-val">Unlimited</td></tr>
+      <tr><td>AI calls / month</td><td class="m-val">10</td><td class="m-val">200</td><td class="m-val">1,000 pool</td><td class="m-val">Unlimited</td></tr>
+      <tr><td>Session retention</td><td class="m-val">7 days</td><td class="m-val">90 days</td><td class="m-val">12 months</td><td class="m-val">Unlimited</td></tr>
+      <tr class="m-sect"><td colspan="5">All Process features included</td></tr>
+      <tr><td>BPMN 2.0 generation</td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+      </tr>
+      <tr><td>Export .bpmn .svg .png .docx</td>
+        <td><span class="m-dash">—</span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+      </tr>
+      <tr><td>Jira + Camunda integration</td>
+        <td><span class="m-dash">—</span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+      </tr>
+      <tr class="m-sect"><td colspan="5">All Analytics features included</td></tr>
+      <tr><td>Tracking gap analysis</td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+      </tr>
+      <tr><td>Tag plan + GA4 reports</td>
+        <td><span class="m-dash">—</span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+      </tr>
+      <tr><td>Unlimited properties</td>
+        <td><span class="m-dash">—</span></td><td><span class="m-dash">—</span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+      </tr>
+      <tr class="m-sect"><td colspan="5">Enterprise</td></tr>
+      <tr><td>SSO &amp; advanced security</td>
+        <td><span class="m-dash">—</span></td><td><span class="m-dash">—</span></td><td><span class="m-dash">—</span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+      </tr>
+      <tr><td>Dedicated SLA (99.9%)</td>
+        <td><span class="m-dash">—</span></td><td><span class="m-dash">—</span></td><td><span class="m-dash">—</span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+      </tr>
+      <tr><td>Dedicated account manager</td>
+        <td><span class="m-dash">—</span></td><td><span class="m-dash">—</span></td><td><span class="m-dash">—</span></td>
+        <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ════════════════════════════════════
+  BETA PARTNERSHIP
+════════════════════════════════════ -->
+<div class="beta-wrap">
+  <div class="beta-card">
+    <div>
+      <p class="beta-eye">🤝 Beta Partnership Program</p>
+      <h3 class="beta-h">Are you a data-driven consulting firm?</h3>
+      <p class="beta-p">Join the Beta Partnership Program with special terms, dedicated onboarding, and direct influence on the roadmap. Limited to 10 partners.</p>
     </div>
-    <a href="mailto:hello@sevenda.dev?subject=Beta Partnership Program" class="beta-btn" data-i18n="p.beta.cta">
-      Apply to the program →
-    </a>
+    <a href="mailto:hello@sevenda.dev?subject=Beta Partnership Program" class="beta-btn">Apply to the program →</a>
   </div>
+</div>
 
-  <!-- 7. FAQ -->
-  <div class="faq-section reveal">
-    <div class="section-head section-head-center">
-      <div class="section-eyebrow" data-i18n="p.faq.eyebrow">FAQ</div>
-      <h2 class="section-title" data-i18n="p.faq.title">Frequently asked questions</h2>
-    </div>
+<!-- ════════════════════════════════════
+  FAQ
+════════════════════════════════════ -->
+<div class="faq-wrap">
+  <p class="s-eye">FAQ</p>
+  <h2 class="s-title" style="margin-bottom:30px">Frequently asked questions</h2>
 
-    <div class="faq-list">
-
-      <div class="faq-item">
-        <button class="faq-q" onclick="toggleFAQ(this)">
-          <span class="faq-q-text" data-i18n="pfaq.1.q">What happens if I exceed my plan limits?</span>
-          <span class="faq-icon">+</span>
-        </button>
-        <div class="faq-a">
-          <div class="faq-a-inner" data-i18n-html="pfaq.1.a">
-            The extension notifies you when you reach 80% of your limit. You can purchase add-ons on demand or upgrade to the next plan. There are no automatic blocks without prior notice.
-          </div>
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <button class="faq-q" onclick="toggleFAQ(this)">
-          <span class="faq-q-text" data-i18n="pfaq.2.q">Is my Anthropic API key separate from Sevenda limits?</span>
-          <span class="faq-icon">+</span>
-        </button>
-        <div class="faq-a">
-          <div class="faq-a-inner" data-i18n-html="pfaq.2.a">
-            Yes. Sevenda limits apply to platform features (sessions, exports, retention). Calls to the Claude model use your personal Anthropic API key, with separate token costs.
-          </div>
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <button class="faq-q" onclick="toggleFAQ(this)">
-          <span class="faq-q-text" data-i18n="pfaq.3.q">Can I change plans at any time?</span>
-          <span class="faq-icon">+</span>
-        </button>
-        <div class="faq-a">
-          <div class="faq-a-inner" data-i18n-html="pfaq.3.a">
-            Yes, upgrades are immediate. Downgrades take effect at the end of the current billing cycle. Data within the new plan limits is preserved.
-          </div>
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <button class="faq-q" onclick="toggleFAQ(this)">
-          <span class="faq-q-text" data-i18n="pfaq.4.q">How many users does the Team plan cover?</span>
-          <span class="faq-icon">+</span>
-        </button>
-        <div class="faq-a">
-          <div class="faq-a-inner" data-i18n-html="pfaq.4.a">
-            The Team plan scales with the number of users in your workspace. Pricing is per user/month; sessions, AI calls and export limits are shared as a pool across all members.
-          </div>
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <button class="faq-q" onclick="toggleFAQ(this)">
-          <span class="faq-q-text" data-i18n="pfaq.5.q">Do saved sessions expire?</span>
-          <span class="faq-icon">+</span>
-        </button>
-        <div class="faq-a">
-          <div class="faq-a-inner" data-i18n-html="pfaq.5.a">
-            It depends on your plan: 7 days (Free), 90 days (Solo), 12 months (Team), unlimited (Enterprise). Before expiry you can export everything as XML or SVG.
-          </div>
-        </div>
-      </div>
-
-    </div>
+  <div class="faq-item">
+    <button class="faq-q">What happens if I exceed my plan limits?<span class="faq-ico"><svg viewBox="0 0 10 10" fill="none"><path d="M5 2v6M2 5h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>
+    <p class="faq-a">The extension notifies you when you reach 80% of your limit. You can purchase add-ons on demand or upgrade to the next plan. There are no automatic blocks without prior notice.</p>
   </div>
+  <div class="faq-item">
+    <button class="faq-q">How does volume pricing work?<span class="faq-ico"><svg viewBox="0 0 10 10" fill="none"><path d="M5 2v6M2 5h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>
+    <p class="faq-a">The more users on your workspace, the less you pay per seat. With 2–5 users you pay €18/user/mo (annual); with 6–20 users the price drops to €14/user/mo. Volume discounts apply automatically when you add members.</p>
+  </div>
+  <div class="faq-item">
+    <button class="faq-q">Is my Anthropic API key separate from Sevenda limits?<span class="faq-ico"><svg viewBox="0 0 10 10" fill="none"><path d="M5 2v6M2 5h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>
+    <p class="faq-a">Yes. Sevenda limits apply to platform features (sessions, exports, retention). Calls to the Claude AI model use your personal Anthropic API key, billed separately by Anthropic.</p>
+  </div>
+  <div class="faq-item">
+    <button class="faq-q">Can I switch between Process and Analytics mode?<span class="faq-ico"><svg viewBox="0 0 10 10" fill="none"><path d="M5 2v6M2 5h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>
+    <p class="faq-a">Single-track plans give full access to your chosen mode. The Suite plan unlocks both Process and Analytics in one workspace — ideal for consultants who produce BPMN deliverables and GTM audits for the same clients.</p>
+  </div>
+  <div class="faq-item">
+    <button class="faq-q">Can I change plans at any time?<span class="faq-ico"><svg viewBox="0 0 10 10" fill="none"><path d="M5 2v6M2 5h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>
+    <p class="faq-a">Yes. Upgrades are immediate. Downgrades take effect at the end of the current billing cycle. All data within new plan limits is preserved.</p>
+  </div>
+  <div class="faq-item">
+    <button class="faq-q">Do saved sessions expire?<span class="faq-ico"><svg viewBox="0 0 10 10" fill="none"><path d="M5 2v6M2 5h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>
+    <p class="faq-a">Retention depends on your plan: 7 days (Free), 90 days (solo plans), 12 months (team plans), unlimited (Enterprise). Before expiry you can export everything as XML or SVG.</p>
+  </div>
+</div>
 
-</div><!-- /page -->
-
-<!-- ── FOOTER ── -->
+<!-- ════════════════════════════════════
+  FOOTER
+════════════════════════════════════ -->
 <footer>
-  <div class="footer-left">
-    <svg width="20" height="15" viewBox="0 0 28 20" fill="none">
-      <path d="M2,3.5 Q8,1 14,3.5 Q20,6 26,3.5"   stroke="#6BB89A" stroke-width="1.6" stroke-linecap="round"/>
-      <path d="M2,8.5 Q8,6 14,8.5 Q20,11 26,8.5"  stroke="#6BB89A" stroke-width="1.6" stroke-linecap="round"/>
-      <path d="M2,13.5 Q8,11 14,13.5 Q20,16 26,13.5" stroke="#6BB89A" stroke-width="1.6" stroke-linecap="round"/>
-      <path d="M2,18.5 Q8,16 14,18.5 Q20,21 26,18.5" stroke="#6BB89A" stroke-width="1.6" stroke-linecap="round"/>
-    </svg>
-    <span class="footer-logo-text">Sevenda</span>
+  <div class="foot-links">
+    <a href="/#features">Features</a>
+    <a href="/pricing.html">Pricing</a>
+    <a href="/docs.html">Docs</a>
+    <a href="/faq.html">FAQ</a>
+    <a href="/privacy.html">Privacy Policy</a>
   </div>
-  <div class="footer-links">
-    <a href="index.html#features" data-i18n="foot.features">Features</a>
-    <a href="pricing.html" data-i18n="foot.pricing">Pricing</a>
-    <a href="docs.html" data-i18n="foot.docs">Docs</a>
-    <a href="faq.html" data-i18n="foot.faq">FAQ</a>
-    <a href="privacy.html" data-i18n="foot.privacy">Privacy Policy</a>
-  </div>
-  <span class="footer-copy" data-i18n="foot.copy">© 2025 Sevenda · Built with Claude</span>
+  <span class="foot-copy">© 2025 Sevenda · Built with Claude</span>
 </footer>
 
-<!--
-  STRIPE PAYMENT LINKS — SETUP CHECKLIST
-
-  1. Go to dashboard.stripe.com → Payment Links → Create link
-  2. Create one link per plan/billing combination:
-       Solo Annual    → €9/month × 12 = €108/year  (or monthly €9)
-       Solo Monthly   → €12/month
-       Team Annual    → €19/user/month × 12          (or monthly €24)
-       Team Monthly   → €24/user/month
-  3. For Team plan: enable "Let customers choose quantity"
-     (quantity = number of users)
-  4. Copy each generated URL (https://buy.stripe.com/XXXXXXXX)
-  5. Replace placeholders in data-link-annual / data-link-monthly
-     attributes on the CTA buttons
-  6. For add-ons: create one-time payment links (not subscriptions)
-  7. Enable "Collect customer email" in each Payment Link settings
-  8. Set success redirect URL to: https://sevenda.dev/thank-you.html
-     (create a simple thank-you page)
-  9. Test in Stripe test mode before going live
--->
+<!-- ════════════════════════════════════
+  JAVASCRIPT
+════════════════════════════════════ -->
 <script>
-// ── NAV SCROLL ──
-const nav = document.getElementById('nav');
-window.addEventListener('scroll', () => {
-  nav.classList.toggle('scrolled', window.scrollY > 10);
-}, { passive: true });
+/* ─── PRICING DATA ─────────────────────────────────────────
+   prices[billing][seats] → amount (null = not applicable)
+──────────────────────────────────────────────────────────── */
+const DATA = {
+  process: [
+    {
+      id: 'analyst',
+      name: 'Analyst',
+      tag: 'For the independent BA',
+      badge: null,
+      track: 'process',
+      prices: {
+        annual:  { '1': 11 },
+        monthly: { '1': 14 },
+      },
+      seatsFor: ['1'],
+      subFn: (s, b) => `billed ${b} · 1 user`,
+      feats: [
+        '30 sessions / month',
+        'BPMN 2.0 generation',
+        'Export .bpmn .svg .png .docx',
+        'Natural language refinement',
+        'Jira + Camunda integration',
+        '90-day session retention',
+      ],
+      cta: 'Start 14-day free trial', ctaType: 'primary', ctaHref: '#',
+      save: null,
+    },
+    {
+      id: 'studio',
+      name: 'Studio',
+      tag: 'For consulting teams',
+      badge: 'Most popular', badgeCls: 'badge-pop',
+      track: 'process',
+      prices: {
+        annual:  { '2-5': 18, '6-20': 14 },
+        monthly: { '2-5': 23, '6-20': 18 },
+      },
+      seatsFor: ['2-5', '6-20'],
+      subFn: (s, b) => `billed ${b} · per user · ${s === '2-5' ? '2–5 users' : '6–20 users'}`,
+      feats: [
+        'Everything in Analyst',
+        '200 sessions / month (pooled)',
+        'Shared session library',
+        'Team analytics dashboard',
+        'Custom prompt templates',
+        'Priority support',
+        '12-month retention',
+      ],
+      cta: 'Start with your team', ctaType: 'secondary', ctaHref: '#',
+      save: null,
+    },
+    {
+      id: 'pent',
+      name: 'Enterprise',
+      tag: 'For large organizations',
+      badge: 'Enterprise', badgeCls: 'badge-ent',
+      track: 'process',
+      prices: null,
+      seatsFor: ['20+'],
+      subFn: () => 'custom pricing · 20+ users',
+      feats: [
+        'Everything in Studio',
+        'Unlimited sessions',
+        'SSO & advanced security',
+        'Dedicated SLA (99.9%)',
+        'Dedicated account manager',
+        'Custom integrations',
+        'Audit logs & compliance',
+      ],
+      cta: 'Contact us', ctaType: 'ghost',
+      ctaHref: 'mailto:hello@sevenda.dev?subject=Enterprise%20Plan%20%E2%80%94%20Sevenda%20Process',
+      save: null,
+    },
+  ],
 
-// ── HAMBURGER ──
-const burger = document.getElementById('burger');
-const drawer = document.getElementById('drawer');
-burger.addEventListener('click', () => {
-  const open = burger.classList.toggle('open');
-  drawer.classList.toggle('open', open);
-  document.body.style.overflow = open ? 'hidden' : '';
-});
-drawer.querySelectorAll('a').forEach(a => {
-  a.addEventListener('click', () => {
-    burger.classList.remove('open');
-    drawer.classList.remove('open');
-    document.body.style.overflow = '';
-  });
-});
+  analytics: [
+    {
+      id: 'auditor',
+      name: 'Auditor',
+      tag: 'For the GTM / GA4 specialist',
+      badge: null,
+      track: 'analytics',
+      prices: {
+        annual:  { '1': 11 },
+        monthly: { '1': 14 },
+      },
+      seatsFor: ['1'],
+      subFn: (s, b) => `billed ${b} · 1 user`,
+      feats: [
+        '20 audits / month',
+        '1 tracked property',
+        'Tracking gap analysis',
+        'Tag plan export (.docx)',
+        'GA4 report generation',
+        'DNA Fingerprint + Narrative',
+        '90-day retention',
+      ],
+      cta: 'Start 14-day free trial', ctaType: 'primary', ctaHref: '#',
+      save: null,
+    },
+    {
+      id: 'agency',
+      name: 'Agency',
+      tag: 'For multi-client agencies',
+      badge: 'Most popular', badgeCls: 'badge-pop',
+      track: 'analytics',
+      prices: {
+        annual:  { '2-5': 18, '6-20': 14 },
+        monthly: { '2-5': 23, '6-20': 18 },
+      },
+      seatsFor: ['2-5', '6-20'],
+      subFn: (s, b) => `billed ${b} · per user · ${s === '2-5' ? '2–5 users' : '6–20 users'}`,
+      feats: [
+        'Everything in Auditor',
+        '100 audits / month (pooled)',
+        'Unlimited tracked properties',
+        'Multi-client dashboard',
+        'Priority support',
+        '12-month retention',
+      ],
+      cta: 'Start with your team', ctaType: 'secondary', ctaHref: '#',
+      save: null,
+    },
+    {
+      id: 'aent',
+      name: 'Enterprise',
+      tag: 'For large marketing orgs',
+      badge: 'Enterprise', badgeCls: 'badge-ent',
+      track: 'analytics',
+      prices: null,
+      seatsFor: ['20+'],
+      subFn: () => 'custom pricing · 20+ users',
+      feats: [
+        'Everything in Agency',
+        'Unlimited audits',
+        'SSO & advanced security',
+        'Dedicated SLA (99.9%)',
+        'Dedicated account manager',
+        'Audit logs & compliance',
+      ],
+      cta: 'Contact us', ctaType: 'ghost',
+      ctaHref: 'mailto:hello@sevenda.dev?subject=Enterprise%20Plan%20%E2%80%94%20Sevenda%20Analytics',
+      save: null,
+    },
+  ],
 
-// ── BILLING TOGGLE ──
-function setBilling(mode) {
-  document.getElementById('btn-annual').classList.toggle('active', mode === 'annual');
-  document.getElementById('btn-monthly').classList.toggle('active', mode === 'monthly');
+  suite: [
+    {
+      id: 'ssolo',
+      name: 'Suite Solo',
+      tag: 'Process + Analytics for consultants',
+      badge: null,
+      track: 'suite',
+      prices: {
+        annual:  { '1': 17 },
+        monthly: { '1': 22 },
+      },
+      seatsFor: ['1'],
+      subFn: (s, b) => `billed ${b} · 1 user`,
+      feats: [
+        'Everything in Analyst',
+        'Everything in Auditor',
+        'BPMN + Insights workspace',
+        '50 sessions / month',
+        '30 audits / month',
+        '90-day retention',
+      ],
+      cta: 'Start 14-day free trial', ctaType: 'primary', ctaHref: '#',
+      save: 'Save €5/mo vs buying both',
+    },
+    {
+      id: 'steam',
+      name: 'Suite Team',
+      tag: 'Full suite for data-driven teams',
+      badge: 'Best value', badgeCls: 'badge-val',
+      track: 'suite',
+      prices: {
+        annual:  { '2-5': 25, '6-20': 21 },
+        monthly: { '2-5': 32, '6-20': 27 },
+      },
+      seatsFor: ['2-5', '6-20'],
+      subFn: (s, b) => `billed ${b} · per user · ${s === '2-5' ? '2–5 users' : '6–20 users'}`,
+      feats: [
+        'Everything in Studio',
+        'Everything in Agency',
+        'Unified team workspace',
+        '400 sessions / month (pooled)',
+        '200 audits / month (pooled)',
+        '12-month retention',
+      ],
+      cta: 'Start with your team', ctaType: 'secondary', ctaHref: '#',
+      save: 'Save €11/user vs buying both',
+    },
+    {
+      id: 'sent',
+      name: 'Suite Enterprise',
+      tag: 'Complete platform for large firms',
+      badge: 'Enterprise', badgeCls: 'badge-ent',
+      track: 'suite',
+      prices: null,
+      seatsFor: ['20+'],
+      subFn: () => 'custom pricing · 20+ users',
+      feats: [
+        'Everything in Suite Team',
+        'Unlimited sessions & audits',
+        'SSO & advanced security',
+        'Dedicated SLA (99.9%)',
+        'Dedicated account manager',
+        'Custom integrations',
+      ],
+      cta: 'Contact us', ctaType: 'ghost',
+      ctaHref: 'mailto:hello@sevenda.dev?subject=Enterprise%20Suite%20%E2%80%94%20Sevenda',
+      save: null,
+    },
+  ],
+};
 
-  document.querySelectorAll('.plan-price-block[data-annual-price]').forEach(block => {
-    const price  = block.dataset[mode + 'Price'];
-    const suffix = block.dataset[mode + 'Suffix'];
-    const note   = block.dataset[mode + 'Note'];
-    block.querySelector('.plan-price-amount').textContent = '€' + price;
-    block.querySelector('.plan-price-suffix').textContent = suffix;
-    block.querySelector('.plan-price-note').textContent   = note;
-  });
+/* ─── STATE ──────────────────────────────────────────────── */
+const S = { track: 'process', seats: '1', billing: 'annual', bulkQty: {} };
+
+/* ─── HELPERS ────────────────────────────────────────────── */
+const CHK = `<svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>`;
+
+function getPrice(plan) {
+  if (!plan.prices) return null;
+  return (plan.prices[S.billing] || {})[S.seats] ?? null;
 }
 
-// ── FAQ ACCORDION ──
-function toggleFAQ(btn) {
-  const item = btn.parentElement;
-  const isOpen = item.classList.contains('open');
-  document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
-  if (!isOpen) item.classList.add('open');
+// Highlight rule: plan is featured when its seatsFor matches current seats
+// AND it's the "natural" choice for those seats (has badge OR is only solo option).
+function isFeatured(plan) {
+  if (!plan.seatsFor.includes(S.seats)) return false;
+  if (S.seats === '20+') return !plan.prices; // enterprise featured when 20+
+  return !!plan.badge;                        // others: featured if has badge
 }
 
-// ── SCROLL REVEAL ──
-const io = new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if (e.isIntersecting) { e.target.classList.add('vis'); io.unobserve(e.target); }
-  });
-}, { threshold: 0.08 });
-document.querySelectorAll('.reveal').forEach(el => io.observe(el));
-
-// ── STRIPE CHECKOUT ──
-
-function getActiveBilling() {
-  return document.querySelector('.billing-toggle .billing-btn.active')
-    ?.dataset.billing || 'annual';
+// Dimmed: visible but de-emphasised when seats don't match
+function isDimmed(plan) {
+  if (S.seats === '20+') return !!plan.prices; // dim non-enterprise
+  return !plan.seatsFor.includes(S.seats);
 }
 
-function showStripeNotice(anchor) {
-  if (anchor.parentElement.querySelector('.stripe-notice')) return;
-  const notice = document.createElement('div');
-  notice.className = 'stripe-notice';
-  notice.textContent = 'Checkout coming soon — contact us at hello@sevenda.dev';
-  anchor.parentElement.appendChild(notice);
-  setTimeout(() => notice.remove(), 4000);
+function iconCls(track) {
+  return { process: 'process-icon', analytics: 'analytics-icon', suite: 'suite-icon' }[track] || 'ent-icon';
 }
 
-// Plan CTA redirect
-document.querySelectorAll('[data-action="checkout"]').forEach(btn => {
-  btn.addEventListener('click', e => {
-    e.preventDefault();
-    const billing = getActiveBilling();
-    const link = billing === 'annual' ? btn.dataset.linkAnnual : btn.dataset.linkMonthly;
-    if (link && !link.includes('PLACEHOLDER')) {
-      window.location.href = link;
-    } else {
-      showStripeNotice(btn);
+/* ─── HELPERS: Extract min/max from seats range ─── */
+function getSeatsRange(seats) {
+  if (seats === '1') return { min: 1, max: 1 };
+  if (seats === '2-5') return { min: 2, max: 5 };
+  if (seats === '6-20') return { min: 6, max: 20 };
+  if (seats === '20+') return { min: 20, max: 100 };
+  return { min: 1, max: 1 };
+}
+
+/* ─── RENDER ─────────────────────────────────────────────── */
+function render() {
+  const grid   = document.getElementById('cardsGrid');
+  const plans  = DATA[S.track];
+  grid.innerHTML = '';
+
+  plans.forEach((plan, i) => {
+    const price    = getPrice(plan);
+    const featured = isFeatured(plan);
+    const dimmed   = isDimmed(plan);
+    const isEnt    = !plan.prices;
+    const ic       = iconCls(plan.track);
+    const planId   = plan.id;
+
+    // Card CSS classes
+    let cls = 'card';
+    if (featured) cls += ` feat-${plan.track}`;
+    if (dimmed)   cls += ' dim';
+    if (isEnt)    cls += ' ent';
+
+    // Badge
+    const badge = plan.badge
+      ? `<span class="card-badge ${plan.badgeCls || ''}">${plan.badge}</span>`
+      : '';
+
+    // Initialize bulk quantity if not set
+    if (!S.bulkQty[planId]) {
+      const range = getSeatsRange(S.seats);
+      S.bulkQty[planId] = range.min;
     }
-  });
-});
 
-// Add-on buy buttons
-document.querySelectorAll('.addon-buy-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const link = btn.dataset.linkAnnual;
-    if (link && !link.includes('PLACEHOLDER')) {
-      window.location.href = link;
+    // Price block
+    let priceHTML;
+    if (isEnt) {
+      priceHTML = `
+        <div class="price-block">
+          <div class="price-row"><span class="p-custom">Contact us</span></div>
+          <p class="p-sub">${plan.subFn(S.seats, S.billing)}</p>
+        </div>`;
+    } else if (price !== null) {
+      const saveCls = plan.track === 'suite' ? 'suite-save' : 'process-save';
+      const qty = S.bulkQty[planId] || 1;
+      const range = getSeatsRange(S.seats);
+      const counterHTML = S.seats !== '1' ? `
+        <div class="bulk-counter">
+          <span class="bulk-label">Qty</span>
+          <div class="bulk-ctrl">
+            <button class="bulk-btn bulk-minus" data-plan-id="${planId}" data-min="${range.min}">−</button>
+            <span class="bulk-value">${qty}</span>
+            <button class="bulk-btn bulk-plus" data-plan-id="${planId}" data-max="${range.max}">+</button>
+          </div>
+        </div>
+      ` : '';
+
+      priceHTML = `
+        <div class="price-block">
+          <div class="price-row">
+            <span class="p-cur">€</span>
+            <span class="p-amt">${price}</span>
+            <span class="p-per">/mo</span>
+          </div>
+          <p class="p-sub">${plan.subFn(S.seats, S.billing)}</p>
+          ${counterHTML}
+          ${plan.save ? `<span class="p-save ${saveCls}">${plan.save}</span>` : ''}
+        </div>`;
     } else {
-      showStripeNotice(btn);
+      // Plan exists but this seats range doesn't apply — show greyed placeholder
+      const anyBilling = plan.prices.annual || plan.prices.monthly;
+      const anyAmt = anyBilling ? Object.values(anyBilling)[0] : '—';
+      priceHTML = `
+        <div class="price-block">
+          <div class="price-row">
+            <span class="p-cur" style="color:var(--text-3)">€</span>
+            <span class="p-amt" style="color:var(--text-3)">${anyAmt}</span>
+            <span class="p-per">/mo</span>
+          </div>
+          <p class="p-sub">select the right seat range above</p>
+        </div>`;
     }
-  });
-});
 
-// Enterprise form toggle
-const enterpriseBtn = document.querySelector('[data-action="contact"]');
-const enterpriseForm = document.getElementById('enterprise-form');
-if (enterpriseBtn && enterpriseForm) {
-  enterpriseBtn.addEventListener('click', e => {
-    e.preventDefault();
-    const open = enterpriseForm.style.display === 'block';
-    enterpriseForm.style.display = open ? 'none' : 'block';
-    if (!open) enterpriseForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    // Features
+    const featsHTML = plan.feats.map(f =>
+      `<li><span class="feat-icon ${ic}">${CHK}</span><span>${f}</span></li>`
+    ).join('');
+
+    // CTA class
+    const ctaCls = plan.ctaType === 'primary'
+      ? `cta-primary-${plan.track}`
+      : plan.ctaType === 'secondary' ? 'cta-secondary' : 'cta-ghost';
+
+    const trackLabel = plan.track.charAt(0).toUpperCase() + plan.track.slice(1);
+
+    grid.innerHTML += `
+      <div class="${cls}" style="animation-delay:${i * 65}ms">
+        ${badge}
+        <p class="card-track">${trackLabel}</p>
+        <h3 class="card-name">${plan.name}</h3>
+        <p class="card-tag">${plan.tag}</p>
+        ${priceHTML}
+        <div class="card-div"></div>
+        <ul class="card-feats">${featsHTML}</ul>
+        <a href="${plan.ctaHref}" class="card-cta ${ctaCls}">${plan.cta}</a>
+      </div>`;
   });
 }
 
-// Enterprise form submit → mailto
-document.getElementById('ent-form')?.addEventListener('submit', e => {
-  e.preventDefault();
-  const name    = document.getElementById('ent-name').value.trim();
-  const company = document.getElementById('ent-company').value.trim();
-  const email   = document.getElementById('ent-email').value.trim();
-  const size    = document.getElementById('ent-size').value;
-  const message = document.getElementById('ent-message').value.trim();
-  const body = encodeURIComponent(
-    'Name: ' + name + '\n' +
-    'Company: ' + company + '\n' +
-    'Email: ' + email + '\n' +
-    'Team size: ' + size + '\n\n' +
-    message
-  );
-  const subject = encodeURIComponent('Enterprise Plan — ' + company);
-  window.location.href = 'mailto:hello@sevenda.dev?subject=' + subject + '&body=' + body;
+/* ─── EVENTS ─────────────────────────────────────────────── */
+
+// Billing toggle
+const billingTog = document.getElementById('billingTog');
+billingTog.addEventListener('click', () => {
+  S.billing = S.billing === 'annual' ? 'monthly' : 'annual';
+  billingTog.classList.toggle('on', S.billing === 'annual');
+  billingTog.setAttribute('aria-checked', S.billing === 'annual');
+  render();
+  attachBulkCounterListeners();
 });
+
+// Track buttons
+document.querySelectorAll('.track-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.track-btn').forEach(b => b.classList.remove('on'));
+    this.classList.add('on');
+    S.track = this.dataset.track;
+    render();
+    attachBulkCounterListeners();
+  });
+});
+
+// Seat buttons
+document.querySelectorAll('.seat-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.seat-btn').forEach(b => b.classList.remove('on'));
+    this.classList.add('on');
+    S.seats = this.dataset.seats;
+    S.bulkQty = {}; // Reset bulk quantities when changing seat range
+    render();
+    attachBulkCounterListeners();
+  });
+});
+
+// Matrix tabs
+document.querySelectorAll('.m-tab').forEach(tab => {
+  tab.addEventListener('click', function() {
+    document.querySelectorAll('.m-tab').forEach(t => t.classList.remove('on'));
+    document.querySelectorAll('.m-table').forEach(t => t.classList.remove('on'));
+    this.classList.add('on');
+    document.getElementById('matrix-' + this.dataset.mtab).classList.add('on');
+  });
+});
+
+// FAQ accordion
+document.querySelectorAll('.faq-q').forEach(btn => {
+  btn.addEventListener('click', function() {
+    const item = this.closest('.faq-item');
+    const wasOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+    if (!wasOpen) item.classList.add('open');
+  });
+});
+
+// Bulk counter handlers
+function attachBulkCounterListeners() {
+  document.querySelectorAll('.bulk-plus').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      const planId = this.dataset.planId;
+      const max = parseInt(this.dataset.max);
+      const current = S.bulkQty[planId] || 1;
+      if (current < max) {
+        S.bulkQty[planId] = current + 1;
+        render();
+      }
+    });
+  });
+
+  document.querySelectorAll('.bulk-minus').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      const planId = this.dataset.planId;
+      const min = parseInt(this.dataset.min);
+      const current = S.bulkQty[planId] || 1;
+      if (current > min) {
+        S.bulkQty[planId] = current - 1;
+        render();
+      }
+    });
+  });
+}
+
+// Init
+render();
+attachBulkCounterListeners();
 </script>
 </body>
 </html>
