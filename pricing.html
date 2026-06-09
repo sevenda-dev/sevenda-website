@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
   <script defer src="i18n.js"></script>
+  <script src="stripe.config.js"></script>
 
   <style>
     /* ─── DESIGN TOKENS ─────────────────────────────── */
@@ -1517,11 +1518,18 @@ function closeCheckout() {
 }
 
 function proceedToStripe() {
-  // Generate Stripe payment link based on cart
-  // For now, use placeholder URLs (replace with actual Stripe links)
-  const planIds = Object.keys(S.cart).join(',');
-  const stripeLink = `https://buy.stripe.com/test/placeholder?cart=${planIds}`;
-  window.open(stripeLink, '_blank');
+  // Get first item in cart (simplified: support single plan purchases for now)
+  const planId = Object.keys(S.cart)[0];
+  if (!planId) return;
+
+  const stripeLink = getStripeLink(planId, S.billing);
+  if (stripeLink === '#') {
+    alert('Stripe payment link not configured for this plan. Please contact support.');
+    return;
+  }
+
+  // Redirect to Stripe checkout
+  window.location.href = stripeLink;
 }
 
 document.getElementById('checkoutStripe')?.addEventListener('click', proceedToStripe);
