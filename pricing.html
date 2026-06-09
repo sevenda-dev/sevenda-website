@@ -529,6 +529,28 @@
     .foot-links a:hover { color: var(--text-2); }
     .foot-copy  { font-size: 12px; color: var(--text-3); }
 
+    /* ─── CHECKOUT MODAL ──────────────────────────────── */
+    .checkout-modal { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,.8); }
+    .checkout-modal.open { display: flex; align-items: center; justify-content: center; }
+    .checkout-inner {
+      background: var(--surface); border: 1px solid var(--border-2); border-radius: var(--r);
+      padding: 32px; max-width: 500px; width: 90%;
+    }
+    .checkout-h { font-size: 20px; font-weight: 600; margin-bottom: 20px; }
+    .checkout-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px 0; border-bottom: 1px solid var(--border);
+    }
+    .checkout-item-info { font-size: 13px; }
+    .checkout-item-price { font-weight: 600; }
+    .checkout-total { display: flex; justify-content: space-between; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-2); font-weight: 600; }
+    .checkout-actions { display: flex; gap: 10px; margin-top: 24px; }
+    .checkout-btn { flex: 1; padding: 12px; border-radius: var(--r-sm); font-weight: 500; text-align: center; cursor: pointer; }
+    .checkout-stripe { background: var(--green); color: #0c0c0c; }
+    .checkout-stripe:hover { opacity: .82; }
+    .checkout-close { background: var(--surface-2); color: var(--text); border: 1px solid var(--border-2); }
+    .checkout-close:hover { background: var(--border); }
+
     /* ─── RESPONSIVE ──────────────────────────────────── */
     @media (max-width: 800px) {
       .nav-links { display: none; }
@@ -565,7 +587,7 @@
   </ul>
   <div class="nav-right">
     <div class="nav-lang">
-      <span class="on">EN</span><span>IT</span><span>ES</span><span>FR</span>
+      <span class="lang-btn on active" data-lang="en" onclick="setLang('en')">EN</span><span class="lang-btn" data-lang="it" onclick="setLang('it')">IT</span><span class="lang-btn" data-lang="es" onclick="setLang('es')">ES</span><span class="lang-btn" data-lang="fr" onclick="setLang('fr')">FR</span>
     </div>
     <a href="#" class="btn-chrome">Add to Chrome</a>
   </div>
@@ -957,6 +979,24 @@
 </div>
 
 <!-- ════════════════════════════════════
+  CHECKOUT MODAL
+════════════════════════════════════ -->
+<div id="checkoutModal" class="checkout-modal">
+  <div class="checkout-inner">
+    <h3 class="checkout-h">Order Summary</h3>
+    <div id="checkoutItems"></div>
+    <div class="checkout-total">
+      <span>Total Monthly:</span>
+      <span id="checkoutTotal">€0</span>
+    </div>
+    <div class="checkout-actions">
+      <button class="checkout-btn checkout-stripe" id="checkoutStripe">Proceed to Stripe →</button>
+      <button class="checkout-btn checkout-close" onclick="closeCheckout()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
   FOOTER
 ════════════════════════════════════ -->
 <footer>
@@ -1193,7 +1233,7 @@ const DATA = {
 };
 
 /* ─── STATE ──────────────────────────────────────────────── */
-const S = { track: 'process', seats: '1', billing: 'annual', bulkQty: {} };
+const S = { track: 'process', seats: '1', billing: 'annual', bulkQty: {}, cart: {} };
 
 /* ─── HELPERS ────────────────────────────────────────────── */
 const CHK = `<svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>`;
@@ -1323,6 +1363,21 @@ function render() {
 
     const trackLabel = plan.track.charAt(0).toUpperCase() + plan.track.slice(1);
 
+    // Determine if plan is free, paid, or enterprise
+    const isFree = ['free', 'analyst', 'auditor', 'ssolo'].includes(plan.id) && price === null || (plan.id === 'free');
+    const isEnterprise = !plan.prices;
+    const isPaid = !isFree && !isEnterprise;
+
+    // Generate CTA element
+    let ctaEl;
+    if (isEnterprise) {
+      ctaEl = `<a href="${plan.ctaHref}" class="card-cta ${ctaCls}">${plan.cta}</a>`;
+    } else if (isPaid && price !== null) {
+      ctaEl = `<button class="card-cta ${ctaCls}" onclick="addToCheckout('${planId}', '${plan.name}', ${totalPrice}, '${S.seats}', ${qty})">${plan.cta}</button>`;
+    } else {
+      ctaEl = `<a href="https://chromewebstore.google.com/detail/sevenda/PLACEHOLDER" class="card-cta ${ctaCls}" target="_blank">${plan.cta}</a>`;
+    }
+
     grid.innerHTML += `
       <div class="${cls}" style="animation-delay:${i * 65}ms">
         ${badge}
@@ -1332,7 +1387,7 @@ function render() {
         ${priceHTML}
         <div class="card-div"></div>
         <ul class="card-feats">${featsHTML}</ul>
-        <a href="${plan.ctaHref}" class="card-cta ${ctaCls}">${plan.cta}</a>
+        ${ctaEl}
       </div>`;
   });
 }
@@ -1346,7 +1401,7 @@ billingTog.addEventListener('click', () => {
   billingTog.classList.toggle('on', S.billing === 'annual');
   billingTog.setAttribute('aria-checked', S.billing === 'annual');
   render();
-  attachBulkCounterListeners();
+  // Removed: using event delegation instead
 });
 
 // Track buttons
@@ -1356,7 +1411,7 @@ document.querySelectorAll('.track-btn').forEach(btn => {
     this.classList.add('on');
     S.track = this.dataset.track;
     render();
-    attachBulkCounterListeners();
+    // Removed: using event delegation instead
   });
 });
 
@@ -1368,7 +1423,7 @@ document.querySelectorAll('.seat-btn').forEach(btn => {
     S.seats = this.dataset.seats;
     S.bulkQty = {}; // Reset bulk quantities when changing seat range
     render();
-    attachBulkCounterListeners();
+    // Removed: using event delegation instead
   });
 });
 
@@ -1392,38 +1447,84 @@ document.querySelectorAll('.faq-q').forEach(btn => {
   });
 });
 
-// Bulk counter handlers
+// Bulk counter handlers — Event delegation on cards grid
+const cardsGrid = document.getElementById('cardsGrid');
+cardsGrid.addEventListener('click', function(e) {
+  if (e.target.classList.contains('bulk-plus')) {
+    e.preventDefault();
+    const planId = e.target.dataset.planId;
+    const max = parseInt(e.target.dataset.max);
+    const current = S.bulkQty[planId] || 1;
+    if (current < max) {
+      S.bulkQty[planId] = current + 1;
+      render();
+    }
+  } else if (e.target.classList.contains('bulk-minus')) {
+    e.preventDefault();
+    const planId = e.target.dataset.planId;
+    const min = parseInt(e.target.dataset.min);
+    const current = S.bulkQty[planId] || 1;
+    if (current > min) {
+      S.bulkQty[planId] = current - 1;
+      render();
+    }
+  }
+});
+
 function attachBulkCounterListeners() {
-  document.querySelectorAll('.bulk-plus').forEach(btn => {
-    btn.addEventListener('click', function(e) {
-      e.preventDefault();
-      const planId = this.dataset.planId;
-      const max = parseInt(this.dataset.max);
-      const current = S.bulkQty[planId] || 1;
-      if (current < max) {
-        S.bulkQty[planId] = current + 1;
-        render();
-      }
-    });
+  // No longer needed — using event delegation above
+}
+
+/* ─── CHECKOUT FUNCTIONS ─────────────────────────────── */
+function addToCheckout(planId, planName, price, seats, qty) {
+  S.cart[planId] = { planName, price, seats, qty };
+  showCheckout();
+}
+
+function showCheckout() {
+  const modal = document.getElementById('checkoutModal');
+  const itemsDiv = document.getElementById('checkoutItems');
+  const totalSpan = document.getElementById('checkoutTotal');
+
+  let html = '';
+  let total = 0;
+
+  Object.keys(S.cart).forEach(planId => {
+    const item = S.cart[planId];
+    html += `
+      <div class="checkout-item">
+        <div class="checkout-item-info">
+          <strong>${item.planName}</strong><br>
+          <small>${item.qty} user${item.qty > 1 ? 's' : ''} · ${S.billing === 'annual' ? 'Annual' : 'Monthly'}</small>
+        </div>
+        <div class="checkout-item-price">€${item.price}</div>
+      </div>
+    `;
+    total += item.price;
   });
 
-  document.querySelectorAll('.bulk-minus').forEach(btn => {
-    btn.addEventListener('click', function(e) {
-      e.preventDefault();
-      const planId = this.dataset.planId;
-      const min = parseInt(this.dataset.min);
-      const current = S.bulkQty[planId] || 1;
-      if (current > min) {
-        S.bulkQty[planId] = current - 1;
-        render();
-      }
-    });
-  });
+  itemsDiv.innerHTML = html;
+  totalSpan.textContent = '€' + total;
+  modal.classList.add('open');
 }
+
+function closeCheckout() {
+  document.getElementById('checkoutModal').classList.remove('open');
+}
+
+function proceedToStripe() {
+  // Generate Stripe payment link based on cart
+  // For now, use placeholder URLs (replace with actual Stripe links)
+  const planIds = Object.keys(S.cart).join(',');
+  const stripeLink = `https://buy.stripe.com/test/placeholder?cart=${planIds}`;
+  window.open(stripeLink, '_blank');
+}
+
+document.getElementById('checkoutStripe')?.addEventListener('click', proceedToStripe);
 
 // Init
 render();
-attachBulkCounterListeners();
+// Removed: using event delegation instead
 </script>
 </body>
 </html>
