@@ -10,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
   <script defer src="i18n.js"></script>
   <script src="stripe.config.js"></script>
+  <script src="iva.config.js"></script>
 
   <style>
     /* ─── DESIGN TOKENS ─────────────────────────────── */
@@ -183,6 +184,61 @@
       border-color: var(--border-2);
       color: var(--text);
     }
+
+    /* ─── VAT / Country selector ──────────────────────── */
+    .vat-row {
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+      justify-content: center;
+    }
+    .vat-label { font-size: 12px; color: var(--text-3); }
+    .vat-select {
+      font-size: 12px; font-weight: 500; font-family: var(--font);
+      padding: 5px 28px 5px 12px; border-radius: 6px;
+      color: var(--text); background: var(--surface);
+      border: 1px solid var(--border-2);
+      cursor: pointer; appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='6' viewBox='0 0 8 6'%3E%3Cpath fill='%238a8a8a' d='M0 0l4 6 4-6z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      transition: border-color .2s;
+    }
+    .vat-select:hover { border-color: var(--text-3); }
+    .vat-select option { background: var(--surface-2); color: var(--text); }
+    /* Badge "VAT included" — RF-110 */
+    .vat-badge {
+      font-size: 10.5px; font-weight: 500;
+      padding: 3px 10px; border-radius: 20px;
+      background: var(--green-dim); color: var(--green);
+      border: 1px solid var(--green-border);
+      display: inline-flex; align-items: center; gap: 5px;
+    }
+
+    /* ─── Price VAT breakdown (in card) — RF-108 ───────── */
+    .p-vat-breakdown {
+      font-size: 11px; color: var(--text-3); margin-top: 6px;
+      line-height: 1.5;
+    }
+    .p-vat-breakdown .p-vat-net  { color: var(--text-2); }
+    .p-vat-breakdown .p-vat-amt  { color: var(--text-2); }
+    /* Tooltip aliquota — RF-109 */
+    .p-vat-info {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 13px; height: 13px; margin-left: 4px;
+      border-radius: 50%; border: 1px solid var(--border-2);
+      font-size: 9px; color: var(--text-3); cursor: help;
+      position: relative;
+    }
+    .p-vat-info:hover { border-color: var(--green-border); color: var(--green); }
+    .p-vat-info::after {
+      content: attr(data-tip);
+      position: absolute; bottom: 130%; left: 50%; transform: translateX(-50%);
+      background: var(--surface-2); border: 1px solid var(--border-2);
+      color: var(--text); font-size: 11px; font-weight: 400;
+      padding: 6px 10px; border-radius: 6px; white-space: nowrap;
+      opacity: 0; pointer-events: none; transition: opacity .18s;
+      z-index: 50;
+    }
+    .p-vat-info:hover::after { opacity: 1; }
 
     /* ─── PLAN CARDS ─────────────────────────────────── */
     .cards-wrap {
@@ -637,6 +693,14 @@
       <button class="seat-btn"   data-seats="20+">20+</button>
     </div>
   </div>
+
+  <!-- Country / VAT selector — RF-103, RF-105, RF-110, RF-111 -->
+  <div class="vat-row">
+    <span class="vat-label" data-i18n="iva.country">Country:</span>
+    <select class="vat-select" id="countrySelect"><!-- populated by JS --></select>
+    <select class="vat-select" id="taxTypeSelect" style="display:none;"><!-- IT only --></select>
+    <span class="vat-badge" id="vatBadge" data-i18n="iva.included">✓ VAT included</span>
+  </div>
 </div>
 
 <!-- ════════════════════════════════════
@@ -991,19 +1055,32 @@
     <h3 class="checkout-h">Order Summary</h3>
     <div id="checkoutItems"></div>
     <div class="checkout-total">
-      <span>Total Monthly:</span>
+      <span data-i18n="iva.totalInclVat">Total (incl. VAT):</span>
       <span id="checkoutTotal">€0</span>
     </div>
     <div class="checkout-actions">
       <button class="checkout-btn checkout-stripe" id="checkoutStripe">Proceed to Stripe →</button>
       <button class="checkout-btn checkout-close" onclick="closeCheckout()">Cancel</button>
     </div>
+    <!-- RF-118: nota fattura IVA via email -->
+    <p style="font-size:11px;color:var(--text-3);text-align:center;margin-top:14px;line-height:1.5;" data-i18n="iva.invoiceNote">
+      A VAT invoice with full net / VAT / total breakdown will be emailed after payment.
+    </p>
   </div>
 </div>
 
 <!-- ════════════════════════════════════
   FOOTER
 ════════════════════════════════════ -->
+<!-- VAT legal disclaimer — RF-117 -->
+<div style="max-width:1100px;margin:0 auto;padding:0 24px 40px;text-align:center;">
+  <p style="font-size:11px;color:var(--text-3);line-height:1.6;" data-i18n="iva.disclaimer">
+    All prices include VAT, applied according to the tax regulations in force in your country.
+    For EU customers, the VAT rate of the country of residence applies (MOSS scheme).
+    Public Administrations and B2B EU customers eligible for reverse charge may request custom invoicing at hello@sevenda.dev.
+  </p>
+</div>
+
 <footer>
   <div class="foot-links">
     <a href="/#features" data-i18n="nav.features">Features</a>
@@ -1238,7 +1315,11 @@ const DATA = {
 };
 
 /* ─── STATE ──────────────────────────────────────────────── */
-const S = { track: 'process', seats: '1', billing: 'annual', bulkQty: {}, cart: {} };
+const S = {
+  track: 'process', seats: '1', billing: 'annual', bulkQty: {}, cart: {},
+  // Profilo fiscale — RF-103, RF-105, RF-106
+  country: 'IT', italyTaxType: 'ditta',
+};
 
 /* ─── HELPERS ────────────────────────────────────────────── */
 const CHK = `<svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>`;
@@ -1330,14 +1411,29 @@ function render() {
       ` : '';
 
       const totalPrice = price * qty;
+      // Calcolo IVA — RF-106, RF-107, RF-108
+      const vatRate = getVatRate(S.country, S.italyTaxType);
+      const b = calcVat(totalPrice, vatRate);
+      const vatTip = getVatLabel(S.country, S.italyTaxType);
+      const breakdownHTML = vatRate > 0
+        ? `<p class="p-vat-breakdown">
+             <span class="p-vat-net">€${fmtPrice(b.net)} net</span> +
+             <span class="p-vat-amt">€${fmtPrice(b.vat)} VAT</span>
+             <span class="p-vat-info" data-tip="${vatTip}">i</span>
+           </p>`
+        : `<p class="p-vat-breakdown">
+             <span class="p-vat-net">€${fmtPrice(b.net)} net</span> · 0% VAT
+             <span class="p-vat-info" data-tip="${vatTip}">i</span>
+           </p>`;
       priceHTML = `
         <div class="price-block">
           <div class="price-row">
             <span class="p-cur">€</span>
-            <span class="p-amt">${totalPrice}</span>
+            <span class="p-amt">${fmtPrice(b.gross)}</span>
             <span class="p-per">/mo</span>
           </div>
-          <p class="p-sub">${qty > 1 ? `€${price}/user × ${qty} users` : `${plan.subFn(S.seats, S.billing)}`}</p>
+          <p class="p-sub">${qty > 1 ? `€${fmtPrice(calcVat(price, vatRate).gross)}/user × ${qty} users · incl. VAT` : `${plan.subFn(S.seats, S.billing)} · incl. VAT`}</p>
+          ${breakdownHTML}
           ${counterHTML}
           ${plan.save ? `<span class="p-save ${saveCls}">${plan.save}</span>` : ''}
         </div>`;
@@ -1378,10 +1474,11 @@ function render() {
     if (isEnterprise) {
       ctaEl = `<a href="${plan.ctaHref}" class="card-cta ${ctaCls}">${plan.cta}</a>`;
     } else if (isPaid && price !== null) {
-      // For paid plans, calculate the actual total price with quantity
+      // For paid plans, calculate the actual total NET price with quantity
+      // (VAT is computed dynamically at checkout from the current tax profile)
       const qty = S.bulkQty[planId] || 1;
-      const totalPriceCheckout = price * qty;
-      ctaEl = `<button class="card-cta ${ctaCls}" onclick="addToCheckout('${planId}', '${plan.name}', ${totalPriceCheckout}, '${S.seats}', ${qty})">${plan.cta}</button>`;
+      const totalNet = price * qty;
+      ctaEl = `<button class="card-cta ${ctaCls}" onclick="addToCheckout('${planId}', '${plan.name}', ${totalNet}, '${S.seats}', ${qty})">${plan.cta}</button>`;
     } else {
       // Free or not applicable for this seat range
       ctaEl = `<a href="https://chromewebstore.google.com/detail/sevenda/PLACEHOLDER" class="card-cta ${ctaCls}" target="_blank">${plan.cta}</a>`;
@@ -1509,16 +1606,16 @@ function clearCart() {
 }
 
 /* ─── CHECKOUT FUNCTIONS ─────────────────────────────── */
-function addToCheckout(planId, planName, price, seats, qty) {
+function addToCheckout(planId, planName, priceNet, seats, qty) {
   // Validation: ensure plan data is valid
-  if (!planId || !planName || price === undefined || price === null) {
-    console.error('Invalid plan data:', { planId, planName, price });
+  if (!planId || !planName || priceNet === undefined || priceNet === null) {
+    console.error('Invalid plan data:', { planId, planName, priceNet });
     alert('Error adding plan to cart. Please try again.');
     return;
   }
 
-  // Add to cart
-  S.cart[planId] = { planName, price, seats, qty, billing: S.billing };
+  // Add to cart — store NET price; VAT computed dynamically at display
+  S.cart[planId] = { planName, priceNet, seats, qty, billing: S.billing };
   saveCartToStorage();
 
   // Show checkout modal
@@ -1536,25 +1633,43 @@ function showCheckout() {
   const itemsDiv = document.getElementById('checkoutItems');
   const totalSpan = document.getElementById('checkoutTotal');
 
+  // VAT profile — RF-112
+  const vatRate = getVatRate(S.country, S.italyTaxType);
+  const vatTip  = getVatLabel(S.country, S.italyTaxType);
+
   let html = '';
-  let total = 0;
+  let totalNet = 0;
 
   Object.keys(S.cart).forEach(planId => {
     const item = S.cart[planId];
+    const net = item.priceNet;
+    const lineVat = calcVat(net, vatRate);
+    totalNet += net;
     html += `
       <div class="checkout-item">
         <div class="checkout-item-info">
           <strong>${item.planName}</strong><br>
           <small>${item.qty} user${item.qty > 1 ? 's' : ''} · ${item.billing === 'annual' ? 'Annual' : 'Monthly'}</small>
         </div>
-        <div class="checkout-item-price">€${item.price}<span class="checkout-remove" onclick="removeFromCart('${planId}')" style="cursor:pointer;margin-left:12px;font-size:11px;color:var(--text-3);">Remove</span></div>
+        <div class="checkout-item-price">€${fmtPrice(lineVat.gross)}<span class="checkout-remove" onclick="removeFromCart('${planId}')" style="cursor:pointer;margin-left:12px;font-size:11px;color:var(--text-3);">Remove</span></div>
       </div>
     `;
-    total += item.price;
   });
 
+  // Totale con breakdown IVA — RF-112
+  const totals = calcVat(totalNet, vatRate);
+  html += `
+    <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);font-size:12px;color:var(--text-2);">
+      <div style="display:flex;justify-content:space-between;padding:3px 0;">
+        <span>Subtotal (net)</span><span>€${fmtPrice(totals.net)}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:3px 0;">
+        <span>VAT (${(vatRate*100).toFixed(vatRate*100%1===0?0:1)}%) — ${vatTip}</span><span>€${fmtPrice(totals.vat)}</span>
+      </div>
+    </div>`;
+
   itemsDiv.innerHTML = html;
-  totalSpan.textContent = '€' + total;
+  totalSpan.textContent = '€' + fmtPrice(totals.gross);
   modal.classList.add('open');
 }
 
@@ -1604,10 +1719,90 @@ function proceedToStripe() {
 
 document.getElementById('checkoutStripe')?.addEventListener('click', proceedToStripe);
 
+/* ─── TAX PROFILE (localStorage) — RF-104, RF-105 ────── */
+const TAX_PROFILE_KEY = 'sevenda-tax-profile';
+
+function saveTaxProfile() {
+  localStorage.setItem(TAX_PROFILE_KEY, JSON.stringify({
+    country: S.country,
+    italyTaxType: S.italyTaxType,
+  }));
+}
+
+function loadTaxProfile() {
+  const saved = localStorage.getItem(TAX_PROFILE_KEY);
+  if (saved) {
+    try {
+      const p = JSON.parse(saved);
+      if (p.country) S.country = p.country;
+      if (p.italyTaxType) S.italyTaxType = p.italyTaxType;
+    } catch (e) { /* ignore */ }
+  }
+}
+
+/* ─── COUNTRY / TAX SELECTORS — RF-103, RF-105, RF-111 ── */
+function populateCountrySelect() {
+  const sel = document.getElementById('countrySelect');
+  if (!sel) return;
+  const countries = getAllCountries();
+  let opts = '';
+  let lastGroup = '';
+  countries.forEach(c => {
+    if (c.group !== lastGroup) {
+      if (lastGroup) opts += '</optgroup>';
+      opts += `<optgroup label="${c.group === 'EU' ? 'European Union' : 'Other'}">`;
+      lastGroup = c.group;
+    }
+    const pct = (c.rate * 100).toFixed(c.rate*100%1===0?0:1);
+    opts += `<option value="${c.code}" ${c.code === S.country ? 'selected' : ''}>${c.flag} ${c.name} (${pct}%)</option>`;
+  });
+  opts += '</optgroup>';
+  sel.innerHTML = opts;
+}
+
+function populateTaxTypeSelect() {
+  const sel = document.getElementById('taxTypeSelect');
+  if (!sel) return;
+  if (S.country !== 'IT') { sel.style.display = 'none'; return; }
+  sel.style.display = '';
+  let opts = '';
+  Object.keys(SEVENDA_IVA.italyTaxTypes).forEach(key => {
+    const t = SEVENDA_IVA.italyTaxTypes[key];
+    const pct = (t.rate * 100).toFixed(0);
+    opts += `<option value="${key}" ${key === S.italyTaxType ? 'selected' : ''}>${t.labelEn} (${pct}%)</option>`;
+  });
+  sel.innerHTML = opts;
+}
+
+function onCountryChange(code) {
+  S.country = code;
+  if (code !== 'IT') S.italyTaxType = 'ditta'; // reset
+  saveTaxProfile();
+  populateTaxTypeSelect();
+  render();           // RF-111: aggiornamento prezzi real-time
+  if (document.getElementById('checkoutModal').classList.contains('open')) {
+    showCheckout();   // refresh checkout se aperto
+  }
+}
+
+function onTaxTypeChange(type) {
+  S.italyTaxType = type;
+  saveTaxProfile();
+  render();
+  if (document.getElementById('checkoutModal').classList.contains('open')) {
+    showCheckout();
+  }
+}
+
+document.getElementById('countrySelect')?.addEventListener('change', e => onCountryChange(e.target.value));
+document.getElementById('taxTypeSelect')?.addEventListener('change', e => onTaxTypeChange(e.target.value));
+
 // Init
-loadCartFromStorage(); // Load cart from localStorage
+loadCartFromStorage();   // Load cart from localStorage
+loadTaxProfile();        // Load tax profile from localStorage — RF-104
+populateCountrySelect();
+populateTaxTypeSelect();
 render();
-// Removed: using event delegation instead
 </script>
 </body>
 </html>

@@ -68,6 +68,10 @@ const SEVENDA_I18N = {
     'pricing.eyebrow':'Pricing','pricing.monthly':'Monthly','pricing.annual':'Annual','pricing.save25':'Save 25%',
     'pricing.process':'Process','pricing.analytics':'Analytics','pricing.suite':'Suite','pricing.howMany':'How many users?',
     'billing.monthly':'Monthly','billing.annual':'Annual','billing.save':'Save 25%',
+    /* ── VAT / IVA ── */
+    'iva.country':'Country:','iva.included':'✓ VAT included','iva.totalInclVat':'Total (incl. VAT):',
+    'iva.invoiceNote':'A VAT invoice with full net / VAT / total breakdown will be emailed after payment.',
+    'iva.disclaimer':'All prices include VAT, applied according to the tax regulations in force in your country. For EU customers, the VAT rate of the country of residence applies (MOSS scheme). Public Administrations and B2B EU customers eligible for reverse charge may request custom invoicing at hello@sevenda.dev.',
     'plan.free.tagline':'Start exploring','plan.free.note':'forever',
     'plan.solo.tagline':'For the independent developer',
     'plan.team.tagline':'For agile teams and consultants','plan.team.popular':'Most popular',
@@ -281,6 +285,10 @@ const SEVENDA_I18N = {
     'pricing.eyebrow':'Prezzi','pricing.monthly':'Mensile','pricing.annual':'Annuale','pricing.save25':'Risparmia 25%',
     'pricing.process':'Processo','pricing.analytics':'Analytics','pricing.suite':'Suite','pricing.howMany':'Quanti utenti?',
     'billing.monthly':'Mensile','billing.annual':'Annuale','billing.save':'Risparmia 25%',
+    /* ── IVA ── */
+    'iva.country':'Paese:','iva.included':'✓ IVA inclusa','iva.totalInclVat':'Totale (IVA incl.):',
+    'iva.invoiceNote':'Una fattura con il dettaglio imponibile / IVA / totale verrà inviata via email dopo il pagamento.',
+    'iva.disclaimer':'Tutti i prezzi sono comprensivi di IVA, applicata in base alla normativa fiscale vigente nel tuo paese. Per i clienti UE si applica l\'aliquota IVA del paese di residenza (regime MOSS). Le Pubbliche Amministrazioni e i clienti B2B UE idonei al reverse charge possono richiedere fatturazione personalizzata scrivendo a hello@sevenda.dev.',
     'plan.free.tagline':'Inizia ad esplorare','plan.free.note':'per sempre',
     'plan.solo.tagline':'Per il developer indipendente',
     'plan.team.tagline':'Per team agili e consulenti','plan.team.popular':'Più popolare',
@@ -487,6 +495,10 @@ const SEVENDA_I18N = {
     'pricing.eyebrow':'Precios','pricing.monthly':'Mensual','pricing.annual':'Anual','pricing.save25':'Ahorra 25%',
     'pricing.process':'Proceso','pricing.analytics':'Analytics','pricing.suite':'Suite','pricing.howMany':'¿Cuántos usuarios?',
     'billing.monthly':'Mensual','billing.annual':'Anual','billing.save':'Ahorra 25%',
+    /* ── IVA ── */
+    'iva.country':'País:','iva.included':'✓ IVA incluido','iva.totalInclVat':'Total (IVA incl.):',
+    'iva.invoiceNote':'Se enviará por correo electrónico una factura con el desglose de base imponible / IVA / total tras el pago.',
+    'iva.disclaimer':'Todos los precios incluyen IVA, aplicado según la normativa fiscal vigente en tu país. Para clientes de la UE se aplica el tipo de IVA del país de residencia (régimen MOSS). Las Administraciones Públicas y los clientes B2B de la UE con derecho a inversión del sujeto pasivo pueden solicitar facturación personalizada en hello@sevenda.dev.',
     'plan.free.tagline':'Empieza a explorar','plan.free.note':'para siempre',
     'plan.solo.tagline':'Para el desarrollador independiente',
     'plan.team.tagline':'Para equipos ágiles y consultores','plan.team.popular':'Más popular',
@@ -693,6 +705,10 @@ const SEVENDA_I18N = {
     'pricing.eyebrow':'Tarifs','pricing.monthly':'Mensuel','pricing.annual':'Annuel','pricing.save25':'Économisez 25%',
     'pricing.process':'Processus','pricing.analytics':'Analytics','pricing.suite':'Suite','pricing.howMany':'Combien d\'utilisateurs?',
     'billing.monthly':'Mensuel','billing.annual':'Annuel','billing.save':'Économisez 25%',
+    /* ── TVA ── */
+    'iva.country':'Pays:','iva.included':'✓ TVA incluse','iva.totalInclVat':'Total (TVA incl.):',
+    'iva.invoiceNote':'Une facture avec le détail HT / TVA / total sera envoyée par e-mail après le paiement.',
+    'iva.disclaimer':'Tous les prix incluent la TVA, appliquée selon la réglementation fiscale en vigueur dans votre pays. Pour les clients de l\'UE, le taux de TVA du pays de résidence s\'applique (régime MOSS). Les administrations publiques et les clients B2B de l\'UE éligibles à l\'autoliquidation peuvent demander une facturation personnalisée à hello@sevenda.dev.',
     'plan.free.tagline':'Commencez à explorer','plan.free.note':'pour toujours',
     'plan.solo.tagline':'Pour le développeur indépendant',
     'plan.team.tagline':'Pour les équipes agiles et consultants','plan.team.popular':'Le plus populaire',

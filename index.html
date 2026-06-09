@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sevenda — From clicks to BPMN. Automatically.</title>
   <script defer src="i18n.js"></script>
+  <script src="iva.config.js"></script>
   <meta name="description" content="Sevenda records your browser session and generates production-ready BPMN 2.0 diagrams — no manual work required.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2253,6 +2254,10 @@
           <span class="p-billing-badge" data-i18n="billing.save">Save 25%</span>
         </button>
       </div>
+      <!-- VAT included badge — RF-110 -->
+      <div style="margin-top:12px;text-align:center;">
+        <span style="font-size:10.5px;font-weight:500;padding:3px 10px;border-radius:20px;background:rgba(107,184,154,.09);color:var(--green);border:1px solid rgba(107,184,154,.28);" data-i18n="iva.included">✓ VAT included</span>
+      </div>
     </div>
 
     <div class="pgrid">
@@ -2375,6 +2380,13 @@
       <p style="font-size:13px; color:var(--muted); margin-bottom:14px;">Choose your team size and get exact pricing</p>
       <a href="/pricing.html" class="btn" style="background:var(--green);color:#0c0c0c;padding:10px 20px;border-radius:6px;display:inline-block;" data-i18n="pricing.compare">View all plans & pricing →</a>
     </div>
+
+    <!-- VAT legal disclaimer — RF-117 -->
+    <p style="font-size:11px;color:var(--dim);line-height:1.6;text-align:center;max-width:680px;margin:28px auto 0;" data-i18n="iva.disclaimer">
+      All prices include VAT, applied according to the tax regulations in force in your country.
+      For EU customers, the VAT rate of the country of residence applies (MOSS scheme).
+      Public Administrations and B2B EU customers eligible for reverse charge may request custom invoicing at hello@sevenda.dev.
+    </p>
   </div>
 </section>
 
@@ -2738,17 +2750,35 @@
     });
   });
 
-  // Pricing billing toggle
+  // Pricing billing toggle — con calcolo IVA (RF-107, RF-108)
+  let idxBillingMode = 'annual';
+  function getIdxTaxProfile() {
+    // Profilo fiscale condiviso con pricing.html — RF-104
+    try {
+      const p = JSON.parse(localStorage.getItem('sevenda-tax-profile'));
+      if (p && p.country) return { country: p.country, italyTaxType: p.italyTaxType || 'ditta' };
+    } catch (e) { /* ignore */ }
+    return { country: 'IT', italyTaxType: 'ditta' };
+  }
   function setIdxBilling(mode) {
+    idxBillingMode = mode;
     document.getElementById('idx-btn-annual').classList.toggle('active', mode === 'annual');
     document.getElementById('idx-btn-monthly').classList.toggle('active', mode === 'monthly');
+    const tp = getIdxTaxProfile();
+    const vatRate = (typeof getVatRate === 'function') ? getVatRate(tp.country, tp.italyTaxType) : 0.22;
     document.querySelectorAll('#pricing .p-price-block[data-annual-price]').forEach(block => {
-      const price  = block.dataset[mode + 'Price'];
-      const suffix = block.dataset[mode + 'Suffix'];
-      const note   = block.dataset[mode + 'Note'];
-      block.querySelector('.p-price-amount').textContent = '€' + price;
+      const priceNet = parseFloat(block.dataset[mode + 'Price']);
+      const suffix   = block.dataset[mode + 'Suffix'];
+      const note     = block.dataset[mode + 'Note'];
+      const b = (typeof calcVat === 'function') ? calcVat(priceNet, vatRate) : { net: priceNet, vat: 0, gross: priceNet };
+      const f = (typeof fmtPrice === 'function') ? fmtPrice : (x => x);
+      block.querySelector('.p-price-amount').textContent = '€' + f(b.gross);
       block.querySelector('.p-price-suffix').textContent = suffix;
-      block.querySelector('.p-price-note').textContent   = note;
+      // Breakdown nel note — RF-108
+      const breakdown = vatRate > 0
+        ? `€${f(b.net)} net + €${f(b.vat)} VAT`
+        : `€${f(b.net)} net · 0% VAT`;
+      block.querySelector('.p-price-note').textContent = note + ' · ' + breakdown;
     });
   }
 
@@ -2759,6 +2789,9 @@
     });
   }, { threshold: 0.1 });
   document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  // Init prezzi con IVA inclusa al caricamento — RF-107
+  setIdxBilling('annual');
 
   // ── DEMO MODAL SCRIPT ──────────────────────────────────────────────────────
   let currentMode = 'bpmn';
