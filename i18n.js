@@ -14,7 +14,7 @@ const SEVENDA_I18N = {
   en: {
     /* ── NAV comune ── */
     'nav.features':'Features','nav.insights':'Insights','nav.usecases':'Use Cases',
-    'nav.how':'How it works','nav.pricing':'Pricing','nav.docs':'Docs','nav.faq':'FAQ',
+    'nav.how':'How it works','nav.pricing':'Pricing','nav.docs':'Docs','nav.faq':'FAQ','nav.privacy':'Privacy Policy',
     'nav.cta':'Add to Chrome',
 
     /* ── HERO (index) ── */
@@ -65,6 +65,8 @@ const SEVENDA_I18N = {
 
     /* ── PRICING (index + pricing.html) ── */
     'pricing.label':'Pricing','pricing.title':'Simple, transparent, scalable.','pricing.sub':'Start for free. Scale when you need. No surprises.',
+    'pricing.eyebrow':'Pricing','pricing.monthly':'Monthly','pricing.annual':'Annual','pricing.save25':'Save 25%',
+    'pricing.process':'Process','pricing.analytics':'Analytics','pricing.suite':'Suite','pricing.howMany':'How many users?',
     'billing.monthly':'Monthly','billing.annual':'Annual','billing.save':'Save 25%',
     'plan.free.tagline':'Start exploring','plan.free.note':'forever',
     'plan.solo.tagline':'For the independent developer',
@@ -232,7 +234,7 @@ const SEVENDA_I18N = {
    * ──────────────────────────────────────────────────────────── */
   it: {
     'nav.features':'Funzionalità','nav.insights':'Insights','nav.usecases':'Casi d\'uso',
-    'nav.how':'Come funziona','nav.pricing':'Prezzi','nav.docs':'Docs','nav.faq':'FAQ',
+    'nav.how':'Come funziona','nav.pricing':'Prezzi','nav.docs':'Docs','nav.faq':'FAQ','nav.privacy':'Privacy Policy',
     'nav.cta':'Aggiungi a Chrome',
 
     'hero.pill':'Ora con Claude Sonnet 4 →',
@@ -276,6 +278,8 @@ const SEVENDA_I18N = {
     'stat1.lbl':'al primo diagramma','stat2.lbl':'diagrammi e intelligenza','stat3.lbl':'estensione Chrome',
 
     'pricing.label':'Prezzi','pricing.title':'Semplice, trasparente, scalabile.','pricing.sub':'Inizia gratis. Scala quando ne hai bisogno. Nessuna sorpresa.',
+    'pricing.eyebrow':'Prezzi','pricing.monthly':'Mensile','pricing.annual':'Annuale','pricing.save25':'Risparmia 25%',
+    'pricing.process':'Processo','pricing.analytics':'Analytics','pricing.suite':'Suite','pricing.howMany':'Quanti utenti?',
     'billing.monthly':'Mensile','billing.annual':'Annuale','billing.save':'Risparmia 25%',
     'plan.free.tagline':'Inizia ad esplorare','plan.free.note':'per sempre',
     'plan.solo.tagline':'Per il developer indipendente',
@@ -436,7 +440,7 @@ const SEVENDA_I18N = {
    * ──────────────────────────────────────────────────────────── */
   es: {
     'nav.features':'Funciones','nav.insights':'Insights','nav.usecases':'Casos de uso',
-    'nav.how':'Cómo funciona','nav.pricing':'Precios','nav.docs':'Docs','nav.faq':'FAQ',
+    'nav.how':'Cómo funciona','nav.pricing':'Precios','nav.docs':'Docs','nav.faq':'FAQ','nav.privacy':'Política de Privacidad',
     'nav.cta':'Añadir a Chrome',
 
     'hero.pill':'Ahora con Claude Sonnet 4 →',
@@ -480,6 +484,8 @@ const SEVENDA_I18N = {
     'stat1.lbl':'al primer diagrama','stat2.lbl':'diagramas e inteligencia','stat3.lbl':'extensión de Chrome',
 
     'pricing.label':'Precios','pricing.title':'Simple, transparente, escalable.','pricing.sub':'Empieza gratis. Escala cuando lo necesites. Sin sorpresas.',
+    'pricing.eyebrow':'Precios','pricing.monthly':'Mensual','pricing.annual':'Anual','pricing.save25':'Ahorra 25%',
+    'pricing.process':'Proceso','pricing.analytics':'Analytics','pricing.suite':'Suite','pricing.howMany':'¿Cuántos usuarios?',
     'billing.monthly':'Mensual','billing.annual':'Anual','billing.save':'Ahorra 25%',
     'plan.free.tagline':'Empieza a explorar','plan.free.note':'para siempre',
     'plan.solo.tagline':'Para el desarrollador independiente',
@@ -640,7 +646,7 @@ const SEVENDA_I18N = {
    * ──────────────────────────────────────────────────────────── */
   fr: {
     'nav.features':'Fonctionnalités','nav.insights':'Insights','nav.usecases':'Cas d\'usage',
-    'nav.how':'Comment ça marche','nav.pricing':'Tarifs','nav.docs':'Docs','nav.faq':'FAQ',
+    'nav.how':'Comment ça marche','nav.pricing':'Tarifs','nav.docs':'Docs','nav.faq':'FAQ','nav.privacy':'Politique de Confidentialité',
     'nav.cta':'Ajouter à Chrome',
 
     'hero.pill':'Maintenant avec Claude Sonnet 4 →',
@@ -684,6 +690,8 @@ const SEVENDA_I18N = {
     'stat1.lbl':'au premier diagramme','stat2.lbl':'diagrammes et intelligence','stat3.lbl':'extension Chrome',
 
     'pricing.label':'Tarifs','pricing.title':'Simple, transparent, évolutif.','pricing.sub':'Commencez gratuitement. Montez en charge quand vous en avez besoin. Sans surprises.',
+    'pricing.eyebrow':'Tarifs','pricing.monthly':'Mensuel','pricing.annual':'Annuel','pricing.save25':'Économisez 25%',
+    'pricing.process':'Processus','pricing.analytics':'Analytics','pricing.suite':'Suite','pricing.howMany':'Combien d\'utilisateurs?',
     'billing.monthly':'Mensuel','billing.annual':'Annuel','billing.save':'Économisez 25%',
     'plan.free.tagline':'Commencez à explorer','plan.free.note':'pour toujours',
     'plan.solo.tagline':'Pour le développeur indépendant',
