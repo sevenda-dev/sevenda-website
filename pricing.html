@@ -543,7 +543,11 @@
       padding: 12px 0; border-bottom: 1px solid var(--border);
     }
     .checkout-item-info { font-size: 13px; }
-    .checkout-item-price { font-weight: 600; }
+    .checkout-item-price {
+      font-weight: 600; display: flex; align-items: center; gap: 8px;
+    }
+    .checkout-remove { transition: opacity .18s; }
+    .checkout-remove:hover { opacity: .6; }
     .checkout-total { display: flex; justify-content: space-between; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-2); font-weight: 600; }
     .checkout-actions { display: flex; gap: 10px; margin-top: 24px; }
     .checkout-btn { flex: 1; padding: 12px; border-radius: var(--r-sm); font-weight: 500; text-align: center; cursor: pointer; }
@@ -1480,13 +1484,54 @@ function attachBulkCounterListeners() {
   // No longer needed — using event delegation above
 }
 
+/* ─── CART STORAGE (localStorage) ─────────────────────── */
+const CART_STORAGE_KEY = 'sevenda-cart';
+
+function saveCartToStorage() {
+  localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(S.cart));
+}
+
+function loadCartFromStorage() {
+  const saved = localStorage.getItem(CART_STORAGE_KEY);
+  if (saved) {
+    try {
+      S.cart = JSON.parse(saved);
+    } catch (e) {
+      console.error('Failed to load cart from storage:', e);
+      S.cart = {};
+    }
+  }
+}
+
+function clearCart() {
+  S.cart = {};
+  localStorage.removeItem(CART_STORAGE_KEY);
+}
+
 /* ─── CHECKOUT FUNCTIONS ─────────────────────────────── */
 function addToCheckout(planId, planName, price, seats, qty) {
-  S.cart[planId] = { planName, price, seats, qty };
+  // Validation: ensure plan data is valid
+  if (!planId || !planName || price === undefined || price === null) {
+    console.error('Invalid plan data:', { planId, planName, price });
+    alert('Error adding plan to cart. Please try again.');
+    return;
+  }
+
+  // Add to cart
+  S.cart[planId] = { planName, price, seats, qty, billing: S.billing };
+  saveCartToStorage();
+
+  // Show checkout modal
   showCheckout();
 }
 
 function showCheckout() {
+  // Validation: ensure cart is not empty
+  if (Object.keys(S.cart).length === 0) {
+    alert('Please select a plan before proceeding to checkout.');
+    return;
+  }
+
   const modal = document.getElementById('checkoutModal');
   const itemsDiv = document.getElementById('checkoutItems');
   const totalSpan = document.getElementById('checkoutTotal');
@@ -1500,9 +1545,9 @@ function showCheckout() {
       <div class="checkout-item">
         <div class="checkout-item-info">
           <strong>${item.planName}</strong><br>
-          <small>${item.qty} user${item.qty > 1 ? 's' : ''} · ${S.billing === 'annual' ? 'Annual' : 'Monthly'}</small>
+          <small>${item.qty} user${item.qty > 1 ? 's' : ''} · ${item.billing === 'annual' ? 'Annual' : 'Monthly'}</small>
         </div>
-        <div class="checkout-item-price">€${item.price}</div>
+        <div class="checkout-item-price">€${item.price}<span class="checkout-remove" onclick="removeFromCart('${planId}')" style="cursor:pointer;margin-left:12px;font-size:11px;color:var(--text-3);">Remove</span></div>
       </div>
     `;
     total += item.price;
@@ -1513,18 +1558,43 @@ function showCheckout() {
   modal.classList.add('open');
 }
 
+function removeFromCart(planId) {
+  delete S.cart[planId];
+  saveCartToStorage();
+
+  // If cart is empty, close modal
+  if (Object.keys(S.cart).length === 0) {
+    closeCheckout();
+    return;
+  }
+
+  // Otherwise, refresh checkout display
+  showCheckout();
+}
+
 function closeCheckout() {
   document.getElementById('checkoutModal').classList.remove('open');
 }
 
 function proceedToStripe() {
+  // Validation: ensure cart is not empty
+  if (Object.keys(S.cart).length === 0) {
+    alert('Please select a plan before proceeding to checkout.');
+    return;
+  }
+
   // Get first item in cart (simplified: support single plan purchases for now)
   const planId = Object.keys(S.cart)[0];
-  if (!planId) return;
-
   const stripeLink = getStripeLink(planId, S.billing);
-  if (stripeLink === '#') {
+
+  if (!stripeLink) {
     alert('Stripe payment link not configured for this plan. Please contact support.');
+    return;
+  }
+
+  // If it's a mailto link (enterprise), use it directly
+  if (stripeLink.startsWith('mailto:')) {
+    window.location.href = stripeLink;
     return;
   }
 
@@ -1535,6 +1605,7 @@ function proceedToStripe() {
 document.getElementById('checkoutStripe')?.addEventListener('click', proceedToStripe);
 
 // Init
+loadCartFromStorage(); // Load cart from localStorage
 render();
 // Removed: using event delegation instead
 </script>
