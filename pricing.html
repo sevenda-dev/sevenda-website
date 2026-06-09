@@ -1364,17 +1364,21 @@ function render() {
     const trackLabel = plan.track.charAt(0).toUpperCase() + plan.track.slice(1);
 
     // Determine if plan is free, paid, or enterprise
-    const isFree = ['free', 'analyst', 'auditor', 'ssolo'].includes(plan.id) && price === null || (plan.id === 'free');
     const isEnterprise = !plan.prices;
-    const isPaid = !isFree && !isEnterprise;
+    const isFree = price === null; // Free when no price available for seat range
+    const isPaid = !isEnterprise && price !== null;
 
-    // Generate CTA element
+    // Generate CTA element based on plan type
     let ctaEl;
     if (isEnterprise) {
       ctaEl = `<a href="${plan.ctaHref}" class="card-cta ${ctaCls}">${plan.cta}</a>`;
     } else if (isPaid && price !== null) {
-      ctaEl = `<button class="card-cta ${ctaCls}" onclick="addToCheckout('${planId}', '${plan.name}', ${totalPrice}, '${S.seats}', ${qty})">${plan.cta}</button>`;
+      // For paid plans, calculate the actual total price with quantity
+      const qty = S.bulkQty[planId] || 1;
+      const totalPriceCheckout = price * qty;
+      ctaEl = `<button class="card-cta ${ctaCls}" onclick="addToCheckout('${planId}', '${plan.name}', ${totalPriceCheckout}, '${S.seats}', ${qty})">${plan.cta}</button>`;
     } else {
+      // Free or not applicable for this seat range
       ctaEl = `<a href="https://chromewebstore.google.com/detail/sevenda/PLACEHOLDER" class="card-cta ${ctaCls}" target="_blank">${plan.cta}</a>`;
     }
 
