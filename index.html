@@ -6,6 +6,8 @@
   <title>Sevenda — From clicks to BPMN. Automatically.</title>
   <script defer src="i18n.js"></script>
   <script src="iva.config.js"></script>
+  <script src="supabase.config.js"></script>
+  <script src="auth.js"></script>
   <meta name="description" content="Sevenda records your browser session and generates production-ready BPMN 2.0 diagrams — no manual work required.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1822,6 +1824,8 @@
     <button class="lang-btn" data-lang="es" onclick="setLang('es')">ES</button>
     <button class="lang-btn" data-lang="fr" onclick="setLang('fr')">FR</button>
   </div>
+
+  <div id="nav-auth-area"></div>
 
   <a href="#" class="btn btn-primary" data-i18n="nav.cta">Add to Chrome</a>
 

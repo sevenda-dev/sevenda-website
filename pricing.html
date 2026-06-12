@@ -11,6 +11,8 @@
   <script defer src="i18n.js"></script>
   <script src="stripe.config.js"></script>
   <script src="iva.config.js"></script>
+  <script src="supabase.config.js"></script>
+  <script src="auth.js"></script>
 
   <style>
     /* ─── DESIGN TOKENS ─────────────────────────────── */
@@ -650,6 +652,7 @@
     <div class="nav-lang">
       <span class="lang-btn on active" data-lang="en" onclick="setLang('en')">EN</span><span class="lang-btn" data-lang="it" onclick="setLang('it')">IT</span><span class="lang-btn" data-lang="es" onclick="setLang('es')">ES</span><span class="lang-btn" data-lang="fr" onclick="setLang('fr')">FR</span>
     </div>
+    <div id="nav-auth-area"></div>
     <a href="#" class="btn-chrome">Add to Chrome</a>
   </div>
 </nav>
@@ -1695,6 +1698,12 @@ function proceedToStripe() {
   // Validation: ensure cart is not empty
   if (Object.keys(S.cart).length === 0) {
     alert('Please select a plan before proceeding to checkout.');
+    return;
+  }
+
+  // Auth gate — registrazione obbligatoria prima del checkout
+  if (window.SevendaAuth && !window.SevendaAuth.isLoggedIn()) {
+    window.SevendaAuth.requireAuth(() => proceedToStripe());
     return;
   }
 
