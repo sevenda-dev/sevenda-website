@@ -539,7 +539,10 @@
 
   // ── LOGIN ────────────────────────────────────────────────────────────────────
   async function _doLogin() {
-    if (!_sb) { _showErr('sa-login-err', 'Auth service not configured.'); return; }
+    if (!_sb && !IS_DEV && window.supabase) {
+      try { _sb = window.supabase.createClient(CFG.url, CFG.anonKey); } catch(e) {}
+    }
+    if (!_sb) { _showErr('sa-login-err', 'Service not ready. Please refresh the page.'); return; }
 
     const email = document.getElementById('sa-login-email').value.trim();
     const pass  = document.getElementById('sa-login-pass').value;
@@ -557,7 +560,10 @@
 
   // ── REGISTER ─────────────────────────────────────────────────────────────────
   async function _doRegister() {
-    if (!_sb) { _showErr('sa-reg-err', 'Auth service not configured.'); return; }
+    if (!_sb && !IS_DEV && window.supabase) {
+      try { _sb = window.supabase.createClient(CFG.url, CFG.anonKey); } catch(e) {}
+    }
+    if (!_sb) { _showErr('sa-reg-err', 'Service not ready. Please refresh the page.'); return; }
 
     const first   = document.getElementById('sa-reg-first').value.trim();
     const last    = document.getElementById('sa-reg-last').value.trim();
@@ -624,9 +630,21 @@
 
   // ── SOCIAL OAUTH ─────────────────────────────────────────────────────────────
   async function _doSocial(provider) {
-    if (!_sb) return;
+    // Reinizializzazione lazy: se il client non è ancora pronto ma l'SDK è disponibile, crea il client ora
+    if (!_sb && !IS_DEV && window.supabase) {
+      try { _sb = window.supabase.createClient(CFG.url, CFG.anonKey); } catch (e) { /* ignore */ }
+    }
+
+    if (!_sb) {
+      console.error('[SevendaAuth] Client non inizializzato — IS_DEV:', IS_DEV,
+        '| SDK:', !!window.supabase, '| url:', CFG.url?.substring(0, 30));
+      const errId = _tab === 'register' ? 'sa-reg-err' : 'sa-login-err';
+      _showErr(errId, 'Service not ready. Please refresh the page and try again.');
+      return;
+    }
+
     const btn = document.getElementById('sa-btn-' + provider);
-    if (btn) btn.disabled = true;
+    if (btn) { btn.disabled = true; btn._orig = btn.innerHTML; btn.innerHTML = `<span class="sa-spinner" style="border-top-color:#e8e8e6"></span>`; }
 
     const { error } = await _sb.auth.signInWithOAuth({
       provider,
@@ -636,7 +654,7 @@
     if (error) {
       const errId = _tab === 'register' ? 'sa-reg-err' : 'sa-login-err';
       _showErr(errId, _msg(error));
-      if (btn) btn.disabled = false;
+      if (btn) { btn.disabled = false; btn.innerHTML = btn._orig; }
     }
     // in caso di successo il browser viene rediretto da Supabase
   }
