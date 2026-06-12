@@ -13,7 +13,7 @@
  *    - Copia il Site Key → incollalo in captchaSiteKey qui sotto
  * 6. Replace the placeholder values below before deploying
  */
-const SUPABASE_CONFIG = {
+window.SUPABASE_CONFIG = {
   url:            'https://hxhtqcnxnuvymmgegcty.supabase.co',
   anonKey:        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh4aHRxY254bnV2eW1tZ2VnY3R5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMTg1OTYsImV4cCI6MjA5Njc5NDU5Nn0.FDoZKBZcniwf81ZjBKqO_afj3fnIAKoNNvABo0fyHWc',
   captchaSiteKey: 'c84e21d4-00f0-4cec-9394-68163f68e882',
