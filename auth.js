@@ -303,12 +303,7 @@
 
         <!-- Logo -->
         <div class="sa-logo" id="sa-modal-title">
-          <svg width="22" height="16" viewBox="0 0 26 19" fill="none">
-            <path d="M0 2.5Q6.5 0 13 2.5Q19.5 5 26 2.5"   stroke="white" stroke-width="1.8" stroke-linecap="round"/>
-            <path d="M0 7.5Q6.5 5 13 7.5Q19.5 10 26 7.5"  stroke="white" stroke-width="1.8" stroke-linecap="round"/>
-            <path d="M0 12.5Q6.5 10 13 12.5Q19.5 15 26 12.5" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
-            <path d="M0 17.5Q6.5 15 13 17.5Q19.5 20 26 17.5" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
-          </svg>
+          <img src="/logo.svg" width="26" height="26" alt="Sevenda logo" style="object-fit:contain;flex-shrink:0;">
           sevenda
         </div>
 
