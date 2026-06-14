@@ -880,12 +880,13 @@
       z-index: 1;
     }
     .logo-full {
-      width: 160px;
-      height: 160px;
+      width: 300px;
+      height: 300px;
       object-fit: contain;
       opacity: 0.82;
       transition: opacity .4s;
     }
+    @media (max-width: 640px) { .logo-full { width: 200px; height: 200px; } }
     .logo-full:hover { opacity: 1; }
 
     .foot-brand {
