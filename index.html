@@ -111,6 +111,11 @@
       gap: 28px;
       list-style: none;
     }
+    .nav-right-group {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
     .nav-links a { font-size: 14px; color: var(--muted); transition: color .15s; }
     .nav-links a:hover { color: var(--text); }
 
@@ -1837,16 +1842,15 @@
     <li><a href="/faq.html" data-i18n="nav.faq">FAQ</a></li>
   </ul>
 
-  <div class="lang-sw" id="lang-sw">
-    <button class="lang-btn active" data-lang="en" onclick="setLang('en')">EN</button>
-    <button class="lang-btn" data-lang="it" onclick="setLang('it')">IT</button>
-    <button class="lang-btn" data-lang="es" onclick="setLang('es')">ES</button>
-    <button class="lang-btn" data-lang="fr" onclick="setLang('fr')">FR</button>
+  <div class="nav-right-group">
+    <div class="lang-sw" id="lang-sw">
+      <button class="lang-btn active" data-lang="en" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" data-lang="it" onclick="setLang('it')">IT</button>
+      <button class="lang-btn" data-lang="es" onclick="setLang('es')">ES</button>
+      <button class="lang-btn" data-lang="fr" onclick="setLang('fr')">FR</button>
+    </div>
+    <div id="nav-auth-area"></div>
   </div>
-
-  <div id="nav-auth-area"></div>
-
-  <a href="#" class="btn btn-primary" data-i18n="nav.cta">Add to Chrome</a>
 
   <button class="nav-burger" id="burger" aria-label="Menu">
     <span></span><span></span><span></span>
@@ -1862,7 +1866,6 @@
   <a href="/pricing.html" class="drawer-link" data-i18n="nav.pricing">Pricing</a>
   <a href="/docs.html" class="drawer-link" data-i18n="nav.docs">Docs</a>
   <a href="/faq.html" class="drawer-link" data-i18n="nav.faq">FAQ</a>
-  <a href="#" class="btn btn-primary drawer-cta" data-i18n="nav.cta">Add to Chrome</a>
   <div class="lang-sw" style="margin-top:8px;">
     <button class="lang-btn active" data-lang="en" onclick="setLang('en')">EN</button>
     <button class="lang-btn" data-lang="it" onclick="setLang('it')">IT</button>
