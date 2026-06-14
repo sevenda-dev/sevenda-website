@@ -311,5 +311,10 @@
     return arr;
   }
 
-  document.addEventListener('DOMContentLoaded', boot);
+  // Avvio sicuro: se DOMContentLoaded è già scattato (script defer/cached) chiama boot subito
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
 })();
