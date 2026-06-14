@@ -1794,36 +1794,9 @@
   .panel-wrap { width: 100%; }
 }
 
-/* ── GENERATIVE PATTERN (easter egg) ────────────────────────────────── */
-#gen-pattern {
-  position: relative;
-  z-index: 1;
-  height: 420px;
-  overflow: hidden;
-  border-top:    1px solid rgba(255,255,255,.04);
-  border-bottom: 1px solid rgba(255,255,255,.04);
-}
-#sp-canvas {
-  display: block;
-  width: 100%;
-  height: 100%;
-  cursor: crosshair;
-}
-.gp-hint {
-  position: absolute;
-  bottom: 22px;
-  right: 32px;
-  font-family: var(--mono);
-  font-size: 11px;
-  color: rgba(255,255,255,.16);
-  letter-spacing: .07em;
-  pointer-events: none;
-  user-select: none;
-  z-index: 2;
-  transition: color .3s;
-}
-#gen-pattern:hover .gp-hint { color: rgba(255,255,255,.30); }
-@media (max-width: 640px) { #gen-pattern { height: 280px; } }
+/* ── GENERATIVE PATTERN — canvas overlay ───────────────────────────── */
+/* Il canvas viene iniettato da pattern.js come position:fixed z-index:0 */
+/* I contenuti della pagina devono avere z-index >= 1 per stare sopra   */
   </style>
 </head>
 <body>
@@ -2458,12 +2431,6 @@
       </div>
     </div>
   </div>
-</section>
-
-<!-- ── GENERATIVE PATTERN — easter egg per developer ─────────── -->
-<section id="gen-pattern" aria-hidden="true">
-  <canvas id="sp-canvas"></canvas>
-  <span class="gp-hint">// click to orchestrate</span>
 </section>
 
 <!-- ── CTA FOOTER ────────────────────────────────────────────── -->
