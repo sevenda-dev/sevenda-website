@@ -102,6 +102,7 @@
       font-weight: 600;
       font-size: 15px;
       letter-spacing: -.02em;
+      flex: 1;                  /* occupa lo spazio sinistro */
     }
     .logo-svg { width: 26px; height: 26px; flex-shrink: 0; object-fit: contain; }
 
@@ -110,11 +111,14 @@
       align-items: center;
       gap: 28px;
       list-style: none;
+      flex: none;               /* dimensionato dal contenuto, rimane al centro */
     }
     .nav-right-group {
       display: flex;
       align-items: center;
       gap: 16px;
+      flex: 1;                  /* occupa lo spazio destro */
+      justify-content: flex-end;
     }
     .nav-links a { font-size: 14px; color: var(--muted); transition: color .15s; }
     .nav-links a:hover { color: var(--text); }
