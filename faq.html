@@ -94,7 +94,7 @@ nav.scrolled {
 }
 
 .nav-logo { display: flex; align-items: center; gap: 9px; font-weight: 600; font-size: 15px; letter-spacing: -.02em; text-decoration: none; color: var(--text); }
-.logo-svg { width: 26px; height: 19px; flex-shrink: 0; }
+.logo-svg { width: 26px; height: 26px; flex-shrink: 0; object-fit: contain; }
 
 .nav-links { display: flex; align-items: center; gap: 28px; list-style: none; }
 .nav-links a { font-size: 14px; color: var(--muted); text-decoration: none; transition: color .15s; }
@@ -381,12 +381,7 @@ footer {
 <!-- ── NAV ── -->
 <nav id="nav">
   <a class="nav-logo" href="index.html">
-    <svg class="logo-svg" viewBox="0 0 36 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M2 4 Q6 1 10 4 Q14 7 18 4 Q22 1 26 4 Q30 7 34 4" stroke="#ffffff" stroke-width="2.8" stroke-linecap="round" fill="none"/>
-      <path d="M2 11 Q6 8 10 11 Q14 14 18 11 Q22 8 26 11 Q30 14 34 11" stroke="#ffffff" stroke-width="2.8" stroke-linecap="round" fill="none"/>
-      <path d="M2 18 Q6 15 10 18 Q14 21 18 18 Q22 15 26 18 Q30 21 34 18" stroke="#ffffff" stroke-width="2.8" stroke-linecap="round" fill="none"/>
-      <path d="M2 25 Q6 22 10 25 Q14 28 18 25 Q22 22 26 25 Q30 28 34 25" stroke="#ffffff" stroke-width="2.8" stroke-linecap="round" fill="none"/>
-    </svg>
+    <img src="/logo.svg" class="logo-svg" alt="Sevenda logo">
     <span>Sevenda</span>
   </a>
   <ul class="nav-links">
