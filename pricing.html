@@ -614,6 +614,165 @@
     .checkout-close { background: var(--surface-2); color: var(--text); border: 1px solid var(--border-2); }
     .checkout-close:hover { background: var(--border); }
 
+    /* ─── PLAN FINDER MODAL ──────────────────────────── */
+    .pf-trigger {
+      display: inline-flex; align-items: center; gap: 8px;
+      margin-top: 22px;
+      font-size: 13.5px; font-weight: 500; font-family: var(--font);
+      color: var(--text-2); cursor: pointer;
+      background: var(--surface); border: 1px solid var(--border-2);
+      border-radius: 8px; padding: 10px 18px;
+      transition: color .18s, border-color .18s, background .18s;
+    }
+    .pf-trigger:hover { color: var(--text); border-color: #3a3a3a; background: var(--surface-2); }
+    .pf-trigger svg  { flex-shrink: 0; }
+
+    .pf-overlay {
+      display: none; position: fixed; inset: 0; z-index: 2000;
+      background: rgba(0,0,0,.82);
+      backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+      align-items: center; justify-content: center; padding: 20px;
+    }
+    .pf-overlay.open { display: flex; }
+
+    .pf-card {
+      background: #111; border: 1px solid rgba(255,255,255,.1);
+      border-radius: 18px; width: 100%; max-width: 560px;
+      padding: 36px 36px 30px;
+      box-shadow: 0 32px 96px rgba(0,0,0,.7);
+      font-family: var(--font); color: var(--text);
+      position: relative;
+      animation: pf-in .2s ease;
+    }
+    @keyframes pf-in { from { opacity:0; transform:translateY(14px) scale(.97); } }
+
+    .pf-close {
+      position: absolute; top: 16px; right: 16px;
+      width: 30px; height: 30px; border-radius: 7px;
+      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
+      color: var(--text-2); cursor: pointer; font-size: 18px;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .15s; font-family: var(--font);
+    }
+    .pf-close:hover { background: rgba(255,255,255,.14); color: var(--text); }
+
+    .pf-step-bar {
+      display: flex; gap: 6px; margin-bottom: 28px;
+    }
+    .pf-step-dot {
+      height: 3px; border-radius: 2px; flex: 1;
+      background: rgba(255,255,255,.12);
+      transition: background .3s;
+    }
+    .pf-step-dot.done { background: var(--green); }
+    .pf-step-dot.active { background: rgba(107,184,154,.5); }
+
+    .pf-eyebrow {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 11px; font-weight: 500; letter-spacing: .08em;
+      text-transform: uppercase; color: var(--green);
+      margin-bottom: 10px;
+    }
+    .pf-title  { font-size: 22px; font-weight: 600; letter-spacing: -.03em; margin-bottom: 6px; }
+    .pf-sub    { font-size: 14px; color: var(--text-2); margin-bottom: 22px; line-height: 1.5; }
+
+    .pf-textarea {
+      width: 100%; min-height: 100px; padding: 14px 16px;
+      background: #1a1a1a; border: 1px solid rgba(255,255,255,.1);
+      border-radius: 10px; color: var(--text); font-size: 14px;
+      font-family: var(--font); resize: none; outline: none;
+      transition: border-color .15s;
+      line-height: 1.55;
+    }
+    .pf-textarea:focus { border-color: rgba(255,255,255,.25); }
+    .pf-textarea::placeholder { color: #404040; }
+
+    .pf-chips-label {
+      font-size: 11.5px; color: var(--text-3); margin: 14px 0 10px;
+      letter-spacing: .02em;
+    }
+    .pf-chips {
+      display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px;
+    }
+    .pf-chip {
+      font-size: 12.5px; font-weight: 500; font-family: var(--font);
+      padding: 6px 13px; border-radius: 20px; cursor: pointer;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.04); color: var(--text-2);
+      transition: all .15s;
+    }
+    .pf-chip:hover  { color: var(--text); border-color: rgba(255,255,255,.26); background: rgba(255,255,255,.08); }
+    .pf-chip.picked { color: var(--text); border-color: var(--green); background: rgba(107,184,154,.1); }
+
+    .pf-cta {
+      width: 100%; padding: 13px; border-radius: 10px;
+      background: var(--green); color: #0c0c0c;
+      font-size: 14.5px; font-weight: 600; font-family: var(--font);
+      cursor: pointer; transition: opacity .15s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .pf-cta:hover { opacity: .82; }
+    .pf-cta:disabled { opacity: .45; cursor: not-allowed; }
+
+    /* Step 2 — result */
+    .pf-result-quote {
+      font-size: 13px; color: var(--text-2); font-style: italic;
+      border-left: 2px solid rgba(255,255,255,.12);
+      padding-left: 12px; margin-bottom: 20px; line-height: 1.5;
+    }
+    .pf-rec-card {
+      border: 1px solid rgba(255,255,255,.1); border-radius: 12px;
+      padding: 20px 22px; margin-bottom: 16px;
+      background: rgba(255,255,255,.03);
+      transition: border-color .2s;
+    }
+    .pf-rec-card.process-accent  { border-color: rgba(107,184,154,.35); }
+    .pf-rec-card.analytics-accent { border-color: rgba(126,171,212,.35); }
+    .pf-rec-card.suite-accent     { border-color: rgba(196,155,214,.35); }
+
+    .pf-rec-track {
+      font-size: 10px; font-weight: 600; letter-spacing: .1em;
+      text-transform: uppercase; margin-bottom: 5px;
+    }
+    .pf-rec-track.process-c  { color: var(--green); }
+    .pf-rec-track.analytics-c { color: var(--blue); }
+    .pf-rec-track.suite-c     { color: var(--purple); }
+
+    .pf-rec-name  { font-size: 20px; font-weight: 600; letter-spacing: -.03em; margin-bottom: 4px; }
+    .pf-rec-price { font-size: 13px; color: var(--text-2); margin-bottom: 12px; }
+    .pf-rec-feats { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+    .pf-rec-feats li { font-size: 13px; color: var(--text-2); display: flex; align-items: center; gap: 7px; }
+    .pf-rec-feats li::before { content: '✓'; color: var(--green); font-weight: 600; flex-shrink: 0; }
+
+    .pf-reason {
+      font-size: 13px; color: var(--text-2); line-height: 1.55;
+      margin-bottom: 22px;
+    }
+    .pf-actions { display: flex; gap: 10px; }
+    .pf-btn-primary {
+      flex: 1; padding: 12px; border-radius: 9px;
+      background: var(--green); color: #0c0c0c;
+      font-size: 13.5px; font-weight: 600; font-family: var(--font);
+      cursor: pointer; transition: opacity .15s; text-align: center;
+      text-decoration: none; display: flex; align-items: center; justify-content: center;
+    }
+    .pf-btn-primary:hover { opacity: .82; }
+    .pf-btn-ghost {
+      padding: 12px 18px; border-radius: 9px;
+      background: transparent; color: var(--text-2);
+      font-size: 13.5px; font-weight: 500; font-family: var(--font);
+      cursor: pointer; transition: color .15s, border-color .15s;
+      border: 1px solid rgba(255,255,255,.12);
+    }
+    .pf-btn-ghost:hover { color: var(--text); border-color: rgba(255,255,255,.25); }
+
+    .pf-spinner {
+      width: 16px; height: 16px; border-radius: 50%;
+      border: 2px solid rgba(0,0,0,.2); border-top-color: #0c0c0c;
+      animation: pf-spin .6s linear infinite; display: inline-block;
+    }
+    @keyframes pf-spin { to { transform: rotate(360deg); } }
+
     /* ─── RESPONSIVE ──────────────────────────────────── */
     @media (max-width: 800px) {
       .nav-links { display: none; }
@@ -659,6 +818,12 @@
   <p class="hero-eyebrow" data-i18n="pricing.eyebrow">Pricing</p>
   <h1 data-i18n-html="pricing.title">Simple, transparent,<br>scalable.</h1>
   <p class="hero-sub" data-i18n-html="pricing.subtitle">Start free. Scale when you need.<br>No surprises.</p>
+  <button class="pf-trigger" onclick="PlanFinder.open()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/>
+    </svg>
+    Not sure which plan? Let AI find your fit
+  </button>
 </section>
 
 <!-- ════════════════════════════════════
@@ -1807,6 +1972,275 @@ loadTaxProfile();        // Load tax profile from localStorage — RF-104
 populateCountrySelect();
 populateTaxTypeSelect();
 render();
+</script>
+
+<!-- ════════════════════════════════════
+  PLAN FINDER MODAL
+════════════════════════════════════ -->
+<div id="pfOverlay" class="pf-overlay" role="dialog" aria-modal="true" aria-label="Plan Finder">
+  <div class="pf-card">
+    <button class="pf-close" onclick="PlanFinder.close()" aria-label="Close">&times;</button>
+
+    <!-- Progress bar -->
+    <div class="pf-step-bar">
+      <div class="pf-step-dot active" id="pfDot1"></div>
+      <div class="pf-step-dot"        id="pfDot2"></div>
+    </div>
+
+    <!-- ── STEP 1 ── -->
+    <div id="pfStep1">
+      <p class="pf-eyebrow">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+        AI Plan Finder
+      </p>
+      <h2 class="pf-title">What's your main goal?</h2>
+      <p class="pf-sub">Describe what you want to achieve and we'll match you to the right Sevenda plan.</p>
+
+      <textarea
+        id="pfInput"
+        class="pf-textarea"
+        placeholder="E.g. I need to map onboarding flows for my dev team and also audit our GA4 tracking..."
+        rows="4"
+      ></textarea>
+
+      <p class="pf-chips-label">Or pick an example:</p>
+      <div class="pf-chips" id="pfChips">
+        <button class="pf-chip" data-value="Document and map business processes with BPMN 2.0 diagrams">Document processes</button>
+        <button class="pf-chip" data-value="Analyze GA4 funnels and audit tracking tags and events">Analyze GA4 funnels</button>
+        <button class="pf-chip" data-value="Map user journeys and create workflow diagrams for stakeholders">Map user journeys</button>
+        <button class="pf-chip" data-value="Team collaboration on process documentation with multiple users">Team workflows</button>
+        <button class="pf-chip" data-value="Audit Google Analytics tracking tags GTM events and conversions">Audit tracking tags</button>
+        <button class="pf-chip" data-value="I need both BPMN process documentation and analytics insights tracking">Process + Analytics</button>
+      </div>
+
+      <button class="pf-cta" id="pfExploreCta" onclick="PlanFinder.explore()" disabled>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+        Explore with AI
+      </button>
+    </div>
+
+    <!-- ── STEP 2 ── -->
+    <div id="pfStep2" style="display:none">
+      <p class="pf-eyebrow">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+        Your recommended plan
+      </p>
+      <h2 class="pf-title" id="pfResultTitle">—</h2>
+
+      <p class="pf-result-quote" id="pfResultQuote"></p>
+
+      <div class="pf-rec-card" id="pfRecCard">
+        <p class="pf-rec-track" id="pfRecTrack"></p>
+        <p class="pf-rec-name"  id="pfRecName"></p>
+        <p class="pf-rec-price" id="pfRecPrice"></p>
+        <ul class="pf-rec-feats" id="pfRecFeats"></ul>
+      </div>
+
+      <p class="pf-reason" id="pfReason"></p>
+
+      <div class="pf-actions">
+        <a href="#" class="pf-btn-primary" id="pfRecCta">Start 14-day free trial →</a>
+        <button class="pf-btn-ghost" onclick="PlanFinder.reset()">← Try again</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── PLAN FINDER ──────────────────────────────────────────────── */
+(function () {
+  'use strict';
+
+  /* ── Plan database ───────────────────────────────────────────── */
+  const PLANS = {
+    analyst: {
+      track: 'process', trackLabel: 'Process Track',
+      name: 'Analyst', price: 'From €11/month (annual)',
+      feats: ['30 sessions / month', 'BPMN 2.0 generation', 'Export .bpmn .svg .png .docx', 'Natural language refinement', 'Jira + Camunda integration'],
+      ctaText: 'Start 14-day free trial →', ctaHref: '#',
+    },
+    studio: {
+      track: 'process', trackLabel: 'Process Track',
+      name: 'Studio', price: 'From €18/user/month (annual, 2-5 users)',
+      feats: ['Unlimited sessions', 'BPMN 2.0 generation', 'Team workspace', 'Shared session library', 'Priority support'],
+      ctaText: 'Start with your team →', ctaHref: '#',
+    },
+    auditor: {
+      track: 'analytics', trackLabel: 'Analytics Track',
+      name: 'Auditor', price: 'From €11/month (annual)',
+      feats: ['30 sessions / month', 'GA4 + GTM audit', 'Tracking gap detection', 'dataLayer analysis', 'Export .docx Analytics Report'],
+      ctaText: 'Start 14-day free trial →', ctaHref: '#',
+    },
+    agency: {
+      track: 'analytics', trackLabel: 'Analytics Track',
+      name: 'Agency', price: 'From €18/user/month (annual, 2-5 users)',
+      feats: ['Unlimited sessions', 'GA4 + GTM audit', 'Team workspace', 'Client reporting', 'Priority support'],
+      ctaText: 'Start with your team →', ctaHref: '#',
+    },
+    ssolo: {
+      track: 'suite', trackLabel: 'Suite Track',
+      name: 'Suite — Solo', price: 'From €17/month (annual)',
+      feats: ['Process + Analytics in one', 'BPMN 2.0 + GA4 audit', '30 sessions / month', 'All export formats', 'All integrations'],
+      ctaText: 'Start 14-day free trial →', ctaHref: '#',
+    },
+    steam: {
+      track: 'suite', trackLabel: 'Suite Track',
+      name: 'Suite — Team', price: 'From €25/user/month (annual, 2-5 users)',
+      feats: ['Process + Analytics for teams', 'BPMN 2.0 + GA4 audit', 'Unlimited sessions', 'Team workspace + library', 'Priority support'],
+      ctaText: 'Start with your team →', ctaHref: '#',
+    },
+  };
+
+  /* ── Keyword scoring ─────────────────────────────────────────── */
+  const KW = {
+    process:   ['process','bpmn','workflow','diagram','flow','map','document','journey','procedure','task','activity','business','onboarding','steps'],
+    analytics: ['analytics','ga4','google analytics','tracking','funnel','tag','gtm','event','conversion','metric','audit','insight','dataLayer','pixel'],
+    team:      ['team','colleague','company','multiple','users','seats','people','member','group','together','organization'],
+    enterprise:['enterprise','corporate','large','big','entire','whole'],
+  };
+
+  function score(text, list) {
+    const t = text.toLowerCase();
+    return list.reduce((n, kw) => n + (t.includes(kw) ? 1 : 0), 0);
+  }
+
+  function recommend(input) {
+    const ps = score(input, KW.process);
+    const as = score(input, KW.analytics);
+    const isTeam = score(input, KW.team) > 0;
+    const isBoth = ps > 0 && as > 0;
+
+    let planId, reason;
+
+    if (isBoth) {
+      planId = isTeam ? 'steam' : 'ssolo';
+      reason = 'Your goal combines process documentation and analytics tracking. The Suite track gives you BPMN 2.0 generation AND GA4/GTM auditing in one unified workflow.';
+    } else if (as > ps) {
+      planId = isTeam ? 'agency' : 'auditor';
+      reason = 'Your goal is focused on analytics tracking and funnel analysis. The Analytics track is purpose-built to detect GA4 gaps, audit GTM tags and generate actionable reports.';
+    } else {
+      planId = isTeam ? 'studio' : 'analyst';
+      reason = 'Your goal is to document and visualize processes. The Process track generates production-ready BPMN 2.0 diagrams directly from your browser sessions — no manual drawing required.';
+    }
+
+    return { plan: PLANS[planId], planId, reason };
+  }
+
+  /* ── State ───────────────────────────────────────────────────── */
+  const TRACK_COLOR = { process: 'process', analytics: 'analytics', suite: 'suite' };
+
+  function $ (id) { return document.getElementById(id); }
+
+  /* ── Public API ──────────────────────────────────────────────── */
+  window.PlanFinder = {
+
+    open() {
+      $('pfOverlay').classList.add('open');
+      document.body.style.overflow = 'hidden';
+      setTimeout(() => $('pfInput').focus(), 120);
+    },
+
+    close() {
+      $('pfOverlay').classList.remove('open');
+      document.body.style.overflow = '';
+    },
+
+    reset() {
+      $('pfStep1').style.display = '';
+      $('pfStep2').style.display = 'none';
+      $('pfInput').value = '';
+      document.querySelectorAll('.pf-chip').forEach(c => c.classList.remove('picked'));
+      $('pfExploreCta').disabled = true;
+      $('pfDot1').className = 'pf-step-dot active';
+      $('pfDot2').className = 'pf-step-dot';
+    },
+
+    explore() {
+      const input = $('pfInput').value.trim();
+      if (!input) return;
+
+      /* Loading state */
+      const cta = $('pfExploreCta');
+      const origInner = cta.innerHTML;
+      cta.innerHTML = '<span class="pf-spinner"></span> Analyzing…';
+      cta.disabled = true;
+
+      /* Simulate brief AI thinking delay */
+      setTimeout(() => {
+        const { plan, planId, reason } = recommend(input);
+        const tc = TRACK_COLOR[plan.track];
+
+        /* Populate result */
+        $('pfResultTitle').textContent = plan.name;
+        $('pfResultQuote').textContent = '"' + input.slice(0, 120) + (input.length > 120 ? '…' : '') + '"';
+        $('pfRecTrack').textContent  = plan.trackLabel;
+        $('pfRecTrack').className    = 'pf-rec-track ' + tc + '-c';
+        $('pfRecName').textContent   = plan.name;
+        $('pfRecPrice').textContent  = plan.price;
+        $('pfRecCard').className     = 'pf-rec-card ' + tc + '-accent';
+        $('pfReason').textContent    = reason;
+
+        const featsEl = $('pfRecFeats');
+        featsEl.innerHTML = '';
+        plan.feats.forEach(f => {
+          const li = document.createElement('li');
+          li.textContent = f;
+          featsEl.appendChild(li);
+        });
+
+        const recCta = $('pfRecCta');
+        recCta.textContent = plan.ctaText;
+        recCta.href = plan.ctaHref;
+        recCta.className = 'pf-btn-primary ' + tc + '-btn';
+
+        /* Transition to step 2 */
+        $('pfDot1').className = 'pf-step-dot done';
+        $('pfDot2').className = 'pf-step-dot active';
+        $('pfStep1').style.display = 'none';
+        $('pfStep2').style.display = '';
+
+        cta.innerHTML = origInner;
+        cta.disabled = false;
+      }, 820);
+    },
+  };
+
+  /* ── Chip interaction ────────────────────────────────────────── */
+  document.addEventListener('DOMContentLoaded', () => {
+    const input   = $('pfInput');
+    const explCta = $('pfExploreCta');
+
+    /* Enable/disable CTA based on input */
+    input.addEventListener('input', () => {
+      explCta.disabled = input.value.trim().length === 0;
+    });
+
+    /* Chips populate textarea + toggle */
+    document.querySelectorAll('.pf-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const isActive = chip.classList.contains('picked');
+        document.querySelectorAll('.pf-chip').forEach(c => c.classList.remove('picked'));
+        if (!isActive) {
+          chip.classList.add('picked');
+          input.value = chip.dataset.value;
+        } else {
+          input.value = '';
+        }
+        explCta.disabled = input.value.trim().length === 0;
+      });
+    });
+
+    /* Close on overlay backdrop click */
+    $('pfOverlay').addEventListener('click', e => {
+      if (e.target === $('pfOverlay')) PlanFinder.close();
+    });
+
+    /* Close on Escape */
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && $('pfOverlay').classList.contains('open')) PlanFinder.close();
+    });
+  });
+})();
 </script>
 </body>
 </html>
