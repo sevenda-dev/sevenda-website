@@ -21,7 +21,7 @@ const SEVENDA_I18N = {
     'hero.pill':'Now powered by Claude Sonnet 4 →',
     'hero.h1':'Every click tells a story.<br><span class="dim">Sevenda reads it.</span>',
     'hero.sub':'Sevenda records your browser session and instantly generates BPMN 2.0 process diagrams AND actionable insights — helping developers, business analysts and marketing teams understand what really happens inside their digital processes.',
-    'hero.cta1':'Add to Chrome — it's free',
+    'hero.cta1':'Add to Chrome — it\'s free',
 
     /* ── HOW IT WORKS (index) ── */
     'how.label':'How it works',
@@ -664,7 +664,7 @@ const SEVENDA_I18N = {
     'hero.pill':'Maintenant avec Claude Sonnet 4 →',
     'hero.h1':'Chaque clic raconte une histoire.<br><span class="dim">Sevenda la lit.</span>',
     'hero.sub':'Sevenda enregistre votre session de navigation et génère instantanément des diagrammes de processus BPMN 2.0 et des insights actionnables — aidant les développeurs, analystes métier et équipes marketing à comprendre ce qui se passe vraiment dans leurs processus digitaux.',
-    'hero.cta1':'Ajouter à Chrome — c'est gratuit',
+    'hero.cta1':'Ajouter à Chrome — c\'est gratuit',
 
     'how.label':'Comment ça marche',
     'how.title':'Trois étapes vers un<br>diagramme BPMN',
