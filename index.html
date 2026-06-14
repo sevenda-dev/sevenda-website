@@ -870,6 +870,24 @@
       align-items: center;
       gap: 24px;
     }
+    /* ── LOGO FULL ────────────────────────────────────────────── */
+    .logo-full-wrap {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 80px 0 60px;
+      position: relative;
+      z-index: 1;
+    }
+    .logo-full {
+      width: 160px;
+      height: 160px;
+      object-fit: contain;
+      opacity: 0.82;
+      transition: opacity .4s;
+    }
+    .logo-full:hover { opacity: 1; }
+
     .foot-brand {
       display: flex;
       align-items: center;
@@ -2427,6 +2445,11 @@
     </div>
   </div>
 </section>
+
+<!-- ── LOGO FULL ──────────────────────────────────────────────── -->
+<div class="logo-full-wrap reveal">
+  <img src="/logo.svg" class="logo-full" alt="Sevenda">
+</div>
 
 <!-- ── CTA FOOTER ────────────────────────────────────────────── -->
 <section id="cta-foot">
