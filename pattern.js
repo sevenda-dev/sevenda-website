@@ -80,8 +80,7 @@
     window.addEventListener('resize',    () => { fit(); grid(); }, { passive: true });
     window.addEventListener('mousemove', onMove,  { passive: true });
     window.addEventListener('click',     onClick);
-    window.addEventListener('touchmove', onTouch, { passive: false });
-    window.addEventListener('touchend',  onTouchEnd, { passive: false });
+    window.addEventListener('touchend', onTouchEnd, { passive: true });
 
     t0 = performance.now();
     requestAnimationFrame(frame);
@@ -136,17 +135,9 @@
     spawn(e.clientX, e.clientY);
   }
 
-  function onTouch(e) {
-    e.preventDefault();
-    const t = e.touches[0];
-    mx = t.clientX; my = t.clientY;
-  }
-
   function onTouchEnd(e) {
-    e.preventDefault();
     const t = e.changedTouches[0];
     spawn(t.clientX, t.clientY);
-    setTimeout(() => { mx = -9e4; my = -9e4; }, 600);
   }
 
   /* ── SPAWN NODO ──────────────────────────────────────────── */
