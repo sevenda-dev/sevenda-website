@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>Order confirmed — Sevenda</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#0d0d0d; --surface:#111111; --green:#6BB89A;
+      --green-dim:rgba(107,184,154,.09); --green-border:rgba(107,184,154,.28);
+      --amber:#E0A458; --amber-dim:rgba(224,164,88,.1); --amber-border:rgba(224,164,88,.3);
+      --red:#e57373;
+      --text:#f0f0f0; --text-2:#8a8a8a; --text-3:#4a4a4a;
+      --font:'Geist',-apple-system,sans-serif; --mono:'Geist Mono','Courier New',monospace; --r-sm:8px;
+    }
+    *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+    body {
+      font-family:var(--font); background:var(--bg); color:var(--text);
+      min-height:100vh; display:flex; align-items:center; justify-content:center;
+      padding:24px; text-align:center; -webkit-font-smoothing:antialiased;
+    }
+    a { color:inherit; }
+    .card { max-width:460px; }
+    .icon {
+      width:76px; height:76px; border-radius:50%; margin:0 auto 26px;
+      display:flex; align-items:center; justify-content:center; font-size:34px;
+    }
+    .icon.ok   { background:var(--green-dim); border:1px solid var(--green-border); color:var(--green); }
+    .icon.wait { background:var(--amber-dim); border:1px solid var(--amber-border); color:var(--amber); }
+    .icon.err  { background:rgba(229,115,115,.1); border:1px solid rgba(229,115,115,.3); color:var(--red); }
+    h1 { font-size:26px; font-weight:600; letter-spacing:-.03em; margin-bottom:10px; }
+    p  { font-size:14.5px; color:var(--text-2); line-height:1.6; margin-bottom:8px; }
+    .ref { font-family:var(--mono); font-size:12px; color:var(--text-3); margin-top:14px; word-break:break-all; }
+    .btn {
+      display:inline-block; margin-top:28px; padding:12px 26px; border-radius:var(--r-sm);
+      background:var(--green); color:#0c0c0c; font-size:14px; font-weight:600; text-decoration:none;
+      transition:opacity .15s;
+    }
+    .btn:hover { opacity:.85; }
+    .btn-ghost { background:transparent; border:1px solid #2a2a2a; color:var(--text); margin-left:10px; }
+  </style>
+</head>
+<body>
+  <div class="card" id="card">
+    <div class="icon ok" id="icon">✓</div>
+    <h1 id="title">Payment confirmed</h1>
+    <p id="msg">Thanks for subscribing to Sevenda. A confirmation and onboarding link are on their way to your inbox.</p>
+    <p class="ref" id="ref"></p>
+    <div>
+      <a href="/" class="btn">Go to homepage</a>
+      <a href="/docs.html" class="btn btn-ghost">Read the docs</a>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const qs = new URLSearchParams(location.search);
+      const status = qs.get('redirect_status'); // succeeded | processing | failed | requires_payment_method
+      const pi = qs.get('payment_intent');
+      const icon = document.getElementById('icon');
+      const title = document.getElementById('title');
+      const msg = document.getElementById('msg');
+      const ref = document.getElementById('ref');
+
+      if (status === 'processing') {
+        icon.className = 'icon wait'; icon.textContent = '⏳';
+        title.textContent = 'Payment processing';
+        msg.textContent = 'Your payment is being processed. We\'ll email you once it\'s confirmed.';
+      } else if (status && status !== 'succeeded') {
+        icon.className = 'icon err'; icon.textContent = '!';
+        title.textContent = 'Payment not completed';
+        msg.innerHTML = 'Something went wrong with your payment. Please <a href="/pricing.html">try again</a> or contact <a href="mailto:hello@sevenda.dev">hello@sevenda.dev</a>.';
+      }
+      if (pi) ref.textContent = 'Ref: ' + pi;
+    })();
+  </script>
+</body>
+</html>

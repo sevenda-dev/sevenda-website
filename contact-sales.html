@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>Contact Sales — Sevenda</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="supabase.config.js"></script>
+
+  <style>
+    :root {
+      --bg:#0d0d0d; --surface:#111111; --surface-2:#191919;
+      --border:#1e1e1e; --border-2:#2a2a2a;
+      --green:#6BB89A; --green-dim:rgba(107,184,154,.09); --green-border:rgba(107,184,154,.28);
+      --text:#f0f0f0; --text-2:#8a8a8a; --text-3:#4a4a4a;
+      --font:'Geist',-apple-system,sans-serif; --mono:'Geist Mono','Courier New',monospace;
+      --r:12px; --r-sm:8px;
+    }
+    *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+    body {
+      font-family:var(--font); background:var(--bg); color:var(--text);
+      line-height:1.6; -webkit-font-smoothing:antialiased;
+    }
+    a { color:inherit; text-decoration:none; }
+    button { cursor:pointer; font-family:var(--font); border:none; outline:none; background:none; }
+
+    .cs-nav {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:18px 32px; border-bottom:1px solid var(--border);
+    }
+    .cs-logo { display:flex; align-items:center; gap:9px; font-weight:600; font-size:16px; }
+    .cs-logo img { width:24px; height:24px; }
+    .cs-back { font-size:13px; color:var(--text-2); transition:color .15s; }
+    .cs-back:hover { color:var(--text); }
+
+    .cs-wrap { max-width:620px; margin:0 auto; padding:64px 24px 90px; }
+    .cs-eyebrow {
+      font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase;
+      color:var(--green); margin-bottom:12px;
+    }
+    .cs-h1 { font-size:34px; font-weight:600; letter-spacing:-.035em; margin-bottom:10px; }
+    .cs-sub { font-size:15px; color:var(--text-2); margin-bottom:38px; line-height:1.55; }
+
+    .cs-field { margin-bottom:18px; }
+    .cs-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    .cs-label { font-size:13px; font-weight:500; margin-bottom:8px; display:block; }
+    .cs-label .req { color:var(--text-3); font-weight:400; }
+    .cs-input, .cs-select, .cs-textarea {
+      width:100%; padding:11px 13px; background:var(--surface-2);
+      border:1px solid var(--border-2); border-radius:var(--r-sm);
+      color:var(--text); font-size:14px; font-family:var(--font); outline:none;
+      transition:border-color .15s;
+    }
+    .cs-textarea { min-height:120px; resize:vertical; line-height:1.55; }
+    .cs-select { appearance:none;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='6' viewBox='0 0 8 6'%3E%3Cpath fill='%238a8a8a' d='M0 0l4 6 4-6z'/%3E%3C/svg%3E");
+      background-repeat:no-repeat; background-position:right 12px center; padding-right:30px;
+    }
+    .cs-input:focus, .cs-select:focus, .cs-textarea:focus { border-color:rgba(255,255,255,.3); }
+    .cs-input.err, .cs-select.err, .cs-textarea.err { border-color:#e57373; }
+    .cs-input::placeholder, .cs-textarea::placeholder { color:var(--text-3); }
+
+    .cs-submit {
+      width:100%; margin-top:10px; padding:13px; border-radius:var(--r-sm);
+      background:var(--green); color:#0c0c0c; font-size:14.5px; font-weight:600;
+      transition:opacity .15s; display:flex; align-items:center; justify-content:center; gap:9px;
+    }
+    .cs-submit:hover:not(:disabled) { opacity:.85; }
+    .cs-submit:disabled { opacity:.5; cursor:not-allowed; }
+    .cs-foot-note { font-size:12px; color:var(--text-3); text-align:center; margin-top:16px; }
+
+    .cs-spinner {
+      width:15px; height:15px; border-radius:50%;
+      border:2px solid rgba(0,0,0,.25); border-top-color:#0c0c0c;
+      animation:cs-spin .6s linear infinite; display:inline-block;
+    }
+    @keyframes cs-spin { to { transform:rotate(360deg); } }
+
+    /* Success state */
+    .cs-success { display:none; text-align:center; padding:40px 0; }
+    .cs-success.show { display:block; }
+    .cs-success-icon {
+      width:64px; height:64px; border-radius:50%; margin:0 auto 22px;
+      background:var(--green-dim); border:1px solid var(--green-border);
+      display:flex; align-items:center; justify-content:center; font-size:28px; color:var(--green);
+    }
+    .cs-success h2 { font-size:24px; font-weight:600; margin-bottom:8px; }
+    .cs-success p  { font-size:14px; color:var(--text-2); }
+    .cs-success a  { color:var(--green); }
+
+    @media (max-width:560px) { .cs-grid-2 { grid-template-columns:1fr; } .cs-h1 { font-size:28px; } }
+  </style>
+</head>
+<body>
+
+<nav class="cs-nav">
+  <a href="/" class="cs-logo"><img src="/logo.svg" alt="Sevenda"> Sevenda</a>
+  <a href="/pricing.html" class="cs-back">← Back to pricing</a>
+</nav>
+
+<div class="cs-wrap">
+
+  <!-- FORM -->
+  <div id="csForm">
+    <p class="cs-eyebrow">// Enterprise</p>
+    <h1 class="cs-h1">Talk to our team</h1>
+    <p class="cs-sub">
+      Tell us about your organization and what you'd like to achieve with Sevenda.
+      We'll get back to you with a tailored plan, custom pricing and onboarding.
+    </p>
+
+    <div class="cs-grid-2">
+      <div class="cs-field">
+        <label class="cs-label" for="csName">Full name <span class="req">(required)</span></label>
+        <input class="cs-input" type="text" id="csName" autocomplete="name">
+      </div>
+      <div class="cs-field">
+        <label class="cs-label" for="csEmail">Work email <span class="req">(required)</span></label>
+        <input class="cs-input" type="email" id="csEmail" placeholder="you@company.com" autocomplete="email">
+      </div>
+    </div>
+
+    <div class="cs-grid-2">
+      <div class="cs-field">
+        <label class="cs-label" for="csCompany">Company <span class="req">(required)</span></label>
+        <input class="cs-input" type="text" id="csCompany" autocomplete="organization">
+      </div>
+      <div class="cs-field">
+        <label class="cs-label" for="csSize">Team size</label>
+        <select class="cs-select" id="csSize">
+          <option value="1-10">1–10</option>
+          <option value="11-50" selected>11–50</option>
+          <option value="51-200">51–200</option>
+          <option value="200+">200+</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="cs-field">
+      <label class="cs-label" for="csPhone">Phone <span class="req">(optional)</span></label>
+      <input class="cs-input" type="tel" id="csPhone" autocomplete="tel">
+    </div>
+
+    <div class="cs-field">
+      <label class="cs-label" for="csMessage">What are you looking to do? <span class="req">(required)</span></label>
+      <textarea class="cs-textarea" id="csMessage" placeholder="E.g. We want to document processes across 4 teams and integrate with Jira & Confluence..."></textarea>
+    </div>
+
+    <button class="cs-submit" id="csSubmit">Request a call</button>
+    <p class="cs-foot-note">We typically respond within one business day.</p>
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="cs-success" id="csSuccess">
+    <div class="cs-success-icon">✓</div>
+    <h2>Thanks — message sent.</h2>
+    <p>Our team will reach out shortly. Meanwhile you can <a href="/pricing.html">explore the plans</a>.</p>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const SUPA = window.SUPABASE_CONFIG || {};
+  // Endpoint Edge Function (opzionale). Se non configurato → fallback mailto.
+  const ENDPOINT = (window.STRIPE_CONFIG && window.STRIPE_CONFIG.edgeFunctionBase)
+    ? window.STRIPE_CONFIG.edgeFunctionBase + '/contact-sales'
+    : (SUPA.url ? SUPA.url.replace(/\/$/, '') + '/functions/v1/contact-sales' : null);
+
+  function collect() {
+    return {
+      name:    $('csName').value.trim(),
+      email:   $('csEmail').value.trim(),
+      company: $('csCompany').value.trim(),
+      size:    $('csSize').value,
+      phone:   $('csPhone').value.trim(),
+      message: $('csMessage').value.trim(),
+      plan:    new URLSearchParams(location.search).get('plan') || '',
+    };
+  }
+
+  function validate(d) {
+    let ok = true;
+    [['csName', d.name], ['csEmail', d.email], ['csCompany', d.company], ['csMessage', d.message]].forEach(([id, v]) => {
+      const empty = !v;
+      $(id).classList.toggle('err', empty);
+      if (empty) ok = false;
+    });
+    if (d.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)) { $('csEmail').classList.add('err'); ok = false; }
+    return ok;
+  }
+
+  function mailtoFallback(d) {
+    const subject = encodeURIComponent('Enterprise enquiry — ' + d.company);
+    const body = encodeURIComponent(
+      'Name: ' + d.name + '\nEmail: ' + d.email + '\nCompany: ' + d.company +
+      '\nTeam size: ' + d.size + '\nPhone: ' + (d.phone || '—') +
+      (d.plan ? ('\nPlan of interest: ' + d.plan) : '') +
+      '\n\nMessage:\n' + d.message
+    );
+    window.location.href = 'mailto:hello@sevenda.dev?subject=' + subject + '&body=' + body;
+  }
+
+  function showSuccess() {
+    $('csForm').style.display = 'none';
+    $('csSuccess').classList.add('show');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  document.querySelectorAll('.cs-input, .cs-select, .cs-textarea').forEach(el =>
+    el.addEventListener('input', () => el.classList.remove('err')));
+
+  $('csSubmit').addEventListener('click', async () => {
+    const d = collect();
+    if (!validate(d)) return;
+
+    const btn = $('csSubmit');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="cs-spinner"></span> Sending…';
+
+    // Nessuna Edge Function configurata → mailto
+    if (!ENDPOINT) { mailtoFallback(d); btn.disabled = false; btn.textContent = 'Request a call'; return; }
+
+    try {
+      const res = await fetch(ENDPOINT, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPA.anonKey || '',
+          'Authorization': 'Bearer ' + (SUPA.anonKey || ''),
+        },
+        body: JSON.stringify(d),
+      });
+      if (!res.ok) throw new Error('send failed');
+      showSuccess();
+    } catch (err) {
+      // Fallback su mailto se la function fallisce
+      mailtoFallback(d);
+      btn.disabled = false;
+      btn.textContent = 'Request a call';
+    }
+  });
+})();
+</script>
+</body>
+</html>

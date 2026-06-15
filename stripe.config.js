@@ -101,3 +101,53 @@ function isStripeLinksConfigured(planId, billing) {
   const link = STRIPE_PAYMENT_LINKS[planId]?.[billing];
   return link && !link.includes('/test/') && !link.startsWith('mailto:');
 }
+
+/* ════════════════════════════════════════════════════════════════
+   STRIPE ELEMENTS — checkout custom (checkout.html)
+   ════════════════════════════════════════════════════════════════
+   Setup:
+   1. Stripe Dashboard > Developers > API keys → copia la "Publishable key"
+      (pk_live_… o pk_test_…) e incollala in publishableKey qui sotto.
+      ⚠️ NON inserire MAI la Secret key (sk_…) in questo file: vive solo
+      nella Supabase Edge Function come variabile d'ambiente.
+   2. Deploya la Edge Function `create-subscription`
+      (supabase/functions/create-subscription/index.ts) con:
+        supabase functions deploy create-subscription
+        supabase secrets set STRIPE_SECRET_KEY=sk_live_…
+   3. Imposta sotto `edgeFunctionBase` con l'URL del tuo progetto Supabase
+      (Project Settings > API > Project URL) + /functions/v1
+   4. Crea i Price su Stripe (uno per piano × intervallo) e mappa gli ID
+      nella PRICE_MAP della Edge Function (lato server, non qui).
+   ════════════════════════════════════════════════════════════════ */
+window.STRIPE_CONFIG = {
+  // Chiave pubblica Stripe (sicura da esporre lato client)
+  publishableKey: 'pk_test_REPLACE_WITH_YOUR_PUBLISHABLE_KEY',
+  // Base URL delle Supabase Edge Functions del tuo progetto
+  // es. 'https://hxhtqcnxnuvymmgegcty.supabase.co/functions/v1'
+  edgeFunctionBase: 'https://hxhtqcnxnuvymmgegcty.supabase.co/functions/v1',
+  // Valuta usata per il display
+  currency: 'EUR',
+  currencySymbol: '€',
+};
+
+/* ── Catalogo piani (display + pricing) ──────────────────────────
+   I prezzi sono per-utente/mese (IVA esclusa). Annual = 12 mesi
+   fatturati in un'unica soluzione, già scontato del ~25%.
+   I Price ID Stripe NON sono qui: sono mappati lato server nella
+   Edge Function per evitare manomissioni dal client. */
+window.PLAN_CATALOG = {
+  analyst: { name: 'Solo',         track: 'process',   accent: 'blue',   tagline: 'For the independent developer', prices: { annual: 11, monthly: 14 }, seats: { min: 1, max: 1, fixed: true } },
+  studio:  { name: 'Team',         track: 'process',   accent: 'green',  tagline: 'For agile teams and consultants', prices: { annual: 18, monthly: 23 }, seats: { min: 2, max: 5 } },
+  auditor: { name: 'Auditor',      track: 'analytics', accent: 'blue',   tagline: 'For the GTM / GA4 specialist', prices: { annual: 11, monthly: 14 }, seats: { min: 1, max: 1, fixed: true } },
+  agency:  { name: 'Agency',       track: 'analytics', accent: 'green',  tagline: 'For analytics teams and agencies', prices: { annual: 18, monthly: 23 }, seats: { min: 2, max: 5 } },
+  ssolo:   { name: 'Suite — Solo', track: 'suite',     accent: 'purple', tagline: 'Process + Analytics, one seat', prices: { annual: 17, monthly: 22 }, seats: { min: 1, max: 1, fixed: true } },
+  steam:   { name: 'Suite — Team', track: 'suite',     accent: 'purple', tagline: 'Process + Analytics for teams', prices: { annual: 25, monthly: 32 }, seats: { min: 2, max: 5 } },
+};
+
+/* Helper: true se la chiave pubblica e la Edge Function sono configurate */
+function isStripeElementsConfigured() {
+  const c = window.STRIPE_CONFIG;
+  return !!c
+    && c.publishableKey && !c.publishableKey.includes('REPLACE_WITH')
+    && c.edgeFunctionBase && !c.edgeFunctionBase.includes('REPLACE_WITH');
+}

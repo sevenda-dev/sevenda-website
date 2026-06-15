@@ -2478,8 +2478,7 @@
         <a href="/pricing.html" class="p-see-all" data-i18n="plan.see-all">See all features →</a>
         <a href="#" class="btn p-cta-solo"
            data-action="checkout"
-           data-link-annual="https://buy.stripe.com/SOLO_ANNUAL"
-           data-link-monthly="https://buy.stripe.com/SOLO_MONTHLY"
+           data-plan="analyst" data-qty="1"
            data-i18n="plan.solo.cta">Start 14-day free trial</a>
       </div>
 
@@ -2512,8 +2511,7 @@
         <a href="/pricing.html" class="p-see-all" data-i18n="plan.see-all">See all features →</a>
         <a href="#" class="btn p-cta-team"
            data-action="checkout"
-           data-link-annual="https://buy.stripe.com/TEAM_ANNUAL"
-           data-link-monthly="https://buy.stripe.com/TEAM_MONTHLY"
+           data-plan="studio" data-qty="2"
            data-i18n="plan.team.cta">Start with your team</a>
       </div>
 
@@ -2536,8 +2534,8 @@
           <li class="on"><span class="feat-check y">✓</span><span data-i18n="pf.ent.5">Dedicated onboarding + CSM</span></li>
         </ul>
         <a href="/pricing.html" class="p-see-all" data-i18n="plan.see-all">See all features →</a>
-        <a href="mailto:hello@sevenda.dev?subject=Enterprise Plan — Sevenda" class="btn p-cta-enterprise"
-           data-action="contact" data-i18n="plan.enterprise.cta">Contact us</a>
+        <a href="/contact-sales.html?plan=pent" class="btn p-cta-enterprise"
+           data-i18n="plan.enterprise.cta">Contact us</a>
       </div>
 
     </div>
@@ -2894,25 +2892,15 @@
       ?.dataset.billing || 'annual';
   }
 
-  function showStripeNotice(anchor) {
-    if (anchor.parentElement.querySelector('.stripe-notice')) return;
-    const notice = document.createElement('div');
-    notice.className = 'stripe-notice';
-    notice.textContent = 'Checkout coming soon — contact us at hello@sevenda.dev';
-    anchor.parentElement.appendChild(notice);
-    setTimeout(() => notice.remove(), 4000);
-  }
-
   document.querySelectorAll('#pricing [data-action="checkout"]').forEach(btn => {
     btn.addEventListener('click', e => {
       e.preventDefault();
-      const billing = getIdxBilling();
-      const link = billing === 'annual' ? btn.dataset.linkAnnual : btn.dataset.linkMonthly;
-      if (link && !link.includes('PLACEHOLDER')) {
-        window.location.href = link;
-      } else {
-        showStripeNotice(btn);
-      }
+      const params = new URLSearchParams({
+        plan:     btn.dataset.plan || 'studio',
+        interval: getIdxBilling(),
+        qty:      btn.dataset.qty || '1',
+      });
+      window.location.href = '/checkout.html?' + params.toString();
     });
   });
 

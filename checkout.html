@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>Checkout — Sevenda</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <!-- Stripe.js -->
+  <script src="https://js.stripe.com/v3/"></script>
+  <script src="stripe.config.js"></script>
+  <script src="supabase.config.js"></script>
+  <script defer src="auth.js"></script>
+
+  <style>
+    :root {
+      --bg:#0d0d0d; --surface:#111111; --surface-2:#191919;
+      --border:#1e1e1e; --border-2:#2a2a2a;
+      --green:#6BB89A; --green-dim:rgba(107,184,154,.09); --green-border:rgba(107,184,154,.28);
+      --blue:#7EABD4; --purple:#C49BD6;
+      --text:#f0f0f0; --text-2:#8a8a8a; --text-3:#4a4a4a;
+      --font:'Geist',-apple-system,sans-serif; --mono:'Geist Mono','Courier New',monospace;
+      --r:12px; --r-sm:8px;
+    }
+    *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+    html { scroll-behavior:smooth; }
+    body {
+      font-family:var(--font); background:var(--bg); color:var(--text);
+      line-height:1.6; -webkit-font-smoothing:antialiased; overflow-x:hidden;
+    }
+    a { color:inherit; text-decoration:none; }
+    button { cursor:pointer; font-family:var(--font); border:none; outline:none; background:none; }
+    ul { list-style:none; }
+
+    /* ── NAV minimale ── */
+    .co-nav {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:18px 32px; border-bottom:1px solid var(--border);
+      position:sticky; top:0; background:rgba(13,13,13,.85);
+      backdrop-filter:blur(10px); z-index:50;
+    }
+    .co-logo { display:flex; align-items:center; gap:9px; font-weight:600; font-size:16px; }
+    .co-logo img { width:24px; height:24px; }
+    .co-back { font-size:13px; color:var(--text-2); transition:color .15s; }
+    .co-back:hover { color:var(--text); }
+
+    /* ── LAYOUT ── */
+    .co-wrap {
+      max-width:1160px; margin:0 auto; padding:48px 32px 80px;
+      display:grid; grid-template-columns:1fr 380px; gap:48px; align-items:start;
+    }
+    .co-main { min-width:0; }
+    .co-h1 { font-size:28px; font-weight:600; letter-spacing:-.03em; margin-bottom:4px; }
+    .co-allplans { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--text-2); margin-bottom:22px; transition:color .15s; }
+    .co-allplans:hover { color:var(--text); }
+
+    /* ── STEPPER ── */
+    .co-stepper {
+      display:flex; align-items:center; gap:0; margin:26px 0 36px;
+      border-bottom:1px solid var(--border); padding-bottom:0; position:relative;
+    }
+    .co-step {
+      display:flex; align-items:center; gap:9px; padding:0 22px 16px; position:relative;
+      font-size:14px; color:var(--text-3); white-space:nowrap;
+    }
+    .co-step:first-child { padding-left:0; }
+    .co-step-num {
+      width:18px; height:18px; border-radius:50%; border:1.5px solid var(--text-3);
+      display:flex; align-items:center; justify-content:center; font-size:10px; flex-shrink:0;
+    }
+    .co-step.active { color:var(--text); }
+    .co-step.active .co-step-num { border-color:#ff6c37; background:#ff6c37; color:#0c0c0c; }
+    .co-step.done { color:var(--text-2); }
+    .co-step.done .co-step-num { border-color:var(--green); background:var(--green); color:#0c0c0c; }
+    .co-stepper-bar {
+      position:absolute; bottom:-1px; left:0; height:2px; background:#ff6c37;
+      transition:width .3s ease, left .3s ease;
+    }
+
+    /* ── STEP PANELS ── */
+    .co-panel { display:none; animation:co-fade .25s ease; }
+    .co-panel.active { display:block; }
+    @keyframes co-fade { from { opacity:0; transform:translateY(8px); } }
+    .co-section-title { font-size:16px; font-weight:600; margin-bottom:4px; }
+    .co-section-sub { font-size:13px; color:var(--text-2); margin-bottom:20px; }
+
+    /* ── Subscription step ── */
+    .co-plan-row {
+      display:flex; align-items:flex-start; justify-content:space-between;
+      padding:20px 0; border-bottom:1px solid var(--border);
+    }
+    .co-plan-name { font-size:18px; font-weight:600; }
+    .co-plan-price { font-size:14px; color:var(--text-2); margin-top:3px; }
+    .co-remove { font-size:13px; color:var(--text-2); display:inline-flex; align-items:center; gap:6px; transition:color .15s; }
+    .co-remove:hover { color:#e57373; }
+
+    .co-field-group { margin-top:26px; }
+    .co-label { font-size:13px; font-weight:500; margin-bottom:8px; display:block; }
+    .co-label .req { color:var(--text-3); font-weight:400; }
+
+    /* Interval toggle */
+    .co-interval {
+      display:inline-flex; background:var(--surface-2); border:1px solid var(--border-2);
+      border-radius:var(--r-sm); padding:4px; gap:4px;
+    }
+    .co-interval button {
+      padding:8px 18px; border-radius:6px; font-size:13px; font-weight:500;
+      color:var(--text-2); transition:all .15s; display:flex; align-items:center; gap:8px;
+    }
+    .co-interval button.on { background:var(--surface); color:var(--text); }
+    .co-save-pill {
+      font-size:9.5px; font-weight:600; letter-spacing:.04em; color:var(--green);
+      background:var(--green-dim); border:1px solid var(--green-border);
+      border-radius:20px; padding:1px 7px;
+    }
+
+    /* Qty stepper */
+    .co-qty { display:inline-flex; align-items:center; gap:0; border:1px solid var(--border-2); border-radius:var(--r-sm); overflow:hidden; }
+    .co-qty button { width:38px; height:38px; font-size:18px; color:var(--text-2); transition:background .15s; }
+    .co-qty button:hover:not(:disabled) { background:var(--surface-2); color:var(--text); }
+    .co-qty button:disabled { opacity:.3; cursor:not-allowed; }
+    .co-qty-val { min-width:46px; text-align:center; font-size:15px; font-weight:500; }
+    .co-qty-hint { font-size:12px; color:var(--text-3); margin-top:8px; }
+
+    /* ── Forms ── */
+    .co-radio-list { display:flex; flex-direction:column; gap:12px; margin-bottom:26px; }
+    .co-radio { display:flex; align-items:center; gap:10px; font-size:14px; cursor:pointer; }
+    .co-radio input { accent-color:#ff6c37; width:16px; height:16px; }
+    .co-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    .co-input, .co-select {
+      width:100%; padding:11px 13px; background:var(--surface-2);
+      border:1px solid var(--border-2); border-radius:var(--r-sm);
+      color:var(--text); font-size:14px; font-family:var(--font); outline:none;
+      transition:border-color .15s;
+    }
+    .co-select { appearance:none;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='6' viewBox='0 0 8 6'%3E%3Cpath fill='%238a8a8a' d='M0 0l4 6 4-6z'/%3E%3C/svg%3E");
+      background-repeat:no-repeat; background-position:right 12px center; padding-right:30px;
+    }
+    .co-input:focus, .co-select:focus { border-color:rgba(255,255,255,.3); }
+    .co-input.err, .co-select.err { border-color:#e57373; }
+    .co-input::placeholder { color:var(--text-3); }
+    .co-field { margin-bottom:18px; }
+    .co-field-hint { font-size:12px; color:var(--text-3); margin-top:5px; }
+    .co-fields-block { margin-top:28px; }
+    .co-fields-block > h3 { font-size:14px; font-weight:600; margin-bottom:4px; }
+    .co-fields-block > p  { font-size:12.5px; color:var(--text-2); margin-bottom:16px; }
+
+    /* ── Payment step ── */
+    #co-payment-element { margin-top:8px; min-height:80px; }
+    .co-pay-disclaimer { font-size:12px; color:var(--text-3); margin-top:18px; line-height:1.5; }
+    .co-notice {
+      padding:16px 18px; border-radius:var(--r-sm); font-size:13px; line-height:1.55;
+      background:rgba(255,108,55,.07); border:1px solid rgba(255,108,55,.28); color:#f0c4ad;
+    }
+    .co-notice code { font-family:var(--mono); font-size:12px; color:#ffb38a; }
+    .co-error { color:#e57373; font-size:13px; margin-top:14px; min-height:18px; }
+
+    /* ── SIDEBAR (Subscription Summary) ── */
+    .co-summary {
+      background:var(--surface); border:1px solid var(--border-2);
+      border-radius:var(--r); padding:26px; position:sticky; top:96px;
+    }
+    .co-summary h2 { font-size:18px; font-weight:600; margin-bottom:20px; }
+    .co-sum-line { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+    .co-sum-plan { font-size:14px; font-weight:600; }
+    .co-sum-seats { font-size:12.5px; color:var(--text-2); margin-top:3px; }
+    .co-sum-amt { font-size:14px; font-weight:600; white-space:nowrap; }
+    .co-sum-div { height:1px; background:var(--border); margin:18px 0; }
+    .co-sum-row { display:flex; justify-content:space-between; font-size:13.5px; color:var(--text-2); padding:4px 0; }
+    .co-sum-total { display:flex; justify-content:space-between; font-size:17px; font-weight:600; color:var(--text); margin-top:6px; }
+    .co-sum-note { font-size:11.5px; color:var(--text-3); margin-top:8px; line-height:1.5; }
+
+    .co-terms { margin:20px 0 0; display:flex; flex-direction:column; gap:12px; }
+    .co-term { display:flex; align-items:flex-start; gap:9px; font-size:12px; color:var(--text-2); line-height:1.5; cursor:pointer; }
+    .co-term input { accent-color:var(--green); width:15px; height:15px; flex-shrink:0; margin-top:1px; }
+    .co-term a { color:var(--text); text-decoration:underline; }
+
+    .co-action {
+      width:100%; margin-top:20px; padding:13px; border-radius:var(--r-sm);
+      background:var(--green); color:#0c0c0c; font-size:14.5px; font-weight:600;
+      transition:opacity .15s; display:flex; align-items:center; justify-content:center; gap:9px;
+    }
+    .co-action:hover:not(:disabled) { opacity:.85; }
+    .co-action:disabled { opacity:.4; cursor:not-allowed; }
+    .co-renew { display:flex; align-items:center; justify-content:center; gap:7px; font-size:12px; color:var(--text-3); margin-top:14px; }
+
+    .co-spinner {
+      width:15px; height:15px; border-radius:50%;
+      border:2px solid rgba(0,0,0,.25); border-top-color:#0c0c0c;
+      animation:co-spin .6s linear infinite; display:inline-block;
+    }
+    @keyframes co-spin { to { transform:rotate(360deg); } }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width:920px) {
+      .co-wrap { grid-template-columns:1fr; gap:32px; }
+      .co-summary { position:static; order:-1; }
+      .co-stepper { overflow-x:auto; }
+    }
+    @media (max-width:560px) {
+      .co-wrap { padding:32px 18px 60px; }
+      .co-grid-2 { grid-template-columns:1fr; }
+      .co-step { padding:0 12px 14px; font-size:13px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="co-nav">
+  <a href="/" class="co-logo"><img src="/logo.svg" alt="Sevenda"> Sevenda</a>
+  <a href="/pricing.html" class="co-back">← Back to pricing</a>
+</nav>
+
+<!-- CHECKOUT -->
+<div class="co-wrap">
+
+  <!-- MAIN -->
+  <div class="co-main">
+    <a href="/pricing.html" class="co-allplans">← All plans</a>
+    <h1 class="co-h1">Purchase plan</h1>
+
+    <!-- Stepper -->
+    <div class="co-stepper" id="coStepper">
+      <div class="co-step active" data-step="1"><span class="co-step-num">1</span> Subscription</div>
+      <div class="co-step"        data-step="2"><span class="co-step-num">2</span> Billing Information</div>
+      <div class="co-step"        data-step="3"><span class="co-step-num">3</span> Payment</div>
+      <div class="co-stepper-bar" id="coStepperBar"></div>
+    </div>
+
+    <!-- ── STEP 1: SUBSCRIPTION ── -->
+    <div class="co-panel active" data-panel="1">
+      <div class="co-plan-row">
+        <div>
+          <div class="co-plan-name" id="coPlanName">Plan</div>
+          <div class="co-plan-price" id="coPlanPrice">—</div>
+        </div>
+        <a href="/pricing.html" class="co-remove">🗑 Remove</a>
+      </div>
+
+      <div class="co-field-group">
+        <label class="co-label">Billing period</label>
+        <div class="co-interval" id="coInterval">
+          <button data-interval="monthly">Monthly</button>
+          <button data-interval="annual" class="on">Annual <span class="co-save-pill">SAVE 25%</span></button>
+        </div>
+      </div>
+
+      <div class="co-field-group" id="coQtyGroup">
+        <label class="co-label">Number of seats</label>
+        <div class="co-qty">
+          <button id="coQtyMinus">−</button>
+          <span class="co-qty-val" id="coQtyVal">1</span>
+          <button id="coQtyPlus">+</button>
+        </div>
+        <p class="co-qty-hint" id="coQtyHint"></p>
+      </div>
+    </div>
+
+    <!-- ── STEP 2: BILLING ── -->
+    <div class="co-panel" data-panel="2">
+      <div class="co-section-title">I'm buying Sevenda for</div>
+      <div class="co-section-sub">Choose who this subscription is for.</div>
+      <div class="co-radio-list">
+        <label class="co-radio"><input type="radio" name="co-buyfor" value="my-team" checked> My team</label>
+        <label class="co-radio"><input type="radio" name="co-buyfor" value="other-team"> A different team in my organization</label>
+        <label class="co-radio"><input type="radio" name="co-buyfor" value="other-org"> A different organization</label>
+      </div>
+
+      <div class="co-field">
+        <label class="co-label" for="coEmail">Your email <span class="req">(required)</span></label>
+        <input class="co-input" type="email" id="coEmail" placeholder="you@company.com" autocomplete="email">
+        <p class="co-field-hint">You'll receive an onboarding link to set up and manage the plan.</p>
+      </div>
+
+      <div class="co-fields-block">
+        <h3>Billing information</h3>
+        <p>This will be displayed on all your invoices and billing communication.</p>
+
+        <div class="co-field">
+          <label class="co-label" for="coCompany">Company name <span class="req">(required)</span></label>
+          <input class="co-input" type="text" id="coCompany" placeholder="Acme Inc." autocomplete="organization">
+        </div>
+
+        <div class="co-field">
+          <label class="co-label" for="coCountry">Country <span class="req">(required)</span></label>
+          <select class="co-select" id="coCountry" autocomplete="country">
+            <option value="">Select a country</option>
+            <option value="IT">Italy</option>
+            <option value="ES">Spain</option>
+            <option value="FR">France</option>
+            <option value="DE">Germany</option>
+            <option value="NL">Netherlands</option>
+            <option value="BE">Belgium</option>
+            <option value="PT">Portugal</option>
+            <option value="IE">Ireland</option>
+            <option value="AT">Austria</option>
+            <option value="GB">United Kingdom</option>
+            <option value="US">United States</option>
+            <option value="CA">Canada</option>
+            <option value="CH">Switzerland</option>
+            <option value="OTHER">Other</option>
+          </select>
+        </div>
+
+        <div class="co-field">
+          <label class="co-label" for="coAddr1">Address line 1 <span class="req">(required)</span></label>
+          <input class="co-input" type="text" id="coAddr1" placeholder="Street and number" autocomplete="address-line1">
+        </div>
+        <div class="co-field">
+          <label class="co-label" for="coAddr2">Address line 2 <span class="req">(optional)</span></label>
+          <input class="co-input" type="text" id="coAddr2" placeholder="Suite, floor, etc." autocomplete="address-line2">
+        </div>
+
+        <div class="co-grid-2">
+          <div class="co-field">
+            <label class="co-label" for="coCity">City <span class="req">(required)</span></label>
+            <input class="co-input" type="text" id="coCity" autocomplete="address-level2">
+          </div>
+          <div class="co-field">
+            <label class="co-label" for="coState">State / Province <span class="req">(required)</span></label>
+            <input class="co-input" type="text" id="coState" autocomplete="address-level1">
+          </div>
+        </div>
+
+        <div class="co-grid-2">
+          <div class="co-field">
+            <label class="co-label" for="coZip">Zip / Postal code <span class="req">(required)</span></label>
+            <input class="co-input" type="text" id="coZip" autocomplete="postal-code">
+          </div>
+          <div class="co-field">
+            <label class="co-label" for="coPhone">Phone number <span class="req">(optional)</span></label>
+            <input class="co-input" type="tel" id="coPhone" autocomplete="tel">
+          </div>
+        </div>
+
+        <div class="co-field">
+          <label class="co-label" for="coVat">VAT ID <span class="req">(optional)</span></label>
+          <input class="co-input" type="text" id="coVat" placeholder="e.g. IT12345678901">
+          <p class="co-field-hint">This will appear on future invoices.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STEP 3: PAYMENT ── -->
+    <div class="co-panel" data-panel="3">
+      <div class="co-section-title">Payment</div>
+      <div class="co-section-sub">All transactions are secure and encrypted by Stripe.</div>
+
+      <div id="coPaymentReady" style="display:none;">
+        <div id="co-payment-element"><!-- Stripe Elements mounts here --></div>
+        <p class="co-pay-disclaimer">
+          By providing your card information, you authorize Sevenda to charge your card
+          for current and future payments in accordance with the terms.
+        </p>
+        <div class="co-error" id="coPayError"></div>
+      </div>
+
+      <div id="coPaymentConfigNotice" class="co-notice" style="display:none;">
+        <strong>Stripe non ancora configurato.</strong><br>
+        Per attivare i pagamenti reali imposta <code>publishableKey</code> ed
+        <code>edgeFunctionBase</code> in <code>stripe.config.js</code> e deploya la
+        Edge Function <code>create-subscription</code> con
+        <code>STRIPE_SECRET_KEY</code>. Vedi le istruzioni nel file di config.
+      </div>
+
+      <div id="coPaymentLoading" style="display:none; padding:30px 0; text-align:center; color:var(--text-2); font-size:13px;">
+        <span class="co-spinner" style="border-top-color:var(--green); border-color:rgba(255,255,255,.18); border-top-color:var(--green);"></span>
+        &nbsp; Preparing secure payment…
+      </div>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <aside>
+    <div class="co-summary">
+      <h2>Subscription Summary</h2>
+
+      <div class="co-sum-line">
+        <div>
+          <div class="co-sum-plan" id="coSumPlan">Plan</div>
+          <div class="co-sum-seats" id="coSumSeats">—</div>
+        </div>
+        <div class="co-sum-amt" id="coSumPlanAmt">€0</div>
+      </div>
+
+      <div class="co-sum-div"></div>
+      <div class="co-sum-row"><span>Subtotal</span><span id="coSumSubtotal">€0</span></div>
+      <div class="co-sum-total"><span>Total</span><span id="coSumTotal">€0</span></div>
+      <p class="co-sum-note" id="coSumNote">Prices exclude applicable taxes.</p>
+
+      <!-- Terms (visibili dallo step 2 in poi) -->
+      <div class="co-terms" id="coTerms" style="display:none;">
+        <label class="co-term">
+          <input type="checkbox" id="coTermPrivacy">
+          <span>I agree to Sevenda's <a href="/privacy.html" target="_blank">privacy policy</a> and terms.</span>
+        </label>
+        <label class="co-term">
+          <input type="checkbox" id="coTermCharge">
+          <span id="coTermChargeLabel">I agree to be charged and understand I can cancel anytime.</span>
+        </label>
+      </div>
+
+      <button class="co-action" id="coAction">Next</button>
+      <div class="co-renew" id="coRenew" style="display:none;">🗓 <span id="coRenewText"></span></div>
+    </div>
+  </aside>
+
+</div>
+
+<script>
+/* ════════════════════════════════════════════════════════════════
+   SEVENDA CHECKOUT — multi-step + Stripe Elements
+   ════════════════════════════════════════════════════════════════ */
+(function () {
+  'use strict';
+
+  const CFG     = window.STRIPE_CONFIG || {};
+  const CATALOG = window.PLAN_CATALOG || {};
+  const SYM     = CFG.currencySymbol || '€';
+
+  /* ── Parse query params ── */
+  const qs = new URLSearchParams(location.search);
+  const planId   = qs.get('plan') || 'studio';
+  const nameOver = qs.get('name'); // display override (opzionale)
+
+  // Enterprise / piano sconosciuto → contact sales
+  const ENTERPRISE = ['pent', 'aent', 'sent', 'enterprise'];
+  if (ENTERPRISE.includes(planId) || !CATALOG[planId]) {
+    location.replace('/contact-sales.html' + (planId ? ('?plan=' + encodeURIComponent(planId)) : ''));
+    return;
+  }
+
+  const plan = CATALOG[planId];
+
+  /* ── State ── */
+  const S = {
+    step: 1,
+    interval: (qs.get('interval') === 'monthly') ? 'monthly' : 'annual',
+    qty: clampQty(parseInt(qs.get('qty') || qs.get('seats'), 10) || plan.seats.min),
+    name: nameOver || plan.name,
+  };
+
+  function clampQty(n) {
+    const { min, max } = plan.seats;
+    if (isNaN(n)) return min;
+    return Math.max(min, Math.min(max, n));
+  }
+
+  /* ── DOM refs ── */
+  const $ = id => document.getElementById(id);
+  const stepperSteps = document.querySelectorAll('.co-step');
+  const panels       = document.querySelectorAll('.co-panel');
+
+  /* ── Stripe ── */
+  let stripe = null, elements = null, paymentElement = null, clientSecret = null, subscriptionReady = false;
+  const elementsConfigured = (typeof isStripeElementsConfigured === 'function') && isStripeElementsConfigured();
+  if (elementsConfigured && window.Stripe) {
+    stripe = Stripe(CFG.publishableKey);
+  }
+
+  /* ─────────────────────────────────────────────────────────────
+     PRICING
+     ───────────────────────────────────────────────────────────── */
+  function unitPrice()   { return plan.prices[S.interval]; }                 // per seat / month
+  function periodTotal() { return S.interval === 'annual'
+                             ? unitPrice() * 12 * S.qty
+                             : unitPrice() * S.qty; }
+  function fmt(n)        { return SYM + (Number.isInteger(n) ? n : n.toFixed(2)); }
+
+  /* ─────────────────────────────────────────────────────────────
+     RENDER
+     ───────────────────────────────────────────────────────────── */
+  function render() {
+    const intervalLabel = S.interval === 'annual' ? 'Annual' : 'Monthly';
+    const total = periodTotal();
+
+    // Step 1 — plan row
+    $('coPlanName').textContent  = S.name + ' (' + intervalLabel + ')';
+    $('coPlanPrice').textContent = fmt(unitPrice()) + ' / seat / month'
+      + (S.interval === 'annual' ? ' · billed annually' : ' · billed monthly');
+
+    // Qty group (hidden for fixed-seat plans)
+    if (plan.seats.fixed) {
+      $('coQtyGroup').style.display = 'none';
+    } else {
+      $('coQtyVal').textContent = S.qty;
+      $('coQtyMinus').disabled  = S.qty <= plan.seats.min;
+      $('coQtyPlus').disabled   = S.qty >= plan.seats.max;
+      $('coQtyHint').textContent = 'This plan supports ' + plan.seats.min + '–' + plan.seats.max + ' seats.';
+    }
+
+    // Interval toggle
+    document.querySelectorAll('#coInterval button').forEach(b =>
+      b.classList.toggle('on', b.dataset.interval === S.interval));
+
+    // Sidebar summary
+    $('coSumPlan').textContent  = S.name + ' (' + intervalLabel + ')';
+    $('coSumSeats').textContent = S.qty + ' seat' + (S.qty > 1 ? 's' : '') + ' × ' + fmt(unitPrice())
+      + (S.interval === 'annual' ? ' /mo × 12' : ' /mo');
+    $('coSumPlanAmt').textContent  = fmt(total);
+    $('coSumSubtotal').textContent = fmt(total);
+    $('coSumTotal').textContent    = fmt(total);
+
+    // Charge agreement label
+    const cadence = S.interval === 'annual' ? 'yearly' : 'monthly';
+    $('coTermChargeLabel').textContent =
+      'I agree to be charged ' + fmt(total) + ' ' + cadence + '. I can cancel anytime via the billing page.';
+
+    // Renew note
+    $('coRenewText').textContent = 'Auto-renews ' + cadence + ' · ' + fmt(total) + ' per ' + (S.interval === 'annual' ? 'year' : 'month');
+  }
+
+  /* ─────────────────────────────────────────────────────────────
+     STEP NAVIGATION
+     ───────────────────────────────────────────────────────────── */
+  function goToStep(n) {
+    S.step = n;
+    panels.forEach(p => p.classList.toggle('active', +p.dataset.panel === n));
+    stepperSteps.forEach(s => {
+      const sn = +s.dataset.step;
+      s.classList.toggle('active', sn === n);
+      s.classList.toggle('done', sn < n);
+    });
+    // Stepper bar width
+    const bar = $('coStepperBar');
+    const activeEl = document.querySelector('.co-step[data-step="' + n + '"]');
+    if (activeEl) { bar.style.left = activeEl.offsetLeft + 'px'; bar.style.width = activeEl.offsetWidth + 'px'; }
+
+    // Terms visible from step 2
+    $('coTerms').style.display = n >= 2 ? 'flex' : 'none';
+    $('coRenew').style.display = n >= 2 ? 'flex' : 'none';
+
+    updateActionButton();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function termsOk() {
+    if (S.step < 2) return true;
+    return $('coTermPrivacy').checked && $('coTermCharge').checked;
+  }
+
+  function updateActionButton() {
+    const btn = $('coAction');
+    btn.innerHTML = S.step === 1 ? 'Next'
+                  : S.step === 2 ? 'Continue to payment'
+                  : 'Make payment';
+    btn.disabled = (S.step >= 2 && !termsOk());
+  }
+
+  /* ── Billing validation ── */
+  function validateBilling() {
+    const required = ['coEmail', 'coCompany', 'coCountry', 'coAddr1', 'coCity', 'coState', 'coZip'];
+    let ok = true;
+    required.forEach(id => {
+      const el = $(id);
+      const empty = !el.value.trim();
+      el.classList.toggle('err', empty);
+      if (empty) ok = false;
+    });
+    const email = $('coEmail').value.trim();
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      $('coEmail').classList.add('err'); ok = false;
+    }
+    return ok;
+  }
+
+  function collectBilling() {
+    return {
+      email:   $('coEmail').value.trim(),
+      name:    $('coCompany').value.trim(),
+      buyingFor: (document.querySelector('input[name="co-buyfor"]:checked') || {}).value,
+      address: {
+        line1:       $('coAddr1').value.trim(),
+        line2:       $('coAddr2').value.trim(),
+        city:        $('coCity').value.trim(),
+        state:       $('coState').value.trim(),
+        postal_code: $('coZip').value.trim(),
+        country:     $('coCountry').value,
+      },
+      phone: $('coPhone').value.trim(),
+      vatId: $('coVat').value.trim(),
+    };
+  }
+
+  /* ─────────────────────────────────────────────────────────────
+     STRIPE — create subscription + mount Payment Element
+     ───────────────────────────────────────────────────────────── */
+  async function preparePayment() {
+    const ready  = $('coPaymentReady');
+    const notice = $('coPaymentConfigNotice');
+    const load   = $('coPaymentLoading');
+    ready.style.display = notice.style.display = load.style.display = 'none';
+
+    // Demo mode: Stripe non configurato
+    if (!elementsConfigured || !stripe) {
+      notice.style.display = 'block';
+      return false;
+    }
+
+    if (subscriptionReady) { ready.style.display = 'block'; return true; }
+
+    load.style.display = 'block';
+    try {
+      const billing = collectBilling();
+      const res = await fetch(CFG.edgeFunctionBase + '/create-subscription', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': (window.SUPABASE_CONFIG && window.SUPABASE_CONFIG.anonKey) || '',
+          'Authorization': 'Bearer ' + ((window.SUPABASE_CONFIG && window.SUPABASE_CONFIG.anonKey) || ''),
+        },
+        body: JSON.stringify({
+          planId,
+          interval: S.interval,
+          quantity: S.qty,
+          email: billing.email,
+          name: billing.name,
+          phone: billing.phone,
+          address: billing.address,
+          vatId: billing.vatId,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.clientSecret) throw new Error(data.error || 'Could not start payment.');
+
+      clientSecret = data.clientSecret;
+      const appearance = {
+        theme: 'night',
+        variables: {
+          colorPrimary: '#6BB89A', colorBackground: '#191919', colorText: '#f0f0f0',
+          colorDanger: '#e57373', fontFamily: 'Geist, sans-serif', borderRadius: '8px',
+        },
+      };
+      elements = stripe.elements({ clientSecret, appearance });
+      paymentElement = elements.create('payment', { layout: 'tabs' });
+      paymentElement.mount('#co-payment-element');
+
+      subscriptionReady = true;
+      load.style.display = 'none';
+      ready.style.display = 'block';
+      return true;
+    } catch (err) {
+      load.style.display = 'none';
+      notice.style.display = 'block';
+      notice.innerHTML = '<strong>Payment setup failed.</strong><br>' + (err.message || 'Please try again.');
+      return false;
+    }
+  }
+
+  async function makePayment() {
+    if (!elementsConfigured || !stripe || !elements) {
+      alert('Stripe non è configurato. Imposta le chiavi in stripe.config.js per abilitare i pagamenti.');
+      return;
+    }
+    const btn = $('coAction');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="co-spinner"></span> Processing…';
+
+    const billing = collectBilling();
+    const { error } = await stripe.confirmPayment({
+      elements,
+      confirmParams: {
+        return_url: location.origin + '/checkout-success.html?plan=' + encodeURIComponent(planId),
+        payment_method_data: {
+          billing_details: {
+            name: billing.name,
+            email: billing.email,
+            phone: billing.phone,
+            address: billing.address,
+          },
+        },
+      },
+    });
+
+    // confirmPayment redirige in caso di successo; qui si arriva solo su errore
+    if (error) {
+      $('coPayError').textContent = error.message || 'Payment failed. Please check your details.';
+      btn.disabled = false;
+      updateActionButton();
+    }
+  }
+
+  /* ─────────────────────────────────────────────────────────────
+     EVENTS
+     ───────────────────────────────────────────────────────────── */
+  // Interval toggle
+  document.querySelectorAll('#coInterval button').forEach(b => {
+    b.addEventListener('click', () => {
+      S.interval = b.dataset.interval;
+      subscriptionReady = false; // prezzo cambiato → ricrea subscription
+      render();
+    });
+  });
+
+  // Qty
+  $('coQtyMinus').addEventListener('click', () => { S.qty = clampQty(S.qty - 1); subscriptionReady = false; render(); });
+  $('coQtyPlus') .addEventListener('click', () => { S.qty = clampQty(S.qty + 1); subscriptionReady = false; render(); });
+
+  // Terms checkboxes
+  $('coTermPrivacy').addEventListener('change', updateActionButton);
+  $('coTermCharge') .addEventListener('change', updateActionButton);
+
+  // Clear field error on input
+  document.querySelectorAll('.co-input, .co-select').forEach(el =>
+    el.addEventListener('input', () => el.classList.remove('err')));
+
+  // Main action button
+  $('coAction').addEventListener('click', async () => {
+    if (S.step === 1) {
+      // Auth gate — registrazione obbligatoria prima del checkout
+      if (window.SevendaAuth && !window.SevendaAuth.isLoggedIn()) {
+        window.SevendaAuth.requireAuth(() => goToStep(2));
+        return;
+      }
+      goToStep(2);
+    } else if (S.step === 2) {
+      if (!validateBilling()) return;
+      goToStep(3);
+      await preparePayment();
+    } else {
+      await makePayment();
+    }
+  });
+
+  /* ─────────────────────────────────────────────────────────────
+     INIT
+     ───────────────────────────────────────────────────────────── */
+  // Prefill email se loggato
+  function prefillEmail() {
+    try {
+      const sess = window.SevendaAuth && window.SevendaAuth.getSession && window.SevendaAuth.getSession();
+      const email = sess && sess.user && sess.user.email;
+      if (email && !$('coEmail').value) $('coEmail').value = email;
+    } catch (e) {}
+  }
+  document.addEventListener('DOMContentLoaded', prefillEmail);
+  window.addEventListener('load', () => { goToStep(1); }); // posiziona la barra stepper
+
+  render();
+  goToStep(1);
+})();
+</script>
+</body>
+</html>

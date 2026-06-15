@@ -1280,7 +1280,7 @@ const DATA = {
         'Audit logs & compliance',
       ],
       cta: 'Contact us', ctaType: 'ghost',
-      ctaHref: 'mailto:hello@sevenda.dev?subject=Enterprise%20Plan%20%E2%80%94%20Sevenda%20Process',
+      ctaHref: '/contact-sales.html?plan=pent',
       save: null,
     },
   ],
@@ -1351,7 +1351,7 @@ const DATA = {
         'Audit logs & compliance',
       ],
       cta: 'Contact us', ctaType: 'ghost',
-      ctaHref: 'mailto:hello@sevenda.dev?subject=Enterprise%20Plan%20%E2%80%94%20Sevenda%20Analytics',
+      ctaHref: '/contact-sales.html?plan=aent',
       save: null,
     },
   ],
@@ -1421,7 +1421,7 @@ const DATA = {
         'Custom integrations',
       ],
       cta: 'Contact us', ctaType: 'ghost',
-      ctaHref: 'mailto:hello@sevenda.dev?subject=Enterprise%20Suite%20%E2%80%94%20Sevenda',
+      ctaHref: '/contact-sales.html?plan=sent',
       save: null,
     },
   ],
@@ -1786,23 +1786,18 @@ function proceedToStripe() {
     return;
   }
 
-  // Get first item in cart (simplified: support single plan purchases for now)
+  // Primo item nel carrello (checkout single-plan)
   const planId = Object.keys(S.cart)[0];
-  const stripeLink = getStripeLink(planId, S.billing);
+  const item   = S.cart[planId];
 
-  if (!stripeLink) {
-    alert('Stripe payment link not configured for this plan. Please contact support.');
-    return;
-  }
-
-  // If it's a mailto link (enterprise), use it directly
-  if (stripeLink.startsWith('mailto:')) {
-    window.location.href = stripeLink;
-    return;
-  }
-
-  // Redirect to Stripe checkout
-  window.location.href = stripeLink;
+  // Reindirizza al checkout custom (Stripe Elements) — checkout.html
+  const params = new URLSearchParams({
+    plan:     planId,
+    interval: (item.billing || S.billing),
+    qty:      String(item.qty || 1),
+    name:     item.planName || '',
+  });
+  window.location.href = '/checkout.html?' + params.toString();
 }
 
 document.getElementById('checkoutStripe')?.addEventListener('click', proceedToStripe);
