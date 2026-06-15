@@ -311,6 +311,26 @@
       text-decoration-color: rgba(255,255,255,.5);
     }
 
+    .section-body strong {
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    .section-body em {
+      font-style: italic;
+      color: var(--muted);
+    }
+
+    .section-body code {
+      font-family: var(--mono);
+      font-size: .875em;
+      background: rgba(255,255,255,.06);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1px 6px;
+      color: var(--green);
+    }
+
     /* ── PAGE FOOTER ─────────────────────────────────────────── */
     footer {
       border-top: 1px solid var(--border);
@@ -442,7 +462,7 @@
 <!-- ── HERO ─────────────────────────────────────────────────── -->
 <div class="privacy-hero">
   <h1 class="privacy-title" data-i18n="priv.title">Privacy Policy</h1>
-  <p class="privacy-date">Last updated: May 25, 2026</p>
+  <p class="privacy-date">Last updated: June 15, 2026</p>
 </div>
 
 <!-- ── ARTICLE ───────────────────────────────────────────────── -->
@@ -450,123 +470,90 @@
 
   <div class="privacy-section">
     <span class="section-number">Section 1</span>
-    <h2 class="section-title">Who We Are</h2>
+    <h2 class="section-title">What the Extension records — and when</h2>
     <div class="section-body">
-      <p>Sevenda is developed and maintained by Sevenda Lab (<a href="mailto:hello@sevenda.dev">hello@sevenda.dev</a>). For any privacy-related questions, please contact us at that address.</p>
+      <p>Recording starts <strong>only</strong> when you press "Start Recording" in the Sevenda DevTools panel and stops when you press Stop. Outside of an active recording, the Extension does not monitor, intercept, or store any browsing activity: the network-monitoring component is injected into the page only at the moment you start a recording, and only into the tab you are recording.</p>
+      <p>During an active recording, the Extension captures, <strong>in the recorded tab only</strong>:</p>
+      <ul>
+        <li><strong>Navigation events</strong> — the URLs of pages you visit during the recording.</li>
+        <li><strong>Interaction events</strong> — clicks and form submissions: the element's tag, id, visible text (truncated to 100 characters), and position in the page. Form field <em>values</em> (what you type) are never captured.</li>
+        <li><strong>Network events</strong> — URL, HTTP method, status code and duration of fetch/XHR calls made by the page, plus a preview of request and response bodies truncated to 500 characters. Before capture, fields commonly containing credentials (passwords, tokens, API keys, card numbers, CVV, OTP codes and similar) are replaced with "[REDACTED]".</li>
+        <li><strong>JavaScript errors</strong> — error message, file, line and stack trace.</li>
+        <li><strong>Page structure events</strong> — opening/closing of modals and dialogs (element selector only, no content).</li>
+        <li><strong>Analytics events (Insights Mode)</strong> — Google Tag Manager dataLayer pushes and decoded GA4 hits emitted by the page, including consent-state signals. Where the Extension's PII-leak detector identifies personal data inside the page's own analytics traffic (a feature that helps you audit tracking compliance), the detected value is stored <strong>masked</strong> (e.g. <code>ma***@example.com</code>), never in clear text.</li>
+      </ul>
     </div>
   </div>
 
   <div class="privacy-section">
     <span class="section-number">Section 2</span>
-    <h2 class="section-title">Data We Collect</h2>
+    <h2 class="section-title">Where your data is stored</h2>
     <div class="section-body">
-      <p>Sevenda collects the following data solely when you explicitly start a recording session:</p>
-      <ul>
-        <li>Web history — URLs visited and page titles</li>
-        <li>User activity — click events, form submissions, keyboard interactions, and navigation events</li>
-        <li>Website content — DOM element identifiers, element text labels, and network request URLs with status codes</li>
-      </ul>
-      <p>Sevenda does not collect personally identifiable information, passwords, financial data, health data, or geolocation.</p>
+      <p>All recorded sessions, events, and generated diagrams are stored <strong>locally on your device</strong> in the browser's IndexedDB. They are not transmitted to Sevenda Lab — we operate no data-collection servers.</p>
+      <p>Local data is automatically deleted by a built-in retention policy: sessions older than <strong>30 days</strong>, or beyond the <strong>100 most recent sessions</strong>, are removed daily. You can delete any session manually at any time, and removing the Extension deletes all locally stored data.</p>
+      <p>Your settings (interface language, capture filters, and your Anthropic API key if you provide one) are stored in Chrome's extension storage. If you have Chrome sync enabled, Chrome synchronizes this storage — including the API key — across your own signed-in browsers via your Google account, under Google's encryption and Google's own privacy policy. If you prefer not to sync it, you can disable extension sync in Chrome settings.</p>
     </div>
   </div>
 
   <div class="privacy-section">
     <span class="section-number">Section 3</span>
-    <h2 class="section-title">How Data Is Used</h2>
+    <h2 class="section-title">When data leaves your device</h2>
     <div class="section-body">
-      <p>All collected data is used exclusively for generating BPMN 2.0 process diagrams and AI-powered functional insights.</p>
+      <p>Data leaves your device <strong>only</strong> through actions you explicitly take:</p>
       <ul>
-        <li>Session events are stored locally using IndexedDB</li>
-        <li>When you click "Generate", events are sent to the Anthropic Claude API using your own API key</li>
-        <li>Settings are stored locally via chrome.storage.sync</li>
+        <li><strong>AI generation (Anthropic).</strong> When you press "Generate", the recorded event sequence of the selected session (as described in section 1, with redactions applied) is sent to the Anthropic Claude API to produce your diagram or report. This uses <strong>your own Anthropic API key</strong> — the Extension ships without one, and Sevenda Lab never sees your key or your prompts. Anthropic processes this data as your API provider under the <a href="https://www.anthropic.com/legal/commercial-terms">Anthropic Commercial Terms</a>; per Anthropic's API data policy, API inputs are not used to train models.</li>
+        <li><strong>Team workspaces (Supabase, optional).</strong> If you sign in to a Team workspace with your email, sessions you explicitly choose to share are uploaded to our Supabase-hosted backend (EU-hosted PostgreSQL with row-level security), where they are visible only to members of your workspace. We store: your email address, workspace membership, the shared session data, and comments. You can delete shared sessions and your account at any time; deletion is permanent.</li>
+        <li><strong>Jira export (optional).</strong> If you configure your Jira credentials in Settings, exports go directly from your browser to your own Jira instance. Credentials are stored locally and never pass through Sevenda Lab.</li>
       </ul>
+      <p>The Extension makes <strong>no other network requests</strong>. It loads no remote code, no remote fonts, no analytics scripts, and displays no ads.</p>
     </div>
   </div>
 
   <div class="privacy-section">
     <span class="section-number">Section 4</span>
-    <h2 class="section-title">Data Sharing and Third Parties</h2>
+    <h2 class="section-title">What we do NOT do</h2>
     <div class="section-body">
-      <p>Sevenda does not sell, rent, or share your data with any third party, with the sole exception of the Anthropic Claude API.</p>
       <ul>
-        <li>Anthropic receives only the session event data you recorded</li>
-        <li>No data is ever sent to Sevenda's servers</li>
-        <li>We do not operate any backend infrastructure</li>
+        <li>We do not collect telemetry, usage analytics, or crash reports.</li>
+        <li>We do not sell, rent, or transfer your data to third parties.</li>
+        <li>We do not use your data for advertising, profiling, or creditworthiness.</li>
+        <li>We do not capture keystrokes or form input values.</li>
+        <li>We do not record anything while a recording is not active.</li>
       </ul>
     </div>
   </div>
 
   <div class="privacy-section">
     <span class="section-number">Section 5</span>
-    <h2 class="section-title">Data Storage and Retention</h2>
+    <h2 class="section-title">Legal basis and your rights (GDPR)</h2>
     <div class="section-body">
-      <ul>
-        <li>All session data is stored locally using IndexedDB</li>
-        <li>API key and settings stored via chrome.storage.sync</li>
-        <li>You can delete all sessions at any time from the panel</li>
-        <li>Sevenda does not define a mandatory retention period</li>
-      </ul>
+      <p>Sevenda Lab, as the developer, processes personal data only in the limited Team-workspace scenario above (legal basis: performance of contract, Art. 6(1)(b) GDPR). For locally stored recordings, you are the sole controller of the data on your device.</p>
+      <p>You have the right to access, rectify, export, and erase the data associated with your Team account, and to lodge a complaint with your supervisory authority (in Italy: Garante per la Protezione dei Dati Personali). To exercise these rights, contact <a href="mailto:hello@sevenda.dev">hello@sevenda.dev</a> — we respond within 30 days.</p>
+      <p><strong>A note on recording third-party data:</strong> if you record sessions on systems containing other people's personal data (e.g. a CRM), you are responsible for ensuring you are authorized to do so under your organization's policies and applicable law.</p>
     </div>
   </div>
 
   <div class="privacy-section">
     <span class="section-number">Section 6</span>
-    <h2 class="section-title">Remote Code</h2>
+    <h2 class="section-title">Children</h2>
     <div class="section-body">
-      <p>Sevenda does not load or execute any remote JavaScript code. All extension code is bundled locally. Network requests are data API calls (JSON), not code execution.</p>
+      <p>Sevenda is a professional tool and is not directed at children under 16. We do not knowingly process children's data.</p>
     </div>
   </div>
 
   <div class="privacy-section">
     <span class="section-number">Section 7</span>
-    <h2 class="section-title">Permissions Justification</h2>
+    <h2 class="section-title">Changes</h2>
     <div class="section-body">
-      <ul>
-        <li>storage — save session data and settings locally</li>
-        <li>activeTab — identify the current tab when recording</li>
-        <li>scripting — inject content script to capture events</li>
-        <li>tabs — track tab lifecycle and segment sessions</li>
-        <li>host permissions (&lt;all_urls&gt;) — required because the user can record any website</li>
-      </ul>
+      <p>We will update this policy as the product evolves (e.g. if the optional Google Tag Manager integration is enabled in a future version, which would involve Google OAuth and the Tag Manager API). Material changes will be announced on sevenda.dev and reflected in the effective date above.</p>
     </div>
   </div>
 
   <div class="privacy-section">
     <span class="section-number">Section 8</span>
-    <h2 class="section-title">Your Rights</h2>
-    <div class="section-body">
-      <p>You can at any time:</p>
-      <ul>
-        <li>View all recorded sessions from the Sevenda panel</li>
-        <li>Delete individual sessions or all data</li>
-        <li>Remove your API key from settings</li>
-        <li>Uninstall the extension to remove all local data</li>
-      </ul>
-      <p>EU users have additional rights under GDPR. Contact us at <a href="mailto:hello@sevenda.dev">hello@sevenda.dev</a> for any such request.</p>
-    </div>
-  </div>
-
-  <div class="privacy-section">
-    <span class="section-number">Section 9</span>
-    <h2 class="section-title">Children's Privacy</h2>
-    <div class="section-body">
-      <p>Sevenda is not directed at children under 13. We do not knowingly collect data from children.</p>
-    </div>
-  </div>
-
-  <div class="privacy-section">
-    <span class="section-number">Section 10</span>
-    <h2 class="section-title">Changes to This Policy</h2>
-    <div class="section-body">
-      <p>We may update this Privacy Policy from time to time. Continued use after changes constitutes acceptance.</p>
-    </div>
-  </div>
-
-  <div class="privacy-section">
-    <span class="section-number">Section 11</span>
     <h2 class="section-title">Contact</h2>
     <div class="section-body">
-      <p>Sevenda Lab — <a href="mailto:hello@sevenda.dev">hello@sevenda.dev</a></p>
+      <p>Sevenda Lab — <a href="mailto:hello@sevenda.dev">hello@sevenda.dev</a> — <a href="https://sevenda.dev">https://sevenda.dev</a></p>
     </div>
   </div>
 
