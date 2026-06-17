@@ -14,7 +14,7 @@
       --bg: #0d0d0d; --surface: #131313; --surface-up: #1a1a1a;
       --border: rgba(255,255,255,0.07); --border-hi: rgba(255,255,255,0.13);
       --text: #e8e8e6; --muted: #6e6e6a; --dim: #3a3a36;
-      --green: #6BB89A; --blue: #7aafd4; --amber: #c8a064; --red: #dc5858; --purple: #a78bfa;
+      --green: #E8733A; --blue: #7aafd4; --amber: #c8a064; --red: #dc5858; --purple: #a78bfa;
       --sans: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
       --mono: 'Geist Mono', 'Fira Code', monospace;
       --max: 1120px; --r: 6px;
@@ -60,7 +60,7 @@
 
     /* ── HERO ────────────────────────────────────────────────── */
     #hero { position:relative; z-index:1; padding:80px 28px 60px; text-align:center; }
-    #hero::before { content:''; position:absolute; top:0; left:50%; transform:translateX(-50%); width:min(600px,100%); height:400px; background:radial-gradient(ellipse at 50% 20%,rgba(107,184,154,.06) 0%,transparent 70%); pointer-events:none; }
+    #hero::before { content:''; position:absolute; top:0; left:50%; transform:translateX(-50%); width:min(600px,100%); height:400px; background:radial-gradient(ellipse at 50% 20%,rgba(232,115,58,.06) 0%,transparent 70%); pointer-events:none; }
     .pill { display:inline-flex; align-items:center; gap:8px; font-family:var(--mono); font-size:11.5px; color:var(--muted); border:1px solid var(--border-hi); border-radius:100px; padding:5px 13px 5px 10px; margin-bottom:28px; }
     .pill-dot { width:6px; height:6px; border-radius:50%; background:var(--green); flex-shrink:0; animation:blink 2.2s ease infinite; }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.25} }
@@ -101,7 +101,7 @@
     /* ── TAGS ────────────────────────────────────────────────── */
     .tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; }
     .tag { font-family:var(--mono); font-size:10px; padding:3px 8px; border-radius:3px; color:var(--dim); border:1px solid var(--border); }
-    .tag.green { color:var(--green); border-color:rgba(107,184,154,.25); background:rgba(107,184,154,.06); }
+    .tag.green { color:var(--green); border-color:rgba(232,115,58,.25); background:rgba(232,115,58,.06); }
     .tag.blue  { color:var(--blue);  border-color:rgba(122,175,212,.25); background:rgba(122,175,212,.06); }
     .tag.amber { color:var(--amber); border-color:rgba(200,160,100,.25); background:rgba(200,160,100,.06); }
     .tag.red   { color:var(--red);   border-color:rgba(220,88,88,.25);   background:rgba(220,88,88,.06); }
@@ -111,14 +111,14 @@
     .mockup { background:#111; border:1px solid var(--border-hi); border-radius:10px; overflow:hidden; box-shadow:0 0 0 1px rgba(255,255,255,.04),0 24px 60px rgba(0,0,0,.7); }
     .mkbar { display:flex; align-items:center; gap:10px; padding:8px 14px; background:#161616; border-bottom:1px solid var(--border); }
     .mkdot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
-    .mkdot.r{background:#dc5858;} .mkdot.y{background:#c8a064;} .mkdot.g{background:#6BB89A;}
+    .mkdot.r{background:#dc5858;} .mkdot.y{background:#c8a064;} .mkdot.g{background:#E8733A;}
     .mktitle { font-family:var(--mono); font-size:11px; color:var(--muted); margin:0 auto; }
     .mkbody { padding:18px 20px; font-family:var(--mono); font-size:12px; line-height:1.7; }
     .log-row { display:flex; align-items:center; gap:10px; padding:4px 0; border-bottom:1px solid rgba(255,255,255,.03); }
     .log-time { font-size:10px; color:var(--dim); flex-shrink:0; width:72px; }
     .log-badge { font-family:var(--mono); font-size:9px; font-weight:500; padding:2px 6px; border-radius:3px; flex-shrink:0; }
     .log-badge.nav{background:rgba(122,175,212,.15);color:var(--blue);}
-    .log-badge.ui{background:rgba(107,184,154,.15);color:var(--green);}
+    .log-badge.ui{background:rgba(232,115,58,.15);color:var(--green);}
     .log-badge.net{background:rgba(200,160,100,.15);color:var(--amber);}
     .log-badge.err{background:rgba(220,88,88,.15);color:var(--red);}
     .log-msg { font-size:11px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
@@ -148,7 +148,7 @@
     /* ── ALERTS ──────────────────────────────────────────────── */
     .alert { display:flex; gap:12px; padding:14px 16px; border-radius:var(--r); border:1px solid; margin:16px 0; font-size:13.5px; line-height:1.6; }
     .alert-icon { flex-shrink:0; font-size:15px; margin-top:1px; }
-    .alert.tip  { border-color:rgba(107,184,154,.25); background:rgba(107,184,154,.06); color:var(--text); }
+    .alert.tip  { border-color:rgba(232,115,58,.25); background:rgba(232,115,58,.06); color:var(--text); }
     .alert.info { border-color:rgba(122,175,212,.25); background:rgba(122,175,212,.06); color:var(--text); }
     .alert.warn { border-color:rgba(200,160,100,.25); background:rgba(200,160,100,.06); color:var(--text); }
 
@@ -186,7 +186,7 @@
     .chips { display:flex; gap:6px; flex-wrap:wrap; margin:12px 0; }
     .chip { font-family:var(--mono); font-size:10px; font-weight:500; padding:4px 10px; border-radius:4px; border:1px solid; }
     .chip.nav{background:rgba(122,175,212,.1);color:var(--blue);border-color:rgba(122,175,212,.25);}
-    .chip.ui{background:rgba(107,184,154,.1);color:var(--green);border-color:rgba(107,184,154,.25);}
+    .chip.ui{background:rgba(232,115,58,.1);color:var(--green);border-color:rgba(232,115,58,.25);}
     .chip.net{background:rgba(200,160,100,.1);color:var(--amber);border-color:rgba(200,160,100,.25);}
     .chip.err{background:rgba(220,88,88,.1);color:var(--red);border-color:rgba(220,88,88,.25);}
     .chip.dom{background:rgba(200,160,100,.07);color:var(--amber);border-color:rgba(200,160,100,.2);}
@@ -647,9 +647,9 @@
       <div class="mkbar"><div class="mkdot r"></div><div class="mkdot y"></div><div class="mkdot g"></div><div class="mktitle">BPMN Feedback Chat</div></div>
       <div class="mkbody" style="display:flex;flex-direction:column;gap:10px;">
         <div style="padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:6px;font-size:12px;color:var(--muted);border-left:2px solid var(--blue);">👤 "Add an exclusive gateway after the Login task"</div>
-        <div style="padding:10px 12px;background:rgba(107,184,154,.06);border:1px solid rgba(107,184,154,.2);border-radius:6px;font-size:12px;color:var(--text);border-left:2px solid var(--green);">✦ Gateway added. The flow now branches toward "Home Dashboard" or "Authentication Error" based on the login outcome.</div>
+        <div style="padding:10px 12px;background:rgba(232,115,58,.06);border:1px solid rgba(232,115,58,.2);border-radius:6px;font-size:12px;color:var(--text);border-left:2px solid var(--green);">✦ Gateway added. The flow now branches toward "Home Dashboard" or "Authentication Error" based on the login outcome.</div>
         <div style="padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:6px;font-size:12px;color:var(--muted);border-left:2px solid var(--blue);">👤 "Rename the 'Submit' task to 'Confirm Order'"</div>
-        <div style="padding:10px 12px;background:rgba(107,184,154,.06);border:1px solid rgba(107,184,154,.2);border-radius:6px;font-size:12px;color:var(--text);border-left:2px solid var(--green);">✦ Task renamed correctly in the diagram.</div>
+        <div style="padding:10px 12px;background:rgba(232,115,58,.06);border:1px solid rgba(232,115,58,.2);border-radius:6px;font-size:12px;color:var(--text);border-left:2px solid var(--green);">✦ Task renamed correctly in the diagram.</div>
         <div style="display:flex;gap:8px;margin-top:4px;"><input type="text" placeholder="Type a modification..." style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:7px 10px;font-family:var(--mono);font-size:11px;color:var(--muted);outline:none;"><div style="padding:7px 12px;background:#e8e8e6;border-radius:4px;font-size:11px;color:#0d0d0d;font-weight:600;cursor:pointer;">Send</div></div>
       </div>
     </div>

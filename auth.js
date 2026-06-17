@@ -191,9 +191,9 @@
       }
       .sa-error.show { display: block; }
       .sa-success {
-        font-size: 12.5px; color: #6BB89A;
+        font-size: 12.5px; color: #E8733A;
         padding: 9px 12px; border-radius: 6px;
-        background: rgba(107,184,154,.08); border: 1px solid rgba(107,184,154,.2);
+        background: rgba(232,115,58,.08); border: 1px solid rgba(232,115,58,.2);
         margin-bottom: 8px; display: none; line-height: 1.45;
       }
       .sa-success.show { display: block; }
@@ -258,9 +258,9 @@
       }
       .nav-auth-avatar {
         width: 28px; height: 28px; border-radius: 50%;
-        background: rgba(107,184,154,.15); border: 1px solid rgba(107,184,154,.35);
+        background: rgba(232,115,58,.15); border: 1px solid rgba(232,115,58,.35);
         display: flex; align-items: center; justify-content: center;
-        font-size: 12px; font-weight: 600; color: #6BB89A;
+        font-size: 12px; font-weight: 600; color: #E8733A;
         flex-shrink: 0; font-family: 'Geist', sans-serif;
       }
       .nav-auth-email {
