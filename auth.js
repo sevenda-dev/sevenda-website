@@ -6,7 +6,8 @@
  *   .openModal(tab?, afterAuthCallback?)   — apre il modal (tab: 'login'|'register')
  *   .closeModal()                          — chiude il modal
  *   .isLoggedIn()                          — true se sessione attiva
- *   .getSession()                          — sessione Supabase corrente
+ *   .getSession()                          — sessione Supabase corrente (cache)
+ *   .getUser()                             — utente validato lato server (async)
  *   .requireAuth(callback)                 — esegue callback solo se loggato,
  *                                            altrimenti apre modal e riprende dopo login
  */
@@ -747,6 +748,10 @@
     closeModal:  _closeModal,
     isLoggedIn:  () => !!_session,
     getSession:  () => _session,
+    // Utente validato lato server (JWT verificato), non solo dalla cache di getSession().
+    // Ritorna il risultato completo { data:{user}, error } così il chiamante può
+    // distinguere un errore di rete (error valorizzato) da una sessione assente (user null).
+    getUser:     async () => (_sb ? await _sb.auth.getUser() : { data: { user: null }, error: null }),
     requireAuth: (callback) => {
       if (_session) { callback(); return; }
       _openModal('login', callback);

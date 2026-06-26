@@ -606,6 +606,34 @@
     load.style.display = 'block';
     try {
       const billing = collectBilling();
+
+      // ── supabaseUserId obbligatorio: deve venire da una sessione reale ──
+      // (validato lato server via getUser(), non dalla sola cache di getSession)
+      const auth = window.SevendaAuth ? await window.SevendaAuth.getUser() : null;
+      const user = auth && auth.data && auth.data.user;
+
+      // Errore di rete/server: l'utente è legittimo → NON rimbalzare al login.
+      // Il loading viene rimosso e il bottone resta cliccabile: basta ripremere "Make payment".
+      if (auth && auth.error) {
+        load.style.display = 'none';
+        notice.style.display = 'block';
+        notice.innerHTML = '<strong>Connessione non riuscita.</strong><br>'
+          + 'Controlla la connessione e riprova: la tua sessione è ancora valida.';
+        return false;
+      }
+
+      // Sessione realmente assente/scaduta → richiedi accesso
+      if (!user || !user.id) {
+        load.style.display = 'none';
+        notice.style.display = 'block';
+        notice.innerHTML = '<strong>Sessione scaduta.</strong><br>'
+          + 'Per completare il pagamento devi essere autenticato. Effettua di nuovo l\'accesso e riprova.';
+        if (window.SevendaAuth && window.SevendaAuth.requireAuth) {
+          window.SevendaAuth.requireAuth(() => {});
+        }
+        return false;
+      }
+
       const res = await fetch(CFG.edgeFunctionBase + '/create-subscription', {
         method: 'POST',
         headers: {
@@ -622,6 +650,8 @@
           phone: billing.phone,
           address: billing.address,
           vatId: billing.vatId,
+          supabaseUserId: user.id, // collega il pagamento all'utente/organization (webhook)
+          orgName: billing.name,   // nome organizzazione = ragione sociale (Company name)
         }),
       });
       const data = await res.json();
@@ -722,6 +752,8 @@
       goToStep(3);
       await preparePayment();
     } else {
+      // Se la subscription non è pronta (es. retry dopo errore di rete), riprova la preparazione
+      if (!subscriptionReady) { await preparePayment(); return; }
       await makePayment();
     }
   });
