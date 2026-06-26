@@ -57,7 +57,7 @@ function getStripeLink(planId, billing) {
    PATCH v2: edgeFunctionBase aggiornato a jqxxhdrlcxtlmejhtzsb (progetto unico).
    publishableKey: incolla la tua Publishable key Live (pk_live_…).              */
 window.STRIPE_CONFIG = {
-  publishableKey:   'pk_live_51TcSar2QI59o2iVODhL5S9XDVUsvkBQVpvCnDVNupm82mBLxq8P4m5vxjaow7STe8DXnywnz9YTbJL3SsjPy4H9V00Ukmk05cC',
+  publishableKey:   'pk_live_51TcSar2QI59o2iVODhL5S9XDVUsvkBQVpvCnDVNupm82mBLxq8P4m5vxjaow7STe8DXnywnz9YTbJL3Ssjpy4H9V00UkmkO5cC',
   edgeFunctionBase: 'https://jqxxhdrlcxtlmejhtzsb.supabase.co/functions/v1',
   currency:         'EUR',
   currencySymbol:   '€',
