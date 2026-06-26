@@ -43,7 +43,16 @@ function encodeForm(obj: Record<string, unknown>, prefix = ""): string {
   for (const [k, v] of Object.entries(obj)) {
     if (v === undefined || v === null || v === "") continue;
     const key = prefix ? `${prefix}[${k}]` : k;
-    if (typeof v === "object" && !Array.isArray(v)) {
+    if (Array.isArray(v)) {
+      v.forEach((item, i) => {
+        const itemKey = `${key}[${i}]`;
+        if (item !== null && typeof item === "object") {
+          parts.push(encodeForm(item as Record<string, unknown>, itemKey));
+        } else {
+          parts.push(`${encodeURIComponent(itemKey)}=${encodeURIComponent(String(item))}`);
+        }
+      });
+    } else if (typeof v === "object") {
       parts.push(encodeForm(v as Record<string, unknown>, key));
     } else {
       parts.push(`${encodeURIComponent(key)}=${encodeURIComponent(String(v))}`);
