@@ -205,21 +205,28 @@ Deno.serve(async (req) => {
       },
     };
 
-    // Cerca un Customer esistente: prima la mappa autorevole (organization),
-    // poi il fallback Stripe Search per metadata.supabaseUserId.
-    const existingId =
-      (await lookupCustomerIdFromOrg(supabaseUserId)) ??
-      (await searchStripeCustomerId(supabaseUserId, secret));
+    // Candidati per il riuso, in ordine di priorità:
+    //  1) mappa autorevole (organization.stripe_customer_id);
+    //  2) Stripe Search per metadata.supabaseUserId (ritorna solo customer
+    //     VIVI nella modalità Stripe corrente).
+    // Si prova ad aggiornare ciascun candidato: il primo che esiste davvero
+    // viene riusato. Se un ID è morto (es. customer cancellato o creato in
+    // un'altra modalità test/live), si passa al successivo, evitando di
+    // creare un duplicato finché esiste almeno un customer valido.
+    const fromOrg = await lookupCustomerIdFromOrg(supabaseUserId);
+    const fromSearch = await searchStripeCustomerId(supabaseUserId, secret);
+    const candidates = [fromOrg, fromSearch].filter(
+      (id, i, arr): id is string => !!id && arr.indexOf(id) === i,
+    );
 
     let customer;
-    if (existingId) {
-      // Riusa e aggiorna i dati di fatturazione. Se il customer non è più
-      // utilizzabile (es. cancellato), si ricade sulla creazione.
+    for (const id of candidates) {
       try {
-        customer = await stripe(`/customers/${existingId}`, customerParams, secret);
+        customer = await stripe(`/customers/${id}`, customerParams, secret);
         console.log(`[dedup] customer RIUSATO ${customer.id} per ${supabaseUserId}`);
+        break;
       } catch (e) {
-        console.error(`[dedup] update ${existingId} fallito (${(e as Error).message}) → ne creo uno nuovo`);
+        console.error(`[dedup] candidato ${id} non utilizzabile (${(e as Error).message})`);
         customer = null;
       }
     }
