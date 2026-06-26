@@ -98,7 +98,10 @@ async function stripe(path: string, body: Record<string, unknown>, key: string) 
 async function lookupCustomerIdFromOrg(supabaseUserId: string): Promise<string | null> {
   const base = Deno.env.get("SUPABASE_URL");
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-  if (!base || !serviceKey) return null;
+  if (!base || !serviceKey) {
+    console.log(`[dedup] org-map saltata: SUPABASE_URL=${!!base} SERVICE_ROLE_KEY=${!!serviceKey}`);
+    return null;
+  }
   try {
     const url = `${base}/rest/v1/organization`
       + `?owner_id=eq.${encodeURIComponent(supabaseUserId)}`
@@ -107,10 +110,16 @@ async function lookupCustomerIdFromOrg(supabaseUserId: string): Promise<string |
     const res = await fetch(url, {
       headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },
     });
-    if (!res.ok) return null;
+    if (!res.ok) {
+      console.error(`[dedup] org-map query HTTP ${res.status}: ${await res.text()}`);
+      return null;
+    }
     const rows = await res.json();
-    return Array.isArray(rows) && rows[0]?.stripe_customer_id ? rows[0].stripe_customer_id : null;
-  } catch {
+    const found = Array.isArray(rows) && rows[0]?.stripe_customer_id ? rows[0].stripe_customer_id : null;
+    console.log(`[dedup] org-map per ${supabaseUserId} → ${found ?? "nessun match"}`);
+    return found;
+  } catch (e) {
+    console.error(`[dedup] org-map errore: ${(e as Error).message}`);
     return null;
   }
 }
@@ -125,10 +134,16 @@ async function searchStripeCustomerId(supabaseUserId: string, key: string): Prom
       `${STRIPE_API}/customers/search?limit=1&query=${encodeURIComponent(query)}`,
       { headers: { Authorization: `Bearer ${key}` } },
     );
-    if (!res.ok) return null;
     const data = await res.json();
-    return data?.data?.[0]?.id ?? null;
-  } catch {
+    if (!res.ok) {
+      console.error(`[dedup] stripe-search HTTP ${res.status}: ${data?.error?.message ?? ""}`);
+      return null;
+    }
+    const found = data?.data?.[0]?.id ?? null;
+    console.log(`[dedup] stripe-search per ${supabaseUserId} → ${found ?? "nessun match"}`);
+    return found;
+  } catch (e) {
+    console.error(`[dedup] stripe-search errore: ${(e as Error).message}`);
     return null;
   }
 }
@@ -202,12 +217,15 @@ Deno.serve(async (req) => {
       // utilizzabile (es. cancellato), si ricade sulla creazione.
       try {
         customer = await stripe(`/customers/${existingId}`, customerParams, secret);
-      } catch {
+        console.log(`[dedup] customer RIUSATO ${customer.id} per ${supabaseUserId}`);
+      } catch (e) {
+        console.error(`[dedup] update ${existingId} fallito (${(e as Error).message}) → ne creo uno nuovo`);
         customer = null;
       }
     }
     if (!customer) {
       customer = await stripe("/customers", customerParams, secret);
+      console.log(`[dedup] customer NUOVO ${customer.id} per ${supabaseUserId}`);
     }
 
     // 2) Subscription (incomplete → PaymentIntent da confermare lato client)
