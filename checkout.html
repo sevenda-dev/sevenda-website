@@ -457,7 +457,7 @@
 
   /* ── Stripe ── */
   let stripe = null, elements = null, paymentElement = null, clientSecret = null, subscriptionReady = false;
-  const elementsConfigured = (typeof isStripeElementsConfigured === 'function') && isStripeElementsConfigured();
+  const elementsConfigured = (typeof isStripeConfigured === 'function') && isStripeConfigured();
   if (elementsConfigured && window.Stripe) {
     stripe = Stripe(CFG.publishableKey);
   }
