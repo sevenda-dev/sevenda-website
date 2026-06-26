@@ -1,19 +1,16 @@
 // ════════════════════════════════════════════════════════════════
-// Sevenda — Edge Function: create-subscription
+// Sevenda — Edge Function: create-subscription   (PATCH v2)
 // ════════════════════════════════════════════════════════════════
 // Crea un Customer Stripe e una Subscription "incomplete", restituendo
 // il client_secret del PaymentIntent da confermare lato client con
 // Stripe Elements (checkout.html).
 //
-// Deploy:
-//   supabase functions deploy create-subscription --no-verify-jwt
+// PATCH v2: aggiunge `supabaseUserId` (e `orgName`) ai metadata del
+// Customer, così la Edge Function `stripe-webhook` può collegare il
+// pagamento all'utente/organization Supabase. checkout.html deve
+// passare supabaseUserId (id dell'utente loggato) nel body.
 //
-// Secrets (Supabase > Project Settings > Edge Functions > Secrets):
-//   supabase secrets set STRIPE_SECRET_KEY=sk_live_xxx
-//   supabase secrets set STRIPE_PRICES='{"analyst":{"annual":"price_...","monthly":"price_..."}, ...}'
-//
-// STRIPE_PRICES mappa planId -> { annual, monthly } con i Price ID Stripe.
-// In assenza dell'env usa i placeholder qui sotto (da sostituire).
+// Deploy:  supabase functions deploy create-subscription --no-verify-jwt
 // ════════════════════════════════════════════════════════════════
 
 const STRIPE_API = "https://api.stripe.com/v1";
@@ -24,7 +21,6 @@ const CORS = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Fallback price map (sostituisci con i tuoi Price ID reali, oppure usa l'env STRIPE_PRICES)
 const FALLBACK_PRICES: Record<string, { annual: string; monthly: string }> = {
   analyst: { annual: "price_REPLACE_analyst_annual", monthly: "price_REPLACE_analyst_monthly" },
   studio:  { annual: "price_REPLACE_studio_annual",  monthly: "price_REPLACE_studio_monthly" },
@@ -37,12 +33,11 @@ const FALLBACK_PRICES: Record<string, { annual: string; monthly: string }> = {
 function priceMap(): Record<string, { annual: string; monthly: string }> {
   const raw = Deno.env.get("STRIPE_PRICES");
   if (raw) {
-    try { return JSON.parse(raw); } catch { /* ignore, usa fallback */ }
+    try { return JSON.parse(raw); } catch { /* usa fallback */ }
   }
   return FALLBACK_PRICES;
 }
 
-// Stripe usa application/x-www-form-urlencoded con chiavi annidate (a[b][c]).
 function encodeForm(obj: Record<string, unknown>, prefix = ""): string {
   const parts: string[] = [];
   for (const [k, v] of Object.entries(obj)) {
@@ -85,10 +80,15 @@ Deno.serve(async (req) => {
     const secret = Deno.env.get("STRIPE_SECRET_KEY");
     if (!secret) throw new Error("STRIPE_SECRET_KEY not configured on the server.");
 
-    const { planId, interval, quantity, email, name, phone, address, vatId } = await req.json();
+    // PATCH v2: supabaseUserId e orgName per il linking lato webhook
+    const { planId, interval, quantity, email, name, phone, address, vatId,
+            supabaseUserId, orgName } = await req.json();
 
     if (!planId || !interval || !email) {
       throw new Error("Missing required fields (planId, interval, email).");
+    }
+    if (!supabaseUserId) {
+      throw new Error("Missing supabaseUserId (utente Supabase loggato).");
     }
     const billingInterval = interval === "monthly" ? "monthly" : "annual";
     const qty = Math.max(1, parseInt(String(quantity), 10) || 1);
@@ -99,7 +99,7 @@ Deno.serve(async (req) => {
       throw new Error(`Stripe price not configured for plan "${planId}" (${billingInterval}).`);
     }
 
-    // 1) Customer
+    // 1) Customer  (metadata estesi: supabaseUserId + orgName)
     const customer = await stripe("/customers", {
       email,
       name,
@@ -114,7 +114,12 @@ Deno.serve(async (req) => {
             country: address.country,
           }
         : undefined,
-      metadata: { planId, vatId: vatId || "" },
+      metadata: {
+        planId,
+        vatId: vatId || "",
+        supabaseUserId,                 // ← serve al webhook per creare/risolvere l'organization
+        orgName: orgName || "",
+      },
     }, secret);
 
     // 2) Subscription (incomplete → PaymentIntent da confermare lato client)
@@ -124,7 +129,12 @@ Deno.serve(async (req) => {
       payment_behavior: "default_incomplete",
       payment_settings: { save_default_payment_method: "on_subscription" },
       "expand[0]": "latest_invoice.payment_intent",
-      metadata: { planId, interval: billingInterval, seats: String(qty) },
+      metadata: {
+        planId,
+        interval: billingInterval,
+        seats: String(qty),
+        supabaseUserId,
+      },
     }, secret);
 
     const clientSecret = subscription?.latest_invoice?.payment_intent?.client_secret;
