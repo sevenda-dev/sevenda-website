@@ -137,7 +137,7 @@ Deno.serve(async (req) => {
       items: [{ price: priceId, quantity: qty }],
       payment_behavior: "default_incomplete",
       payment_settings: { save_default_payment_method: "on_subscription" },
-      "expand[]": "latest_invoice.payment_intent",
+      "expand[]": "latest_invoice.confirmation_secret",
       metadata: {
         planId,
         interval: billingInterval,
@@ -146,7 +146,7 @@ Deno.serve(async (req) => {
       },
     }, secret);
 
-    const clientSecret = subscription?.latest_invoice?.payment_intent?.client_secret;
+    const clientSecret = subscription?.latest_invoice?.confirmation_secret?.client_secret;
     if (!clientSecret) throw new Error("Could not retrieve payment client secret.");
 
     return new Response(
