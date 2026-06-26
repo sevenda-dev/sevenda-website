@@ -55,11 +55,33 @@
     document.head.appendChild(s);
   }
 
-  function _getCaptchaToken() {
-    if (_hcaptchaWidgetId === null || !window.hcaptcha) return Promise.resolve(null);
-    return window.hcaptcha.execute(_hcaptchaWidgetId, { async: true })
-      .then(({ response }) => { window.hcaptcha.reset(_hcaptchaWidgetId); return response; })
-      .catch(() => null);
+  // Attende che il widget hCaptcha sia montato. Lo script si carica async dopo il
+  // page load, quindi un submit rapido lo troverebbe ancora null: senza questa attesa
+  // un utente legittimo verrebbe bloccato pur con captcha funzionante.
+  // Attende solo se il captcha è atteso; altrimenti risolve subito (false).
+  function _waitForCaptchaWidget(timeoutMs) {
+    if (_hcaptchaWidgetId !== null && window.hcaptcha) return Promise.resolve(true);
+    if (!_captchaRequired()) return Promise.resolve(false);
+    const deadline = Date.now() + (timeoutMs || 5000);
+    return new Promise(resolve => {
+      (function poll() {
+        if (_hcaptchaWidgetId !== null && window.hcaptcha) return resolve(true);
+        if (Date.now() >= deadline) return resolve(false);
+        setTimeout(poll, 100);
+      })();
+    });
+  }
+
+  async function _getCaptchaToken() {
+    await _waitForCaptchaWidget();
+    if (_hcaptchaWidgetId === null || !window.hcaptcha) return null;
+    try {
+      const { response } = await window.hcaptcha.execute(_hcaptchaWidgetId, { async: true });
+      window.hcaptcha.reset(_hcaptchaWidgetId);
+      return response;
+    } catch (e) {
+      return null;
+    }
   }
 
   // Il captcha è atteso dal server (Supabase) quando è configurata una site key valida.
@@ -597,7 +619,13 @@
     _clearFeedback();
     _setLoading('sa-reg-submit', true);
 
+    // Captcha richiesto da Supabase quando "Enable Captcha protection" è attivo
     const captchaToken = await _getCaptchaToken();
+    if (_captchaRequired() && !captchaToken) {
+      _setLoading('sa-reg-submit', false);
+      _showErr('sa-reg-err', 'Completa la verifica e riprova.');
+      return;
+    }
 
     const opts = {
       data: {
