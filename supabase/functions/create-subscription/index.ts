@@ -137,7 +137,7 @@ Deno.serve(async (req) => {
       items: [{ price: priceId, quantity: qty }],
       payment_behavior: "default_incomplete",
       payment_settings: { save_default_payment_method: "on_subscription" },
-      expand: ["latest_invoice.payment_intent"],
+      "expand[]": "latest_invoice.payment_intent",
       metadata: {
         planId,
         interval: billingInterval,
