@@ -62,6 +62,13 @@
       .catch(() => null);
   }
 
+  // Il captcha è atteso dal server (Supabase) quando è configurata una site key valida.
+  // Serve a distinguere "captcha attivo ma token non pronto" (→ blocca) da
+  // "captcha disattivato" (→ procedi senza token).
+  function _captchaRequired() {
+    return !!CFG.captchaSiteKey && !CFG.captchaSiteKey.startsWith('YOUR_');
+  }
+
   // ── CSS INJECTION ────────────────────────────────────────────────────────────
   function _injectStyles() {
     const style = document.createElement('style');
@@ -547,7 +554,17 @@
     _clearFeedback();
     _setLoading('sa-login-submit', true);
 
-    const { error } = await _sb.auth.signInWithPassword({ email, password: pass });
+    // Captcha richiesto da Supabase quando "Enable Captcha protection" è attivo
+    const captchaToken = await _getCaptchaToken();
+    if (_captchaRequired() && !captchaToken) {
+      _setLoading('sa-login-submit', false);
+      _showErr('sa-login-err', 'Completa la verifica e riprova.');
+      return;
+    }
+    const opts = {};
+    if (captchaToken) opts.captchaToken = captchaToken;
+
+    const { error } = await _sb.auth.signInWithPassword({ email, password: pass, options: opts });
     _setLoading('sa-login-submit', false);
 
     if (error) _showErr('sa-login-err', _msg(error));
@@ -612,9 +629,17 @@
     _clearFeedback();
     _setLoading('sa-reset-submit', true);
 
-    const { error } = await _sb.auth.resetPasswordForEmail(email, {
-      redirectTo: window.location.origin + '/reset-password.html',
-    });
+    // Captcha richiesto da Supabase quando "Enable Captcha protection" è attivo
+    const captchaToken = await _getCaptchaToken();
+    if (_captchaRequired() && !captchaToken) {
+      _setLoading('sa-reset-submit', false);
+      _showErr('sa-reset-err', 'Completa la verifica e riprova.');
+      return;
+    }
+    const opts = { redirectTo: window.location.origin + '/reset-password.html' };
+    if (captchaToken) opts.captchaToken = captchaToken;
+
+    const { error } = await _sb.auth.resetPasswordForEmail(email, opts);
     _setLoading('sa-reset-submit', false);
 
     if (error) {
