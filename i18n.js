@@ -12,6 +12,30 @@ const SEVENDA_I18N = {
    * INGLESE (default)
    * ──────────────────────────────────────────────────────────── */
   en: {
+    /* ── RESET PASSWORD (reset-password.html) ── */
+    'reset.loading':'Verifying your reset link…',
+    'reset.title':'Set a new password',
+    'reset.sub':'Choose a new password for your Sevenda account.',
+    'reset.label.new':'New password',
+    'reset.label.confirm':'Confirm password',
+    'reset.ph.new':'At least 8 characters',
+    'reset.ph.confirm':'Re-enter password',
+    'reset.btn.update':'Update password',
+    'reset.btn.updating':'Updating…',
+    'reset.ok.title':'Password updated',
+    'reset.ok.sub':'Your password has been changed. You can now sign in with your new password.',
+    'reset.btn.home':'Go to homepage',
+    'reset.err.title':'Reset link invalid',
+    'reset.err.sub':'This password reset link is invalid or has expired. Please request a new one.',
+    'reset.btn.back':'← Back to Sevenda',
+    'reset.err.cfgTitle':'Service unavailable',
+    'reset.err.cfgMsg':'The reset service is not configured. Please contact hello@sevenda.dev.',
+    'reset.err.minlen':'Password must be at least 8 characters.',
+    'reset.err.mismatch':'Passwords do not match.',
+    'reset.err.expTitle':'Reset link expired',
+    'reset.err.expMsg':'Your reset session has expired. Please request a new reset link.',
+    'reset.err.generic':'Could not update password. Please try again.',
+
     /* ── NAV comune ── */
     'nav.features':'Features','nav.insights':'Insights','nav.usecases':'Use Cases',
     'nav.how':'How it works','nav.pricing':'Pricing','nav.docs':'Docs','nav.faq':'FAQ','nav.privacy':'Privacy Policy',
@@ -237,6 +261,30 @@ const SEVENDA_I18N = {
    * ITALIANO
    * ──────────────────────────────────────────────────────────── */
   it: {
+    /* ── RESET PASSWORD (reset-password.html) ── */
+    'reset.loading':'Verifica del link di reset…',
+    'reset.title':'Imposta una nuova password',
+    'reset.sub':'Scegli una nuova password per il tuo account Sevenda.',
+    'reset.label.new':'Nuova password',
+    'reset.label.confirm':'Conferma password',
+    'reset.ph.new':'Almeno 8 caratteri',
+    'reset.ph.confirm':'Reinserisci la password',
+    'reset.btn.update':'Aggiorna password',
+    'reset.btn.updating':'Aggiornamento…',
+    'reset.ok.title':'Password aggiornata',
+    'reset.ok.sub':'La tua password è stata modificata. Ora puoi accedere con la nuova password.',
+    'reset.btn.home':'Vai alla homepage',
+    'reset.err.title':'Link di reset non valido',
+    'reset.err.sub':'Questo link di reset password non è valido o è scaduto. Richiedine uno nuovo.',
+    'reset.btn.back':'← Torna a Sevenda',
+    'reset.err.cfgTitle':'Servizio non disponibile',
+    'reset.err.cfgMsg':'Il servizio di reset non è configurato. Contatta hello@sevenda.dev.',
+    'reset.err.minlen':'La password deve contenere almeno 8 caratteri.',
+    'reset.err.mismatch':'Le password non coincidono.',
+    'reset.err.expTitle':'Link di reset scaduto',
+    'reset.err.expMsg':'La sessione di reset è scaduta. Richiedi un nuovo link di reset.',
+    'reset.err.generic':'Impossibile aggiornare la password. Riprova.',
+
     'nav.features':'Funzionalità','nav.insights':'Insights','nav.usecases':'Casi d\'uso',
     'nav.how':'Come funziona','nav.pricing':'Prezzi','nav.docs':'Docs','nav.faq':'FAQ','nav.privacy':'Privacy Policy',
     'nav.cta':'Aggiungi a Chrome',
@@ -447,6 +495,30 @@ const SEVENDA_I18N = {
    * SPAGNOLO
    * ──────────────────────────────────────────────────────────── */
   es: {
+    /* ── RESET PASSWORD (reset-password.html) ── */
+    'reset.loading':'Verificando tu enlace de restablecimiento…',
+    'reset.title':'Establece una nueva contraseña',
+    'reset.sub':'Elige una nueva contraseña para tu cuenta de Sevenda.',
+    'reset.label.new':'Nueva contraseña',
+    'reset.label.confirm':'Confirmar contraseña',
+    'reset.ph.new':'Al menos 8 caracteres',
+    'reset.ph.confirm':'Vuelve a escribir la contraseña',
+    'reset.btn.update':'Actualizar contraseña',
+    'reset.btn.updating':'Actualizando…',
+    'reset.ok.title':'Contraseña actualizada',
+    'reset.ok.sub':'Tu contraseña se ha cambiado. Ya puedes iniciar sesión con tu nueva contraseña.',
+    'reset.btn.home':'Ir a la página de inicio',
+    'reset.err.title':'Enlace de restablecimiento no válido',
+    'reset.err.sub':'Este enlace para restablecer la contraseña no es válido o ha caducado. Solicita uno nuevo.',
+    'reset.btn.back':'← Volver a Sevenda',
+    'reset.err.cfgTitle':'Servicio no disponible',
+    'reset.err.cfgMsg':'El servicio de restablecimiento no está configurado. Escribe a hello@sevenda.dev.',
+    'reset.err.minlen':'La contraseña debe tener al menos 8 caracteres.',
+    'reset.err.mismatch':'Las contraseñas no coinciden.',
+    'reset.err.expTitle':'Enlace de restablecimiento caducado',
+    'reset.err.expMsg':'Tu sesión de restablecimiento ha caducado. Solicita un nuevo enlace.',
+    'reset.err.generic':'No se pudo actualizar la contraseña. Inténtalo de nuevo.',
+
     'nav.features':'Funciones','nav.insights':'Insights','nav.usecases':'Casos de uso',
     'nav.how':'Cómo funciona','nav.pricing':'Precios','nav.docs':'Docs','nav.faq':'FAQ','nav.privacy':'Política de Privacidad',
     'nav.cta':'Añadir a Chrome',
@@ -657,6 +729,30 @@ const SEVENDA_I18N = {
    * FRANCESE
    * ──────────────────────────────────────────────────────────── */
   fr: {
+    /* ── RESET PASSWORD (reset-password.html) ── */
+    'reset.loading':'Vérification de votre lien de réinitialisation…',
+    'reset.title':'Définir un nouveau mot de passe',
+    'reset.sub':'Choisissez un nouveau mot de passe pour votre compte Sevenda.',
+    'reset.label.new':'Nouveau mot de passe',
+    'reset.label.confirm':'Confirmer le mot de passe',
+    'reset.ph.new':'Au moins 8 caractères',
+    'reset.ph.confirm':'Saisissez à nouveau le mot de passe',
+    'reset.btn.update':'Mettre à jour le mot de passe',
+    'reset.btn.updating':'Mise à jour…',
+    'reset.ok.title':'Mot de passe mis à jour',
+    'reset.ok.sub':'Votre mot de passe a été modifié. Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.',
+    'reset.btn.home':'Aller à l\'accueil',
+    'reset.err.title':'Lien de réinitialisation invalide',
+    'reset.err.sub':'Ce lien de réinitialisation est invalide ou a expiré. Veuillez en demander un nouveau.',
+    'reset.btn.back':'← Retour à Sevenda',
+    'reset.err.cfgTitle':'Service indisponible',
+    'reset.err.cfgMsg':'Le service de réinitialisation n\'est pas configuré. Contactez hello@sevenda.dev.',
+    'reset.err.minlen':'Le mot de passe doit contenir au moins 8 caractères.',
+    'reset.err.mismatch':'Les mots de passe ne correspondent pas.',
+    'reset.err.expTitle':'Lien de réinitialisation expiré',
+    'reset.err.expMsg':'Votre session de réinitialisation a expiré. Veuillez demander un nouveau lien.',
+    'reset.err.generic':'Impossible de mettre à jour le mot de passe. Veuillez réessayer.',
+
     'nav.features':'Fonctionnalités','nav.insights':'Insights','nav.usecases':'Cas d\'usage',
     'nav.how':'Comment ça marche','nav.pricing':'Tarifs','nav.docs':'Docs','nav.faq':'FAQ','nav.privacy':'Politique de Confidentialité',
     'nav.cta':'Ajouter à Chrome',
@@ -930,6 +1026,22 @@ const SEVENDA_I18N = {
 
   /* Esposto globalmente — usato da onclick="setLang(...)" */
   window.setLang = function(lang) { applyLang(lang); };
+
+  /* Lingua corrente (fallback 'en') */
+  window.getLang = function() {
+    return localStorage.getItem('sevenda-lang') || 'en';
+  };
+
+  /* Traduzione singola chiave — per stringhe generate via JS (es. errori,
+     stati di caricamento) che non possono usare gli attributi data-i18n.
+     Fallback: lingua corrente → inglese → chiave stessa. */
+  window.t = function(key) {
+    const lang = window.getLang();
+    const table = SEVENDA_I18N[lang] || SEVENDA_I18N.en;
+    if (table && table[key] !== undefined) return table[key];
+    if (SEVENDA_I18N.en[key] !== undefined) return SEVENDA_I18N.en[key];
+    return key;
+  };
 
   /* Sincronizzazione cross-tab: se l'utente cambia lingua in un'altra scheda
      il cambiamento viene applicato anche in questa */
