@@ -1045,7 +1045,9 @@
 
       /* Nav */
       .nav-links, nav > .btn { display: none; }
-      nav > .lang-sw { display: none; }
+      /* #lang-sw è il selettore lingua desktop (dentro .nav-right-group):
+         su mobile va nascosto, resta solo quello nel drawer */
+      #lang-sw { display: none; }
       .nav-burger { display: flex; }
 
       /* Hero */
