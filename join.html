@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex" />
+  <title>Sign in · Sevenda</title>
+
+  <!-- Geist (brand font) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    :root{
+      --accent:#E8733A;          /* brand orange */
+      --accent-dim:#b9551f;
+      --bg:#0D0D0D;              /* near-black */
+      --panel:#161616;
+      --border:#2a2a2a;
+      --text:#f2f2f2;
+      --text-muted:#a8a8a8;
+      --text-dim:#6f6f6f;
+      --ok:#3ECF8E;
+      --err:#ff6b6b;
+      --sans:'Geist',system-ui,-apple-system,Segoe UI,sans-serif;
+      --mono:'Geist Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;height:100%}
+    body{
+      background:var(--bg);color:var(--text);font-family:var(--sans);
+      display:flex;align-items:center;justify-content:center;padding:24px;
+      background-image:radial-gradient(900px 500px at 50% -10%, rgba(232,115,58,.10), transparent 60%);
+    }
+    .card{
+      width:100%;max-width:420px;background:var(--panel);
+      border:1px solid var(--border);border-radius:14px;
+      padding:34px 30px 30px;box-shadow:0 20px 60px rgba(0,0,0,.45);
+    }
+    .brand{display:flex;align-items:center;gap:10px;margin-bottom:22px}
+    .logo-mark{width:30px;height:30px;flex:0 0 auto;display:flex;align-items:center;justify-content:center}
+    .logo-mark img{width:100%;height:100%;object-fit:contain;display:block}
+    .brand-name{font-weight:600;letter-spacing:-0.3px;font-size:14px;color:#ffffff}
+    h1{font-size:19px;font-weight:600;margin:0 0 6px}
+    .sub{color:var(--text-muted);font-size:13px;line-height:1.55;margin:0 0 22px}
+    label{display:block;font-size:11px;letter-spacing:.04em;text-transform:uppercase;
+      color:var(--text-dim);margin:0 0 7px}
+    input[type=email]{
+      width:100%;background:#0e0e0e;border:1px solid var(--border);
+      color:var(--text);font-family:var(--mono);font-size:14px;
+      padding:12px 13px;border-radius:9px;outline:none;transition:border-color .15s;
+    }
+    input[type=email]:focus{border-color:var(--accent)}
+    .captcha{margin:16px 0 4px;min-height:78px;display:flex;justify-content:center}
+    button.cta{
+      width:100%;margin-top:18px;background:var(--accent);color:#1a0e06;
+      border:0;border-radius:9px;padding:13px 16px;font-family:var(--sans);
+      font-weight:600;font-size:14px;cursor:pointer;transition:background .15s,opacity .15s;
+    }
+    button.cta:hover{background:#f0824c}
+    button.cta:disabled{opacity:.5;cursor:not-allowed}
+    .msg{font-size:12.5px;line-height:1.55;margin-top:14px;min-height:18px}
+    .msg.err{color:var(--err)}
+    .msg.ok{color:var(--ok)}
+    .hint{color:var(--text-dim);font-size:11px;margin-top:18px;line-height:1.6}
+    .hint code{font-family:var(--mono);color:var(--text-muted)}
+    .state{display:none}
+    .state.active{display:block}
+    .big-ok{
+      width:54px;height:54px;border-radius:50%;margin:0 auto 16px;
+      display:flex;align-items:center;justify-content:center;font-size:26px;
+      background:rgba(62,207,142,.12);color:var(--ok);
+    }
+    .center{text-align:center}
+    a{color:var(--accent);text-decoration:none}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="brand">
+      <span class="logo-mark"><img src="data:image/png;base64,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" alt="Sevenda" /></span>
+      <span class="brand-name">Sevenda</span>
+    </div>
+
+    <!-- STATE 1: form -->
+    <section id="formState" class="state active">
+      <h1>Sign in to Team</h1>
+      <p class="sub">Enter your email and we'll send a magic link.
+        Click it and you'll be signed in inside the Sevenda DevTools panel.</p>
+
+      <label for="email">Email</label>
+      <input id="email" type="email" autocomplete="email" placeholder="your@email.com" />
+
+      <div class="captcha"><div id="hcaptcha"></div></div>
+
+      <button id="sendBtn" class="cta" disabled>Send link</button>
+      <div id="formMsg" class="msg"></div>
+
+      <p class="hint">Bot protection by hCaptcha. The link opens at
+        <code>sevenda.dev/join</code> and is captured automatically by the extension.</p>
+    </section>
+
+    <!-- STATE 2: email sent -->
+    <section id="sentState" class="state center">
+      <div class="big-ok">📧</div>
+      <h1>Check your email</h1>
+      <p class="sub" id="sentSub">We sent a magic link. Open it on this device —
+        the Sevenda extension will detect the redirect and sign you in.</p>
+      <button id="resendBtn" class="cta" style="background:transparent;border:1px solid var(--border);color:var(--text-muted)">Use a different email</button>
+    </section>
+
+    <!-- STATE 3: redirect landing (link clicked) -->
+    <section id="doneState" class="state center">
+      <div class="big-ok">✓</div>
+      <h1>You're signed in</h1>
+      <p class="sub">Return to the <strong>Sevenda</strong> panel in Chrome DevTools —
+        it has already picked up your session. You can close this tab.</p>
+    </section>
+  </div>
+
+  <!-- Supabase JS v2 (UMD global: window.supabase) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- hCaptcha (explicit render) -->
+  <script src="https://js.hcaptcha.com/1/api.js?render=explicit&onload=onHcaptchaLoad" async defer></script>
+
+  <script>
+    // ── Config (anon URL + key are public by design) ────────────────────────
+    const SUPABASE_URL  = 'https://jqxxhdrlcxtlmejhtzsb.supabase.co';
+    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpxeHhoZHJsY3h0bG1lamh0enNiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4ODMyNzUsImV4cCI6MjA5NjQ1OTI3NX0.vM-B0zoz_sTg3IVXpHWrkjl2tZrobNjtKYDmhnWlZoI';
+
+    // ⚠️ Paste the REAL hCaptcha *site key* (public) configured in
+    //    Supabase → Authentication → Settings → Bot & Abuse Protection → hCaptcha.
+    const HCAPTCHA_SITE_KEY = 'c84e21d4-00f0-4cec-9394-68163f68e882';
+
+    const REDIRECT_TO = 'https://sevenda.dev/join';
+
+    // CRITICAL: implicit flow → redirect carries #access_token=… in the fragment,
+    // which is exactly what the extension intercepts. detectSessionInUrl:false keeps
+    // the fragment intact (we do NOT strip or rotate it from the page).
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
+      auth: {
+        flowType: 'implicit',
+        detectSessionInUrl: false,
+        persistSession: false,
+        autoRefreshToken: false,
+      },
+    });
+
+    const $ = (id) => document.getElementById(id);
+    const show = (id) => {
+      ['formState','sentState','doneState'].forEach(s => $(s).classList.toggle('active', s === id));
+    };
+
+    // ── If we landed here from the magic link, show the "done" screen ────────
+    // (Passive: we read the fragment only to update the UI; the extension owns the session.)
+    if (location.hash.includes('access_token=')) {
+      show('doneState');
+    } else {
+      // Prefill email from ?email= (sent by the extension)
+      const params = new URLSearchParams(location.search);
+      const pre = params.get('email');
+      if (pre) $('email').value = pre;
+    }
+
+    // ── hCaptcha wiring ──────────────────────────────────────────────────────
+    let hcToken = null, hcWidget = null;
+    window.onHcaptchaLoad = function () {
+      if (!window.hcaptcha || $('hcaptcha').dataset.rendered) return;
+      hcWidget = window.hcaptcha.render('hcaptcha', {
+        sitekey: HCAPTCHA_SITE_KEY,
+        theme: 'dark',
+        callback: (t) => { hcToken = t; $('sendBtn').disabled = false; },
+        'expired-callback': () => { hcToken = null; $('sendBtn').disabled = true; },
+        'error-callback':   () => { hcToken = null; $('sendBtn').disabled = true; },
+      });
+      $('hcaptcha').dataset.rendered = '1';
+    };
+
+    // ── Send link ──────────────────────────────────────────────────────
+    function setMsg(text, cls) {
+      const m = $('formMsg'); m.textContent = text || ''; m.className = 'msg' + (cls ? ' ' + cls : '');
+    }
+
+    $('sendBtn').addEventListener('click', async () => {
+      const email = ($('email').value || '').trim();
+      if (!email) { setMsg('Enter your email.', 'err'); return; }
+      if (!hcToken) { setMsg('Please complete the captcha.', 'err'); return; }
+
+      const btn = $('sendBtn'); btn.disabled = true; btn.textContent = 'Sending…'; setMsg('');
+      try {
+        const { error } = await supabase.auth.signInWithOtp({
+          email,
+          options: {
+            captchaToken: hcToken,
+            emailRedirectTo: REDIRECT_TO,
+            shouldCreateUser: true,
+          },
+        });
+        if (error) throw error;
+        $('sentSub').innerHTML =
+          'We sent a magic link to <strong>' + email.replace(/</g,'&lt;') + '</strong>. ' +
+          'Open it on this device — the Sevenda extension will detect the redirect and sign you in.';
+        show('sentState');
+      } catch (e) {
+        setMsg('✗ ' + (e && e.message ? e.message : 'Could not send the link.'), 'err');
+        btn.textContent = 'Send link';
+        // hCaptcha tokens are single-use → reset for a clean retry
+        hcToken = null;
+        if (window.hcaptcha && hcWidget !== null) { try { window.hcaptcha.reset(hcWidget); } catch (_) {} }
+        btn.disabled = true;
+      }
+    });
+
+    $('email').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !$('sendBtn').disabled) $('sendBtn').click();
+    });
+
+    $('resendBtn').addEventListener('click', () => {
+      setMsg(''); $('sendBtn').textContent = 'Send link';
+      hcToken = null; $('sendBtn').disabled = true;
+      if (window.hcaptcha && hcWidget !== null) { try { window.hcaptcha.reset(hcWidget); } catch (_) {} }
+      show('formState');
+    });
+  </script>
+</body>
+</html>
