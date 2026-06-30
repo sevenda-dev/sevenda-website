@@ -121,8 +121,6 @@
 
   <!-- Supabase JS v2 (UMD global: window.supabase) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- hCaptcha (explicit render) -->
-  <script src="https://js.hcaptcha.com/1/api.js?render=explicit&onload=onHcaptchaLoad" async defer></script>
 
   <script>
     // ── Config (anon URL + key are public by design) ────────────────────────
@@ -223,5 +221,9 @@
       show('formState');
     });
   </script>
+
+  <!-- hCaptcha caricato PER ULTIMO: garantisce che onHcaptchaLoad sia gia' definita
+       quando api.js (async) invoca l'onload. -->
+  <script src="https://js.hcaptcha.com/1/api.js?render=explicit&onload=onHcaptchaLoad" async defer></script>
 </body>
 </html>
