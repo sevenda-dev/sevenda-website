@@ -10,7 +10,20 @@
 // pagamento all'utente/organization Supabase. checkout.html deve
 // passare supabaseUserId (id dell'utente loggato) nel body.
 //
+// PATCH v3 (dedup customer): prima di creare un Customer si cerca quello
+// già associato all'utente, così un retry del checkout (3DS fallito,
+// refresh, doppio click) non genera Customer/organization duplicati.
+// Strategia:
+//   1) mappa autorevole organization.stripe_customer_id (Supabase REST),
+//      risolta per owner_id = supabaseUserId — la scrive il webhook;
+//   2) fallback: Stripe Customer Search per metadata.supabaseUserId.
+// Se trovato, il Customer viene riusato (e i dati di fatturazione
+// aggiornati); altrimenti se ne crea uno nuovo.
+//
 // Deploy:  supabase functions deploy create-subscription --no-verify-jwt
+// Secrets opzionali per la mappa autorevole (consigliati):
+//   supabase secrets set SUPABASE_URL=https://<project>.supabase.co
+//   supabase secrets set SUPABASE_SERVICE_ROLE_KEY=eyJ...
 // ════════════════════════════════════════════════════════════════
 
 const STRIPE_API = "https://api.stripe.com/v1";
@@ -77,6 +90,64 @@ async function stripe(path: string, body: Record<string, unknown>, key: string) 
   return data;
 }
 
+// ── Dedup customer ──────────────────────────────────────────────────────────
+// Mappa autorevole: l'organization (scritta dal webhook) tiene owner_id →
+// stripe_customer_id. La interroghiamo via Supabase REST con la service-role
+// key. Best-effort: se i secret non sono configurati o la query fallisce,
+// torna null e si passa al fallback Stripe Search.
+async function lookupCustomerIdFromOrg(supabaseUserId: string): Promise<string | null> {
+  const base = Deno.env.get("SUPABASE_URL");
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!base || !serviceKey) {
+    console.log(`[dedup] org-map saltata: SUPABASE_URL=${!!base} SERVICE_ROLE_KEY=${!!serviceKey}`);
+    return null;
+  }
+  try {
+    const url = `${base}/rest/v1/organization`
+      + `?owner_id=eq.${encodeURIComponent(supabaseUserId)}`
+      + `&stripe_customer_id=not.is.null`
+      + `&select=stripe_customer_id&limit=1`;
+    const res = await fetch(url, {
+      headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },
+    });
+    if (!res.ok) {
+      console.error(`[dedup] org-map query HTTP ${res.status}: ${await res.text()}`);
+      return null;
+    }
+    const rows = await res.json();
+    const found = Array.isArray(rows) && rows[0]?.stripe_customer_id ? rows[0].stripe_customer_id : null;
+    console.log(`[dedup] org-map per ${supabaseUserId} → ${found ?? "nessun match"}`);
+    return found;
+  } catch (e) {
+    console.error(`[dedup] org-map errore: ${(e as Error).message}`);
+    return null;
+  }
+}
+
+// Fallback: Stripe Customer Search per metadata.supabaseUserId. L'indice di
+// ricerca è eventualmente consistente (qualche secondo per i Customer appena
+// creati), ma copre i retry sequenziali. Best-effort: null su errore.
+async function searchStripeCustomerId(supabaseUserId: string, key: string): Promise<string | null> {
+  try {
+    const query = `metadata['supabaseUserId']:'${supabaseUserId.replace(/'/g, "")}'`;
+    const res = await fetch(
+      `${STRIPE_API}/customers/search?limit=1&query=${encodeURIComponent(query)}`,
+      { headers: { Authorization: `Bearer ${key}` } },
+    );
+    const data = await res.json();
+    if (!res.ok) {
+      console.error(`[dedup] stripe-search HTTP ${res.status}: ${data?.error?.message ?? ""}`);
+      return null;
+    }
+    const found = data?.data?.[0]?.id ?? null;
+    console.log(`[dedup] stripe-search per ${supabaseUserId} → ${found ?? "nessun match"}`);
+    return found;
+  } catch (e) {
+    console.error(`[dedup] stripe-search errore: ${(e as Error).message}`);
+    return null;
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   if (req.method !== "POST") {
@@ -108,8 +179,11 @@ Deno.serve(async (req) => {
       throw new Error(`Stripe price not configured for plan "${planId}" (${billingInterval}).`);
     }
 
-    // 1) Customer  (metadata estesi: supabaseUserId + orgName)
-    const customer = await stripe("/customers", {
+    // 1) Customer — DEDUP: riusa quello già associato all'utente, se esiste.
+    // I metadata estesi (supabaseUserId + orgName) servono al webhook per
+    // creare/risolvere l'organization e vengono riscritti anche in update,
+    // così un Customer preesistente senza supabaseUserId viene "riparato".
+    const customerParams = {
       email,
       name,
       phone,
@@ -129,7 +203,37 @@ Deno.serve(async (req) => {
         supabaseUserId,                 // ← serve al webhook per creare/risolvere l'organization
         orgName: orgName || "",
       },
-    }, secret);
+    };
+
+    // Candidati per il riuso, in ordine di priorità:
+    //  1) mappa autorevole (organization.stripe_customer_id);
+    //  2) Stripe Search per metadata.supabaseUserId (ritorna solo customer
+    //     VIVI nella modalità Stripe corrente).
+    // Si prova ad aggiornare ciascun candidato: il primo che esiste davvero
+    // viene riusato. Se un ID è morto (es. customer cancellato o creato in
+    // un'altra modalità test/live), si passa al successivo, evitando di
+    // creare un duplicato finché esiste almeno un customer valido.
+    const fromOrg = await lookupCustomerIdFromOrg(supabaseUserId);
+    const fromSearch = await searchStripeCustomerId(supabaseUserId, secret);
+    const candidates = [fromOrg, fromSearch].filter(
+      (id, i, arr): id is string => !!id && arr.indexOf(id) === i,
+    );
+
+    let customer;
+    for (const id of candidates) {
+      try {
+        customer = await stripe(`/customers/${id}`, customerParams, secret);
+        console.log(`[dedup] customer RIUSATO ${customer.id} per ${supabaseUserId}`);
+        break;
+      } catch (e) {
+        console.error(`[dedup] candidato ${id} non utilizzabile (${(e as Error).message})`);
+        customer = null;
+      }
+    }
+    if (!customer) {
+      customer = await stripe("/customers", customerParams, secret);
+      console.log(`[dedup] customer NUOVO ${customer.id} per ${supabaseUserId}`);
+    }
 
     // 2) Subscription (incomplete → PaymentIntent da confermare lato client)
     const subscription = await stripe("/subscriptions", {
