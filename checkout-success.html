@@ -42,17 +42,48 @@
     }
     .btn:hover { opacity:.85; }
     .btn-ghost { background:transparent; border:1px solid #2a2a2a; color:var(--text); margin-left:10px; }
+    .steps {
+      margin-top:34px; padding:20px 22px; text-align:left;
+      background:var(--surface); border:1px solid #2a2a2a; border-radius:var(--r-sm);
+    }
+    .steps-title {
+      font-family:var(--mono); font-size:11px; letter-spacing:.08em;
+      text-transform:uppercase; color:var(--text-3); margin-bottom:14px;
+    }
+    .steps ol { list-style:none; counter-reset:step; }
+    .steps li {
+      counter-increment:step; position:relative; padding-left:32px;
+      font-size:13.5px; color:var(--text-2); line-height:1.55; margin-bottom:12px;
+    }
+    .steps li:last-child { margin-bottom:0; }
+    .steps li::before {
+      content:counter(step); position:absolute; left:0; top:1px;
+      width:20px; height:20px; border-radius:50%;
+      background:var(--green-dim); border:1px solid var(--green-border); color:var(--green);
+      font-family:var(--mono); font-size:11px; line-height:20px; text-align:center;
+    }
+    .steps .em { color:var(--green); font-weight:600; }
+    .steps-note { font-size:12.5px; color:var(--text-3); margin:16px 0 0; }
   </style>
 </head>
 <body>
   <div class="card" id="card">
     <div class="icon ok" id="icon">✓</div>
     <h1 id="title">Payment confirmed</h1>
-    <p id="msg">Thanks for subscribing to Sevenda. A confirmation and onboarding link are on their way to your inbox.</p>
+    <p id="msg">Thanks for subscribing to Sevenda. A confirmation email is on its way — next, install the extension and sign in to unlock your plan.</p>
     <p class="ref" id="ref"></p>
     <div>
-      <a href="/" class="btn">Go to homepage</a>
+      <a href="https://chromewebstore.google.com/detail/caokihdmcjaknibdpgafjaljbdkleffl" target="_blank" rel="noopener" class="btn" id="cta">Add Sevenda to Chrome</a>
       <a href="/docs.html" class="btn btn-ghost">Read the docs</a>
+    </div>
+    <div class="steps" id="steps">
+      <p class="steps-title">Next steps</p>
+      <ol>
+        <li>Install the Sevenda extension from the Chrome Web Store.</li>
+        <li>Open DevTools (F12 / Alt+Cmd+I on Mac) and select the &ldquo;Sevenda&rdquo; tab.</li>
+        <li>Click &ldquo;Sign in&rdquo; and use the <strong class="em">same email you used at checkout</strong> &mdash; your plan unlocks automatically.</li>
+      </ol>
+      <p class="steps-note">Already installed? Open DevTools &rarr; Sevenda tab and sign in.</p>
     </div>
   </div>
 
@@ -61,21 +92,41 @@
       const qs = new URLSearchParams(location.search);
       const status = qs.get('redirect_status'); // succeeded | processing | failed | requires_payment_method
       const pi = qs.get('payment_intent');
+      const si = qs.get('setup_intent'); // presente nel flusso trial (SetupIntent)
       const icon = document.getElementById('icon');
       const title = document.getElementById('title');
       const msg = document.getElementById('msg');
       const ref = document.getElementById('ref');
+      const cta = document.getElementById('cta');
+      const steps = document.getElementById('steps');
+
+      // Negli stati non-successo la pagina torna al comportamento precedente:
+      // CTA verso la homepage e nessun blocco "Next steps".
+      function hideNextSteps() {
+        steps.style.display = 'none';
+        cta.textContent = 'Go to homepage';
+        cta.href = '/';
+        cta.removeAttribute('target');
+        cta.removeAttribute('rel');
+      }
 
       if (status === 'processing') {
         icon.className = 'icon wait'; icon.textContent = '⏳';
         title.textContent = 'Payment processing';
         msg.textContent = 'Your payment is being processed. We\'ll email you once it\'s confirmed.';
+        hideNextSteps();
       } else if (status && status !== 'succeeded') {
         icon.className = 'icon err'; icon.textContent = '!';
         title.textContent = 'Payment not completed';
         msg.innerHTML = 'Something went wrong with your payment. Please <a href="/pricing.html">try again</a> or contact <a href="mailto:hello@sevenda.dev">hello@sevenda.dev</a>.';
+        hideNextSteps();
+      } else if (si) {
+        title.textContent = 'Your 14-day trial has started';
+        msg.textContent = 'Your card is saved — you won\'t be charged until the trial ends. Next, install the extension and sign in to unlock your plan.';
       }
-      if (pi) ref.textContent = 'Ref: ' + pi;
+
+      const refId = si || pi;
+      if (refId) ref.textContent = 'Ref: ' + refId;
     })();
   </script>
 </body>
