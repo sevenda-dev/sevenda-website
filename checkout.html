@@ -461,8 +461,17 @@
 
   /* ── Stripe ── */
   let stripe = null, elements = null, paymentElement = null, clientSecret = null, subscriptionReady = false;
-  // Stato trial (default = retrocompatibilità: nessun trial → confirmPayment come oggi)
-  let payMode = 'payment', trialEnd = null, trialDays = 0;
+  // Trial: durata di default lato client (14gg) così l'avviso "no charge today" è
+  // visibile fin dallo step 1–2, prima del fetch. Override via ?trialDays=N o CFG.trialDays.
+  // La conferma (setup vs payment) e lo stato reale del trial restano pilotati dal
+  // server e vengono riconciliati in preparePayment().
+  const DEFAULT_TRIAL_DAYS = (function () {
+    const q = parseInt(qs.get('trialDays'), 10);
+    if (!isNaN(q) && q >= 0) return q;
+    if (CFG && typeof CFG.trialDays === 'number') return CFG.trialDays;
+    return 14;
+  })();
+  let payMode = 'payment', trialEnd = null, trialDays = DEFAULT_TRIAL_DAYS;
   const elementsConfigured = (typeof isStripeConfigured === 'function') && isStripeConfigured();
   if (elementsConfigured && window.Stripe) {
     stripe = Stripe(CFG.publishableKey);
@@ -725,12 +734,20 @@
 
       clientSecret = data.clientSecret;
 
-      // ── Trial (retrocompatibilità): se la risposta NON contiene `mode`,
-      //    comportati come oggi → payment/confirmPayment, nessun trial. ──
-      payMode   = (data.mode === 'setup' || data.mode === 'payment') ? data.mode : 'payment';
-      trialDays = (typeof data.trialDays === 'number' && data.trialDays > 0) ? data.trialDays : 0;
-      trialEnd  = (typeof data.trialEnd === 'number') ? data.trialEnd : null;
-      render(); // aggiorna copy/label/avviso trial ora che conosciamo i dati del trial
+      // ── Riconciliazione col server. Il trial è reale SOLO se la prima fattura è
+      //    €0 → SetupIntent → mode "setup": in quel caso mostriamo il trial con la
+      //    data reale. Altrimenti (mode "payment" oppure risposta priva di `mode`,
+      //    retrocompat con la Edge Function attuale) l'addebito è immediato → nessun
+      //    trial al momento del pagamento, così non si fa una falsa promessa. ──
+      payMode = (data.mode === 'setup' || data.mode === 'payment') ? data.mode : 'payment';
+      if (payMode === 'setup') {
+        trialDays = (typeof data.trialDays === 'number' && data.trialDays > 0) ? data.trialDays : DEFAULT_TRIAL_DAYS;
+        trialEnd  = (typeof data.trialEnd === 'number') ? data.trialEnd : null;
+      } else {
+        trialDays = 0;   // addebito immediato → nessuna promessa di trial in fase di pagamento
+        trialEnd  = null;
+      }
+      render(); // aggiorna copy/label/avviso trial ora che conosciamo lo stato reale
       const appearance = {
         theme: 'night',
         variables: {
