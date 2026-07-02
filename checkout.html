@@ -12,6 +12,7 @@
   <script src="https://js.stripe.com/v3/"></script>
   <script src="stripe.config.js"></script>
   <script src="supabase.config.js"></script>
+  <script src="i18n.js"></script>
   <script defer src="auth.js"></script>
 
   <style>
@@ -352,7 +353,7 @@
 
       <div id="coPaymentReady" style="display:none;">
         <div id="co-payment-element"><!-- Stripe Elements mounts here --></div>
-        <p class="co-pay-disclaimer">
+        <p class="co-pay-disclaimer" id="coPayDisclaimer">
           By providing your card information, you authorize Sevenda to charge your card
           for current and future payments in accordance with the terms.
         </p>
@@ -391,6 +392,9 @@
       <div class="co-sum-row"><span>Subtotal</span><span id="coSumSubtotal">€0</span></div>
       <div class="co-sum-total"><span>Total</span><span id="coSumTotal">€0</span></div>
       <p class="co-sum-note" id="coSumNote">Prices exclude applicable taxes.</p>
+
+      <!-- Avviso trial (mostrato solo se trialDays > 0) -->
+      <div class="co-notice" id="coTrialNotice" style="display:none; margin-top:16px;"></div>
 
       <!-- Terms (visibili dallo step 2 in poi) -->
       <div class="co-terms" id="coTerms" style="display:none;">
@@ -457,6 +461,8 @@
 
   /* ── Stripe ── */
   let stripe = null, elements = null, paymentElement = null, clientSecret = null, subscriptionReady = false;
+  // Stato trial (default = retrocompatibilità: nessun trial → confirmPayment come oggi)
+  let payMode = 'payment', trialEnd = null, trialDays = 0;
   const elementsConfigured = (typeof isStripeConfigured === 'function') && isStripeConfigured();
   if (elementsConfigured && window.Stripe) {
     stripe = Stripe(CFG.publishableKey);
@@ -470,6 +476,36 @@
                              ? unitPrice() * 12 * S.qty
                              : unitPrice() * S.qty; }
   function fmt(n)        { return SYM + (Number.isInteger(n) ? n : n.toFixed(2)); }
+
+  // i18n: usa il sistema condiviso (i18n.js → window.t / window.getLang) con
+  // fallback alla stringa EN inline se i18n.js non è caricato o la chiave manca.
+  function tt(key, fallback) {
+    const s = (typeof window.t === 'function') ? window.t(key) : null;
+    return (s && s !== key) ? s : fallback;
+  }
+  function fill(str, map) {
+    return String(str).replace(/\{(\w+)\}/g, (_, k) => (map[k] != null ? map[k] : ''));
+  }
+  function siteLocale() {
+    return (typeof window.getLang === 'function' ? window.getLang() : (document.documentElement.lang || 'en'));
+  }
+
+  // Data del primo addebito: trialEnd (unix seconds) formattato nel locale del sito.
+  // Fallback se trialEnd assente: oggi + trialDays.
+  function formatTrialEnd() {
+    let d;
+    if (typeof trialEnd === 'number' && trialEnd > 0) {
+      d = new Date(trialEnd * 1000);
+    } else {
+      d = new Date();
+      d.setDate(d.getDate() + (trialDays || 0));
+    }
+    try {
+      return d.toLocaleDateString(siteLocale(), { year: 'numeric', month: 'long', day: 'numeric' });
+    } catch (e) {
+      return d.toLocaleDateString();
+    }
+  }
 
   /* ─────────────────────────────────────────────────────────────
      RENDER
@@ -505,13 +541,41 @@
     $('coSumSubtotal').textContent = fmt(total);
     $('coSumTotal').textContent    = fmt(total);
 
-    // Charge agreement label
+    // Charge agreement label + copy trial (mostrata solo se trialDays > 0)
     const cadence = S.interval === 'annual' ? 'yearly' : 'monthly';
-    $('coTermChargeLabel').textContent =
-      'I agree to be charged ' + fmt(total) + ' ' + cadence + '. I can cancel anytime via the billing page.';
+    const trialNotice     = $('coTrialNotice');
+    const payDisclaimer   = $('coPayDisclaimer');
+    if (trialDays > 0) {
+      // Copy trial localizzata (EN/IT/ES/FR via i18n.js) — cadence tradotta a parte
+      const cadenceLoc = tt(S.interval === 'annual' ? 'co.cadence.yearly' : 'co.cadence.monthly', cadence);
+      const map = { days: trialDays, date: formatTrialEnd(), total: fmt(total), cadence: cadenceLoc };
+      $('coTermChargeLabel').textContent = fill(tt('co.trial.charge',
+        'I authorize Sevenda to charge {total} {cadence} after the {days}-day free trial. Cancel anytime before then and you won’t be charged.'), map);
+      if (trialNotice) {
+        trialNotice.textContent = fill(tt('co.trial.notice',
+          '{days}-day free trial — you won’t be charged today. First payment on {date}.'), map);
+        trialNotice.style.display = 'block';
+      }
+      if (payDisclaimer) {
+        payDisclaimer.textContent = fill(tt('co.trial.disclaimer',
+          'By providing your card information, you authorize Sevenda to charge your card for payments after your {days}-day free trial, in accordance with the terms. You won’t be charged during the trial.'), map);
+      }
+    } else {
+      $('coTermChargeLabel').textContent =
+        'I agree to be charged ' + fmt(total) + ' ' + cadence + '. I can cancel anytime via the billing page.';
+      if (trialNotice) trialNotice.style.display = 'none';
+      if (payDisclaimer) {
+        payDisclaimer.textContent =
+          'By providing your card information, you authorize Sevenda to charge your card '
+          + 'for current and future payments in accordance with the terms.';
+      }
+    }
 
     // Renew note
     $('coRenewText').textContent = 'Auto-renews ' + cadence + ' · ' + fmt(total) + ' per ' + (S.interval === 'annual' ? 'year' : 'month');
+
+    // Label del bottone dipende dal trial → tienila sincronizzata
+    updateActionButton();
   }
 
   /* ─────────────────────────────────────────────────────────────
@@ -547,7 +611,9 @@
     const btn = $('coAction');
     btn.innerHTML = S.step === 1 ? 'Next'
                   : S.step === 2 ? 'Continue to payment'
-                  : 'Make payment';
+                  : (trialDays > 0
+                      ? fill(tt('co.trial.btn', 'Start {days}-day free trial'), { days: trialDays })
+                      : 'Make payment');
     btn.disabled = (S.step >= 2 && !termsOk());
   }
 
@@ -658,6 +724,13 @@
       if (!res.ok || !data.clientSecret) throw new Error(data.error || 'Could not start payment.');
 
       clientSecret = data.clientSecret;
+
+      // ── Trial (retrocompatibilità): se la risposta NON contiene `mode`,
+      //    comportati come oggi → payment/confirmPayment, nessun trial. ──
+      payMode   = (data.mode === 'setup' || data.mode === 'payment') ? data.mode : 'payment';
+      trialDays = (typeof data.trialDays === 'number' && data.trialDays > 0) ? data.trialDays : 0;
+      trialEnd  = (typeof data.trialEnd === 'number') ? data.trialEnd : null;
+      render(); // aggiorna copy/label/avviso trial ora che conosciamo i dati del trial
       const appearance = {
         theme: 'night',
         variables: {
@@ -691,22 +764,24 @@
     btn.innerHTML = '<span class="co-spinner"></span> Processing…';
 
     const billing = collectBilling();
-    const { error } = await stripe.confirmPayment({
-      elements,
-      confirmParams: {
-        return_url: location.origin + '/checkout-success.html?plan=' + encodeURIComponent(planId),
-        payment_method_data: {
-          billing_details: {
-            name: billing.name,
-            email: billing.email,
-            phone: billing.phone,
-            address: billing.address,
-          },
+    const confirmParams = {
+      return_url: location.origin + '/checkout-success.html?plan=' + encodeURIComponent(planId),
+      payment_method_data: {
+        billing_details: {
+          name: billing.name,
+          email: billing.email,
+          phone: billing.phone,
+          address: billing.address,
         },
       },
-    });
+    };
 
-    // confirmPayment redirige in caso di successo; qui si arriva solo su errore
+    // Trial (prima fattura €0) → SetupIntent (confirmSetup); altrimenti PaymentIntent (confirmPayment).
+    const { error } = payMode === 'setup'
+      ? await stripe.confirmSetup({ elements, confirmParams })
+      : await stripe.confirmPayment({ elements, confirmParams });
+
+    // confirmSetup/confirmPayment redirigono in caso di successo; qui si arriva solo su errore
     if (error) {
       $('coPayError').textContent = error.message || 'Payment failed. Please check your details.';
       btn.disabled = false;

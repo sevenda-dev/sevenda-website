@@ -12,6 +12,13 @@ const SEVENDA_I18N = {
    * INGLESE (default)
    * ──────────────────────────────────────────────────────────── */
   en: {
+    /* ── CHECKOUT (checkout.html) — copy trial ── */
+    'co.cadence.yearly':'yearly','co.cadence.monthly':'monthly',
+    'co.trial.notice':'{days}-day free trial — you won’t be charged today. First payment on {date}.',
+    'co.trial.charge':'I authorize Sevenda to charge {total} {cadence} after the {days}-day free trial. Cancel anytime before then and you won’t be charged.',
+    'co.trial.disclaimer':'By providing your card information, you authorize Sevenda to charge your card for payments after your {days}-day free trial, in accordance with the terms. You won’t be charged during the trial.',
+    'co.trial.btn':'Start {days}-day free trial',
+
     /* ── RESET PASSWORD (reset-password.html) ── */
     'reset.loading':'Verifying your reset link…',
     'reset.title':'Set a new password',
@@ -259,6 +266,13 @@ const SEVENDA_I18N = {
    * ITALIANO
    * ──────────────────────────────────────────────────────────── */
   it: {
+    /* ── CHECKOUT (checkout.html) — copy trial ── */
+    'co.cadence.yearly':'all’anno','co.cadence.monthly':'al mese',
+    'co.trial.notice':'Prova gratuita di {days} giorni — oggi non ti verrà addebitato nulla. Primo pagamento il {date}.',
+    'co.trial.charge':'Autorizzo Sevenda ad addebitare {total} {cadence} al termine della prova gratuita di {days} giorni. Disdici in qualsiasi momento prima di allora e non ti verrà addebitato nulla.',
+    'co.trial.disclaimer':'Fornendo i dati della tua carta, autorizzi Sevenda ad addebitare la carta per i pagamenti successivi alla prova gratuita di {days} giorni, in conformità con i termini. Durante la prova non ti verrà addebitato nulla.',
+    'co.trial.btn':'Inizia la prova gratuita di {days} giorni',
+
     /* ── RESET PASSWORD (reset-password.html) ── */
     'reset.loading':'Verifica del link di reset…',
     'reset.title':'Imposta una nuova password',
@@ -491,6 +505,13 @@ const SEVENDA_I18N = {
    * SPAGNOLO
    * ──────────────────────────────────────────────────────────── */
   es: {
+    /* ── CHECKOUT (checkout.html) — copy trial ── */
+    'co.cadence.yearly':'al año','co.cadence.monthly':'al mes',
+    'co.trial.notice':'Prueba gratuita de {days} días — hoy no se te cobrará nada. Primer pago el {date}.',
+    'co.trial.charge':'Autorizo a Sevenda a cobrar {total} {cadence} al finalizar la prueba gratuita de {days} días. Cancela en cualquier momento antes de esa fecha y no se te cobrará nada.',
+    'co.trial.disclaimer':'Al proporcionar los datos de tu tarjeta, autorizas a Sevenda a cobrar en tu tarjeta los pagos posteriores a tu prueba gratuita de {days} días, de acuerdo con los términos. Durante la prueba no se te cobrará nada.',
+    'co.trial.btn':'Comenzar la prueba gratuita de {days} días',
+
     /* ── RESET PASSWORD (reset-password.html) ── */
     'reset.loading':'Verificando tu enlace de restablecimiento…',
     'reset.title':'Establece una nueva contraseña',
@@ -723,6 +744,13 @@ const SEVENDA_I18N = {
    * FRANCESE
    * ──────────────────────────────────────────────────────────── */
   fr: {
+    /* ── CHECKOUT (checkout.html) — copy trial ── */
+    'co.cadence.yearly':'par an','co.cadence.monthly':'par mois',
+    'co.trial.notice':'Essai gratuit de {days} jours — aucun paiement aujourd’hui. Premier paiement le {date}.',
+    'co.trial.charge':'J’autorise Sevenda à débiter {total} {cadence} à la fin de l’essai gratuit de {days} jours. Annulez à tout moment avant cette date et vous ne serez pas débité.',
+    'co.trial.disclaimer':'En fournissant les informations de votre carte, vous autorisez Sevenda à débiter votre carte pour les paiements après votre essai gratuit de {days} jours, conformément aux conditions. Vous ne serez pas débité pendant l’essai.',
+    'co.trial.btn':'Commencer l’essai gratuit de {days} jours',
+
     /* ── RESET PASSWORD (reset-password.html) ── */
     'reset.loading':'Vérification de votre lien de réinitialisation…',
     'reset.title':'Définir un nouveau mot de passe',
