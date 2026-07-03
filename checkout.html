@@ -213,7 +213,15 @@
 <!-- NAV -->
 <nav class="co-nav">
   <a href="/" class="co-logo"><img src="/logo.svg" alt="Sevenda"> Sevenda</a>
-  <a href="/pricing.html" class="co-back">← Back to pricing</a>
+  <div style="display:flex; align-items:center; gap:18px;">
+    <div class="lang-sw" id="lang-sw">
+      <button class="lang-btn active" data-lang="en" onclick="setLang('en'); window.__coRerender &amp;&amp; window.__coRerender();">EN</button>
+      <button class="lang-btn" data-lang="it" onclick="setLang('it'); window.__coRerender &amp;&amp; window.__coRerender();">IT</button>
+      <button class="lang-btn" data-lang="es" onclick="setLang('es'); window.__coRerender &amp;&amp; window.__coRerender();">ES</button>
+      <button class="lang-btn" data-lang="fr" onclick="setLang('fr'); window.__coRerender &amp;&amp; window.__coRerender();">FR</button>
+    </div>
+    <a href="/pricing.html" class="co-back" data-i18n="co.nav.back">← Back to pricing</a>
+  </div>
 </nav>
 
 <!-- CHECKOUT -->
@@ -221,14 +229,14 @@
 
   <!-- MAIN -->
   <div class="co-main">
-    <a href="/pricing.html" class="co-allplans">← All plans</a>
-    <h1 class="co-h1">Purchase plan</h1>
+    <a href="/pricing.html" class="co-allplans" data-i18n="co.allplans">← All plans</a>
+    <h1 class="co-h1" data-i18n="co.h1">Purchase plan</h1>
 
     <!-- Stepper -->
     <div class="co-stepper" id="coStepper">
-      <div class="co-step active" data-step="1"><span class="co-step-num">1</span> Subscription</div>
-      <div class="co-step"        data-step="2"><span class="co-step-num">2</span> Billing Information</div>
-      <div class="co-step"        data-step="3"><span class="co-step-num">3</span> Payment</div>
+      <div class="co-step active" data-step="1"><span class="co-step-num">1</span> <span data-i18n="co.step.sub">Subscription</span></div>
+      <div class="co-step"        data-step="2"><span class="co-step-num">2</span> <span data-i18n="co.step.billing">Billing Information</span></div>
+      <div class="co-step"        data-step="3"><span class="co-step-num">3</span> <span data-i18n="co.step.payment">Payment</span></div>
       <div class="co-stepper-bar" id="coStepperBar"></div>
     </div>
 
@@ -239,19 +247,19 @@
           <div class="co-plan-name" id="coPlanName">Plan</div>
           <div class="co-plan-price" id="coPlanPrice">—</div>
         </div>
-        <a href="/pricing.html" class="co-remove">🗑 Remove</a>
+        <a href="/pricing.html" class="co-remove" data-i18n="co.remove">🗑 Remove</a>
       </div>
 
       <div class="co-field-group">
-        <label class="co-label">Billing period</label>
+        <label class="co-label" data-i18n="co.label.period">Billing period</label>
         <div class="co-interval" id="coInterval">
-          <button data-interval="monthly">Monthly</button>
-          <button data-interval="annual" class="on">Annual <span class="co-save-pill">SAVE 25%</span></button>
+          <button data-interval="monthly"><span data-i18n="co.interval.monthly">Monthly</span></button>
+          <button data-interval="annual" class="on"><span data-i18n="co.interval.annual">Annual</span> <span class="co-save-pill" data-i18n="co.save25">SAVE 25%</span></button>
         </div>
       </div>
 
       <div class="co-field-group" id="coQtyGroup">
-        <label class="co-label">Number of seats</label>
+        <label class="co-label" data-i18n="co.label.seats">Number of seats</label>
         <div class="co-qty">
           <button id="coQtyMinus">−</button>
           <span class="co-qty-val" id="coQtyVal">1</span>
@@ -263,97 +271,97 @@
 
     <!-- ── STEP 2: BILLING ── -->
     <div class="co-panel" data-panel="2">
-      <div class="co-section-title">I'm buying Sevenda for</div>
-      <div class="co-section-sub">Choose who this subscription is for.</div>
+      <div class="co-section-title" data-i18n="co.step2.title">I'm buying Sevenda for</div>
+      <div class="co-section-sub" data-i18n="co.step2.sub">Choose who this subscription is for.</div>
       <div class="co-radio-list">
-        <label class="co-radio"><input type="radio" name="co-buyfor" value="my-team" checked> My team</label>
-        <label class="co-radio"><input type="radio" name="co-buyfor" value="other-team"> A different team in my organization</label>
-        <label class="co-radio"><input type="radio" name="co-buyfor" value="other-org"> A different organization</label>
+        <label class="co-radio"><input type="radio" name="co-buyfor" value="my-team" checked> <span data-i18n="co.buyfor.myteam">My team</span></label>
+        <label class="co-radio"><input type="radio" name="co-buyfor" value="other-team"> <span data-i18n="co.buyfor.otherteam">A different team in my organization</span></label>
+        <label class="co-radio"><input type="radio" name="co-buyfor" value="other-org"> <span data-i18n="co.buyfor.otherorg">A different organization</span></label>
       </div>
 
       <div class="co-field">
-        <label class="co-label" for="coEmail">Your email <span class="req">(required)</span></label>
-        <input class="co-input" type="email" id="coEmail" placeholder="you@company.com" autocomplete="email">
-        <p class="co-field-hint">You'll receive an onboarding link to set up and manage the plan.</p>
+        <label class="co-label" for="coEmail"><span data-i18n="co.label.email">Your email</span> <span class="req" data-i18n="co.required">(required)</span></label>
+        <input class="co-input" type="email" id="coEmail" placeholder="you@company.com" data-i18n-placeholder="co.email.ph" autocomplete="email">
+        <p class="co-field-hint" data-i18n="co.email.hint">You'll receive an onboarding link to set up and manage the plan.</p>
       </div>
 
       <div class="co-fields-block">
-        <h3>Billing information</h3>
-        <p>This will be displayed on all your invoices and billing communication.</p>
+        <h3 data-i18n="co.billing.title">Billing information</h3>
+        <p data-i18n="co.billing.sub">This will be displayed on all your invoices and billing communication.</p>
 
         <div class="co-field">
-          <label class="co-label" for="coCompany">Company name <span class="req">(required)</span></label>
-          <input class="co-input" type="text" id="coCompany" placeholder="Acme Inc." autocomplete="organization">
+          <label class="co-label" for="coCompany"><span data-i18n="co.label.company">Company name</span> <span class="req" data-i18n="co.required">(required)</span></label>
+          <input class="co-input" type="text" id="coCompany" placeholder="Acme Inc." data-i18n-placeholder="co.company.ph" autocomplete="organization">
         </div>
 
         <div class="co-field">
-          <label class="co-label" for="coCountry">Country <span class="req">(required)</span></label>
+          <label class="co-label" for="coCountry"><span data-i18n="co.label.country">Country</span> <span class="req" data-i18n="co.required">(required)</span></label>
           <select class="co-select" id="coCountry" autocomplete="country">
-            <option value="">Select a country</option>
-            <option value="IT">Italy</option>
-            <option value="ES">Spain</option>
-            <option value="FR">France</option>
-            <option value="DE">Germany</option>
-            <option value="NL">Netherlands</option>
-            <option value="BE">Belgium</option>
-            <option value="PT">Portugal</option>
-            <option value="IE">Ireland</option>
-            <option value="AT">Austria</option>
-            <option value="GB">United Kingdom</option>
-            <option value="US">United States</option>
-            <option value="CA">Canada</option>
-            <option value="CH">Switzerland</option>
-            <option value="OTHER">Other</option>
+            <option value="" data-i18n="co.country.select">Select a country</option>
+            <option value="IT" data-i18n="co.country.IT">Italy</option>
+            <option value="ES" data-i18n="co.country.ES">Spain</option>
+            <option value="FR" data-i18n="co.country.FR">France</option>
+            <option value="DE" data-i18n="co.country.DE">Germany</option>
+            <option value="NL" data-i18n="co.country.NL">Netherlands</option>
+            <option value="BE" data-i18n="co.country.BE">Belgium</option>
+            <option value="PT" data-i18n="co.country.PT">Portugal</option>
+            <option value="IE" data-i18n="co.country.IE">Ireland</option>
+            <option value="AT" data-i18n="co.country.AT">Austria</option>
+            <option value="GB" data-i18n="co.country.GB">United Kingdom</option>
+            <option value="US" data-i18n="co.country.US">United States</option>
+            <option value="CA" data-i18n="co.country.CA">Canada</option>
+            <option value="CH" data-i18n="co.country.CH">Switzerland</option>
+            <option value="OTHER" data-i18n="co.country.OTHER">Other</option>
           </select>
         </div>
 
         <div class="co-field">
-          <label class="co-label" for="coAddr1">Address line 1 <span class="req">(required)</span></label>
-          <input class="co-input" type="text" id="coAddr1" placeholder="Street and number" autocomplete="address-line1">
+          <label class="co-label" for="coAddr1"><span data-i18n="co.label.addr1">Address line 1</span> <span class="req" data-i18n="co.required">(required)</span></label>
+          <input class="co-input" type="text" id="coAddr1" placeholder="Street and number" data-i18n-placeholder="co.addr1.ph" autocomplete="address-line1">
         </div>
         <div class="co-field">
-          <label class="co-label" for="coAddr2">Address line 2 <span class="req">(optional)</span></label>
-          <input class="co-input" type="text" id="coAddr2" placeholder="Suite, floor, etc." autocomplete="address-line2">
+          <label class="co-label" for="coAddr2"><span data-i18n="co.label.addr2">Address line 2</span> <span class="req" data-i18n="co.optional">(optional)</span></label>
+          <input class="co-input" type="text" id="coAddr2" placeholder="Suite, floor, etc." data-i18n-placeholder="co.addr2.ph" autocomplete="address-line2">
         </div>
 
         <div class="co-grid-2">
           <div class="co-field">
-            <label class="co-label" for="coCity">City <span class="req">(required)</span></label>
+            <label class="co-label" for="coCity"><span data-i18n="co.label.city">City</span> <span class="req" data-i18n="co.required">(required)</span></label>
             <input class="co-input" type="text" id="coCity" autocomplete="address-level2">
           </div>
           <div class="co-field">
-            <label class="co-label" for="coState">State / Province <span class="req">(required)</span></label>
+            <label class="co-label" for="coState"><span data-i18n="co.label.state">State / Province</span> <span class="req" data-i18n="co.required">(required)</span></label>
             <input class="co-input" type="text" id="coState" autocomplete="address-level1">
           </div>
         </div>
 
         <div class="co-grid-2">
           <div class="co-field">
-            <label class="co-label" for="coZip">Zip / Postal code <span class="req">(required)</span></label>
+            <label class="co-label" for="coZip"><span data-i18n="co.label.zip">Zip / Postal code</span> <span class="req" data-i18n="co.required">(required)</span></label>
             <input class="co-input" type="text" id="coZip" autocomplete="postal-code">
           </div>
           <div class="co-field">
-            <label class="co-label" for="coPhone">Phone number <span class="req">(optional)</span></label>
+            <label class="co-label" for="coPhone"><span data-i18n="co.label.phone">Phone number</span> <span class="req" data-i18n="co.optional">(optional)</span></label>
             <input class="co-input" type="tel" id="coPhone" autocomplete="tel">
           </div>
         </div>
 
         <div class="co-field">
-          <label class="co-label" for="coVat">VAT ID <span class="req">(optional)</span></label>
-          <input class="co-input" type="text" id="coVat" placeholder="e.g. IT12345678901">
-          <p class="co-field-hint">This will appear on future invoices.</p>
+          <label class="co-label" for="coVat"><span data-i18n="co.label.vat">VAT ID</span> <span class="req" data-i18n="co.optional">(optional)</span></label>
+          <input class="co-input" type="text" id="coVat" placeholder="e.g. IT12345678901" data-i18n-placeholder="co.vat.ph">
+          <p class="co-field-hint" data-i18n="co.vat.hint">This will appear on future invoices.</p>
         </div>
       </div>
     </div>
 
     <!-- ── STEP 3: PAYMENT ── -->
     <div class="co-panel" data-panel="3">
-      <div class="co-section-title">Payment</div>
-      <div class="co-section-sub">All transactions are secure and encrypted by Stripe.</div>
+      <div class="co-section-title" data-i18n="co.payment.title">Payment</div>
+      <div class="co-section-sub" data-i18n="co.payment.sub">All transactions are secure and encrypted by Stripe.</div>
 
       <div id="coPaymentReady" style="display:none;">
         <div id="co-payment-element"><!-- Stripe Elements mounts here --></div>
-        <p class="co-pay-disclaimer" id="coPayDisclaimer">
+        <p class="co-pay-disclaimer" id="coPayDisclaimer" data-i18n="co.pay.disclaimer.default">
           By providing your card information, you authorize Sevenda to charge your card
           for current and future payments in accordance with the terms.
         </p>
@@ -361,16 +369,16 @@
       </div>
 
       <div id="coPaymentConfigNotice" class="co-notice" style="display:none;">
-        <strong>Stripe non ancora configurato.</strong><br>
-        Per attivare i pagamenti reali imposta <code>publishableKey</code> ed
-        <code>edgeFunctionBase</code> in <code>stripe.config.js</code> e deploya la
-        Edge Function <code>create-subscription</code> con
-        <code>STRIPE_SECRET_KEY</code>. Vedi le istruzioni nel file di config.
+        <strong data-i18n="co.cfg.title">Stripe not yet configured.</strong><br>
+        <span data-i18n-html="co.cfg.body">To enable real payments set <code>publishableKey</code> and
+        <code>edgeFunctionBase</code> in <code>stripe.config.js</code> and deploy the
+        <code>create-subscription</code> Edge Function with
+        <code>STRIPE_SECRET_KEY</code>. See the instructions in the config file.</span>
       </div>
 
       <div id="coPaymentLoading" style="display:none; padding:30px 0; text-align:center; color:var(--text-2); font-size:13px;">
         <span class="co-spinner" style="border-top-color:var(--green); border-color:rgba(255,255,255,.18); border-top-color:var(--green);"></span>
-        &nbsp; Preparing secure payment…
+        &nbsp; <span data-i18n="co.pay.loading">Preparing secure payment…</span>
       </div>
     </div>
   </div>
@@ -378,7 +386,7 @@
   <!-- SIDEBAR -->
   <aside>
     <div class="co-summary">
-      <h2>Subscription Summary</h2>
+      <h2 data-i18n="co.summary.title">Subscription Summary</h2>
 
       <div class="co-sum-line">
         <div>
@@ -389,9 +397,9 @@
       </div>
 
       <div class="co-sum-div"></div>
-      <div class="co-sum-row"><span>Subtotal</span><span id="coSumSubtotal">€0</span></div>
-      <div class="co-sum-total"><span>Total</span><span id="coSumTotal">€0</span></div>
-      <p class="co-sum-note" id="coSumNote">Prices exclude applicable taxes.</p>
+      <div class="co-sum-row"><span data-i18n="co.summary.subtotal">Subtotal</span><span id="coSumSubtotal">€0</span></div>
+      <div class="co-sum-total"><span data-i18n="co.summary.total">Total</span><span id="coSumTotal">€0</span></div>
+      <p class="co-sum-note" id="coSumNote" data-i18n="co.summary.note">Prices exclude applicable taxes.</p>
 
       <!-- Avviso trial (mostrato solo se trialDays > 0) -->
       <div class="co-notice" id="coTrialNotice" style="display:none; margin-top:16px;"></div>
@@ -400,15 +408,15 @@
       <div class="co-terms" id="coTerms" style="display:none;">
         <label class="co-term">
           <input type="checkbox" id="coTermPrivacy">
-          <span>I agree to Sevenda's <a href="/privacy.html" target="_blank">privacy policy</a> and terms.</span>
+          <span data-i18n-html="co.terms.privacy">I agree to Sevenda's <a href="/privacy.html" target="_blank">privacy policy</a> and terms.</span>
         </label>
         <label class="co-term">
           <input type="checkbox" id="coTermCharge">
-          <span id="coTermChargeLabel">I agree to be charged and understand I can cancel anytime.</span>
+          <span id="coTermChargeLabel" data-i18n="co.terms.charge.default">I agree to be charged and understand I can cancel anytime.</span>
         </label>
       </div>
 
-      <button class="co-action" id="coAction">Next</button>
+      <button class="co-action" id="coAction" data-i18n="co.btn.next">Next</button>
       <div class="co-renew" id="coRenew" style="display:none;">🗓 <span id="coRenewText"></span></div>
     </div>
   </aside>
@@ -520,13 +528,13 @@
      RENDER
      ───────────────────────────────────────────────────────────── */
   function render() {
-    const intervalLabel = S.interval === 'annual' ? 'Annual' : 'Monthly';
+    const intervalLabel = tt(S.interval === 'annual' ? 'co.interval.annual' : 'co.interval.monthly', S.interval === 'annual' ? 'Annual' : 'Monthly');
     const total = periodTotal();
 
     // Step 1 — plan row
     $('coPlanName').textContent  = S.name + ' (' + intervalLabel + ')';
-    $('coPlanPrice').textContent = fmt(unitPrice()) + ' / seat / month'
-      + (S.interval === 'annual' ? ' · billed annually' : ' · billed monthly');
+    $('coPlanPrice').textContent = fill(tt('co.price.perSeat', '{price} / seat / month'), { price: fmt(unitPrice()) })
+      + ' · ' + tt(S.interval === 'annual' ? 'co.billed.annually' : 'co.billed.monthly', S.interval === 'annual' ? 'billed annually' : 'billed monthly');
 
     // Qty group (hidden for fixed-seat plans)
     if (plan.seats.fixed) {
@@ -535,7 +543,7 @@
       $('coQtyVal').textContent = S.qty;
       $('coQtyMinus').disabled  = S.qty <= plan.seats.min;
       $('coQtyPlus').disabled   = S.qty >= plan.seats.max;
-      $('coQtyHint').textContent = 'This plan supports ' + plan.seats.min + '–' + plan.seats.max + ' seats.';
+      $('coQtyHint').textContent = fill(tt('co.qty.hint', 'This plan supports {min}–{max} seats.'), { min: plan.seats.min, max: plan.seats.max });
     }
 
     // Interval toggle
@@ -544,19 +552,20 @@
 
     // Sidebar summary
     $('coSumPlan').textContent  = S.name + ' (' + intervalLabel + ')';
-    $('coSumSeats').textContent = S.qty + ' seat' + (S.qty > 1 ? 's' : '') + ' × ' + fmt(unitPrice())
-      + (S.interval === 'annual' ? ' /mo × 12' : ' /mo');
+    const seatWord = tt(S.qty > 1 ? 'co.seats' : 'co.seat', S.qty > 1 ? 'seats' : 'seat');
+    const perSeatSuffix = tt(S.interval === 'annual' ? 'co.perSeat.annual' : 'co.perSeat.monthly', S.interval === 'annual' ? '/mo × 12' : '/mo');
+    $('coSumSeats').textContent = S.qty + ' ' + seatWord + ' × ' + fmt(unitPrice()) + ' ' + perSeatSuffix;
     $('coSumPlanAmt').textContent  = fmt(total);
     $('coSumSubtotal').textContent = fmt(total);
     $('coSumTotal').textContent    = fmt(total);
 
     // Charge agreement label + copy trial (mostrata solo se trialDays > 0)
     const cadence = S.interval === 'annual' ? 'yearly' : 'monthly';
+    const cadenceLoc = tt(S.interval === 'annual' ? 'co.cadence.yearly' : 'co.cadence.monthly', cadence);
     const trialNotice     = $('coTrialNotice');
     const payDisclaimer   = $('coPayDisclaimer');
     if (trialDays > 0) {
       // Copy trial localizzata (EN/IT/ES/FR via i18n.js) — cadence tradotta a parte
-      const cadenceLoc = tt(S.interval === 'annual' ? 'co.cadence.yearly' : 'co.cadence.monthly', cadence);
       const map = { days: trialDays, date: formatTrialEnd(), total: fmt(total), cadence: cadenceLoc };
       $('coTermChargeLabel').textContent = fill(tt('co.trial.charge',
         'I authorize Sevenda to charge {total} {cadence} after the {days}-day free trial. Cancel anytime before then and you won’t be charged.'), map);
@@ -570,18 +579,19 @@
           'By providing your card information, you authorize Sevenda to charge your card for payments after your {days}-day free trial, in accordance with the terms. You won’t be charged during the trial.'), map);
       }
     } else {
-      $('coTermChargeLabel').textContent =
-        'I agree to be charged ' + fmt(total) + ' ' + cadence + '. I can cancel anytime via the billing page.';
+      $('coTermChargeLabel').textContent = fill(tt('co.terms.charge.notrial',
+        'I agree to be charged {total} {cadence}. I can cancel anytime via the billing page.'), { total: fmt(total), cadence: cadenceLoc });
       if (trialNotice) trialNotice.style.display = 'none';
       if (payDisclaimer) {
-        payDisclaimer.textContent =
-          'By providing your card information, you authorize Sevenda to charge your card '
-          + 'for current and future payments in accordance with the terms.';
+        payDisclaimer.textContent = tt('co.pay.disclaimer.default',
+          'By providing your card information, you authorize Sevenda to charge your card for current and future payments in accordance with the terms.');
       }
     }
 
     // Renew note
-    $('coRenewText').textContent = 'Auto-renews ' + cadence + ' · ' + fmt(total) + ' per ' + (S.interval === 'annual' ? 'year' : 'month');
+    const periodLoc = tt(S.interval === 'annual' ? 'co.period.year' : 'co.period.month', S.interval === 'annual' ? 'year' : 'month');
+    $('coRenewText').textContent = fill(tt('co.renew.text', 'Auto-renews {cadence} · {total} per {period}'),
+      { cadence: cadenceLoc, total: fmt(total), period: periodLoc });
 
     // Label del bottone dipende dal trial → tienila sincronizzata
     updateActionButton();
@@ -618,11 +628,11 @@
 
   function updateActionButton() {
     const btn = $('coAction');
-    btn.innerHTML = S.step === 1 ? 'Next'
-                  : S.step === 2 ? 'Continue to payment'
+    btn.innerHTML = S.step === 1 ? tt('co.btn.next', 'Next')
+                  : S.step === 2 ? tt('co.btn.continuePayment', 'Continue to payment')
                   : (trialDays > 0
                       ? fill(tt('co.trial.btn', 'Start {days}-day free trial'), { days: trialDays })
-                      : 'Make payment');
+                      : tt('co.btn.makePayment', 'Make payment'));
     btn.disabled = (S.step >= 2 && !termsOk());
   }
 
@@ -692,8 +702,8 @@
       if (auth && auth.error) {
         load.style.display = 'none';
         notice.style.display = 'block';
-        notice.innerHTML = '<strong>Connessione non riuscita.</strong><br>'
-          + 'Controlla la connessione e riprova: la tua sessione è ancora valida.';
+        notice.innerHTML = '<strong>' + tt('co.err.connection.title', 'Connection failed.') + '</strong><br>'
+          + tt('co.err.connection.body', 'Check your connection and try again: your session is still valid.');
         return false;
       }
 
@@ -701,8 +711,8 @@
       if (!user || !user.id) {
         load.style.display = 'none';
         notice.style.display = 'block';
-        notice.innerHTML = '<strong>Sessione scaduta.</strong><br>'
-          + 'Per completare il pagamento devi essere autenticato. Effettua di nuovo l\'accesso e riprova.';
+        notice.innerHTML = '<strong>' + tt('co.err.session.title', 'Session expired.') + '</strong><br>'
+          + tt('co.err.session.body', 'You need to be signed in to complete payment. Please sign in again and retry.');
         if (window.SevendaAuth && window.SevendaAuth.requireAuth) {
           window.SevendaAuth.requireAuth(() => {});
         }
@@ -766,19 +776,20 @@
     } catch (err) {
       load.style.display = 'none';
       notice.style.display = 'block';
-      notice.innerHTML = '<strong>Payment setup failed.</strong><br>' + (err.message || 'Please try again.');
+      notice.innerHTML = '<strong>' + tt('co.err.setupFailed.title', 'Payment setup failed.') + '</strong><br>'
+        + (err.message || tt('co.err.tryAgain', 'Please try again.'));
       return false;
     }
   }
 
   async function makePayment() {
     if (!elementsConfigured || !stripe || !elements) {
-      alert('Stripe non è configurato. Imposta le chiavi in stripe.config.js per abilitare i pagamenti.');
+      alert(tt('co.alert.stripeNotConfigured', 'Stripe is not configured. Set the keys in stripe.config.js to enable payments.'));
       return;
     }
     const btn = $('coAction');
     btn.disabled = true;
-    btn.innerHTML = '<span class="co-spinner"></span> Processing…';
+    btn.innerHTML = '<span class="co-spinner"></span> ' + tt('co.btn.processing', 'Processing…');
 
     const billing = collectBilling();
     const confirmParams = {
@@ -800,7 +811,7 @@
 
     // confirmSetup/confirmPayment redirigono in caso di successo; qui si arriva solo su errore
     if (error) {
-      $('coPayError').textContent = error.message || 'Payment failed. Please check your details.';
+      $('coPayError').textContent = error.message || tt('co.err.paymentFailed', 'Payment failed. Please check your details.');
       btn.disabled = false;
       updateActionButton();
     }
@@ -863,6 +874,9 @@
   }
   document.addEventListener('DOMContentLoaded', prefillEmail);
   window.addEventListener('load', () => { goToStep(1); }); // posiziona la barra stepper
+
+  // Re-render la copy dinamica quando l'utente cambia lingua dal selettore in nav
+  window.__coRerender = render;
 
   render();
   goToStep(1);
