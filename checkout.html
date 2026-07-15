@@ -740,6 +740,21 @@
         }),
       });
       const data = await res.json();
+
+      // Guard BR-001 (create-subscription): l'utente ha già un abbonamento attivo.
+      // Non è un errore di pagamento ma un blocco previsto: messaggio dedicato e
+      // stop, senza il prefisso "Payment setup failed.".
+      if (res.status === 409 && data.error === 'already_subscribed') {
+        load.style.display = 'none';
+        notice.style.display = 'block';
+        notice.innerHTML = '<strong>'
+          + tt('co.err.alreadySubscribed.title', 'You cannot proceed with the purchase.')
+          + '</strong><br>'
+          + tt('co.err.alreadySubscribed.body',
+               'You already have an active subscription. Manage your plan from the subscription page in the Sevenda extension.');
+        return false;
+      }
+
       if (!res.ok || !data.clientSecret) throw new Error(data.error || 'Could not start payment.');
 
       clientSecret = data.clientSecret;
