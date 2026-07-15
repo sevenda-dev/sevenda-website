@@ -1265,7 +1265,7 @@ const DATA = {
       badge: 'Enterprise', badgeCls: 'badge-ent',
       track: 'process',
       prices: null,
-      seatsFor: ['20+'],
+      seatsFor: ['2-5', '6-20', '20+'],
       subFn: () => 'custom pricing · 20+ users',
       feats: [
         'Everything in Studio',
@@ -1339,7 +1339,7 @@ const DATA = {
       badge: 'Enterprise', badgeCls: 'badge-ent',
       track: 'analytics',
       prices: null,
-      seatsFor: ['20+'],
+      seatsFor: ['2-5', '6-20', '20+'],
       subFn: () => 'custom pricing · 20+ users',
       feats: [
         'Everything in Agency',
@@ -1410,7 +1410,7 @@ const DATA = {
       badge: 'Enterprise', badgeCls: 'badge-ent',
       track: 'suite',
       prices: null,
-      seatsFor: ['20+'],
+      seatsFor: ['2-5', '6-20', '20+'],
       subFn: () => 'custom pricing · 20+ users',
       feats: [
         'Everything in Suite Team',
@@ -1448,8 +1448,8 @@ function getPrice(plan) {
 // AND it's the "natural" choice for those seats (has badge OR is only solo option).
 function isFeatured(plan) {
   if (!plan.seatsFor.includes(S.seats)) return false;
-  if (S.seats === '20+') return !plan.prices; // enterprise featured when 20+
-  return !!plan.badge;                        // others: featured if has badge
+  if (!plan.prices) return S.seats === '20+'; // Enterprise: in evidenza solo a 20+
+  return !!plan.badge;                        // piani con prezzo: se hanno badge
 }
 
 // Dimmed: visible but de-emphasised when seats don't match
@@ -1478,6 +1478,11 @@ function render() {
   grid.innerHTML = '';
 
   plans.forEach((plan, i) => {
+    // Mostra solo i piani la cui fascia di posti corrisponde alla selezione:
+    // 1 → piani solo (Analyst/Auditor/Suite Solo); 2-5 e 6-20 → team + Enterprise;
+    // 20+ → Enterprise. Allineato al catalogo plan_price su Supabase.
+    if (!plan.seatsFor.includes(S.seats)) return;
+
     const price    = getPrice(plan);
     const featured = isFeatured(plan);
     const dimmed   = isDimmed(plan);
