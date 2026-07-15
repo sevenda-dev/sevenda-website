@@ -217,6 +217,9 @@
       grid-template-columns: repeat(3, 1fr);
       gap: 14px;
       align-items: start;
+      /* scala dinamica calcolata da JS in base al .free-banner (rif. 972 × 76.25) */
+      transform: scale(var(--cards-scale, 1));
+      transform-origin: top center;
     }
 
     /* Base card */
@@ -1602,6 +1605,50 @@ function render() {
         ${ctaEl}
       </div>`;
   });
+
+  // riallinea la scala delle card alle dimensioni del free banner
+  scheduleCardsFit();
+}
+
+/* ─── SCALA DINAMICA CARD ↔ FREE BANNER ──────────────────── */
+// Il .free-banner ha dimensioni fisse di riferimento (972 × 76.25 px)
+// e non viene mai toccato: le card si adattano a lui, non viceversa.
+// Fattore di scala = larghezza reale banner / larghezza naturale griglia.
+// La scala è applicata via transform: scale() sul contenitore .cards-grid,
+// così ogni .card mantiene le proporzioni originali e restano intatti
+// hover, transition, animazione d'ingresso e clic (i transform CSS
+// non alterano la mappatura degli eventi puntatore).
+function fitCardsToBanner() {
+  const grid   = document.getElementById('cardsGrid');
+  const banner = document.querySelector('.free-banner');
+  if (!grid || !banner) return;
+
+  // offsetWidth/offsetHeight sono dimensioni di layout: non risentono
+  // del transform già applicato, quindi la misura non va "resettata"
+  const gridW   = grid.offsetWidth;
+  const bannerW = banner.getBoundingClientRect().width;
+  if (!gridW || !bannerW) return;
+
+  const scale = bannerW / gridW;
+  grid.style.setProperty('--cards-scale', scale);
+
+  // transform: scale() non riduce lo spazio occupato nel flusso:
+  // compensa la differenza per non lasciare un vuoto sopra il banner
+  grid.style.marginBottom = ((scale - 1) * grid.offsetHeight) + 'px';
+}
+
+// debounce via requestAnimationFrame: un solo ricalcolo per frame
+let cardsFitRaf = null;
+function scheduleCardsFit() {
+  if (cardsFitRaf) cancelAnimationFrame(cardsFitRaf);
+  cardsFitRaf = requestAnimationFrame(fitCardsToBanner);
+}
+
+window.addEventListener('resize', scheduleCardsFit);
+window.addEventListener('load', scheduleCardsFit); // font caricati → altezze definitive
+if ('ResizeObserver' in window) {
+  const bannerEl = document.querySelector('.free-banner');
+  if (bannerEl) new ResizeObserver(scheduleCardsFit).observe(bannerEl);
 }
 
 /* ─── EVENTS ─────────────────────────────────────────────── */
