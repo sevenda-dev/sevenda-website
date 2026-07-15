@@ -381,6 +381,15 @@
     /* ─── FREE BANNER ────────────────────────────────── */
     .free-wrap { max-width: 1100px; margin: 0 auto 52px; padding: 0 24px; }
     .free-banner {
+      /* dimensioni fisse di riferimento: 972 × 76.25 px.
+         Le card di .cards-grid si scalano in proporzione a questa larghezza.
+         max-width evita l'overflow sui viewport più stretti di 972px;
+         min-height (anziché height) documenta i 76.25px senza rischiare
+         di tagliare il testo quando va a capo su schermi piccoli. */
+      width: 972px;
+      max-width: 100%;
+      min-height: 76.25px;
+      margin: 0 auto;
       background: var(--surface); border: 1px solid var(--border);
       border-radius: var(--r-sm); padding: 16px 22px;
       display: flex; align-items: center; justify-content: space-between; gap: 16px;
@@ -1637,11 +1646,19 @@ function fitCardsToBanner() {
   grid.style.marginBottom = ((scale - 1) * grid.offsetHeight) + 'px';
 }
 
-// debounce via requestAnimationFrame: un solo ricalcolo per frame
+// debounce via requestAnimationFrame: un solo ricalcolo per frame.
+// Il setTimeout fa da fallback: nelle tab nascoste il rAF è throttlato
+// e senza fallback la scala iniziale non verrebbe mai applicata.
 let cardsFitRaf = null;
+let cardsFitTimer = null;
 function scheduleCardsFit() {
   if (cardsFitRaf) cancelAnimationFrame(cardsFitRaf);
-  cardsFitRaf = requestAnimationFrame(fitCardsToBanner);
+  clearTimeout(cardsFitTimer);
+  cardsFitRaf = requestAnimationFrame(() => {
+    clearTimeout(cardsFitTimer);
+    fitCardsToBanner();
+  });
+  cardsFitTimer = setTimeout(fitCardsToBanner, 150);
 }
 
 window.addEventListener('resize', scheduleCardsFit);
