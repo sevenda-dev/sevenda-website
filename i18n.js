@@ -1272,8 +1272,35 @@ const SEVENDA_I18N = {
     });
   }
 
+  /* Propaga il cambio lingua al backend (RF-CAN-025): allinea
+     organization.locale e customer.metadata.locale su Stripe alla scelta UI.
+     Best-effort e SOLO per utenti autenticati — i visitatori anonimi e i
+     re-render su page-load (doApply → applyLang) o cross-tab (evento storage)
+     NON generano alcuna chiamata: la sync vive qui in setLang, non in applyLang.
+     Un errore qui non deve mai regredire la UI, che ha già applicato la lingua. */
+  function syncLocaleToServer(lang) {
+    try {
+      if (!SEVENDA_I18N[lang]) return;                       // lingua non valida → niente POST
+      var auth    = window.SevendaAuth;
+      var session = auth && auth.getSession ? auth.getSession() : null;
+      var token   = session && session.access_token;
+      if (!token) return;                                    // visitatore anonimo → solo localStorage
+      var base = window.STRIPE_CONFIG && window.STRIPE_CONFIG.edgeFunctionBase;
+      if (!base) return;
+      fetch(base + '/set-locale', {
+        method: 'POST',
+        headers: {
+          'Content-Type':  'application/json',
+          'Authorization': 'Bearer ' + token,
+        },
+        body: JSON.stringify({ locale: lang }),
+        keepalive: true,                                     // sopravvive a un eventuale unload/navigazione
+      }).catch(function() { /* best-effort: la UI ha già applicato la lingua */ });
+    } catch (e) { /* mai bloccare il cambio lingua per un errore di sync */ }
+  }
+
   /* Esposto globalmente — usato da onclick="setLang(...)" */
-  window.setLang = function(lang) { applyLang(lang); };
+  window.setLang = function(lang) { applyLang(lang); syncLocaleToServer(lang); };
 
   /* Lingua corrente (fallback 'en') */
   window.getLang = function() {
