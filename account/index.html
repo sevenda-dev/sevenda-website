@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Pagina d'utilità, non indicizzabile né archiviabile -->
+  <meta name="robots" content="noindex, noarchive">
+  <title>Account · Sevenda</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- i18n condiviso (en|it|es|fr): definisce window.t / setLang / getLang -->
+  <script defer src="/i18n.js"></script>
+  <!-- Supabase JS (stesso CDN/versione di auth.js) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="/supabase.config.js"></script>
+  <!-- SevendaAuth: riusato SOLO per il modale di login del sito (flusso esistente) -->
+  <script defer src="/auth.js"></script>
+
+  <style>
+    /* Token allineati a join.html / reset-password.html / return.html */
+    :root{
+      --accent:#E8733A; --accent-dim:rgba(232,115,58,.09); --accent-border:rgba(232,115,58,.28);
+      --bg:#0d0d0d; --panel:#161616; --panel-2:#111111;
+      --border:#2a2a2a;
+      --text:#f0f0f0; --text-2:#8a8a8a; --text-3:#4a4a4a;
+      --ok:#3ECF8E; --err:#e57373; --warn:#e0b341;
+      --danger:#d64b4b; --danger-dim:rgba(214,75,75,.08); --danger-border:rgba(214,75,75,.30);
+      --sans:'Geist',-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;
+      --mono:'Geist Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+      --r:12px; --r-sm:8px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html,body{min-height:100%}
+    body{
+      font-family:var(--sans);background:var(--bg);color:var(--text);
+      -webkit-font-smoothing:antialiased;
+      display:flex;flex-direction:column;align-items:center;
+      padding:48px 20px 64px;
+      background-image:radial-gradient(900px 480px at 50% -12%, rgba(232,115,58,.08), transparent 60%);
+    }
+    a{color:var(--accent);text-decoration:none}
+    a:hover{text-decoration:underline}
+    .wrap{width:100%;max-width:560px}
+
+    /* Brand */
+    .brand{display:flex;align-items:center;gap:10px;margin-bottom:30px}
+    .brand img{width:26px;height:26px;object-fit:contain;display:block}
+    .brand-name{font-weight:600;letter-spacing:-.3px;font-size:15px;color:#fff}
+
+    h1{font-size:22px;font-weight:600;letter-spacing:-.02em;margin-bottom:22px}
+
+    /* Card / sezioni */
+    .card{
+      background:var(--panel);border:1px solid var(--border);border-radius:var(--r);
+      padding:22px 22px;margin-bottom:16px;
+    }
+    .card h2{font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--text-3);
+      font-weight:600;margin-bottom:16px}
+    .row{display:flex;justify-content:space-between;align-items:baseline;gap:16px;
+      padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+    .row:last-child{border-bottom:0}
+    .row .k{font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--text-3)}
+    .row .v{font-family:var(--mono);font-size:13.5px;color:var(--text);text-align:right;word-break:break-word}
+    .v.email{color:var(--text)}
+
+    .badge{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.02em;
+      padding:3px 9px;border-radius:100px;border:1px solid var(--border);color:var(--text-2)}
+    .badge.ok{color:var(--ok);border-color:rgba(62,207,142,.3);background:rgba(62,207,142,.08)}
+    .badge.warn{color:var(--warn);border-color:rgba(224,179,65,.3);background:rgba(224,179,65,.08)}
+    .badge.dim{color:var(--text-2)}
+
+    .muted{color:var(--text-2);font-size:13.5px;line-height:1.6}
+
+    /* Bottoni */
+    .btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+    .btn{
+      display:inline-flex;align-items:center;justify-content:center;gap:8px;
+      padding:11px 16px;border-radius:var(--r-sm);font-family:var(--sans);
+      font-weight:600;font-size:13.5px;cursor:pointer;border:1px solid var(--border);
+      background:transparent;color:var(--text);transition:background .15s,border-color .15s,opacity .15s;
+    }
+    .btn:hover{background:rgba(255,255,255,.04)}
+    .btn.primary{background:var(--accent);color:#1a0e06;border-color:transparent}
+    .btn.primary:hover{background:#f0824c}
+    .btn.danger{color:#ffb3b3;border-color:var(--danger-border);background:var(--danger-dim)}
+    .btn.danger:hover{background:rgba(214,75,75,.16)}
+    .btn.solid-danger{background:var(--danger);color:#fff;border-color:transparent}
+    .btn.solid-danger:hover{background:#e05656}
+    .btn:disabled{opacity:.5;cursor:not-allowed}
+    .btn.block{width:100%}
+
+    /* Danger zone */
+    .card.danger{border-color:var(--danger-border);background:var(--danger-dim)}
+    .card.danger h2{color:#c98a8a}
+
+    /* Stati pagina */
+    .screen{display:none}
+    .screen.active{display:block}
+    .center{text-align:center}
+    .icon-badge{
+      width:64px;height:64px;border-radius:50%;margin:8px auto 20px;
+      display:flex;align-items:center;justify-content:center;font-size:28px;
+      background:var(--accent-dim);border:1px solid var(--accent-border);color:var(--accent);
+    }
+    .icon-badge.ok{background:rgba(62,207,142,.1);border-color:rgba(62,207,142,.3);color:var(--ok)}
+    .icon-badge.err{background:rgba(229,115,115,.1);border-color:rgba(229,115,115,.3);color:var(--err)}
+    .spinner{
+      width:26px;height:26px;border-radius:50%;
+      border:3px solid rgba(255,255,255,.14);border-top-color:var(--accent);
+      animation:spin .6s linear infinite;display:inline-block;
+    }
+    .spinner.sm{width:14px;height:14px;border-width:2px;border-color:rgba(0,0,0,.25);border-top-color:#1a0e06}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .loading-wrap{padding:60px 0;text-align:center}
+
+    .msg{font-size:12.5px;line-height:1.55;margin-top:12px;min-height:16px}
+    .msg.err{color:var(--err)}
+    .msg.ok{color:var(--ok)}
+    .msg.warn{color:var(--warn)}
+
+    /* Overlay flusso eliminazione */
+    .ov{
+      display:none;position:fixed;inset:0;z-index:9500;
+      background:rgba(0,0,0,.78);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+      align-items:center;justify-content:center;padding:20px;overflow-y:auto;
+    }
+    .ov.open{display:flex}
+    .ov-card{
+      background:var(--panel);border:1px solid var(--border);border-radius:14px;
+      width:100%;max-width:440px;padding:30px 28px 26px;
+      box-shadow:0 24px 80px rgba(0,0,0,.65);animation:pop .18s ease;
+    }
+    @keyframes pop{from{opacity:0;transform:translateY(10px) scale(.985)}}
+    .ov-card h3{font-size:18px;font-weight:600;letter-spacing:-.02em;margin-bottom:14px}
+    .disclaimer{
+      font-size:13.5px;line-height:1.65;color:var(--text);
+      background:var(--panel-2);border:1px solid var(--border);border-left:3px solid var(--warn);
+      border-radius:var(--r-sm);padding:14px 15px;margin-bottom:18px;
+    }
+    .check{display:flex;gap:10px;align-items:flex-start;cursor:pointer;
+      font-size:13px;line-height:1.5;color:var(--text-2);margin-bottom:20px}
+    .check input{margin-top:2px;width:16px;height:16px;accent-color:var(--danger);flex:0 0 auto;cursor:pointer}
+    .ov-actions{display:flex;gap:10px}
+    .ov-actions .btn{flex:1}
+
+    /* Input OTP */
+    .otp-input{
+      width:100%;background:#0e0e0e;border:1px solid var(--border);color:var(--text);
+      font-family:var(--mono);font-size:22px;letter-spacing:.32em;text-align:center;
+      padding:14px 12px;border-radius:9px;outline:none;transition:border-color .15s;
+    }
+    .otp-input:focus{border-color:var(--accent)}
+    .otp-input.err{border-color:var(--err)}
+    .resend{background:none;border:0;color:var(--text-2);font-family:var(--sans);
+      font-size:12.5px;cursor:pointer;padding:6px 2px;margin-top:12px}
+    .resend:hover:not(:disabled){color:var(--text)}
+    .resend:disabled{opacity:.5;cursor:not-allowed}
+
+    /* Language switcher (coerente col resto del sito) */
+    .lang{margin-top:34px;display:flex;gap:4px;justify-content:center;font-size:12px}
+    .lang-btn{color:var(--text-3);cursor:pointer;padding:2px 6px;border-radius:4px;transition:color .15s}
+    .lang-btn:hover{color:var(--text-2)}
+    .lang-btn.active{color:var(--text)}
+
+    .foot{margin-top:26px;text-align:center}
+    .foot a{color:var(--text-2);font-size:13px}
+    .hidden{display:none !important}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="brand">
+      <img src="/logo.svg" alt="Sevenda">
+      <span class="brand-name">Sevenda</span>
+    </div>
+
+    <!-- ── STATO: loading ── -->
+    <section id="scLoading" class="screen active">
+      <div class="loading-wrap">
+        <span class="spinner"></span>
+        <p class="muted" style="margin-top:16px" data-i18n="acct.loading">Loading your account…</p>
+      </div>
+    </section>
+
+    <!-- ── STATO: autenticazione richiesta ── -->
+    <section id="scAuth" class="screen center">
+      <div class="icon-badge">🔒</div>
+      <h1 data-i18n="acct.auth.title" style="justify-content:center">Sign in required</h1>
+      <p class="muted" data-i18n="acct.auth.sub">Sign in to your Sevenda account to manage your subscription and account.</p>
+      <div class="btns" style="justify-content:center">
+        <button id="btnSignIn" class="btn primary" data-i18n="acct.auth.btn">Sign in</button>
+      </div>
+    </section>
+
+    <!-- ── STATO: errore di caricamento ── -->
+    <section id="scError" class="screen center">
+      <div class="icon-badge err">!</div>
+      <h1 data-i18n="acct.err.title" style="justify-content:center">Something went wrong</h1>
+      <p class="muted" data-i18n="acct.err.sub">We couldn't load your account. Check your connection and try again.</p>
+      <div class="btns" style="justify-content:center">
+        <button id="btnRetry" class="btn primary" data-i18n="acct.err.retry">Retry</button>
+      </div>
+    </section>
+
+    <!-- ── STATO: account (autenticato) ── -->
+    <section id="scMain" class="screen">
+      <h1 data-i18n="acct.h1">Account</h1>
+
+      <!-- Dati account -->
+      <div class="card">
+        <h2 data-i18n="acct.section.account">Account</h2>
+        <div class="row">
+          <span class="k" data-i18n="acct.label.email">Email</span>
+          <span class="v email" id="fEmail">—</span>
+        </div>
+      </div>
+
+      <!-- Abbonamento (popolato via JS) -->
+      <div class="card" id="cardSub">
+        <h2 data-i18n="acct.section.subscription">Subscription</h2>
+        <div id="subBody"></div>
+        <div class="btns" id="subActions"></div>
+        <div class="msg" id="portalMsg"></div>
+      </div>
+
+      <!-- Danger zone -->
+      <div class="card danger">
+        <h2 data-i18n="acct.danger.title">Delete account</h2>
+        <p class="muted" data-i18n="acct.danger.sub">Permanently delete your Sevenda account and all associated data.</p>
+        <div class="btns">
+          <button id="btnDelete" class="btn danger" data-i18n="acct.danger.btn">Delete account</button>
+        </div>
+      </div>
+
+      <!-- Language switcher -->
+      <div class="lang">
+        <span class="lang-btn" data-lang="en" onclick="setLang('en')">EN</span><span class="lang-btn" data-lang="it" onclick="setLang('it')">IT</span><span class="lang-btn" data-lang="es" onclick="setLang('es')">ES</span><span class="lang-btn" data-lang="fr" onclick="setLang('fr')">FR</span>
+      </div>
+      <div class="foot"><a href="/" data-i18n="acct.back.home">← Back to Sevenda</a></div>
+    </section>
+  </div>
+
+  <!-- ── OVERLAY: flusso di eliminazione ── -->
+  <div id="ov" class="ov">
+    <div class="ov-card">
+      <!-- Step: disclaimer + conferma esplicita -->
+      <div id="ovDisclaimer" class="ov-step">
+        <h3 data-i18n="acct.del.step1.title">Delete your account</h3>
+        <div class="disclaimer" id="disclaimerText"></div>
+        <label class="check">
+          <input type="checkbox" id="chkConfirm">
+          <span data-i18n="acct.del.confirm.label">I understand this action is irreversible and cannot be undone.</span>
+        </label>
+        <div class="ov-actions">
+          <button class="btn" id="ovCancel1" data-i18n="acct.del.cancel">Cancel</button>
+          <button class="btn solid-danger" id="ovContinue" disabled data-i18n="acct.del.continue">Continue</button>
+        </div>
+      </div>
+
+      <!-- Step: OTP -->
+      <div id="ovOtp" class="ov-step hidden">
+        <h3 data-i18n="acct.otp.title">Enter confirmation code</h3>
+        <p class="muted" id="otpSub" style="margin-bottom:16px">—</p>
+        <input class="otp-input" id="otpCode" inputmode="numeric" autocomplete="one-time-code"
+               maxlength="9" placeholder="1234 5678" aria-label="Confirmation code">
+        <div class="msg" id="otpMsg"></div>
+        <button class="resend" id="btnResend" data-i18n="acct.otp.resend">Resend code</button>
+        <div class="ov-actions" style="margin-top:8px">
+          <button class="btn" id="ovCancel2" data-i18n="acct.del.cancel">Cancel</button>
+          <button class="btn solid-danger" id="ovVerify" data-i18n="acct.otp.submit">Confirm code</button>
+        </div>
+      </div>
+
+      <!-- Step: eliminazione in corso -->
+      <div id="ovDeleting" class="ov-step hidden center">
+        <div style="padding:22px 0"><span class="spinner"></span></div>
+        <p class="muted" data-i18n="acct.del.deleting">Deleting your account…</p>
+      </div>
+
+      <!-- Step: esito OK (terminale) -->
+      <div id="ovOk" class="ov-step hidden center">
+        <div class="icon-badge ok">✓</div>
+        <h3 data-i18n="acct.del.ok.title">Your account has been deleted</h3>
+        <p class="muted" data-i18n="acct.del.ok.sub">Your subscription has been cancelled and all associated data has been deleted or anonymized, except what we're required to keep by law. This is permanent and cannot be undone.</p>
+        <div class="btns" style="justify-content:center;margin-top:22px">
+          <a class="btn primary" href="/" data-i18n="acct.del.ok.home">Go to homepage</a>
+        </div>
+      </div>
+
+      <!-- Step: blocco owner (RF-CAN-012) -->
+      <div id="ovBlocked" class="ov-step hidden center">
+        <div class="icon-badge err">⚠</div>
+        <h3 data-i18n="acct.del.blocked.title">Can't delete your account yet</h3>
+        <!-- Messaggio approvato RF-CAN-012, localizzato dal client (scelto dal code) -->
+        <p class="muted" id="blockedMsg" style="color:var(--text)"></p>
+        <p class="muted" id="blockedHelp" style="margin-top:12px"></p>
+        <div class="btns" style="justify-content:center;margin-top:20px">
+          <button class="btn" id="ovBack" data-i18n="acct.del.blocked.back">Back</button>
+        </div>
+      </div>
+
+      <!-- Step: fallimento (500) — contatta supporto, NON invita a riprovare -->
+      <div id="ovFail" class="ov-step hidden center">
+        <div class="icon-badge err">!</div>
+        <h3 data-i18n="acct.del.fail.title">Something went wrong</h3>
+        <p class="muted" id="failMsg"></p>
+        <div class="btns" style="justify-content:center;margin-top:20px">
+          <a class="btn primary" id="failContact" href="mailto:hello@sevenda.dev" data-i18n="acct.del.fail.contact">Contact support</a>
+        </div>
+      </div>
+
+      <!-- Step: errore di rete durante il delete — qui riprovare è sicuro (idempotente) -->
+      <div id="ovNet" class="ov-step hidden center">
+        <div class="icon-badge err">⚠</div>
+        <h3 data-i18n="acct.del.net.title">Connection failed</h3>
+        <p class="muted" data-i18n="acct.del.net.sub">We couldn't reach the server. Your session is still valid — you can try again.</p>
+        <div class="ov-actions" style="margin-top:20px">
+          <button class="btn" id="ovNetCancel" data-i18n="acct.del.cancel">Cancel</button>
+          <button class="btn solid-danger" id="ovNetRetry" data-i18n="acct.del.net.retry">Try again</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  /* ════════════════════════════════════════════════════════════════════════
+     SEVENDA — /account  (RF-CAN Fase 2, attività 4)
+     Pagina d'utilità autenticata: overview account, Customer Portal Stripe,
+     ed eliminazione definitiva dell'account (disclaimer → conferma → OTP →
+     delete-account). Nessuna service key: sulla pagina vive solo la anon key.
+     ════════════════════════════════════════════════════════════════════════ */
+  (function(){
+    'use strict';
+
+    var CFG = window.SUPABASE_CONFIG || {};
+    var $ = function(id){ return document.getElementById(id); };
+    // Traduzione robusta: usa window.t (i18n.js) con fallback all'etichetta EN passata.
+    function tr(key, fallback){ return (window.t && window.t(key)) || fallback || key; }
+
+    // Basi API derivate dalla sola config anon (host unico Supabase)
+    var ORIGIN    = (CFG.url || '').replace(/\/+$/,'');
+    var EDGE_BASE = ORIGIN + '/functions/v1';
+    var REST_BASE = ORIGIN + '/rest/v1';
+
+    /* ── Testi approvati RF-CAN-007 / RF-CAN-012 (decisione 25/08/2026, opzione A) ──
+       Tradotti nelle 4 lingue: i testi vivono in i18n.js. Il disclaimer si compone
+       da S1+S2+S3 con subscription attiva, o dalla sola S2 senza, come un unico
+       blocco così le due varianti non possono divergere. I messaggi rivolti
+       all'utente si scelgono dal `code`, mai dal campo `error` (diagnostico). */
+    function disclaimerText(hasSub){
+      var s2 = tr('acct.del.disc.s2',
+        'Access to the service and all data associated with your account will be permanently deleted.');
+      if (!hasSub) return s2;
+      var s1 = tr('acct.del.disc.s1',
+        'Your subscription will be cancelled immediately and no refund will be issued for the remaining period.');
+      var s3 = tr('acct.del.disc.s3',
+        'If you want to keep using the service until the end of your billing period, do not delete your account: you can simply turn off auto-renewal in the "Subscription" section of the extension.');
+      return s1 + ' ' + s2 + ' ' + s3;
+    }
+    function blockedText(){
+      return tr('acct.blocked.msg', 'Remove the members before deleting your account.');
+    }
+
+    // ── Stato runtime ────────────────────────────────────────────────────────
+    var sb = null;             // client Supabase (persistente, storage condiviso con auth.js)
+    var currentUser = null;    // utente validato lato server
+    var state = { overview: null, hasActiveSub: false };
+    var cooldownTimer = null;
+
+    // ── Utilità UI ─────────────────────────────────────────────────────────────
+    function showScreen(id){
+      ['scLoading','scAuth','scError','scMain'].forEach(function(s){
+        $(s).classList.toggle('active', s === id);
+      });
+    }
+    function showOvStep(id){
+      ['ovDisclaimer','ovOtp','ovDeleting','ovOk','ovBlocked','ovFail','ovNet'].forEach(function(s){
+        $(s).classList.toggle('hidden', s !== id);
+      });
+    }
+    function openOverlay(step){ showOvStep(step); $('ov').classList.add('open'); }
+    function closeOverlay(){ $('ov').classList.remove('open'); stopCooldown(); }
+
+    function fmtDate(v){
+      if (!v) return null;
+      var d = new Date(v);
+      if (isNaN(d.getTime())) return String(v);
+      var dd = String(d.getDate()).padStart(2,'0');
+      var mm = String(d.getMonth()+1).padStart(2,'0');
+      return dd + '/' + mm + '/' + d.getFullYear();
+    }
+    function fmtAmount(amount, currency){
+      if (amount === null || amount === undefined || amount === '') return null;
+      var n = Number(amount);
+      if (isNaN(n)) return null;
+      try {
+        return new Intl.NumberFormat((window.getLang && window.getLang()) || 'en', {
+          style: 'currency', currency: currency || 'EUR'
+        }).format(n);
+      } catch(e){ return (currency || '') + ' ' + n; }
+    }
+
+    // ── Sessione / token ───────────────────────────────────────────────────────
+    async function getToken(){
+      try {
+        var r = await sb.auth.getSession();
+        return (r && r.data && r.data.session) ? r.data.session.access_token : '';
+      } catch(e){ return ''; }
+    }
+
+    // ── Chiamate API ───────────────────────────────────────────────────────────
+    // PostgREST RPC → può restituire scalare (null/oggetto) o array a seconda della
+    // funzione: normalizziamo a "singolo oggetto o null".
+    async function rpc(fn, body){
+      var token = await getToken();
+      var res = await fetch(REST_BASE + '/rpc/' + fn, {
+        method: 'POST',
+        headers: {
+          'apikey': CFG.anonKey || '',
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body || {})
+      });
+      if (!res.ok) throw new Error('rpc ' + fn + ' -> ' + res.status);
+      var data = null;
+      try { data = await res.json(); } catch(_){}
+      if (Array.isArray(data)) return data.length ? data[0] : null;
+      return data;
+    }
+    async function edge(fn, body){
+      var token = await getToken();
+      var res = await fetch(EDGE_BASE + '/' + fn, {
+        method: 'POST',
+        headers: {
+          'apikey': CFG.anonKey || '',
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body || {})
+      });
+      var data = null;
+      try { data = await res.json(); } catch(_){}
+      return { status: res.status, data: data || {} };
+    }
+
+    // ── Boot / gating d'autenticazione ─────────────────────────────────────────
+    async function boot(){
+      showScreen('scLoading');
+      if (!window.supabase || !CFG.url || !CFG.anonKey){ showScreen('scError'); return; }
+      if (!sb){
+        try { sb = window.supabase.createClient(CFG.url, CFG.anonKey); }
+        catch(e){ showScreen('scError'); return; }
+      }
+
+      var userRes;
+      try { userRes = await sb.auth.getUser(); }
+      catch(e){ userRes = { error: e }; }
+
+      if (userRes && userRes.error){
+        // getUser() torna errore anche per "nessuna sessione": distinguo leggendo lo
+        // storage (senza rete). Sessione presente ma getUser KO → problema di rete.
+        var s = await sb.auth.getSession();
+        if (!s || !s.data || !s.data.session){ showScreen('scAuth'); return; }
+        showScreen('scError'); return;
+      }
+      var user = userRes && userRes.data && userRes.data.user;
+      if (!user || !user.id){ showScreen('scAuth'); return; }
+
+      currentUser = user;
+      await loadAccount();
+    }
+
+    async function loadAccount(){
+      try {
+        $('fEmail').textContent = currentUser.email || '—';
+        // get_subscription_overview(): SOLO per mostrare lo stato. null = mai passato
+        // dal checkout → "nessun piano attivo" (non un errore).
+        var overview = await rpc('get_subscription_overview', {});
+        state.overview = overview;
+        renderSubscription(overview);
+        showScreen('scMain');
+      } catch(e){
+        showScreen('scError');
+      }
+    }
+
+    // ── Rendering abbonamento ──────────────────────────────────────────────────
+    function statusBadge(overview){
+      var st = overview.status || '';
+      var raw = overview.raw_status || '';
+      var label, cls;
+      if (raw === 'past_due'){ label = tr('acct.status.past_due','Payment past due'); cls = 'warn'; }
+      else if (st === 'active'){ label = tr('acct.status.active','Active'); cls = 'ok'; }
+      else if (st === 'trialing'){ label = tr('acct.status.trialing','Trial'); cls = 'ok'; }
+      else if (st === 'scheduled_cancellation'){ label = tr('acct.status.scheduled_cancellation','Cancellation scheduled'); cls = 'warn'; }
+      else if (st === 'scheduled_downgrade'){ label = tr('acct.status.scheduled_downgrade','Downgrade scheduled'); cls = 'warn'; }
+      else if (st === 'expired'){ label = tr('acct.status.expired','Expired'); cls = 'dim'; }
+      else { label = st || '—'; cls = 'dim'; }
+      return '<span class="badge ' + cls + '">' + escapeHtml(label) + '</span>';
+    }
+    function escapeHtml(s){
+      return String(s).replace(/[&<>"']/g, function(c){
+        return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+      });
+    }
+    function rowHtml(k, vHtml){
+      return '<div class="row"><span class="k">' + escapeHtml(k) + '</span>' +
+             '<span class="v">' + vHtml + '</span></div>';
+    }
+
+    function renderSubscription(overview){
+      var body = $('subBody');
+      var actions = $('subActions');
+      $('portalMsg').textContent = '';
+
+      // Nessun piano attivo → nessuna CTA Portal (create-portal-session darebbe 409 no_customer)
+      if (!overview){
+        body.innerHTML =
+          '<p class="muted">' + escapeHtml(tr('acct.plan.none.sub',
+            "You don't have an active subscription. Choose a plan to get started.")) + '</p>';
+        actions.innerHTML =
+          '<a class="btn primary" href="/pricing">' +
+          escapeHtml(tr('acct.plan.none.cta','See plans')) + '</a>';
+        return;
+      }
+
+      var html = '';
+      html += rowHtml(tr('acct.label.plan','Plan'),
+                escapeHtml(overview.plan_name || overview.plan_id || '—'));
+      html += rowHtml(tr('acct.label.status','Status'), statusBadge(overview));
+
+      if (overview.seats){
+        html += rowHtml(tr('acct.label.seats','Seats'), escapeHtml(String(overview.seats)));
+      }
+      var cancels = fmtDate(overview.cancels_on);
+      var renews  = fmtDate(overview.renews_on);
+      if (cancels){
+        html += rowHtml(tr('acct.label.cancels','Cancels on'), escapeHtml(cancels));
+      } else if (renews){
+        html += rowHtml(tr('acct.label.renews','Renews on'), escapeHtml(renews));
+      }
+      // Prossimo addebito solo se è previsto un rinnovo. renewal_amount può essere
+      // null (price non risolvibile in plan_price → plan_not_resolvable): reso come
+      // "—", mai €0,00. currency ha fallback 'EUR' lato funzione (mai null).
+      if (renews && !cancels){
+        var amt = fmtAmount(overview.renewal_amount, overview.currency);
+        html += rowHtml(tr('acct.label.amount','Next charge'), escapeHtml(amt || '—'));
+      }
+      var validFrom = fmtDate(overview.plan_started_at || overview.activated_at);
+      if (validFrom){
+        html += rowHtml(tr('acct.label.validFrom','Valid from'), escapeHtml(validFrom));
+      }
+      // Cambio programmato (upgrade/downgrade/lateral)
+      if (overview.scheduled_plan_name && overview.scheduled_change_at){
+        var kind = overview.scheduled_change_kind || '';
+        var kindLbl = kind === 'upgrade' ? tr('acct.change.upgrade','Upgrade')
+                    : kind === 'downgrade' ? tr('acct.change.downgrade','Downgrade')
+                    : tr('acct.change.lateral','Change');
+        var sv = escapeHtml(kindLbl) + ' → ' + escapeHtml(overview.scheduled_plan_name) +
+                 ' · ' + escapeHtml(fmtDate(overview.scheduled_change_at));
+        html += rowHtml(tr('acct.label.scheduled','Scheduled change'), sv);
+      }
+      body.innerHTML = html;
+
+      // CTA Portal (deep-link ai rami del Customer Portal)
+      actions.innerHTML =
+        '<button class="btn primary" data-portal="manage">' + escapeHtml(tr('acct.portal.manage','Manage subscription')) + '</button>' +
+        '<button class="btn" data-portal="change">' + escapeHtml(tr('acct.portal.change','Change plan')) + '</button>' +
+        '<button class="btn" data-portal="cancel">' + escapeHtml(tr('acct.portal.cancel','Cancel plan')) + '</button>';
+      Array.prototype.forEach.call(actions.querySelectorAll('[data-portal]'), function(b){
+        b.addEventListener('click', function(){ openPortal(b.getAttribute('data-portal'), b); });
+      });
+    }
+
+    // ── Customer Portal ────────────────────────────────────────────────────────
+    async function openPortal(kind, btn){
+      $('portalMsg').textContent = '';
+      // Apro la scheda SINCRONAMENTE nel click (evita il blocco popup dopo l'await);
+      // la URL Portal è monouso → generata ora, mai in anticipo.
+      var win = window.open('', '_blank');
+      var orig = btn.innerHTML;
+      btn.disabled = true; btn.innerHTML = '<span class="spinner sm"></span>';
+      try {
+        var body = { return_url: 'https://sevenda.dev/account' };
+        if (kind === 'change') body.change_plan = true;
+        if (kind === 'cancel') body.cancel_plan = true;
+        var r = await edge('create-portal-session', body);
+        if (r.status === 200 && r.data && r.data.url){
+          if (win) win.location = r.data.url; else window.location = r.data.url;
+        } else {
+          if (win) win.close();
+          if (r.status === 409){
+            setPortalMsg(tr('acct.portal.err.nocustomer','No billing account found.'), 'warn');
+          } else {
+            setPortalMsg(tr('acct.portal.err',"Couldn't open the billing portal. Please try again."), 'err');
+          }
+        }
+      } catch(e){
+        if (win) win.close();
+        setPortalMsg(tr('acct.portal.err',"Couldn't open the billing portal. Please try again."), 'err');
+      } finally {
+        btn.disabled = false; btn.innerHTML = orig;
+      }
+    }
+    function setPortalMsg(text, cls){
+      var m = $('portalMsg'); m.textContent = text; m.className = 'msg' + (cls ? ' ' + cls : '');
+    }
+
+    // ── Flusso di eliminazione ─────────────────────────────────────────────────
+    async function startDeletion(){
+      var btn = $('btnDelete');
+      var orig = btn.innerHTML;
+      btn.disabled = true; btn.innerHTML = '<span class="spinner sm"></span>';
+      try {
+        // fn_account_deletion_context(): DECIDE. Fresco al click, non al load, così il
+        // blocco RF-CAN-012 e la condizione del disclaimer sono aggiornati.
+        var ctx = await rpc('fn_account_deletion_context', {});
+        state.hasActiveSub = !!(ctx && ctx.has_active_subscription);
+        if (ctx && ctx.deletion_blocked){
+          renderBlocked();
+          openOverlay('ovBlocked');
+          return;
+        }
+        // Disclaimer condizionale (S1+S2+S3 se sub attiva, altrimenti sola S2)
+        $('disclaimerText').textContent = disclaimerText(state.hasActiveSub);
+        $('chkConfirm').checked = false;
+        $('ovContinue').disabled = true;
+        openOverlay('ovDisclaimer');
+      } catch(e){
+        setPortalMsg(tr('acct.err.sub',"We couldn't load your account. Check your connection and try again."), 'err');
+      } finally {
+        btn.disabled = false; btn.innerHTML = orig;
+      }
+    }
+
+    function renderBlocked(){
+      $('blockedMsg').textContent = blockedText();            // RF-CAN-012, localizzato dal client
+      $('blockedHelp').innerHTML =
+        escapeHtml(tr('acct.del.blocked.help','Need help? Contact')) +
+        ' <a href="mailto:hello@sevenda.dev">hello@sevenda.dev</a>.';
+    }
+
+    // — OTP —
+    var otpSending = false;
+    function setOtpMsg(text, cls){
+      var m = $('otpMsg'); m.textContent = text || ''; m.className = 'msg' + (cls ? ' ' + cls : '');
+    }
+    function stopCooldown(){ if (cooldownTimer){ clearInterval(cooldownTimer); cooldownTimer = null; } }
+    function startCooldown(seconds){
+      stopCooldown();
+      var btn = $('btnResend');
+      var left = seconds;
+      btn.disabled = true;
+      var tick = function(){
+        if (left <= 0){
+          stopCooldown();
+          btn.disabled = false;
+          btn.textContent = tr('acct.otp.resend','Resend code');
+          return;
+        }
+        btn.textContent = tr('acct.otp.resend.cooldown','Resend in') + ' ' + left + 's';
+        left -= 1;
+      };
+      tick();
+      cooldownTimer = setInterval(tick, 1000);
+    }
+
+    function enterOtpStep(){
+      var email = (currentUser && currentUser.email) || '';
+      $('otpSub').textContent = tr('acct.otp.sub','We sent an 8-digit code to {email}.')
+                                  .replace('{email}', email);
+      $('otpCode').value = '';
+      $('otpCode').classList.remove('err');
+      setOtpMsg('');
+      openOverlay('ovOtp');
+      requestOtp(true);              // primo invio: azione avviata dall'utente (Continue)
+      setTimeout(function(){ $('otpCode').focus(); }, 60);
+    }
+
+    async function requestOtp(isFirst){
+      if (otpSending) return;
+      otpSending = true;
+      var btn = $('btnResend');
+      btn.disabled = true;
+      btn.textContent = tr('acct.otp.send.sending','Sending…');
+      try {
+        var r = await edge('request-deletion-otp', {});
+        if (r.status === 200){
+          if (!isFirst) setOtpMsg(tr('acct.otp.resend.sent','A new code has been sent.'), 'ok');
+          startCooldown(60);
+        } else if (r.status === 429 && r.data.code === 'COOLDOWN'){
+          startCooldown(r.data.retry_after_s || 60);
+        } else if (r.status === 429 && r.data.code === 'TOO_MANY_SENDS'){
+          setOtpMsg(tr('acct.otp.send.toomany',"You've requested too many codes. Try again later."), 'err');
+          btn.disabled = true;
+        } else if (r.status === 502){
+          setOtpMsg(tr('acct.otp.send.failed',"We couldn't send the email. Please try again."), 'err');
+          btn.disabled = false; btn.textContent = tr('acct.otp.resend','Resend code');
+        } else if (r.status === 400 && r.data.code === 'NO_EMAIL'){
+          setOtpMsg(tr('acct.otp.send.noemail','This account has no email address. Contact hello@sevenda.dev.'), 'err');
+          btn.disabled = true;
+        } else if (r.status === 401){
+          closeOverlay(); showScreen('scAuth');
+        } else {
+          setOtpMsg(tr('acct.otp.send.failed',"We couldn't send the email. Please try again."), 'err');
+          btn.disabled = false; btn.textContent = tr('acct.otp.resend','Resend code');
+        }
+      } catch(e){
+        setOtpMsg(tr('acct.otp.send.failed',"We couldn't send the email. Please try again."), 'err');
+        btn.disabled = false; btn.textContent = tr('acct.otp.resend','Resend code');
+      } finally {
+        otpSending = false;
+      }
+    }
+
+    async function verifyOtp(){
+      var raw = $('otpCode').value || '';
+      var code = raw.replace(/\s+/g,'');             // spazio ammesso (es. "1234 5678")
+      if (!/^\d{8}$/.test(code)){
+        $('otpCode').classList.add('err');
+        setOtpMsg(tr('acct.otp.err.malformed','Enter the 8-digit code.'), 'err');
+        return;
+      }
+      $('otpCode').classList.remove('err');
+      var btn = $('ovVerify'); var orig = btn.innerHTML;
+      btn.disabled = true; btn.innerHTML = '<span class="spinner sm"></span>';
+      try {
+        var r = await edge('verify-deletion-otp', { code: code });
+        if (r.status === 200 && r.data.verified){
+          await runDeleteAccount();
+          return;
+        }
+        // Errori di verifica → resto sullo step OTP
+        var d = r.data || {};
+        if (d.code === 'INVALID_OTP'){
+          var left = (d.attempts_left !== undefined) ? d.attempts_left : '';
+          setOtpMsg(tr('acct.otp.err.invalid','Incorrect code. {n} attempts left.').replace('{n}', left), 'err');
+        } else if (d.code === 'MALFORMED_CODE'){
+          setOtpMsg(tr('acct.otp.err.malformed','Enter the 8-digit code.'), 'err');
+        } else if (d.code === 'EXPIRED_OTP'){
+          setOtpMsg(tr('acct.otp.err.expired','The code has expired. Request a new one.'), 'err');
+        } else if (d.code === 'NO_OTP'){
+          setOtpMsg(tr('acct.otp.err.noreq','No active request. Request a new code.'), 'err');
+        } else if (d.code === 'TOO_MANY_ATTEMPTS'){
+          setOtpMsg(tr('acct.otp.err.toomany','Too many attempts. Request a new code later.'), 'err');
+        } else if (r.status === 401){
+          closeOverlay(); showScreen('scAuth');
+        } else {
+          setOtpMsg(tr('acct.otp.err.generic',"Couldn't verify the code. Please try again."), 'err');
+        }
+        $('otpCode').classList.add('err');
+      } catch(e){
+        setOtpMsg(tr('acct.otp.err.generic',"Couldn't verify the code. Please try again."), 'err');
+      } finally {
+        btn.disabled = false; btn.innerHTML = orig;
+      }
+    }
+
+    async function runDeleteAccount(){
+      stopCooldown();
+      openOverlay('ovDeleting');
+      var r;
+      try {
+        r = await edge('delete-account', { confirm: true });
+      } catch(e){
+        // Nessuna risposta HTTP: possibile blip di rete. delete-account è idempotente
+        // e la finestra OTP dura ~10 min → riprovare è sicuro.
+        openOverlay('ovNet');
+        return;
+      }
+      var d = r.data || {};
+      if (r.status === 200){
+        // Account rimosso da Auth: sign-out locale + pulizia storage DOPO aver mostrato
+        // l'esito (schermata terminale, nessun ritorno a /account).
+        openOverlay('ovOk');
+        localSignOut();
+        return;
+      }
+      if (r.status === 409 && d.code === 'BLOCKED'){
+        // Messaggio scelto dal code, non da d.error (che resta diagnostico)
+        renderBlocked();
+        openOverlay('ovBlocked');
+        return;
+      }
+      if (r.status === 401 && d.code === 'OTP_REQUIRED'){
+        // Verifica assente/scaduta/già usata → torno allo step OTP, non all'inizio.
+        openOverlay('ovOtp');
+        setOtpMsg(tr('acct.otp.required','Please confirm the code before continuing.'), 'warn');
+        return;
+      }
+      if (r.status === 401){
+        closeOverlay(); showScreen('scAuth');
+        return;
+      }
+      // 500 (o altro): l'account può essere parzialmente eliminato → supporto, NON riprovare.
+      $('failMsg').textContent = tr('acct.del.fail.sub',
+        'Your account may be partially deleted. Please contact hello@sevenda.dev — do not try again.');
+      openOverlay('ovFail');
+    }
+
+    function localSignOut(){
+      // Il vero access token resta formalmente valido ~1h (tolleranza dichiarata in Fase 1):
+      // senza sign-out la pagina resterebbe "loggata" su un account inesistente.
+      try { if (sb && sb.auth) sb.auth.signOut({ scope: 'local' }); } catch(e){}
+      try { if (window.SevendaAuth && window.SevendaAuth._logout) window.SevendaAuth._logout(); } catch(e){}
+    }
+
+    // ── Re-render su cambio lingua (le stringhe composte via JS non hanno data-i18n) ──
+    function reRenderDynamic(){
+      if ($('scMain').classList.contains('active') && state) renderSubscription(state.overview);
+      if ($('ov').classList.contains('open')){
+        if (!$('ovDisclaimer').classList.contains('hidden')){
+          $('disclaimerText').textContent = disclaimerText(state.hasActiveSub);
+        }
+        if (!$('ovBlocked').classList.contains('hidden')) renderBlocked();
+        if (!$('ovOtp').classList.contains('hidden')){
+          var email = (currentUser && currentUser.email) || '';
+          $('otpSub').textContent = tr('acct.otp.sub','We sent an 8-digit code to {email}.').replace('{email}', email);
+        }
+      }
+    }
+
+    // ── Wiring ──────────────────────────────────────────────────────────────────
+    function wire(){
+      $('btnRetry').addEventListener('click', boot);
+      $('btnSignIn').addEventListener('click', function(){
+        if (window.SevendaAuth && window.SevendaAuth.openModal){
+          window.SevendaAuth.openModal('login', function(){ location.reload(); });
+        } else {
+          location.href = '/';
+        }
+      });
+
+      $('btnDelete').addEventListener('click', startDeletion);
+      $('ovCancel1').addEventListener('click', closeOverlay);
+      $('ovCancel2').addEventListener('click', closeOverlay);
+      $('ovBack').addEventListener('click', closeOverlay);
+      $('ovNetCancel').addEventListener('click', closeOverlay);
+      $('ovNetRetry').addEventListener('click', runDeleteAccount);
+
+      $('chkConfirm').addEventListener('change', function(){
+        $('ovContinue').disabled = !this.checked;
+      });
+      $('ovContinue').addEventListener('click', function(){
+        if (!$('chkConfirm').checked) return;
+        enterOtpStep();
+      });
+      $('ovVerify').addEventListener('click', verifyOtp);
+      $('btnResend').addEventListener('click', function(){ requestOtp(false); });
+      $('otpCode').addEventListener('keydown', function(e){
+        if (e.key === 'Enter'){ e.preventDefault(); verifyOtp(); }
+      });
+      $('otpCode').addEventListener('input', function(){ $('otpCode').classList.remove('err'); setOtpMsg(''); });
+
+      // Re-render dei testi composti quando l'utente cambia lingua
+      Array.prototype.forEach.call(document.querySelectorAll('.lang-btn'), function(b){
+        b.addEventListener('click', function(){ setTimeout(reRenderDynamic, 0); });
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', function(){
+      wire();
+      boot();
+    });
+  })();
+  </script>
+</body>
+</html>

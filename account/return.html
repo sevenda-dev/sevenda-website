@@ -8,6 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <!-- i18n condiviso (en|it|es|fr): rende la pagina nella lingua salvata dall'utente -->
+  <script defer src="/i18n.js"></script>
   <style>
     /* Token allineati a checkout-success.html */
     :root {
@@ -41,12 +43,9 @@
 <body>
   <div class="card">
     <div class="icon">✓</div>
-    <!-- Variante italiana:
-         h1: "Tutto fatto."
-         p:  "Le modifiche al tuo abbonamento sono state salvate. Puoi chiudere questa scheda e tornare a Sevenda." -->
-    <h1>You're all set.</h1>
-    <p>Your subscription changes have been saved. You can close this tab and return to Sevenda.</p>
-    <button class="btn" onclick="window.close()">Close tab</button>
+    <h1 data-i18n="ret.title">You're all set.</h1>
+    <p data-i18n="ret.sub">Your subscription changes have been saved. You can close this tab and return to Sevenda.</p>
+    <button class="btn" onclick="window.close()" data-i18n="ret.close">Close tab</button>
   </div>
 </body>
 </html>
