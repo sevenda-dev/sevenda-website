@@ -2,6 +2,7 @@
  * Sevenda Stripe Configuration  (aggiornato con Price ID reali — Live mode)
  * ════════════════════════════════════════════════════════════════════════════
  * Price ID Stripe reali (Live). Aggiornato il 25/06/2026.
+ * Chiavi e URL NON vivono qui: vedi supabase.config.js (fonte unica ambiente).
  * Piani team (Studio/Agency/Suite Team): Volume tiered su Stripe.
  */
 
@@ -54,11 +55,22 @@ function getStripeLink(planId, billing) {
 }
 
 /* ── Stripe Elements (checkout.html) ────────────────────────────────────────
-   PATCH v2: edgeFunctionBase aggiornato a jqxxhdrlcxtlmejhtzsb (progetto unico).
-   publishableKey: incolla la tua Publishable key Live (pk_live_…).              */
+   publishableKey ed edgeFunctionBase sono DERIVATI da window.SUPABASE_CONFIG
+   (supabase.config.js), che è l'unico punto in cui si dichiara l'ambiente.
+   Tenendo url, anon key e pk_ nella stessa fonte diventa strutturalmente
+   impossibile ritrovarsi con Supabase su staging e Stripe in live mode.
+   Sono getter e non valori fissi perché stripe.config.js viene caricato PRIMA
+   di supabase.config.js (checkout.html, pricing.html): vanno letti al primo
+   uso, non al load. Config assente o placeholder → isStripeConfigured() false
+   e checkout.html mostra il pannello "non configurato".                        */
 window.STRIPE_CONFIG = {
-  publishableKey:   'pk_live_51TcSar2QI59o2iVODhL5S9XDVUsvkBQVpvCnDVNupm82mBLxq8P4m5vxjaow7STe8DXnywnz9YTbJL3Ssjpy4H9V00UkmkO5cC',
-  edgeFunctionBase: 'https://jqxxhdrlcxtlmejhtzsb.supabase.co/functions/v1',
+  get publishableKey() {
+    return (window.SUPABASE_CONFIG && window.SUPABASE_CONFIG.stripePk) || null;
+  },
+  get edgeFunctionBase() {
+    const url = (window.SUPABASE_CONFIG && window.SUPABASE_CONFIG.url) || '';
+    return url ? url.replace(/\/+$/, '') + '/functions/v1' : null;
+  },
   currency:         'EUR',
   currencySymbol:   '€',
 };
@@ -108,5 +120,9 @@ window.PLAN_CATALOG = {
 
 function isStripeConfigured() {
   const c = window.STRIPE_CONFIG;
-  return !!c && c.publishableKey && !c.publishableKey.includes('REPLACE');
+  // Entrambi derivano da supabase.config.js: senza uno dei due il checkout non
+  // ha chiave o endpoint validi e va mostrato il pannello "non configurato".
+  // YOUR_ intercetta i placeholder di un ambiente non ancora popolato.
+  if (!c || !c.publishableKey || !c.edgeFunctionBase) return false;
+  return !/REPLACE|YOUR_/.test(c.publishableKey);
 }

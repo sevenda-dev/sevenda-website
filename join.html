@@ -122,14 +122,26 @@
   <!-- Supabase JS v2 (UMD global: window.supabase) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+  <!-- Config di ambiente: fonte unica per url / anonKey / captchaSiteKey -->
+  <script src="/supabase.config.js"></script>
+
   <script>
     // ── Config (anon URL + key are public by design) ────────────────────────
-    const SUPABASE_URL  = 'https://jqxxhdrlcxtlmejhtzsb.supabase.co';
-    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpxeHhoZHJsY3h0bG1lamh0enNiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4ODMyNzUsImV4cCI6MjA5NjQ1OTI3NX0.vM-B0zoz_sTg3IVXpHWrkjl2tZrobNjtKYDmhnWlZoI';
+    // Tutto deriva da window.SUPABASE_CONFIG: nessun valore hard-coded qui,
+    // altrimenti la pagina resta agganciata a produzione anche quando la
+    // config punta a staging (e url di un progetto + anon key di un altro
+    // sarebbe comunque una combinazione rotta).
+    const SUPA = window.SUPABASE_CONFIG || {};
+    const SUPABASE_URL  = (SUPA.url || '').replace(/\/+$/, '');
+    const SUPABASE_ANON = SUPA.anonKey || '';
 
-    // ⚠️ Paste the REAL hCaptcha *site key* (public) configured in
-    //    Supabase → Authentication → Settings → Bot & Abuse Protection → hCaptcha.
-    const HCAPTCHA_SITE_KEY = 'c84e21d4-00f0-4cec-9394-68163f68e882';
+    // hCaptcha *site key* (public): deve combaciare con il Secret Key impostato
+    // su Supabase → Authentication → Settings → Bot & Abuse Protection.
+    const HCAPTCHA_SITE_KEY = SUPA.captchaSiteKey || '';
+
+    if (!SUPABASE_URL || !SUPABASE_ANON) {
+      console.error('[join] supabase.config.js mancante o incompleto: window.SUPABASE_CONFIG non definito.');
+    }
 
     const REDIRECT_TO = 'https://sevenda.dev/join';
 
