@@ -451,7 +451,7 @@
   /* ── State ── */
   const S = {
     step: 1,
-    interval: (qs.get('interval') === 'monthly') ? 'monthly' : 'annual',
+    interval: parseInterval(qs.get('interval')),
     qty: clampQty(parseInt(qs.get('qty') || qs.get('seats'), 10) || plan.seats.min),
     name: nameOver || plan.name,
   };
@@ -460,6 +460,40 @@
     const { min, max } = plan.seats;
     if (isNaN(n)) return min;
     return Math.max(min, Math.min(max, n));
+  }
+
+  /* Whitelist esplicita: un valore non riconosciuto ('month', 'mensile', un
+     refuso) non deve cadere in silenzio sul default, perché il piano addebitato
+     sarebbe diverso da quello che il link prometteva. Si normalizza e si logga:
+     il default resta annual, ma smette di essere invisibile. */
+  function parseInterval(raw) {
+    if (raw == null || raw === '') return 'annual';
+    const v = String(raw).trim().toLowerCase();
+    if (v === 'monthly' || v === 'annual') return v;
+    console.warn('[checkout] interval "' + raw + '" non valido → annual');
+    return 'annual';
+  }
+
+  /* ── URL ↔ stato ──
+     Il toggle interval e i bottoni qty cambiavano solo S, lasciando nella barra
+     degli indirizzi i valori del link di ingresso: l'URL diceva annual mentre il
+     riepilogo (e l'addebito) dicevano monthly. Ora la query segue lo stato.
+     Non è solo cosmetico: dopo il fix al redirect OAuth (auth.js) la query è
+     l'unico posto in cui la scelta sopravvive al giro di login social, quindi un
+     URL disallineato farebbe ripartire il checkout dai valori sbagliati.
+     Chiamata solo da interazione utente, mai al load: all'apertura la query può
+     ancora contenere il callback di Supabase, che va lasciato consumare. */
+  function syncUrl() {
+    try {
+      const p = new URLSearchParams(location.search);
+      p.set('plan', planId);
+      p.set('interval', S.interval);
+      p.set('qty', String(S.qty));
+      p.delete('seats');   // alias d'ingresso: normalizzato in qty
+      ['code', 'token_hash', 'type', 'error', 'error_code', 'error_description']
+        .forEach(k => p.delete(k));   // residui del giro di auth, già consumati
+      history.replaceState(null, '', location.pathname + '?' + p.toString());
+    } catch (e) { /* storia non disponibile: non è critico per il checkout */ }
   }
 
   /* ── DOM refs ── */
@@ -840,13 +874,14 @@
     b.addEventListener('click', () => {
       S.interval = b.dataset.interval;
       subscriptionReady = false; // prezzo cambiato → ricrea subscription
+      syncUrl();
       render();
     });
   });
 
   // Qty
-  $('coQtyMinus').addEventListener('click', () => { S.qty = clampQty(S.qty - 1); subscriptionReady = false; render(); });
-  $('coQtyPlus') .addEventListener('click', () => { S.qty = clampQty(S.qty + 1); subscriptionReady = false; render(); });
+  $('coQtyMinus').addEventListener('click', () => { S.qty = clampQty(S.qty - 1); subscriptionReady = false; syncUrl(); render(); });
+  $('coQtyPlus') .addEventListener('click', () => { S.qty = clampQty(S.qty + 1); subscriptionReady = false; syncUrl(); render(); });
 
   // Terms checkboxes
   $('coTermPrivacy').addEventListener('change', updateActionButton);

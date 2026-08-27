@@ -636,6 +636,9 @@
       },
     };
     if (captchaToken) opts.captchaToken = captchaToken;
+    // Stesso motivo del redirect OAuth: il link di conferma deve riportare alla
+    // pagina da cui è partita la registrazione, non alla homepage.
+    opts.emailRedirectTo = _returnUrl();
 
     const { error } = await _sb.auth.signUp({ email, password: pass, options: opts });
     _setLoading('sa-reg-submit', false);
@@ -677,6 +680,29 @@
     }
   }
 
+  // ── RETURN URL DOPO AUTH ─────────────────────────────────────────────────────
+  // OAuth e conferma email portano il browser fuori dal sito e poi indietro.
+  // Senza un redirect esplicito Supabase riporta alla Site URL (la homepage) e
+  // il contesto della pagina di partenza va perso in silenzio: da checkout.html
+  // significa perdere plan, interval e qty e far ripartire l'acquisto da zero.
+  // Si torna quindi all'URL corrente, ripulito dai parametri che appartengono
+  // al giro di auth precedente (un `code` già consumato non va rimandato).
+  // NB: gli origin usati vanno in Authentication > URL Configuration su
+  // Supabase (redirect allowlist), altrimenti il redirect viene rifiutato.
+  const _AUTH_PARAMS = ['code', 'token_hash', 'type', 'error', 'error_code', 'error_description'];
+
+  function _returnUrl() {
+    try {
+      const u = new URL(window.location.href);
+      _AUTH_PARAMS.forEach(k => u.searchParams.delete(k));
+      u.hash = ''; // nell'implicit flow contiene access_token/refresh_token
+      const q = u.searchParams.toString();
+      return u.origin + u.pathname + (q ? '?' + q : '');
+    } catch (e) {
+      return window.location.origin;
+    }
+  }
+
   // ── SOCIAL OAUTH ─────────────────────────────────────────────────────────────
   async function _doSocial(provider) {
     // Reinizializzazione lazy: se il client non è ancora pronto ma l'SDK è disponibile, crea il client ora
@@ -697,7 +723,7 @@
 
     const { error } = await _sb.auth.signInWithOAuth({
       provider,
-      options: { redirectTo: window.location.origin },
+      options: { redirectTo: _returnUrl() },
     });
 
     if (error) {
