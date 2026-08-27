@@ -585,7 +585,10 @@
       var orig = btn.innerHTML;
       btn.disabled = true; btn.innerHTML = '<span class="spinner sm"></span>';
       try {
-        var body = { return_url: 'https://sevenda.dev/account' };
+        // Il Portal deve riportare l'utente sul sito da cui è partito: un
+        // return_url fisso su sevenda.dev sbatterebbe in produzione chi gestisce
+        // l'abbonamento da staging. In produzione il valore è identico a prima.
+        var body = { return_url: location.origin + '/account' };
         if (kind === 'change') body.change_plan = true;
         if (kind === 'cancel') body.cancel_plan = true;
         var r = await edge('create-portal-session', body);
