@@ -831,6 +831,115 @@
     }
   }
 
+  /* ─────────────────────────────────────────────────────────────
+     WATCHDOG DI CONFERMA
+     confirmPayment/confirmSetup girano col default `redirect: 'always'`: in caso
+     di successo Stripe naviga verso return_url, il documento viene scaricato e
+     la promise non si risolve mai — by design. Il buco è l'altro ramo: se la
+     promise *rigetta* (errori di integrazione, rete che cade a metà) senza che
+     il redirect parta, la UI resta su "Processing…" a tempo indeterminato.
+     Il watchdog copre quel caso interrogando Stripe sullo stato reale
+     dell'intent: è l'unica fonte di verità disponibile lato client, così non si
+     indovina mai se l'addebito sia andato a buon fine.
+     ───────────────────────────────────────────────────────────── */
+  const CONFIRM_WATCHDOG_MS = 30000;
+  let confirmSettled = true;   // true = nessuna conferma in volo
+  let watchdogTimer = null;
+  let idleProbes = 0;          // letture consecutive "addebito non partito"
+
+  function clearWatchdog() {
+    if (watchdogTimer) { clearTimeout(watchdogTimer); watchdogTimer = null; }
+  }
+
+  function armWatchdog() {
+    clearWatchdog();
+    watchdogTimer = setTimeout(() => { resolveIntentState(); }, CONFIRM_WATCHDOG_MS);
+  }
+
+  // Sblocca la UI e mostra l'errore. Idempotente: watchdog e promise possono
+  // arrivare insieme, ma solo il primo dei due agisce.
+  function failPayment(message) {
+    if (confirmSettled) return;
+    confirmSettled = true;
+    clearWatchdog();
+    $('coPayError').textContent = message || tt('co.err.paymentFailed', 'Payment failed. Please check your details.');
+    $('coAction').disabled = false;
+    updateActionButton();
+  }
+
+  // Esito già raggiunto lato Stripe → porta l'utente alla pagina di esito con
+  // gli stessi parametri che avrebbe passato il redirect nativo.
+  function goToOutcome(intent, status) {
+    confirmSettled = true;
+    clearWatchdog();
+    const key = payMode === 'setup' ? 'setup_intent' : 'payment_intent';
+    location.href = location.origin + '/checkout-success.html?plan=' + encodeURIComponent(planId)
+      + '&' + key + '=' + encodeURIComponent(intent.id)
+      + '&redirect_status=' + encodeURIComponent(status);
+  }
+
+  // Interroga Stripe quando né il redirect né un errore si sono manifestati.
+  // `fallbackMessage` è valorizzato solo arrivando da una promise rigettata:
+  // in quel caso non c'è nulla in volo e si può concludere subito.
+  async function resolveIntentState(fallbackMessage) {
+    if (confirmSettled || !clientSecret) return;
+
+    let intent = null;
+    try {
+      const r = payMode === 'setup'
+        ? await stripe.retrieveSetupIntent(clientSecret)
+        : await stripe.retrievePaymentIntent(clientSecret);
+      intent = r && (r.setupIntent || r.paymentIntent);
+    } catch (e) { /* rete KO: decide il ramo !intent qui sotto */ }
+
+    if (confirmSettled) return; // il redirect è partito nel frattempo
+
+    if (!intent) {
+      // Stato ignoto: si sblocca solo se la conferma è già fallita, altrimenti
+      // si ritenta senza toccare la UI.
+      if (fallbackMessage) failPayment(fallbackMessage);
+      else armWatchdog();
+      return;
+    }
+
+    switch (intent.status) {
+      case 'succeeded':
+      case 'processing':
+        // Pagamento realmente andato a buon fine: niente errore, niente retry.
+        goToOutcome(intent, intent.status === 'processing' ? 'processing' : 'succeeded');
+        break;
+      case 'requires_payment_method':
+      case 'requires_confirmation':
+        // L'addebito non è partito: si può ritentare senza rischi. Dal watchdog
+        // si esige però una seconda lettura consecutiva, perché su rete lenta la
+        // confirm potrebbe essere ancora in viaggio e sbloccare troppo presto
+        // mostrerebbe un errore falso.
+        if (fallbackMessage || ++idleProbes >= 2) failPayment(fallbackMessage);
+        else armWatchdog();
+        break;
+      default:
+        // requires_action / requires_capture: 3DS in corso, l'utente sta usando
+        // la modale Stripe. Interrompere qui sarebbe la vera regressione: si
+        // lascia la UI com'è e si ricontrolla più tardi.
+        idleProbes = 0;
+        armWatchdog();
+    }
+  }
+
+  // Il redirect di Stripe scarica il documento: da lì in poi il watchdog non
+  // deve più intervenire.
+  window.addEventListener('pagehide', () => { confirmSettled = true; clearWatchdog(); });
+
+  // Ritorno dalla bfcache (tasto "indietro"): la pagina è congelata su
+  // "Processing…" senza conferma in volo → si ripristina il bottone.
+  window.addEventListener('pageshow', (e) => {
+    if (!e.persisted) return;
+    confirmSettled = true;
+    clearWatchdog();
+    $('coAction').disabled = false;
+    updateActionButton();
+  });
+
   async function makePayment() {
     if (!elementsConfigured || !stripe || !elements) {
       alert(tt('co.alert.stripeNotConfigured', 'Stripe is not configured. Set the keys in stripe.config.js to enable payments.'));
@@ -839,6 +948,7 @@
     const btn = $('coAction');
     btn.disabled = true;
     btn.innerHTML = '<span class="co-spinner"></span> ' + tt('co.btn.processing', 'Processing…');
+    $('coPayError').textContent = '';
 
     const billing = collectBilling();
     const confirmParams = {
@@ -853,17 +963,31 @@
       },
     };
 
-    // Trial (prima fattura €0) → SetupIntent (confirmSetup); altrimenti PaymentIntent (confirmPayment).
-    const { error } = payMode === 'setup'
-      ? await stripe.confirmSetup({ elements, confirmParams })
-      : await stripe.confirmPayment({ elements, confirmParams });
+    confirmSettled = false;
+    idleProbes = 0;
+    armWatchdog();
 
-    // confirmSetup/confirmPayment redirigono in caso di successo; qui si arriva solo su errore
-    if (error) {
-      $('coPayError').textContent = error.message || tt('co.err.paymentFailed', 'Payment failed. Please check your details.');
-      btn.disabled = false;
-      updateActionButton();
+    // Trial (prima fattura €0) → SetupIntent (confirmSetup); altrimenti PaymentIntent (confirmPayment).
+    let error = null;
+    try {
+      const result = payMode === 'setup'
+        ? await stripe.confirmSetup({ elements, confirmParams })
+        : await stripe.confirmPayment({ elements, confirmParams });
+      error = result && result.error;
+    } catch (err) {
+      // Stripe.js rigetta (invece di risolvere con {error}) sugli errori di
+      // integrazione e su alcuni fallimenti di rete: senza questo ramo il
+      // bottone restava disabilitato su "Processing…" per sempre.
+      clearWatchdog();
+      await resolveIntentState((err && err.message)
+        || tt('co.err.paymentFailed', 'Payment failed. Please check your details.'));
+      return;
     }
+
+    // confirmSetup/confirmPayment redirigono in caso di successo: qui si arriva
+    // solo su errore. Il watchdog resta armato di proposito, così anche una
+    // risoluzione senza errore e senza redirect verrebbe comunque risolta.
+    if (error) failPayment(error.message);
   }
 
   /* ─────────────────────────────────────────────────────────────
