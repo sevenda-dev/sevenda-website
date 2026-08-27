@@ -65,6 +65,13 @@
     }
     .steps .em { color:var(--green); font-weight:600; }
     .steps-note { font-size:12.5px; color:var(--text-3); margin:16px 0 0; }
+    .acct { margin-top:22px; }
+    .acct p { font-size:12.5px; color:var(--text-3); margin:0 0 6px; }
+    .acct a {
+      font-size:13.5px; color:var(--text-2); text-decoration:none;
+      border-bottom:1px solid #2a2a2a; padding-bottom:1px; transition:color .15s, border-color .15s;
+    }
+    .acct a:hover { color:var(--text); border-color:var(--text-3); }
     .cs-lang-bar { position:fixed; top:18px; right:18px; }
   </style>
 </head>
@@ -93,6 +100,11 @@
       </ol>
       <p class="steps-note" data-i18n-html="cs.steps.note">Already installed? Open DevTools &rarr; Sevenda tab and sign in.</p>
     </div>
+    <!-- Accesso all'area account: nascosto negli stati non-successo insieme a "Next steps" -->
+    <div class="acct" id="acct">
+      <p data-i18n="cs.cta.account.note">You can manage your plan, invoices and account details anytime from your account area.</p>
+      <a href="/account" data-i18n="cs.cta.account">Manage your subscription</a>
+    </div>
   </div>
 
   <script>
@@ -107,6 +119,7 @@
       const ref = document.getElementById('ref');
       const cta = document.getElementById('cta');
       const steps = document.getElementById('steps');
+      const acct = document.getElementById('acct');
 
       // i18n: usa il sistema condiviso (i18n.js → window.t) con fallback EN inline
       function tt(key, fallback) {
@@ -118,6 +131,7 @@
       // CTA verso la homepage e nessun blocco "Next steps".
       function hideNextSteps() {
         steps.style.display = 'none';
+        acct.style.display = 'none';
         cta.removeAttribute('data-i18n');
         cta.textContent = tt('cs.cta.home', 'Go to homepage');
         cta.href = '/';
