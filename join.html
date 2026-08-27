@@ -86,35 +86,44 @@
     <!-- STATE 1: form -->
     <section id="formState" class="state active">
       <h1>Sign in to Team</h1>
-      <p class="sub">Enter your email and we'll send a magic link.
-        Click it and you'll be signed in inside the Sevenda DevTools panel.</p>
+      <p class="sub">Enter your email and we'll send you an 8-digit code.
+        Type it here and you'll be signed in inside the Sevenda DevTools panel.</p>
 
       <label for="email">Email</label>
       <input id="email" type="email" autocomplete="email" placeholder="your@email.com" />
 
       <div class="captcha"><div id="hcaptcha"></div></div>
 
-      <button id="sendBtn" class="cta" disabled>Send link</button>
+      <button id="sendBtn" class="cta" disabled>Send code</button>
       <div id="formMsg" class="msg"></div>
 
-      <p class="hint">Bot protection by hCaptcha. The link opens at
-        <code>sevenda.dev/join</code> and is captured automatically by the extension.</p>
+      <p class="hint">Bot protection by hCaptcha. Everything happens on
+        <code id="joinHost">sevenda.dev/join</code> — no link to open, nothing for
+        mail scanners to consume.</p>
     </section>
 
-    <!-- STATE 2: email sent -->
-    <section id="sentState" class="state center">
+    <!-- STATE 2: inserimento del codice ricevuto per email -->
+    <section id="codeState" class="state center">
       <div class="big-ok">📧</div>
       <h1>Check your email</h1>
-      <p class="sub" id="sentSub">We sent a magic link. Open it on this device —
-        the Sevenda extension will detect the redirect and sign you in.</p>
+      <p class="sub" id="codeSub">We sent you an 8-digit code.</p>
+
+      <label for="code">Confirmation code</label>
+      <input id="code" type="text" inputmode="numeric" autocomplete="one-time-code"
+             maxlength="9" placeholder="1234 5678"
+             style="font-family:var(--mono,monospace);letter-spacing:4px;text-align:center" />
+
+      <button id="verifyBtn" class="cta">Verify &amp; sign in</button>
+      <div id="codeMsg" class="msg"></div>
+
       <button id="resendBtn" class="cta" style="background:transparent;border:1px solid var(--border);color:var(--text-muted)">Use a different email</button>
     </section>
 
-    <!-- STATE 3: redirect landing (link clicked) -->
+    <!-- STATE 3: sessione consegnata -->
     <section id="doneState" class="state center">
       <div class="big-ok">✓</div>
       <h1>You're signed in</h1>
-      <p class="sub">Return to the <strong>Sevenda</strong> panel in Chrome DevTools —
+      <p class="sub" id="doneSub">Return to the <strong>Sevenda</strong> panel in Chrome DevTools —
         it has already picked up your session. You can close this tab.</p>
     </section>
   </div>
@@ -143,14 +152,28 @@
       console.error('[join] supabase.config.js mancante o incompleto: window.SUPABASE_CONFIG non definito.');
     }
 
-    const REDIRECT_TO = 'https://sevenda.dev/join';
+    // Il magic link deve tornare sul sito che l'ha chiesto: su staging un
+    // redirect fisso su sevenda.dev rimanderebbe l'utente in produzione, dove la
+    // sessione appena emessa da un altro progetto Supabase non vale nulla.
+    // L'origin va comunque registrato nella redirect allowlist del progetto.
+    const REDIRECT_TO = location.origin + '/join';
 
-    // CRITICAL: implicit flow → redirect carries #access_token=… in the fragment,
-    // which is exactly what the extension intercepts. detectSessionInUrl:false keeps
-    // the fragment intact (we do NOT strip or rotate it from the page).
+    // L'hint mostra l'host reale: su staging citare sevenda.dev sarebbe una bugia.
+    (function () {
+      const el = document.getElementById('joinHost');
+      if (el) el.textContent = location.host + '/join';
+    })();
+
+    // Il giro è a CODICE, non a link: Supabase manda 8 cifre (template Magic Link
+    // con {{ .Token }}), l'utente le digita qui e questa pagina verifica. Nessun
+    // URL monouso in circolazione, quindi niente da bruciare per gli scanner di
+    // posta che aprono i link prima del destinatario — era il motivo per cui il
+    // magic link era stato abbandonato lato estensione.
+    //
+    // persistSession:false — la sessione non resta in questo browser come sessione
+    // del sito: viene consegnata all'estensione e basta.
     const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
       auth: {
-        flowType: 'implicit',
         detectSessionInUrl: false,
         persistSession: false,
         autoRefreshToken: false,
@@ -159,18 +182,49 @@
 
     const $ = (id) => document.getElementById(id);
     const show = (id) => {
-      ['formState','sentState','doneState'].forEach(s => $(s).classList.toggle('active', s === id));
+      ['formState','codeState','doneState'].forEach(s => $(s).classList.toggle('active', s === id));
     };
 
-    // ── If we landed here from the magic link, show the "done" screen ────────
-    // (Passive: we read the fragment only to update the UI; the extension owns the session.)
-    if (location.hash.includes('access_token=')) {
-      show('doneState');
-    } else {
-      // Prefill email from ?email= (sent by the extension)
-      const params = new URLSearchParams(location.search);
-      const pre = params.get('email');
-      if (pre) $('email').value = pre;
+    const params = new URLSearchParams(location.search);
+
+    // ?relay=extension — la pagina è stata aperta dal pannello DevTools e la
+    // sessione va consegnata all'estensione invece di restare qui.
+    //
+    // ATTENZIONE — questa pagina ha DUE comportamenti, ed è voluto:
+    //   • con relay  → sign-in dell'estensione. shouldCreateUser:false, perché
+    //     l'estensione fa login e basta: un typo nell'indirizzo deve dire
+    //     "utente inesistente", non creare un account fantasma a cui nessuno
+    //     assocerà mai un abbonamento.
+    //   • senza relay → /join serve anche chi arriva dal checkout e non ha ancora
+    //     un utente. Lì shouldCreateUser:true è l'unico comportamento sensato:
+    //     rifiutare un signup legittimo con un errore Supabase grezzo sarebbe
+    //     illeggibile per l'utente.
+    // Se un giorno i due casi divergono ancora, separare le pagine invece di
+    // aggiungere un terzo ramo qui.
+    const RELAY = params.get('relay') === 'extension';
+
+    // Prefill dell'email passata dall'estensione
+    const pre = params.get('email');
+    if (pre) $('email').value = pre;
+
+    // ── Consegna della sessione all'estensione ───────────────────────────────
+    // L'ID non è hard-codato: cambierebbe fra build unpacked e Web Store. Lo
+    // pubblica il content script dell'estensione su questo origin, e il canale è
+    // ristretto lato manifest con externally_connectable.
+    function relaySession(session) {
+      const extId = document.documentElement.dataset.sevendaExtensionId;
+      const rt = window.chrome && chrome.runtime;
+      if (!extId || !rt || !rt.sendMessage) {
+        return Promise.reject(new Error(
+          'Sevenda extension not detected in this browser — is it installed and enabled?'));
+      }
+      return new Promise((resolve, reject) => {
+        rt.sendMessage(extId, { type: 'SEVENDA_AUTH_SESSION', session }, (res) => {
+          if (rt.lastError)      return reject(new Error(rt.lastError.message));
+          if (!res || !res.ok)   return reject(new Error((res && res.error) || 'relay refused'));
+          resolve();
+        });
+      });
     }
 
     // ── hCaptcha wiring ──────────────────────────────────────────────────────
@@ -204,17 +258,27 @@
           options: {
             captchaToken: hcToken,
             emailRedirectTo: REDIRECT_TO,
-            shouldCreateUser: true,
+            // In relay l'estensione fa LOGIN, non signup: un typo nell'indirizzo
+            // deve dare "utente inesistente", non creare un account fantasma.
+            shouldCreateUser: !RELAY,
           },
         });
-        if (error) throw error;
-        $('sentSub').innerHTML =
-          'We sent a magic link to <strong>' + email.replace(/</g,'&lt;') + '</strong>. ' +
-          'Open it on this device — the Sevenda extension will detect the redirect and sign you in.';
-        show('sentState');
+        if (error) {
+          // Con shouldCreateUser:false Supabase rifiuta un indirizzo sconosciuto
+          // con un messaggio poco parlante: qui diventa azionabile.
+          if (RELAY && /signups? not allowed|user not found/i.test(error.message || '')) {
+            throw new Error('No Sevenda account for this email. Check the address, '
+                          + 'or create an account first at ' + location.host + '/pricing.');
+          }
+          throw error;
+        }
+        $('codeSub').innerHTML =
+          'We sent an 8-digit code to <strong>' + email.replace(/</g,'&lt;') + '</strong>.';
+        show('codeState');
+        $('code').focus();
       } catch (e) {
-        setMsg('✗ ' + (e && e.message ? e.message : 'Could not send the link.'), 'err');
-        btn.textContent = 'Send link';
+        setMsg('✗ ' + (e && e.message ? e.message : 'Could not send the code.'), 'err');
+        btn.textContent = 'Send code';
         // hCaptcha tokens are single-use → reset for a clean retry
         hcToken = null;
         if (window.hcaptcha && hcWidget !== null) { try { window.hcaptcha.reset(hcWidget); } catch (_) {} }
@@ -226,8 +290,44 @@
       if (e.key === 'Enter' && !$('sendBtn').disabled) $('sendBtn').click();
     });
 
+    // ── Verifica del codice ──────────────────────────────────────────────────
+    function setCodeMsg(text, cls) {
+      const m = $('codeMsg'); m.textContent = text || ''; m.className = 'msg' + (cls ? ' ' + cls : '');
+    }
+
+    $('verifyBtn').addEventListener('click', async () => {
+      const email = ($('email').value || '').trim();
+      const token = ($('code').value || '').replace(/\s+/g, '');   // spazio ammesso: "1234 5678"
+      if (!/^\d{8}$/.test(token)) { setCodeMsg('Enter the 8-digit code.', 'err'); return; }
+
+      const btn = $('verifyBtn'); btn.disabled = true; btn.textContent = 'Verifying…'; setCodeMsg('');
+      try {
+        const { data, error } = await sb.auth.verifyOtp({ email, token, type: 'email' });
+        if (error) throw error;
+        const session = data && data.session;
+        if (!session || !session.access_token) throw new Error('No session returned.');
+
+        if (RELAY) {
+          await relaySession(session);
+        } else {
+          $('doneSub').textContent = 'You can close this tab.';
+        }
+        show('doneState');
+      } catch (e) {
+        setCodeMsg('✗ ' + (e && e.message ? e.message : 'Could not verify the code.'), 'err');
+        btn.disabled = false; btn.textContent = 'Verify & sign in';
+      }
+    });
+
+    $('code').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !$('verifyBtn').disabled) $('verifyBtn').click();
+    });
+
     $('resendBtn').addEventListener('click', () => {
-      setMsg(''); $('sendBtn').textContent = 'Send link';
+      setMsg(''); setCodeMsg('');
+      $('sendBtn').textContent = 'Send code';
+      $('code').value = '';
+      $('verifyBtn').disabled = false; $('verifyBtn').textContent = 'Verify & sign in';
       hcToken = null; $('sendBtn').disabled = true;
       if (window.hcaptcha && hcWidget !== null) { try { window.hcaptcha.reset(hcWidget); } catch (_) {} }
       show('formState');

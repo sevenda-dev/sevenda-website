@@ -47,9 +47,13 @@
     },
   };
 
-  /* Solo il dominio di produzione è prod. Il match richiede inizio-stringa o un
-     punto prima del dominio, così un host come "notsevenda.dev" non passa. */
-  var IS_PROD = /(^|\.)sevenda\.dev$/.test(location.hostname);
+  /* Host di produzione elencati uno per uno, non dedotti da un match sul dominio.
+     Con /(^|\.)sevenda\.dev$/ qualunque sottodominio sarebbe stato prod, incluso
+     staging.sevenda.dev: Supabase di produzione e Stripe in live mode su quello
+     che tutti chiamerebbero "lo staging". Aggiungere un host qui deve essere una
+     decisione deliberata, non un effetto collaterale di un record DNS. */
+  var PROD_HOSTS = ['sevenda.dev', 'www.sevenda.dev'];
+  var IS_PROD = PROD_HOSTS.indexOf(String(location.hostname).toLowerCase()) !== -1;
 
   window.SUPABASE_CONFIG = IS_PROD ? ENVS.prod : ENVS.staging;
   window.SUPABASE_ENV    = IS_PROD ? 'prod' : 'staging';
