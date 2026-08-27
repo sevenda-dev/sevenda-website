@@ -64,6 +64,7 @@ const SEVENDA_I18N = {
     'cs.title.ok':'Payment confirmed',
     'cs.msg.ok':'Thanks for subscribing to Sevenda. A confirmation email is on its way — next, install the extension and sign in to unlock your plan.',
     'cs.cta.chrome':'Add Sevenda to Chrome','cs.cta.docs':'Read the docs','cs.cta.home':'Go to homepage',
+    'cs.cta.account':'Manage your subscription','cs.cta.account.note':'You can manage your plan, invoices and account details anytime from your account area.',
     'cs.steps.title':'Next steps',
     'cs.steps.1':'Install the Sevenda extension from the Chrome Web Store.',
     'cs.steps.2':'Open DevTools (F12 / Alt+Cmd+I on Mac) and select the &ldquo;Sevenda&rdquo; tab.',
@@ -104,6 +105,7 @@ const SEVENDA_I18N = {
     'nav.features':'Features','nav.insights':'Insights','nav.usecases':'Use Cases',
     'nav.how':'How it works','nav.pricing':'Pricing','nav.docs':'Docs','nav.faq':'FAQ','nav.privacy':'Privacy Policy',
     'nav.cta':'Add to Chrome',
+    'nav.account':'Account','nav.logout':'Logout',
 
     /* ── HERO (index) ── */
     'hero.pill':'Now powered by Claude Sonnet 4 →',
@@ -459,6 +461,7 @@ const SEVENDA_I18N = {
     'cs.title.ok':'Pagamento confermato',
     'cs.msg.ok':'Grazie per esserti abbonato a Sevenda. Un\'email di conferma è in arrivo — ora installa l\'estensione e accedi per sbloccare il tuo piano.',
     'cs.cta.chrome':'Aggiungi Sevenda a Chrome','cs.cta.docs':'Leggi la documentazione','cs.cta.home':'Vai alla homepage',
+    'cs.cta.account':'Gestisci il tuo abbonamento','cs.cta.account.note':'Puoi gestire piano, fatture e dati dell\'account in qualsiasi momento dalla tua area account.',
     'cs.steps.title':'Prossimi passi',
     'cs.steps.1':'Installa l\'estensione Sevenda dal Chrome Web Store.',
     'cs.steps.2':'Apri DevTools (F12 / Alt+Cmd+I su Mac) e seleziona la tab &ldquo;Sevenda&rdquo;.',
@@ -498,6 +501,7 @@ const SEVENDA_I18N = {
     'nav.features':'Funzionalità','nav.insights':'Insights','nav.usecases':'Casi d\'uso',
     'nav.how':'Come funziona','nav.pricing':'Prezzi','nav.docs':'Docs','nav.faq':'FAQ','nav.privacy':'Privacy Policy',
     'nav.cta':'Aggiungi a Chrome',
+    'nav.account':'Account','nav.logout':'Esci',
 
     'hero.pill':'Ora con Claude Sonnet 4 →',
     'hero.h1':'Ogni click racconta una storia.<br><span class="dim">Sevenda la legge.</span>',
@@ -839,6 +843,7 @@ const SEVENDA_I18N = {
     'cs.title.ok':'Pago confirmado',
     'cs.msg.ok':'Gracias por suscribirte a Sevenda. Un email de confirmación está en camino — a continuación, instala la extensión e inicia sesión para desbloquear tu plan.',
     'cs.cta.chrome':'Añadir Sevenda a Chrome','cs.cta.docs':'Leer la documentación','cs.cta.home':'Ir a la página de inicio',
+    'cs.cta.account':'Gestiona tu suscripción','cs.cta.account.note':'Puedes gestionar tu plan, tus facturas y los datos de tu cuenta en cualquier momento desde tu área de cuenta.',
     'cs.steps.title':'Próximos pasos',
     'cs.steps.1':'Instala la extensión Sevenda desde la Chrome Web Store.',
     'cs.steps.2':'Abre DevTools (F12 / Alt+Cmd+I en Mac) y selecciona la pestaña &ldquo;Sevenda&rdquo;.',
@@ -878,6 +883,7 @@ const SEVENDA_I18N = {
     'nav.features':'Funciones','nav.insights':'Insights','nav.usecases':'Casos de uso',
     'nav.how':'Cómo funciona','nav.pricing':'Precios','nav.docs':'Docs','nav.faq':'FAQ','nav.privacy':'Política de Privacidad',
     'nav.cta':'Añadir a Chrome',
+    'nav.account':'Cuenta','nav.logout':'Salir',
 
     'hero.pill':'Ahora con Claude Sonnet 4 →',
     'hero.h1':'Cada clic cuenta una historia.<br><span class="dim">Sevenda la lee.</span>',
@@ -1219,6 +1225,7 @@ const SEVENDA_I18N = {
     'cs.title.ok':'Paiement confirmé',
     'cs.msg.ok':'Merci de vous être abonné à Sevenda. Un email de confirmation est en cours d\'envoi — installez ensuite l\'extension et connectez-vous pour débloquer votre plan.',
     'cs.cta.chrome':'Ajouter Sevenda à Chrome','cs.cta.docs':'Lire la documentation','cs.cta.home':'Aller à l\'accueil',
+    'cs.cta.account':'Gérer votre abonnement','cs.cta.account.note':'Vous pouvez gérer votre offre, vos factures et vos informations de compte à tout moment depuis votre espace compte.',
     'cs.steps.title':'Prochaines étapes',
     'cs.steps.1':'Installez l\'extension Sevenda depuis le Chrome Web Store.',
     'cs.steps.2':'Ouvrez DevTools (F12 / Alt+Cmd+I sur Mac) et sélectionnez l\'onglet &ldquo;Sevenda&rdquo;.',
@@ -1258,6 +1265,7 @@ const SEVENDA_I18N = {
     'nav.features':'Fonctionnalités','nav.insights':'Insights','nav.usecases':'Cas d\'usage',
     'nav.how':'Comment ça marche','nav.pricing':'Tarifs','nav.docs':'Docs','nav.faq':'FAQ','nav.privacy':'Politique de Confidentialité',
     'nav.cta':'Ajouter à Chrome',
+    'nav.account':'Compte','nav.logout':'Déconnexion',
 
     'hero.pill':'Maintenant avec Claude Sonnet 4 →',
     'hero.h1':'Chaque clic raconte une histoire.<br><span class="dim">Sevenda la lit.</span>',
