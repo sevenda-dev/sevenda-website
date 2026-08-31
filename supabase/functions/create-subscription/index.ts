@@ -1,5 +1,5 @@
 // ════════════════════════════════════════════════════════════════
-// Sevenda — Edge Function: create-subscription   (PATCH v6)
+// Sevenda — Edge Function: create-subscription   (PATCH v8)
 // ════════════════════════════════════════════════════════════════
 // Crea un Customer Stripe e una Subscription "incomplete", restituendo
 // il client_secret del PaymentIntent da confermare lato client con
@@ -69,6 +69,20 @@
 //   espanso: "non ho potuto verificare" non è "è a posto", e proseguire
 //   significherebbe ricadere esattamente nell'errore grezzo da evitare.
 //
+// PATCH v8 (validazione posti): la quantità viene verificata contro il range di
+// posti dichiarato dal piano (PLAN_SEATS) e RIFIUTATA se fuori, invece di essere
+// corretta in silenzio. Il limite esisteva solo in checkout.html, sui bottoni
+// +/− del contatore; questa funzione è però un endpoint pubblico (deploy con
+// --no-verify-jwt), quindi un POST diretto con quantity: 50 creava davvero una
+// subscription a 50 posti su un piano venduto fino a 20 — e dalla v8 il webhook
+// legge i posti dagli items, quindi quel numero sarebbe finito a DB come verità.
+//   Rifiuto e non clamp: addebitare un numero di posti diverso da quello
+//   richiesto è peggio dell'errore, perché passa inosservato fino alla fattura.
+//   Il vecchio Math.max(1, …) faceva esattamente questo, e per i piani team
+//   accettava anche 1 posto su un minimo di 2.
+//   Fail-closed sui piani non in tabella, come il pre-check v7: un piano di cui
+//   non si conosce il range non è un piano da vendere senza controllo.
+//
 // Deploy:  supabase functions deploy create-subscription --no-verify-jwt
 // Secrets opzionali per la mappa autorevole (consigliati):
 //   supabase secrets set SUPABASE_URL=https://<project>.supabase.co
@@ -96,6 +110,33 @@ const FALLBACK_PRICES: Record<string, { annual: string; monthly: string }> = {
   ssolo:   { annual: "price_REPLACE_ssolo_annual",   monthly: "price_REPLACE_ssolo_monthly" },
   steam:   { annual: "price_REPLACE_steam_annual",   monthly: "price_REPLACE_steam_monthly" },
 };
+
+// Range di posti vendibile per piano. Non è una preferenza di UI: è il vincolo
+// commerciale del piano, e l'unico posto del backend in cui è scritto. Deve
+// restare allineato a PLAN_CATALOG (stripe.config.js), che è ciò che l'utente
+// vede; le fasce interne 2–5 / 6–20 NON si replicano qui, perché sono scaglioni
+// di prezzo del price tiered su Stripe e non limiti di acquisto: dentro 2–20 il
+// Customer Portal può muovere i posti liberamente.
+const PLAN_SEATS: Record<string, { min: number; max: number }> = {
+  analyst: { min: 1, max: 1 },
+  auditor: { min: 1, max: 1 },
+  ssolo:   { min: 1, max: 1 },
+  studio:  { min: 2, max: 20 },
+  agency:  { min: 2, max: 20 },
+  steam:   { min: 2, max: 20 },
+};
+
+// Tre esiti distinti, perché "campo assente" e "campo scritto male" non devono
+// finire nello stesso ramo: null = assente (il chiamante userà il minimo del
+// piano), NaN = presente ma non è un intero, altrimenti il valore.
+// parseInt() da solo non basta: leggeva "3 posti" come 3 e 2.9 come 2, cioè
+// normalizzava input che non si è mai voluto accettare.
+function parseQuantity(raw: unknown): number | null {
+  if (raw === undefined || raw === null || raw === "") return null;
+  if (typeof raw === "number") return Number.isInteger(raw) ? raw : NaN;
+  const s = String(raw).trim();
+  return /^\d+$/.test(s) ? parseInt(s, 10) : NaN;
+}
 
 function priceMap(): Record<string, { annual: string; monthly: string }> {
   const raw = Deno.env.get("STRIPE_PRICES");
@@ -361,7 +402,43 @@ Deno.serve(async (req) => {
     }
 
     const billingInterval = interval === "monthly" ? "monthly" : "annual";
-    const qty = Math.max(1, parseInt(String(quantity), 10) || 1);
+
+    // ── VALIDAZIONE POSTI (PATCH v8) ─────────────────────────────────────────
+    // Come il pre-check v7: return dedicato e non throw, così il catch finale
+    // resta invariato, e al client va un testo leggibile mentre il dettaglio
+    // (valore ricevuto compreso) resta nei log.
+    const seatRange = PLAN_SEATS[planId];
+    if (!seatRange) {
+      console.error(`[seats] piano "${planId}" senza range dichiarato — rifiutato`);
+      return new Response(
+        JSON.stringify({
+          error: "This plan is not available for purchase right now. Please choose another plan or contact support.",
+          code: "plan_unavailable",
+        }),
+        { status: 400, headers: { ...CORS, "Content-Type": "application/json" } },
+      );
+    }
+
+    // Quantità assente → minimo del piano: è il default che i piani solo hanno
+    // sempre avuto (1) e per i piani team è l'unico che non violi il minimo.
+    const parsedQty = parseQuantity(quantity);
+    const qty = parsedQty === null ? seatRange.min : parsedQty;
+    if (!Number.isInteger(qty) || qty < seatRange.min || qty > seatRange.max) {
+      console.error(`[seats] quantity ${JSON.stringify(quantity)} fuori range per "${planId}" (${seatRange.min}–${seatRange.max})`);
+      return new Response(
+        JSON.stringify({
+          // Il testo esce in pagina (checkout.html mostra data.error): per i
+          // piani a posto singolo "supports 1 to 1 seats" si legge come un bug.
+          error: seatRange.min === seatRange.max
+            ? `This plan includes exactly ${seatRange.min} seat${seatRange.min === 1 ? "" : "s"}.`
+            : `This plan supports ${seatRange.min} to ${seatRange.max} seats.`,
+          code: "invalid_quantity",
+          min: seatRange.min,
+          max: seatRange.max,
+        }),
+        { status: 400, headers: { ...CORS, "Content-Type": "application/json" } },
+      );
+    }
 
     const map = priceMap();
     const priceId = map[planId]?.[billingInterval as "annual" | "monthly"];
