@@ -1,0 +1,26 @@
+{
+  "analyst": {
+    "annual":  "price_1Tp2wU2QI59o2iVOW0zncfdT",
+    "monthly": "price_1Tp2wU2QI59o2iVOmKv8telg"
+  },
+  "auditor": {
+    "annual":  "price_1Tp2z72QI59o2iVO8FN1Zi6q",
+    "monthly": "price_1Tp2z72QI59o2iVOYHKvir9T"
+  },
+  "ssolo": {
+    "annual":  "price_1TmGMZ2QI59o2iVOIkTtACyV",
+    "monthly": "price_1TmGM82QI59o2iVO4nC3AmyE"
+  },
+  "studio": {
+    "annual":  "price_1TmGkt2QI59o2iVOzyOsFZAE",
+    "monthly": "price_1TtVCA2QI59o2iVOzDFLs61B"
+  },
+  "agency": {
+    "annual":  "price_1TmGtK2QI59o2iVOclqDstBB",
+    "monthly": "price_1TmGtK2QI59o2iVOZY02IB68"
+  },
+  "steam": {
+    "annual":  "price_1TmGxN2QI59o2iVORsnRNNNz",
+    "monthly": "price_1TmGvl2QI59o2iVOLyYtaAgt"
+  }
+}
