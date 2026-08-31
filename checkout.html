@@ -448,16 +448,27 @@
 
   const plan = CATALOG[planId];
 
+  /* ── Limiti di posti ──
+     Il piano dichiara il range assoluto (es. Studio 2–20), ma sulla pricing page
+     l'utente ha già scelto una fascia (2–5 oppure 6–20) ed è QUELLA a fissare il
+     prezzo per utente che ha visto in card. Ripartire dal range pieno gli
+     lasciava cambiare fascia qui dentro, pagando un prezzo diverso da quello
+     mostrato: i limiti effettivi sono quindi quelli della fascia arrivata in
+     ?band=. Fascia assente, non valida o piano senza fasce (Analyst, Auditor,
+     Suite Solo) → si ricade sul range completo del piano, come prima. */
+  const BAND   = (typeof planSeatBand === 'function') ? planSeatBand(planId, qs.get('band')) : null;
+  const LIMITS = BAND || { min: plan.seats.min, max: plan.seats.max };
+
   /* ── State ── */
   const S = {
     step: 1,
     interval: parseInterval(qs.get('interval')),
-    qty: clampQty(parseInt(qs.get('qty') || qs.get('seats'), 10) || plan.seats.min),
+    qty: clampQty(parseInt(qs.get('qty') || qs.get('seats'), 10) || LIMITS.min),
     name: nameOver || plan.name,
   };
 
   function clampQty(n) {
-    const { min, max } = plan.seats;
+    const { min, max } = LIMITS;
     if (isNaN(n)) return min;
     return Math.max(min, Math.min(max, n));
   }
@@ -490,6 +501,9 @@
       p.set('interval', S.interval);
       p.set('qty', String(S.qty));
       p.delete('seats');   // alias d'ingresso: normalizzato in qty
+      // La fascia sopravvive nell'URL solo se è stata riconosciuta: un ?band=
+      // spurio non deve tornare in circolo dopo il giro di login.
+      if (BAND) p.set('band', BAND.key.replace(/_/g, '-')); else p.delete('band');
       ['code', 'token_hash', 'type', 'error', 'error_code', 'error_description']
         .forEach(k => p.delete(k));   // residui del giro di auth, già consumati
       history.replaceState(null, '', location.pathname + '?' + p.toString());
@@ -522,7 +536,18 @@
   /* ─────────────────────────────────────────────────────────────
      PRICING
      ───────────────────────────────────────────────────────────── */
-  function unitPrice()   { return plan.prices[S.interval]; }                 // per seat / month
+  // Prezzo per posto: dipende dalla quantità, perché i piani team sono Volume
+  // tiered su Stripe (2–5 e 6–20 hanno prezzi diversi). Delegato al catalogo,
+  // che è la stessa fonte usata dalle card della pricing page: leggere qui
+  // plan.prices[] significava mostrare la fascia d'ingresso a chi ne aveva
+  // scelta un'altra, cioè un totale diverso da quello poi addebitato.
+  function unitPrice() {
+    if (typeof planUnitPrice === 'function') {
+      const p = planUnitPrice(planId, S.interval, S.qty);
+      if (typeof p === 'number') return p;
+    }
+    return plan.prices[S.interval];
+  }
   function periodTotal() { return S.interval === 'annual'
                              ? unitPrice() * 12 * S.qty
                              : unitPrice() * S.qty; }
@@ -575,9 +600,14 @@
       $('coQtyGroup').style.display = 'none';
     } else {
       $('coQtyVal').textContent = S.qty;
-      $('coQtyMinus').disabled  = S.qty <= plan.seats.min;
-      $('coQtyPlus').disabled   = S.qty >= plan.seats.max;
-      $('coQtyHint').textContent = fill(tt('co.qty.hint', 'This plan supports {min}–{max} seats.'), { min: plan.seats.min, max: plan.seats.max });
+      $('coQtyMinus').disabled  = S.qty <= LIMITS.min;
+      $('coQtyPlus').disabled   = S.qty >= LIMITS.max;
+      // Con una fascia attiva il limite non è una proprietà del piano ma una
+      // scelta fatta prima: il testo lo dice, altrimenti il + disabilitato a 5
+      // su un piano "2–20" sembrerebbe un bug.
+      $('coQtyHint').textContent = BAND
+        ? fill(tt('co.qty.hint.band', 'Selected seat range: {min}–{max}. Pick another range on the pricing page to go beyond it.'), { min: LIMITS.min, max: LIMITS.max })
+        : fill(tt('co.qty.hint', 'This plan supports {min}–{max} seats.'), { min: LIMITS.min, max: LIMITS.max });
     }
 
     // Interval toggle

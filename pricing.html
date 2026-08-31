@@ -1798,10 +1798,15 @@ function proceedToStripe() {
   const item   = S.cart[planId];
 
   // Reindirizza al checkout custom (Stripe Elements) — checkout.html
+  // band: la fascia di posti selezionata qui sopra (es. '2-5'). È quella a
+  // fissare il prezzo per utente mostrato in card, quindi il checkout deve
+  // ripartire dagli stessi limiti e non dal range pieno del piano (2-20):
+  // senza questo parametro l'utente potrebbe scegliere posti fuori fascia.
   const params = new URLSearchParams({
     plan:     planId,
     interval: (item.billing || S.billing),
     qty:      String(item.qty || 1),
+    band:     item.seats || S.seats || '',
     name:     item.planName || '',
   });
   window.location.href = '/checkout.html?' + params.toString();
