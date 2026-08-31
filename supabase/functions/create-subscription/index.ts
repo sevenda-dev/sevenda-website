@@ -1,5 +1,5 @@
 // ════════════════════════════════════════════════════════════════
-// Sevenda — Edge Function: create-subscription   (PATCH v2)
+// Sevenda — Edge Function: create-subscription   (PATCH v6)
 // ════════════════════════════════════════════════════════════════
 // Crea un Customer Stripe e una Subscription "incomplete", restituendo
 // il client_secret del PaymentIntent da confermare lato client con
@@ -20,6 +20,38 @@
 // Se trovato, il Customer viene riusato (e i dati di fatturazione
 // aggiornati); altrimenti se ne crea uno nuovo.
 //
+// PATCH v4 (trial 14gg): la subscription parte con trial_period_days=14. Con il
+// trial la prima fattura e' zero -> niente PaymentIntent: si usa il pending_setup_intent
+// (carta raccolta subito, addebito a fine trial). La risposta include mode
+// ("setup"|"payment"), trialEnd e trialDays per il branching lato checkout.html.
+//
+// PATCH v6 (metadata volatili rimossi): planId, interval e seats non vengono
+// più scritti nei metadata. Erano uno scatto congelato al momento del checkout
+// che nessuno aggiornava mai: il Customer Portal cambia piano, posti e ciclo
+// sugli ITEMS e non tocca i metadata. Osservato in staging il 03/08/2026 sulla
+// subscription sub_1Tu8Kc...: metadata planId="analyst"/seats="1" contro items
+// Suite Team con 2 posti — quattordici giorni e due cambi piano di ritardo.
+// Dalla v8 il webhook legge piano, ciclo e posti ESCLUSIVAMENTE dagli items e
+// non ha più alcun fallback sui metadata, quindi questi tre valori erano
+// diventati dato scritto e mai riletto: né dal webhook, né dall'estensione
+// (verificato: zero occorrenze). Lasciarli avrebbe significato conservare una
+// fonte plausibile e sbagliata a disposizione del prossimo che la trova.
+//   RESTANO: supabaseUserId (stabile, serve a resolveOrg e alle ricerche in
+//   dashboard), vatId e orgName sul Customer.
+//   NB: rimuovere una chiave da questo codice NON la cancella dagli oggetti
+//   Stripe già esistenti — l'update fa merge e encodeForm scarta i valori
+//   vuoti. La pulizia degli oggetti in essere va fatta a parte, via CLI.
+//
+// PATCH v5 (guard BR-001): prima di creare la subscription si verifica che
+// l'utente non abbia già una subscription live (trialing/active/past_due) sulla
+// propria organization. In tal caso si risponde 409 already_subscribed senza
+// creare nulla su Stripe: i cambi piano avvengono nel Customer Portal, non
+// ricreando una subscription. Chiude il difetto che produceva subscription/org
+// doppie. Best-effort: se i secret Supabase mancano, il guard è no-op (il
+// vincolo DB resta come rete di sicurezza a valle). NB: contro i checkout
+// ravvicinati (race prima che il webhook crei l'org) il guard non basta da solo
+// — la garanzia forte è il vincolo unique parziale su subscription(org_id).
+//
 // Deploy:  supabase functions deploy create-subscription --no-verify-jwt
 // Secrets opzionali per la mappa autorevole (consigliati):
 //   supabase secrets set SUPABASE_URL=https://<project>.supabase.co
@@ -27,6 +59,11 @@
 // ════════════════════════════════════════════════════════════════
 
 const STRIPE_API = "https://api.stripe.com/v1";
+const TRIAL_DAYS = 14;   // giorni di prova gratuita (carta subito, addebito a fine trial)
+
+// Stati considerati "vivi" per il guard BR-001 (una subscription in uno di
+// questi stati impedisce di crearne una seconda per lo stesso utente/org).
+const LIVE_SUB_STATES = ["trialing", "active", "past_due"];
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -148,6 +185,65 @@ async function searchStripeCustomerId(supabaseUserId: string, key: string): Prom
   }
 }
 
+// ── Guard BR-001 (PATCH v5) ───────────────────────────────────────────────────
+// Verifica se l'utente ha già una subscription live. Risolve l'org per
+// owner_id = supabaseUserId (modello un-utente-una-org) e cerca subscription in
+// stato live su quell'org. Best-effort: null su errore/secret mancanti → il
+// chiamante prosegue senza bloccare (la prima attivazione non ha ancora un'org,
+// quindi ritorna null e passa correttamente).
+async function findLiveSubscription(
+  supabaseUserId: string,
+): Promise<{ subId: string; status: string; planId: string | null } | null> {
+  const base = Deno.env.get("SUPABASE_URL");
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!base || !serviceKey) {
+    console.log(`[guard] check saltato: SUPABASE_URL=${!!base} SERVICE_ROLE_KEY=${!!serviceKey}`);
+    return null;
+  }
+  try {
+    // 1) org dell'utente (una sola per owner nel modello Sevenda)
+    const orgUrl = `${base}/rest/v1/organization`
+      + `?owner_id=eq.${encodeURIComponent(supabaseUserId)}`
+      + `&select=id&limit=1`;
+    const orgRes = await fetch(orgUrl, {
+      headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },
+    });
+    if (!orgRes.ok) {
+      console.error(`[guard] org query HTTP ${orgRes.status}: ${await orgRes.text()}`);
+      return null;
+    }
+    const orgs = await orgRes.json();
+    const orgId = Array.isArray(orgs) && orgs[0]?.id ? orgs[0].id : null;
+    if (!orgId) return null;   // nessuna org ancora → prima sottoscrizione legittima
+
+    // 2) subscription live su quell'org
+    const statesCsv = LIVE_SUB_STATES.map((s) => `"${s}"`).join(",");
+    const subUrl = `${base}/rest/v1/subscription`
+      + `?org_id=eq.${encodeURIComponent(orgId)}`
+      + `&status=in.(${statesCsv})`
+      + `&select=stripe_subscription_id,status,plan_id&limit=1`;
+    const subRes = await fetch(subUrl, {
+      headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },
+    });
+    if (!subRes.ok) {
+      console.error(`[guard] sub query HTTP ${subRes.status}: ${await subRes.text()}`);
+      return null;
+    }
+    const subs = await subRes.json();
+    if (Array.isArray(subs) && subs[0]?.stripe_subscription_id) {
+      return {
+        subId: subs[0].stripe_subscription_id,
+        status: subs[0].status,
+        planId: subs[0].plan_id ?? null,
+      };
+    }
+    return null;
+  } catch (e) {
+    console.error(`[guard] errore: ${(e as Error).message}`);
+    return null;
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   if (req.method !== "POST") {
@@ -170,6 +266,26 @@ Deno.serve(async (req) => {
     if (!supabaseUserId) {
       throw new Error("Missing supabaseUserId (utente Supabase loggato).");
     }
+
+    // ── GUARD BR-001 (PATCH v5): blocca una seconda subscription live ──────────
+    // Se l'utente ha già una subscription trialing/active/past_due sulla propria
+    // org, non si crea nulla su Stripe. La prima attivazione non ha ancora un'org
+    // (la crea il webhook dopo il primo checkout) → findLiveSubscription torna
+    // null e si prosegue. I cambi piano avvengono nel Customer Portal.
+    const existingLive = await findLiveSubscription(supabaseUserId);
+    if (existingLive) {
+      console.log(`[guard] blocco: utente ${supabaseUserId} ha già ${existingLive.subId} (${existingLive.status})`);
+      return new Response(
+        JSON.stringify({
+          error: "already_subscribed",
+          message: "You already have an active subscription. Manage your plan from the subscription page instead of starting a new one.",
+          currentStatus: existingLive.status,
+          currentPlan: existingLive.planId,
+        }),
+        { status: 409, headers: { ...CORS, "Content-Type": "application/json" } },
+      );
+    }
+
     const billingInterval = interval === "monthly" ? "monthly" : "annual";
     const qty = Math.max(1, parseInt(String(quantity), 10) || 1);
 
@@ -198,7 +314,8 @@ Deno.serve(async (req) => {
           }
         : undefined,
       metadata: {
-        planId,
+        // v6: planId RIMOSSO — resolveOrg legge solo supabaseUserId, vatId e
+        // locale. Dopo un cambio piano dal Portal restava indietro in silenzio.
         vatId: vatId || "",
         supabaseUserId,                 // ← serve al webhook per creare/risolvere l'organization
         orgName: orgName || "",
@@ -241,23 +358,43 @@ Deno.serve(async (req) => {
       items: [{ price: priceId, quantity: qty }],
       payment_behavior: "default_incomplete",
       payment_settings: { save_default_payment_method: "on_subscription" },
-      "expand[]": "latest_invoice.confirmation_secret",
+      // Trial: prima fattura zero -> nessun PaymentIntent, si raccoglie la carta via
+      // pending_setup_intent e si addebita a fine trial. missing_payment_method:
+      // 'cancel' = se a fine trial manca una carta valida, la subscription si annulla.
+      trial_period_days: TRIAL_DAYS,
+      trial_settings: { end_behavior: { missing_payment_method: "cancel" } },
+      // Servono ENTRAMBI gli expand: pending_setup_intent (trial) e
+      // latest_invoice.confirmation_secret (no-trial). Indici distinti perche'
+      // encodeForm serializza correttamente expand[0]/expand[1] per Stripe.
+      "expand[0]": "latest_invoice.confirmation_secret",
+      "expand[1]": "pending_setup_intent",
+      // v6: planId/interval/seats RIMOSSI. La verità su piano, ciclo e posti
+      // sta negli items ed è lì che il webhook v8 la legge. Lo stato iniziale
+      // resta comunque ricostruibile dalla prima riga di subscription_event e
+      // dall'event log di Stripe: non si perde informazione, si smette di
+      // duplicarla in un posto che nessuno aggiorna.
       metadata: {
-        planId,
-        interval: billingInterval,
-        seats: String(qty),
         supabaseUserId,
       },
     }, secret);
 
-    const clientSecret = subscription?.latest_invoice?.confirmation_secret?.client_secret;
-    if (!clientSecret) throw new Error("Could not retrieve payment client secret.");
+    // Con il trial la subscription e' 'trialing' e la prima fattura e' zero: non c'e'
+    // un PaymentIntent da confermare, ma un pending_setup_intent (carta per il
+    // futuro). Senza trial resta il flusso PaymentIntent (confirmation_secret).
+    const setupSecret   = subscription?.pending_setup_intent?.client_secret ?? null;
+    const paymentSecret = subscription?.latest_invoice?.confirmation_secret?.client_secret ?? null;
+    const mode: "setup" | "payment" = setupSecret ? "setup" : "payment";
+    const clientSecret  = setupSecret ?? paymentSecret;
+    if (!clientSecret) throw new Error("Could not retrieve client secret (setup/payment).");
 
     return new Response(
       JSON.stringify({
         subscriptionId: subscription.id,
         customerId: customer.id,
         clientSecret,
+        mode,                                      // "setup" (trial) | "payment" (no-trial)
+        trialEnd: subscription?.trial_end ?? null, // unix seconds | null
+        trialDays: TRIAL_DAYS,
       }),
       { headers: { ...CORS, "Content-Type": "application/json" } },
     );
