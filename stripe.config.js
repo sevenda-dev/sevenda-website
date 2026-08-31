@@ -1,9 +1,15 @@
 /**
- * Sevenda Stripe Configuration  (aggiornato con Price ID reali — Live mode)
+ * Sevenda Stripe Configuration — display lato client
  * ════════════════════════════════════════════════════════════════════════════
- * Price ID Stripe reali (Live). Aggiornato il 25/06/2026.
+ * Questo file non decide nulla di ciò che viene addebitato: serve solo al
+ * display e al calcolo lato client (checkout.html). I price ID con cui la
+ * subscription viene davvero creata stanno nel secret STRIPE_PRICES, letto da
+ * create-subscription via priceMap(); la source of truth del listino è la
+ * tabella plan_price su Supabase. Tenere qui dei price ID li faceva divergere
+ * in silenzio da quella fonte, quindi non ce ne sono più.
  * Chiavi e URL NON vivono qui: vedi supabase.config.js (fonte unica ambiente).
  * Piani team (Studio/Agency/Suite Team): Volume tiered su Stripe.
+ * Listino allineato al catalogo Stripe live il 31/08/2026.
  */
 
 const STRIPE_PAYMENT_LINKS = {
@@ -75,47 +81,22 @@ window.STRIPE_CONFIG = {
   currencySymbol:   '€',
 };
 
-/* ── Price ID Stripe (Live) ──────────────────────────────────────────────────
-   Usati dalla Edge Function create-subscription (lato server).
-   Qui servono solo per il display/calc lato client (checkout.html).
-   La source of truth è la tabella plan_price su Supabase.                      */
-window.STRIPE_PRICE_IDS = {
-  analyst: {
-    monthly: 'price_1TmGFb2QI59o2iVOF1VoBGVZ',
-    annual:  'price_1TmGH72QI59o2iVOfOsKUzn4',
-  },
-  auditor: {
-    monthly: 'price_1TmGHc2QI59o2iVOmgkYEN4g',
-    annual:  'price_1TmGIP2QI59o2iVOFds5uQck',
-  },
-  ssolo: {
-    monthly: 'price_1TmGM82QI59o2iVO4nC3AmyE',
-    annual:  'price_1TmGMZ2QI59o2iVOIkTtACyV',
-  },
-  studio: {
-    monthly: 'price_1TmGeG2QI59o2iVOe0w0G0RC',   // Volume tiered (1–5: €23, 6+: €18)
-    annual:  'price_1TmGkt2QI59o2iVOzyOsFZAE',   // Volume tiered (1–5: €18, 6+: €14)
-  },
-  agency: {
-    monthly: 'price_1TmGtK2QI59o2iVOZY02IB68',   // Volume tiered (1–5: €23, 6+: €18)
-    annual:  'price_1TmGtK2QI59o2iVOclqDstBB',   // Volume tiered (1–5: €18, 6+: €14)
-  },
-  steam: {
-    monthly: 'price_1TmGvl2QI59o2iVOLyYtaAgt',   // Volume tiered (1–5: €32, 6+: €27)
-    annual:  'price_1TmGxN2QI59o2iVORsnRNNNz',   // Volume tiered (1–5: €25, 6+: €21)
-  },
-};
-
 /* ── Catalogo piani (display) ────────────────────────────────────────────────
-   I prezzi sono per-utente/mese (IVA esclusa).
-   Per i piani team il prezzo varia per fascia: vedere STRIPE_PRICE_IDS.        */
+   I prezzi sono per-utente/mese (IVA esclusa) e devono coincidere con quelli
+   di pricing.html e con le fasce Volume su Stripe: è il numero che l'utente
+   legge nel riepilogo del checkout prima di pagare, quindi una divergenza qui
+   è un prezzo promesso e non mantenuto.
+   Per i piani team prices[] è la fascia d'ingresso 2–5; tiers riporta entrambe
+   le fasce. checkout.html usa solo plan.prices[interval] (unitPrice()), quindi
+   il riepilogo non sconta ancora la fascia 6–20: l'importo effettivo lo calcola
+   Stripe sul price tiered.                                                     */
 window.PLAN_CATALOG = {
-  analyst: { name: 'Analyst',    family: 'process',   tagline: 'For the independent BA',          prices: { annual: 11,  monthly: 14 }, seats: { min: 1, max: 1,  fixed: true } },
-  studio:  { name: 'Studio',     family: 'process',   tagline: 'For consulting teams',            prices: { annual: 18,  monthly: 23 }, seats: { min: 2, max: 20 }, tiers: { '2_5': { annual: 18, monthly: 23 }, '6_20': { annual: 14, monthly: 18 } } },
-  auditor: { name: 'Auditor',    family: 'analytics', tagline: 'For the GTM / GA4 specialist',    prices: { annual: 11,  monthly: 14 }, seats: { min: 1, max: 1,  fixed: true } },
-  agency:  { name: 'Agency',     family: 'analytics', tagline: 'For multi-client agencies',       prices: { annual: 18,  monthly: 23 }, seats: { min: 2, max: 20 }, tiers: { '2_5': { annual: 18, monthly: 23 }, '6_20': { annual: 14, monthly: 18 } } },
-  ssolo:   { name: 'Suite Solo', family: 'suite',     tagline: 'Process + Analytics for consultants', prices: { annual: 17, monthly: 22 }, seats: { min: 1, max: 1, fixed: true } },
-  steam:   { name: 'Suite Team', family: 'suite',     tagline: 'Full suite for data-driven teams', prices: { annual: 25, monthly: 32 }, seats: { min: 2, max: 20 }, tiers: { '2_5': { annual: 25, monthly: 32 }, '6_20': { annual: 21, monthly: 27 } } },
+  analyst: { name: 'Analyst',    family: 'process',   tagline: 'For the independent BA',          prices: { annual: 8,   monthly: 10 }, seats: { min: 1, max: 1,  fixed: true } },
+  studio:  { name: 'Studio',     family: 'process',   tagline: 'For consulting teams',            prices: { annual: 13,  monthly: 17 }, seats: { min: 2, max: 20 }, tiers: { '2_5': { annual: 13, monthly: 17 }, '6_20': { annual: 10, monthly: 13 } } },
+  auditor: { name: 'Auditor',    family: 'analytics', tagline: 'For the GTM / GA4 specialist',    prices: { annual: 8,   monthly: 10 }, seats: { min: 1, max: 1,  fixed: true } },
+  agency:  { name: 'Agency',     family: 'analytics', tagline: 'For multi-client agencies',       prices: { annual: 13,  monthly: 17 }, seats: { min: 2, max: 20 }, tiers: { '2_5': { annual: 13, monthly: 17 }, '6_20': { annual: 10, monthly: 13 } } },
+  ssolo:   { name: 'Suite Solo', family: 'suite',     tagline: 'Process + Analytics for consultants', prices: { annual: 12, monthly: 16 }, seats: { min: 1, max: 1, fixed: true } },
+  steam:   { name: 'Suite Team', family: 'suite',     tagline: 'Full suite for data-driven teams', prices: { annual: 18,  monthly: 23 }, seats: { min: 2, max: 20 }, tiers: { '2_5': { annual: 18, monthly: 23 }, '6_20': { annual: 15, monthly: 19 } } },
 };
 
 function isStripeConfigured() {
