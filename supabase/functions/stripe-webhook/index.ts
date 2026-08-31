@@ -1,11 +1,37 @@
 // ════════════════════════════════════════════════════════════════════════════
-// Sevenda — Edge Function: stripe-webhook   (PATCH v10 — COM-10 attivazione piano)
+// Sevenda — Edge Function: stripe-webhook   (PATCH v11 — legame invoice → subscription)
 // ════════════════════════════════════════════════════════════════════════════
 // Chiude il giro Stripe → Supabase. Riceve gli eventi Stripe, verifica la firma,
 // garantisce l'idempotenza (tabella stripe_event) e fa upsert di organization,
 // subscription e invoice. Usa la service-role key (bypassa la RLS).
 //
-// ── PATCH v10 (questa versione) ────────────────────────────────────────────
+// ── PATCH v11 (questa versione) ────────────────────────────────────────────
+// LEGAME INVOICE → SUBSCRIPTION RIPRISTINATO. handleInvoice leggeva
+// inv.subscription, campo che l'API 2026-04-22.dahlia non invia più
+// sull'invoice. Effetto in produzione: 8 invoice su 8 con subscription_id
+// NULL, cioè nessuna fattura collegata al proprio abbonamento.
+//   → Verificato sul payload reale di in_1U9ngW... (invoice.paid, live), non
+//     sulla documentazione: il campo `subscription` è ASSENTE e il legame vive
+//     in parent.subscription_details.subscription, con parent.type
+//     "subscription_details". Lo stesso id compare anche a livello di riga, in
+//     lines.data[].parent.subscription_item_details.subscription.
+//   → Il campo vecchio resta come fallback: gli eventi generati da versioni API
+//     precedenti sono ancora in stripe_event e restano rigiocabili.
+//
+// È lo stesso difetto già corretto in v6 per cancel_at_period_end: un campo
+// spostato da un cambio di versione API, letto alla cieca, nessun errore
+// sollevato — solo una colonna che resta vuota. Da notare che i tipi di
+// stripe@^17 dichiarano ANCORA Invoice.subscription, quindi `deno check`
+// passava pulito su entrambe le versioni: il compilatore non poteva vederlo.
+//
+// NON toccato qui, ma dello stesso tipo e da decidere a parte: anche `inv.tax`
+// è assente dal payload (al suo posto c'è total_taxes: []), quindi
+// vat_cents viene scritto 0 su ogni fattura. Sulle righe attuali 0 è per caso
+// il valore giusto — automatic_tax è disabilitato — ma il campo letto non
+// esiste più, quindi il giorno in cui l'IVA verrà applicata il dato sarà
+// silenziosamente sbagliato.
+//
+// ── PATCH v10 ──────────────────────────────────────────────────────────────
 // COM-10 — ATTIVAZIONE PIANO (benvenuto / bentornato). Era l'unico momento del
 // ciclo di vita senza comunicazione: chi comprava riceveva solo la ricevuta
 // Stripe, che non dice con quale email accedere né come arrivare al pannello.
@@ -1329,16 +1355,56 @@ function mapInvoiceStatus(s: string | null): string {
   }
 }
 
+// ── v11 — id Stripe della subscription a cui l'invoice si riferisce ────────
+// Ordine deliberato: prima il percorso dell'API corrente, poi quello storico.
+// Non il contrario — su un payload che li contenesse entrambi deve vincere
+// quello che l'API genera oggi.
+//   1) parent.subscription_details.subscription — API 2026-04-22.dahlia;
+//   2) inv.subscription — rimosso dall'API corrente, tenuto per gli eventi più
+//      vecchi ancora presenti in stripe_event.
+// Entrambi possono arrivare come stringa o come oggetto espanso: si accettano
+// tutte e due le forme invece di assumere quella non espansa.
+function invoiceSubscriptionId(inv: Stripe.Invoice): string | null {
+  const rec = inv as unknown as Record<string, unknown>;
+  const parent = rec.parent as
+    | { subscription_details?: { subscription?: unknown } | null }
+    | null
+    | undefined;
+  const candidates = [parent?.subscription_details?.subscription, rec.subscription];
+  for (const c of candidates) {
+    if (typeof c === "string" && c.length > 0) return c;
+    const id = (c as { id?: unknown } | null | undefined)?.id;
+    if (typeof id === "string" && id.length > 0) return id;
+  }
+  return null;
+}
+
 async function handleInvoice(inv: Stripe.Invoice, eventType: string) {
   const { orgId, country, email, locale } = await resolveOrg(inv.customer as string);
 
   // collega alla subscription locale, se presente
+  // v11: l'id non sta più su inv.subscription — vedi invoiceSubscriptionId().
   let subscriptionId: string | null = null;
-  if (inv.subscription) {
+  const stripeSubId = invoiceSubscriptionId(inv);
+  if (stripeSubId) {
     const { data: s } = await supabase
       .from("subscription").select("id")
-      .eq("stripe_subscription_id", inv.subscription as string).maybeSingle();
+      .eq("stripe_subscription_id", stripeSubId).maybeSingle();
     subscriptionId = s?.id ?? null;
+    if (!subscriptionId) {
+      // Non è un errore: una invoice.finalized può arrivare prima che
+      // customer.subscription.created sia stato elaborato. La riga si scrive
+      // comunque scollegata e l'upsert dell'evento successivo sulla stessa
+      // invoice la ricollega. Va però loggato: è esattamente il NULL che per
+      // otto fatture è rimasto invisibile.
+      console.warn(`[webhook] invoice ${inv.id}: subscription ${stripeSubId} non ancora in DB, riga non collegata`);
+    }
+  } else if (inv.billing_reason?.startsWith("subscription")) {
+    // Una fattura di abbonamento che non nomina la subscription in NESSUNO dei
+    // percorsi noti significa che il payload è cambiato ancora: va visto, non
+    // assorbito in silenzio come è successo finora.
+    const parentType = (inv as unknown as { parent?: { type?: unknown } }).parent?.type;
+    console.error(`[webhook] invoice ${inv.id}: nessun id subscription nel payload (parent.type=${String(parentType ?? "n/d")})`);
   }
 
   const provider = country === "IT" ? "aruba" : (EU.has(country) ? "stripe" : "stripe");
