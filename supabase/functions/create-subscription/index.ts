@@ -52,6 +52,23 @@
 // ravvicinati (race prima che il webhook crei l'org) il guard non basta da solo
 // — la garanzia forte è il vincolo unique parziale su subscription(org_id).
 //
+// PATCH v7 (pre-check disponibilità del price): dopo la risoluzione del priceId
+// e PRIMA di creare la subscription si rilegge il price da Stripe con il product
+// espanso, e si richiede che siano attivi ENTRAMBI. I due casi osservati in
+// produzione sono diversi e nessuno dei due si sarebbe visto controllando un
+// campo solo: Auditor aveva price.active=true con product.active=false — ed è
+// così che è esploso — mentre Analyst ha ora price.active=false.
+//   Senza il controllo l'errore arrivava da /v1/subscriptions e il catch finale
+//   lo rimandava al client grezzo: un utente si è letto in pagina "The product
+//   prod_Ulntl... is marked as inactive... You provided the plan price_1TmGHc...".
+//   Gli identificativi Stripe non significano nulla per chi compra e non devono
+//   uscire dal server: restano nei log, al client va un testo generico.
+//   Il fallimento esce con un return dedicato e non con un throw, così il catch
+//   finale resta invariato e nessun altro percorso di errore cambia.
+//   Fail-closed anche quando il price non è leggibile o il product non risulta
+//   espanso: "non ho potuto verificare" non è "è a posto", e proseguire
+//   significherebbe ricadere esattamente nell'errore grezzo da evitare.
+//
 // Deploy:  supabase functions deploy create-subscription --no-verify-jwt
 // Secrets opzionali per la mappa autorevole (consigliati):
 //   supabase secrets set SUPABASE_URL=https://<project>.supabase.co
@@ -125,6 +142,63 @@ async function stripe(path: string, body: Record<string, unknown>, key: string) 
     throw new Error(data?.error?.message || `Stripe error (${res.status})`);
   }
   return data;
+}
+
+// ── v7 — GET su Stripe ──────────────────────────────────────────────────────
+// stripe() qui sopra fa solo POST con corpo form-encoded. Leggere un price è
+// una GET con query string: una funzione a parte costa meno che aggiungere un
+// parametro di metodo a una funzione già usata su tre percorsi di scrittura.
+async function stripeGet(path: string, key: string) {
+  const res = await fetch(`${STRIPE_API}${path}`, {
+    headers: { "Authorization": `Bearer ${key}` },
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data?.error?.message || `Stripe error (${res.status})`);
+  }
+  return data;
+}
+
+// ── v7 — il price è davvero acquistabile? ───────────────────────────────────
+// Servono ENTRAMBI i flag, perché descrivono due archiviazioni diverse: si può
+// archiviare il price lasciando vivo il product, o archiviare il product
+// lasciando il price attivo. Stripe rifiuta l'acquisto in tutti e due i casi,
+// ma solo al momento della creazione della subscription — cioè troppo tardi
+// per dire qualcosa di sensato all'utente.
+// `detail` è scritto per i log del server: è l'unico posto in cui gli ID
+// Stripe hanno diritto di comparire.
+async function checkPriceUsable(
+  priceId: string,
+  key: string,
+): Promise<{ ok: boolean; detail: string }> {
+  const qs = new URLSearchParams({ "expand[]": "product" });
+  let price: Record<string, unknown>;
+  try {
+    price = await stripeGet(`/prices/${encodeURIComponent(priceId)}?${qs}`, key);
+  } catch (e) {
+    return { ok: false, detail: `price ${priceId} non leggibile: ${(e as Error).message}` };
+  }
+  if (price?.active !== true) {
+    return { ok: false, detail: `price ${priceId} archiviato (price.active=${String(price?.active)})` };
+  }
+  const product = price.product;
+  if (product === null || typeof product !== "object") {
+    // L'expand non ha restituito un oggetto: l'attività del product NON è stata
+    // verificata. Si blocca invece di passare, perché è proprio il campo che nel
+    // caso Auditor era l'unico dei due a valere false.
+    return {
+      ok: false,
+      detail: `price ${priceId}: product non espanso (${typeof product}), attività non verificabile`,
+    };
+  }
+  const p = product as { id?: string; active?: unknown };
+  if (p.active !== true) {
+    return {
+      ok: false,
+      detail: `price ${priceId}: product ${p.id ?? "n/d"} archiviato (product.active=${String(p.active)})`,
+    };
+  }
+  return { ok: true, detail: `price ${priceId} / product ${p.id ?? "n/d"} attivi` };
 }
 
 // ── Dedup customer ──────────────────────────────────────────────────────────
@@ -293,6 +367,27 @@ Deno.serve(async (req) => {
     const priceId = map[planId]?.[billingInterval as "annual" | "monthly"];
     if (!priceId || priceId.includes("REPLACE")) {
       throw new Error(`Stripe price not configured for plan "${planId}" (${billingInterval}).`);
+    }
+
+    // ── PRE-CHECK v7: price e product entrambi attivi ────────────────────────
+    // Ultimo controllo prima di toccare Stripe in scrittura. Al client va un
+    // testo generico e privo di identificativi; il dettaglio, con gli ID, resta
+    // nei log del server. È un return e non un throw proprio per non passare dal
+    // catch finale, che rimanda err.message così com'è.
+    const priceCheck = await checkPriceUsable(priceId, secret);
+    if (!priceCheck.ok) {
+      console.error(`[precheck] piano "${planId}" (${billingInterval}) non acquistabile — ${priceCheck.detail}`);
+      return new Response(
+        JSON.stringify({
+          // checkout.html mostra `error` all'utente (data.error || 'Could not
+          // start payment.'), quindi qui ci va il testo leggibile; `code` resta
+          // la chiave stabile per una gestione dedicata lato client, il giorno
+          // in cui la si vorrà, senza doverla introdurre adesso.
+          error: "This plan is not available for purchase right now. Please choose another plan or contact support.",
+          code: "plan_unavailable",
+        }),
+        { status: 400, headers: { ...CORS, "Content-Type": "application/json" } },
+      );
     }
 
     // 1) Customer — DEDUP: riusa quello già associato all'utente, se esiste.
