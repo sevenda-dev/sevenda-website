@@ -153,14 +153,17 @@
         cta.removeAttribute('rel');
       }
 
-      function showCta(visible) { cta.style.display = visible ? '' : 'none'; }
-
       function render() {
         retry.style.display = 'none';
-        showCta(true);
+        // Con Sign in / Retry in campo la CTA di installazione non è l'azione
+        // primaria: passa a ghost per non competere con quella che sblocca il piano.
+        cta.classList.remove('btn-ghost');
 
         if (si && activation !== 'activated' && status !== 'processing' && !(status && status !== 'succeeded')) {
-          // ── Fase 2 in corso o fallita: nessuna promessa finché non è chiusa ──
+          // ── Fase 2 in corso o fallita: niente "Next steps" né area account
+          //    finché non è chiusa, perché il piano non è ancora attivo. La CTA
+          //    di installazione invece resta: la carta è già salvata e nello
+          //    stato 'signin' il login si fa proprio dall'estensione. ──
           if (activation === 'failed') {
             icon.className = 'icon err'; icon.textContent = '!';
             title.removeAttribute('data-i18n'); title.textContent = tt('cs.title.activationFailed', 'Plan not activated yet');
@@ -170,8 +173,9 @@
               + (activationError ? '<br><span style="color:var(--text-3);font-size:12.5px;">' + activationError + '</span>' : '');
             retry.textContent = tt('cs.cta.retry', 'Retry activation');
             retry.disabled = false;
-            retry.style.display = '';
-            showCta(false);
+            // display esplicito: '' scoprirebbe la regola #retry{display:none}
+            retry.style.display = 'inline-block';
+            cta.classList.add('btn-ghost');
           } else if (activation === 'signin') {
             icon.className = 'icon wait'; icon.textContent = '🔒';
             title.removeAttribute('data-i18n'); title.textContent = tt('cs.title.signin', 'Sign in to finish');
@@ -179,14 +183,14 @@
               'Your card is saved. Sign in with the same email you used at checkout to activate the plan.');
             retry.textContent = tt('cs.cta.signin', 'Sign in');
             retry.disabled = false;
-            retry.style.display = '';
-            showCta(false);
+            // display esplicito: '' scoprirebbe la regola #retry{display:none}
+            retry.style.display = 'inline-block';
+            cta.classList.add('btn-ghost');
           } else {
             icon.className = 'icon wait'; icon.textContent = '⏳';
             title.removeAttribute('data-i18n'); title.textContent = tt('cs.title.activating', 'Activating your plan');
             msg.removeAttribute('data-i18n'); msg.textContent = tt('cs.msg.activating',
               'Your card is saved. We are creating your subscription — this takes a moment.');
-            showCta(false);
           }
           steps.style.display = 'none';
           acct.style.display = 'none';
