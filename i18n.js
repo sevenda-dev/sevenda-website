@@ -76,6 +76,15 @@ const SEVENDA_I18N = {
     'cs.title.trial':'Your 14-day trial has started',
     'cs.msg.trial':'Your card is saved — you won\'t be charged until the trial ends. Next, install the extension and sign in to unlock your plan.',
     'cs.ref.prefix':'Ref:',
+    // Strada B — fase 2: attivazione della subscription da checkout-success.html
+    'cs.title.activating':'Activating your plan',
+    'cs.msg.activating':'Your card is saved. We are creating your subscription — this takes a moment.',
+    'cs.title.activationFailed':'Plan not activated yet',
+    'cs.msg.activationFailed':'Your card was saved, but we could not activate the plan. Retry below — you will not be charged twice. If it keeps failing, write to <a href="mailto:hello@sevenda.dev">hello@sevenda.dev</a>.',
+    'cs.cta.retry':'Retry activation',
+    'cs.title.signin':'Sign in to finish',
+    'cs.msg.signin':'Your card is saved. Sign in with the same email you used at checkout to activate the plan.',
+    'cs.cta.signin':'Sign in',
 
     /* ── RESET PASSWORD (reset-password.html) ── */
     'reset.loading':'Verifying your reset link…',
@@ -473,6 +482,15 @@ const SEVENDA_I18N = {
     'cs.title.trial':'La tua prova gratuita di 14 giorni è iniziata',
     'cs.msg.trial':'La tua carta è salvata — non ti verrà addebitato nulla fino alla fine della prova. Ora installa l\'estensione e accedi per sbloccare il tuo piano.',
     'cs.ref.prefix':'Rif:',
+    // Strada B — fase 2: attivazione della subscription da checkout-success.html
+    'cs.title.activating':'Attivazione del piano in corso',
+    'cs.msg.activating':'La tua carta è salvata. Stiamo creando il tuo abbonamento, ci vuole un istante.',
+    'cs.title.activationFailed':'Piano non ancora attivo',
+    'cs.msg.activationFailed':'La tua carta è stata salvata, ma non siamo riusciti ad attivare il piano. Riprova qui sotto: non ti addebiteremo due volte. Se continua a non funzionare, scrivi a <a href="mailto:hello@sevenda.dev">hello@sevenda.dev</a>.',
+    'cs.cta.retry':'Riprova attivazione',
+    'cs.title.signin':'Accedi per completare',
+    'cs.msg.signin':'La tua carta è salvata. Accedi con la stessa email usata al checkout per attivare il piano.',
+    'cs.cta.signin':'Accedi',
 
     /* ── RESET PASSWORD (reset-password.html) ── */
     'reset.loading':'Verifica del link di reset…',
@@ -855,6 +873,15 @@ const SEVENDA_I18N = {
     'cs.title.trial':'Tu prueba gratuita de 14 días ha comenzado',
     'cs.msg.trial':'Tu tarjeta está guardada — no se te cobrará hasta que termine la prueba. A continuación, instala la extensión e inicia sesión para desbloquear tu plan.',
     'cs.ref.prefix':'Ref:',
+    // Strada B — fase 2: attivazione della subscription da checkout-success.html
+    'cs.title.activating':'Activando tu plan',
+    'cs.msg.activating':'Tu tarjeta está guardada. Estamos creando tu suscripción, tarda un momento.',
+    'cs.title.activationFailed':'El plan aún no está activo',
+    'cs.msg.activationFailed':'Tu tarjeta se ha guardado, pero no hemos podido activar el plan. Inténtalo de nuevo abajo: no te cobraremos dos veces. Si sigue fallando, escribe a <a href="mailto:hello@sevenda.dev">hello@sevenda.dev</a>.',
+    'cs.cta.retry':'Reintentar activación',
+    'cs.title.signin':'Accede para terminar',
+    'cs.msg.signin':'Tu tarjeta está guardada. Accede con el mismo correo que usaste en la compra para activar el plan.',
+    'cs.cta.signin':'Acceder',
 
     /* ── RESET PASSWORD (reset-password.html) ── */
     'reset.loading':'Verificando tu enlace de restablecimiento…',
@@ -1237,6 +1264,15 @@ const SEVENDA_I18N = {
     'cs.title.trial':'Votre essai gratuit de 14 jours a commencé',
     'cs.msg.trial':'Votre carte est enregistrée — vous ne serez pas débité avant la fin de l\'essai. Installez ensuite l\'extension et connectez-vous pour débloquer votre plan.',
     'cs.ref.prefix':'Réf. :',
+    // Strada B — fase 2: attivazione della subscription da checkout-success.html
+    'cs.title.activating':'Activation de votre formule',
+    'cs.msg.activating':'Votre carte est enregistrée. Nous créons votre abonnement, cela prend un instant.',
+    'cs.title.activationFailed':'Formule pas encore active',
+    'cs.msg.activationFailed':'Votre carte a bien été enregistrée, mais nous n\'avons pas pu activer la formule. Réessayez ci-dessous : vous ne serez pas débité deux fois. Si le problème persiste, écrivez à <a href="mailto:hello@sevenda.dev">hello@sevenda.dev</a>.',
+    'cs.cta.retry':'Réessayer l\'activation',
+    'cs.title.signin':'Connectez-vous pour terminer',
+    'cs.msg.signin':'Votre carte est enregistrée. Connectez-vous avec la même adresse qu\'au moment du paiement pour activer la formule.',
+    'cs.cta.signin':'Se connecter',
 
     /* ── RESET PASSWORD (reset-password.html) ── */
     'reset.loading':'Vérification de votre lien de réinitialisation…',

@@ -517,6 +517,10 @@
 
   /* ── Stripe ── */
   let stripe = null, elements = null, paymentElement = null, clientSecret = null, subscriptionReady = false;
+  // Strada B: la fase 1 non crea più una subscription ma un SetupIntent. Il
+  // suo id è la chiave della fase 2 (create-subscription con setupIntentId),
+  // eseguita da checkout-success.html a carta confermata.
+  let setupIntentId = null;
   // Trial: durata di default lato client (14gg) così l'avviso "no charge today" è
   // visibile fin dallo step 1–2, prima del fetch. Override via ?trialDays=N o CFG.trialDays.
   // La conferma (setup vs payment) e lo stato reale del trial restano pilotati dal
@@ -736,7 +740,8 @@
   }
 
   /* ─────────────────────────────────────────────────────────────
-     STRIPE — create subscription + mount Payment Element
+     STRIPE — fase 1: customer + SetupIntent, mount Payment Element
+     (la subscription nasce in fase 2, da checkout-success.html)
      ───────────────────────────────────────────────────────────── */
   async function preparePayment() {
     const ready  = $('coPaymentReady');
@@ -821,7 +826,8 @@
 
       if (!res.ok || !data.clientSecret) throw new Error(data.error || 'Could not start payment.');
 
-      clientSecret = data.clientSecret;
+      clientSecret  = data.clientSecret;
+      setupIntentId = data.setupIntentId || null;
 
       // ── Riconciliazione col server. Il trial è reale SOLO se la prima fattura è
       //    €0 → SetupIntent → mode "setup": in quel caso mostriamo il trial con la
@@ -863,9 +869,13 @@
 
   /* ─────────────────────────────────────────────────────────────
      WATCHDOG DI CONFERMA
-     confirmPayment/confirmSetup girano col default `redirect: 'always'`: in caso
-     di successo Stripe naviga verso return_url, il documento viene scaricato e
-     la promise non si risolve mai — by design. Il buco è l'altro ramo: se la
+     confirmPayment gira col default `redirect: 'always'`: in caso di successo
+     Stripe naviga verso return_url, il documento viene scaricato e la promise
+     non si risolve mai — by design. Strada B: confirmSetup usa invece
+     `redirect: 'if_required'` — senza 3DS la promise si risolve in pagina con
+     il setupIntent e si naviga da qui (goToOutcome); con 3DS Stripe naviga da
+     sé. In entrambi i casi la fase 2 avviene su checkout-success.html: un solo
+     punto di attivazione, idempotente e ritentabile. Il buco è l'altro ramo: se la
      promise *rigetta* (errori di integrazione, rete che cade a metà) senza che
      il redirect parta, la UI resta su "Processing…" a tempo indeterminato.
      Il watchdog copre quel caso interrogando Stripe sullo stato reale
@@ -997,13 +1007,25 @@
     idleProbes = 0;
     armWatchdog();
 
-    // Trial (prima fattura €0) → SetupIntent (confirmSetup); altrimenti PaymentIntent (confirmPayment).
+    // Trial → SetupIntent (confirmSetup); no-trial → PaymentIntent (confirmPayment).
+    // Strada B: sul ramo setup, `redirect: 'if_required'` restituisce il
+    // setupIntent senza navigare quando non serve 3DS. A quel punto la carta è
+    // salvata ma la subscription NON esiste ancora: la crea checkout-success.html
+    // (fase 2). Si naviga con gli stessi parametri del redirect nativo, così la
+    // pagina di esito non distingue i due percorsi.
     let error = null;
     try {
       const result = payMode === 'setup'
-        ? await stripe.confirmSetup({ elements, confirmParams })
+        ? await stripe.confirmSetup({ elements, confirmParams, redirect: 'if_required' })
         : await stripe.confirmPayment({ elements, confirmParams });
       error = result && result.error;
+      if (!error && payMode === 'setup' && result && result.setupIntent) {
+        const st = result.setupIntent.status;
+        if (st === 'succeeded' || st === 'processing') {
+          goToOutcome(result.setupIntent, st);
+          return;
+        }
+      }
     } catch (err) {
       // Stripe.js rigetta (invece di risolvere con {error}) sugli errori di
       // integrazione e su alcuni fallimenti di rete: senza questo ramo il

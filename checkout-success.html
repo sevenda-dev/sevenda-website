@@ -9,6 +9,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
   <script src="i18n.js"></script>
+  <!-- Strada B: la fase 2 (creazione subscription) parte da qui e richiede
+       edgeFunctionBase, anonKey e la sessione dell'utente -->
+  <script src="stripe.config.js"></script>
+  <script src="supabase.config.js"></script>
+  <script defer src="auth.js"></script>
   <style>
     :root {
       --bg:#0d0d0d; --surface:#111111; --green:#E8733A;
@@ -43,6 +48,8 @@
     }
     .btn:hover { opacity:.85; }
     .btn-ghost { background:transparent; border:1px solid #2a2a2a; color:var(--text); margin-left:10px; }
+    .btn[disabled] { opacity:.5; cursor:wait; }
+    #retry { display:none; }
     .steps {
       margin-top:34px; padding:20px 22px; text-align:left;
       background:var(--surface); border:1px solid #2a2a2a; border-radius:var(--r-sm);
@@ -88,6 +95,7 @@
     <p id="msg" data-i18n="cs.msg.ok">Thanks for subscribing to Sevenda. A confirmation email is on its way — next, install the extension and sign in to unlock your plan.</p>
     <p class="ref" id="ref"></p>
     <div>
+      <button type="button" class="btn" id="retry">Retry activation</button>
       <a href="https://chromewebstore.google.com/detail/caokihdmcjaknibdpgafjaljbdkleffl" target="_blank" rel="noopener" class="btn" id="cta" data-i18n="cs.cta.chrome">Add Sevenda to Chrome</a>
       <a href="/docs.html" class="btn btn-ghost" data-i18n="cs.cta.docs">Read the docs</a>
     </div>
@@ -120,6 +128,12 @@
       const cta = document.getElementById('cta');
       const steps = document.getElementById('steps');
       const acct = document.getElementById('acct');
+      const retry = document.getElementById('retry');
+      const CFG = window.STRIPE_CONFIG || {};
+      // Strada B: finché la fase 2 non conclude, la pagina non promette nulla.
+      // 'pending' → 'activating' → 'activated' | 'failed' | 'signin'
+      let activation = si ? 'pending' : 'none';
+      let activationError = '';
 
       // i18n: usa il sistema condiviso (i18n.js → window.t) con fallback EN inline
       function tt(key, fallback) {
@@ -139,7 +153,47 @@
         cta.removeAttribute('rel');
       }
 
+      function showCta(visible) { cta.style.display = visible ? '' : 'none'; }
+
       function render() {
+        retry.style.display = 'none';
+        showCta(true);
+
+        if (si && activation !== 'activated' && status !== 'processing' && !(status && status !== 'succeeded')) {
+          // ── Fase 2 in corso o fallita: nessuna promessa finché non è chiusa ──
+          if (activation === 'failed') {
+            icon.className = 'icon err'; icon.textContent = '!';
+            title.removeAttribute('data-i18n'); title.textContent = tt('cs.title.activationFailed', 'Plan not activated yet');
+            msg.removeAttribute('data-i18n');
+            msg.innerHTML = tt('cs.msg.activationFailed',
+              'Your card was saved, but we could not activate the plan. Retry below — you will not be charged twice. If it keeps failing, write to <a href="mailto:hello@sevenda.dev">hello@sevenda.dev</a>.')
+              + (activationError ? '<br><span style="color:var(--text-3);font-size:12.5px;">' + activationError + '</span>' : '');
+            retry.textContent = tt('cs.cta.retry', 'Retry activation');
+            retry.disabled = false;
+            retry.style.display = '';
+            showCta(false);
+          } else if (activation === 'signin') {
+            icon.className = 'icon wait'; icon.textContent = '🔒';
+            title.removeAttribute('data-i18n'); title.textContent = tt('cs.title.signin', 'Sign in to finish');
+            msg.removeAttribute('data-i18n'); msg.textContent = tt('cs.msg.signin',
+              'Your card is saved. Sign in with the same email you used at checkout to activate the plan.');
+            retry.textContent = tt('cs.cta.signin', 'Sign in');
+            retry.disabled = false;
+            retry.style.display = '';
+            showCta(false);
+          } else {
+            icon.className = 'icon wait'; icon.textContent = '⏳';
+            title.removeAttribute('data-i18n'); title.textContent = tt('cs.title.activating', 'Activating your plan');
+            msg.removeAttribute('data-i18n'); msg.textContent = tt('cs.msg.activating',
+              'Your card is saved. We are creating your subscription — this takes a moment.');
+            showCta(false);
+          }
+          steps.style.display = 'none';
+          acct.style.display = 'none';
+          if (si) ref.textContent = tt('cs.ref.prefix', 'Ref:') + ' ' + si;
+          return;
+        }
+
         if (status === 'processing') {
           icon.className = 'icon wait'; icon.textContent = '⏳';
           title.removeAttribute('data-i18n'); title.textContent = tt('cs.title.processing', 'Payment processing');
@@ -159,9 +213,68 @@
         if (refId) ref.textContent = tt('cs.ref.prefix', 'Ref:') + ' ' + refId;
       }
 
+      // ── Strada B — FASE 2: crea la subscription a carta confermata ───────
+      // Idempotente lato server (Idempotency-Key = setup_intent): un refresh o un
+      // retry restituiscono la stessa subscription. 'already_subscribed' qui è
+      // un successo: la fase 2 è raggiungibile solo dopo una fase 1 riuscita.
+      async function activateSubscription() {
+        if (!si || activation === 'activating' || activation === 'activated') return;
+        if (!CFG.edgeFunctionBase) {
+          activation = 'failed'; activationError = 'Missing edgeFunctionBase.'; render(); return;
+        }
+        activation = 'activating'; activationError = ''; render();
+
+        let user = null;
+        try {
+          const auth = window.SevendaAuth ? await window.SevendaAuth.getUser() : null;
+          user = auth && auth.data && auth.data.user;
+        } catch (e) { /* trattato come sessione assente */ }
+        if (!user || !user.id) { activation = 'signin'; render(); return; }
+
+        try {
+          const anon = (window.SUPABASE_CONFIG && window.SUPABASE_CONFIG.anonKey) || '';
+          const res = await fetch(CFG.edgeFunctionBase + '/create-subscription', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'apikey': anon, 'Authorization': 'Bearer ' + anon },
+            body: JSON.stringify({ setupIntentId: si, supabaseUserId: user.id }),
+          });
+          const data = await res.json().catch(() => ({}));
+          if (res.ok && (data.status === 'activated' || data.status === 'already_subscribed')) {
+            activation = 'activated';
+            render();
+            return;
+          }
+          activationError = data.error || ('HTTP ' + res.status);
+        } catch (e) {
+          activationError = e && e.message ? e.message : 'Network error.';
+        }
+        activation = 'failed';
+        render();
+      }
+
+      retry.addEventListener('click', () => {
+        if (activation === 'signin') {
+          if (window.SevendaAuth && window.SevendaAuth.requireAuth) {
+            window.SevendaAuth.requireAuth(() => { activation = 'pending'; activateSubscription(); });
+            return;
+          }
+        }
+        activation = 'pending';
+        activateSubscription();
+      });
+
       // Re-render quando l'utente cambia lingua dal selettore in alto
       window.__csRerender = render;
       render();
+
+      // auth.js è defer: parte dopo il parsing ma prima di DOMContentLoaded.
+      if (activation === 'pending' && !(status && status !== 'succeeded')) {
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', activateSubscription);
+        } else {
+          activateSubscription();
+        }
+      }
     })();
   </script>
 </body>
