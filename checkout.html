@@ -399,8 +399,9 @@
 
       <div class="co-sum-div"></div>
       <div class="co-sum-row"><span data-i18n="co.summary.subtotal">Subtotal</span><span id="coSumSubtotal">€0</span></div>
+      <div class="co-sum-row" id="coSumVatRow" style="display:none;"><span id="coSumVatLabel">VAT</span><span id="coSumVatAmt">€0</span></div>
       <div class="co-sum-total"><span data-i18n="co.summary.total">Total</span><span id="coSumTotal">€0</span></div>
-      <p class="co-sum-note" id="coSumNote" data-i18n="co.summary.note">Prices exclude applicable taxes.</p>
+      <p class="co-sum-note" id="coSumNote" data-i18n="co.summary.taxNote">VAT is an estimate based on your billing country. The final amount is calculated by Stripe when the invoice is issued, based on your billing details.</p>
 
       <!-- Avviso trial (mostrato solo se trialDays > 0) -->
       <div class="co-notice" id="coTrialNotice" style="display:none; margin-top:16px;"></div>
@@ -558,6 +559,26 @@
                              : unitPrice() * S.qty; }
   function fmt(n)        { return SYM + (Number.isInteger(n) ? n : n.toFixed(2)); }
 
+  /* ── Stima IVA (solo display) ────────────────────────────
+     Aliquote standard dei soli paesi presenti nel select: aggiungerne uno lì
+     significa aggiungerlo anche qui. Non è un calcolo fiscale — l'imposta vera
+     la determina Stripe Tax in fattura, questo serve a non mostrare un totale
+     che non corrisponde a quello che verrà addebitato. */
+  const VAT_RATES = { IT:22, ES:21, FR:20, DE:19, NL:21, BE:21, PT:23, IE:23, AT:20, GB:0, US:0, CA:0, CH:0 };
+  const EU_REVERSE = ['ES','FR','DE','NL','BE','PT','IE','AT'];  // UE senza IT: l'Italia è interna, niente inversione
+
+  // null = nessun paese scelto → la riga IVA resta nascosta e il totale non cambia.
+  function vatEstimate(subtotal) {
+    const country = $('coCountry').value;
+    if (!country) return null;
+    // B2B intra-UE con partita IVA: imposta a carico del cliente
+    if (EU_REVERSE.indexOf(country) !== -1 && $('coVat').value.trim()) {
+      return { reverseCharge: true, rate: 0, amount: 0 };
+    }
+    const rate = VAT_RATES[country] || 0;
+    return { reverseCharge: false, rate: rate, amount: Math.round(subtotal * rate) / 100 };
+  }
+
   // i18n: usa il sistema condiviso (i18n.js → window.t / window.getLang) con
   // fallback alla stringa EN inline se i18n.js non è caricato o la chiave manca.
   function tt(key, fallback) {
@@ -624,9 +645,26 @@
     const seatWord = tt(S.qty > 1 ? 'co.seats' : 'co.seat', S.qty > 1 ? 'seats' : 'seat');
     const perSeatSuffix = tt(S.interval === 'annual' ? 'co.perSeat.annual' : 'co.perSeat.monthly', S.interval === 'annual' ? '/mo × 12' : '/mo');
     $('coSumSeats').textContent = S.qty + ' ' + seatWord + ' × ' + fmt(unitPrice()) + ' ' + perSeatSuffix;
+    // I Price sono tax_behavior "exclusive": il subtotale non è la cifra
+    // addebitata. La stima si ricalcola qui, quindi a ogni cambio di paese/IVA.
+    const vat      = vatEstimate(total);
+    const grandTot = vat ? Math.round((total + vat.amount) * 100) / 100 : total;
+    if (vat) {
+      $('coSumVatRow').style.display = 'flex';
+      if (vat.reverseCharge) {
+        $('coSumVatLabel').textContent = tt('co.summary.vat', 'VAT');
+        $('coSumVatAmt').textContent   = tt('co.summary.reverseCharge', 'Reverse charge');
+      } else {
+        $('coSumVatLabel').textContent = fill(tt('co.summary.vatRate', 'VAT ({rate}%)'), { rate: vat.rate });
+        $('coSumVatAmt').textContent   = fmt(vat.amount);
+      }
+    } else {
+      $('coSumVatRow').style.display = 'none';
+    }
+
     $('coSumPlanAmt').textContent  = fmt(total);
     $('coSumSubtotal').textContent = fmt(total);
-    $('coSumTotal').textContent    = fmt(total);
+    $('coSumTotal').textContent    = fmt(grandTot);
 
     // Charge agreement label + copy trial (mostrata solo se trialDays > 0)
     const cadence = S.interval === 'annual' ? 'yearly' : 'monthly';
@@ -1095,6 +1133,10 @@
   document.querySelectorAll('.co-input, .co-select').forEach(el =>
     el.addEventListener('input', () => el.classList.remove('err')));
   $('coVat').addEventListener('input', () => showVatError(false));
+
+  // Paese e partita IVA determinano l'aliquota stimata → ridisegna il riepilogo
+  $('coCountry').addEventListener('change', render);
+  $('coVat')    .addEventListener('input',  render);
 
   // Main action button
   $('coAction').addEventListener('click', async () => {
