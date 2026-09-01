@@ -2014,7 +2014,7 @@
                 <!-- Pool -->
                 <rect x="1" y="1" width="528" height="120" rx="4" fill="rgba(255,255,255,.018)" stroke="rgba(255,255,255,.1)" stroke-width="1"/>
                 <!-- Lane strip -->
-                <rect x="1" y="1" width="20" height="120" fill="rgba(255,255,255,.025)" stroke="rgba(255,255,255,.09)" stroke-width="1" rx="4 0 0 4"/>
+                <path d="M5,1 H21 V121 H5 A4,4 0 0 1 1,117 V5 A4,4 0 0 1 5,1 Z" fill="rgba(255,255,255,.025)" stroke="rgba(255,255,255,.09)" stroke-width="1"/>
                 <text x="10" y="63" fill="rgba(255,255,255,.18)" font-size="7" font-family="Geist Mono,monospace" text-anchor="middle" transform="rotate(-90,10,63)">User</text>
 
                 <!-- Start event -->
@@ -2716,7 +2716,12 @@
 
   function openDemo() { document.getElementById('demoOverlay').classList.add('active'); currentStep = 0; renderStep(); }
   function closeDemo() { document.getElementById('demoOverlay').classList.remove('active'); clearAllTimers(); }
-  document.getElementById('demoOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeDemo(); });
+  // #demoOverlay sta più in basso di questo script: senza attendere il DOM
+  // getElementById torna null e l'eccezione interrompe tutto il resto dello
+  // script inline (compreso il keydown di Escape in fondo).
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('demoOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeDemo(); });
+  });
 
   function setPersona(persona) {
     currentPersona = persona;
