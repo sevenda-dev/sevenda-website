@@ -217,12 +217,36 @@
     h1 .dim { color: #ffffff; }
 
     .hero-sub {
-      font-size: clamp(16px, 2vw, 19px);
-      color: var(--muted);
-      max-width: 600px;
+      font-size: clamp(16.5px, 1.75vw, 20px);
+      color: #9d9d97;
+      max-width: 640px;
       margin: 0 auto 96px;
-      line-height: 1.65;
+      line-height: 1.62;
+      letter-spacing: -.011em;
+      /* righe di lunghezza omogenea invece dell'ultima riga orfana */
+      text-wrap: balance;
       animation: fadeUp .5s ease .2s both;
+    }
+    /* I due termini che dicono cosa esce davvero dal prodotto */
+    .hero-sub .hs-em { color: var(--text); font-weight: 500; }
+    /* Il maiuscolo di "AND" urlava fra due termini già in evidenza: qui
+       diventa un connettore tipografico, piccolo e in secondo piano */
+    .hero-sub .hs-and {
+      font-family: var(--mono);
+      font-size: .72em;
+      letter-spacing: .1em;
+      color: var(--muted);
+      padding: 0 2px;
+    }
+    /* "BPMN 2.0" è lo standard, non una parola qualsiasi: mono + accento */
+    .hero-sub .hs-mono {
+      font-family: var(--mono);
+      font-size: .87em;
+      letter-spacing: -.005em;
+      color: var(--green);
+      white-space: nowrap;
+      padding-bottom: 1px;
+      border-bottom: 1px solid rgba(232,115,58,.32);
     }
 
     /* ── MOCKUP ──────────────────────────────────────────────── */
@@ -1930,9 +1954,11 @@
 
   <h1 data-i18n-html="hero.h1">Every click tells a story.<br><span class="dim">Sevenda reads it.</span></h1>
 
-  <p class="hero-sub" data-i18n="hero.sub">
-    Sevenda records your browser session and instantly generates BPMN&nbsp;2.0
-    process diagrams AND actionable insights — helping developers, business
+  <p class="hero-sub" data-i18n-html="hero.sub">
+    Sevenda records your browser session and instantly generates
+    <span class="hs-mono">BPMN&nbsp;2.0</span>
+    <span class="hs-em">process diagrams</span> <span class="hs-and">AND</span>
+    <span class="hs-em">actionable insights</span> — helping developers, business
     analysts and marketing teams understand what really happens inside their
     digital processes.
   </p>

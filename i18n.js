@@ -118,7 +118,7 @@ const SEVENDA_I18N = {
     /* ── HERO (index) ── */
     'hero.pill':'Now powered by Claude Sonnet 4 →',
     'hero.h1':'Every click tells a story.<br><span class="dim">Sevenda reads it.</span>',
-    'hero.sub':'Sevenda records your browser session and instantly generates BPMN 2.0 process diagrams AND actionable insights — helping developers, business analysts and marketing teams understand what really happens inside their digital processes.',
+    'hero.sub':'Sevenda records your browser session and instantly generates <span class="hs-mono">BPMN&nbsp;2.0</span> <span class="hs-em">process diagrams</span> <span class="hs-and">AND</span> <span class="hs-em">actionable insights</span> — helping developers, business analysts and marketing teams understand what really happens inside their digital processes.',
 
     /* ── HOW IT WORKS (index) ── */
     'how.label':'How it works',
@@ -519,7 +519,7 @@ const SEVENDA_I18N = {
 
     'hero.pill':'Ora con Claude Sonnet 4 →',
     'hero.h1':'Ogni click racconta una storia.<br><span class="dim">Sevenda la legge.</span>',
-    'hero.sub':'Sevenda registra la tua sessione browser e genera istantaneamente diagrammi di processo BPMN 2.0 e insight operativi — aiutando developer, business analyst e team marketing a capire cosa succede davvero nei loro processi digitali.',
+    'hero.sub':'Sevenda registra la tua sessione browser e genera istantaneamente <span class="hs-em">diagrammi di processo</span> <span class="hs-mono">BPMN&nbsp;2.0</span> e <span class="hs-em">insight operativi</span> — aiutando developer, business analyst e team marketing a capire cosa succede davvero nei loro processi digitali.',
 
     'how.label':'Come funziona',
     'how.title':'Tre passi verso il<br>diagramma BPMN',
@@ -907,7 +907,7 @@ const SEVENDA_I18N = {
 
     'hero.pill':'Ahora con Claude Sonnet 4 →',
     'hero.h1':'Cada clic cuenta una historia.<br><span class="dim">Sevenda la lee.</span>',
-    'hero.sub':'Sevenda graba tu sesión de navegador y genera instantáneamente diagramas de proceso BPMN 2.0 e insights accionables — ayudando a desarrolladores, analistas de negocio y equipos de marketing a entender qué ocurre realmente en sus procesos digitales.',
+    'hero.sub':'Sevenda graba tu sesión de navegador y genera instantáneamente <span class="hs-em">diagramas de proceso</span> <span class="hs-mono">BPMN&nbsp;2.0</span> e <span class="hs-em">insights accionables</span> — ayudando a desarrolladores, analistas de negocio y equipos de marketing a entender qué ocurre realmente en sus procesos digitales.',
 
     'how.label':'Cómo funciona',
     'how.title':'Tres pasos hacia un<br>diagrama BPMN',
@@ -1295,7 +1295,7 @@ const SEVENDA_I18N = {
 
     'hero.pill':'Maintenant avec Claude Sonnet 4 →',
     'hero.h1':'Chaque clic raconte une histoire.<br><span class="dim">Sevenda la lit.</span>',
-    'hero.sub':'Sevenda enregistre votre session de navigation et génère instantanément des diagrammes de processus BPMN 2.0 et des insights actionnables — aidant les développeurs, analystes métier et équipes marketing à comprendre ce qui se passe vraiment dans leurs processus digitaux.',
+    'hero.sub':'Sevenda enregistre votre session de navigation et génère instantanément des <span class="hs-em">diagrammes de processus</span> <span class="hs-mono">BPMN&nbsp;2.0</span> et des <span class="hs-em">insights actionnables</span> — aidant les développeurs, analystes métier et équipes marketing à comprendre ce qui se passe vraiment dans leurs processus digitaux.',
 
     'how.label':'Comment ça marche',
     'how.title':'Trois étapes vers un<br>diagramme BPMN',
