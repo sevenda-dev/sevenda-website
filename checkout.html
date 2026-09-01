@@ -667,13 +667,16 @@
     $('coSumTotal').textContent    = fmt(grandTot);
 
     // Charge agreement label + copy trial (mostrata solo se trialDays > 0)
+    // Qui e nella nota di rinnovo si usa grandTot, non total: è la cifra che
+    // l'utente autorizza ad addebitare, e deve coincidere con il Totale che
+    // legge sopra. Senza paese o in reverse charge grandTot === total.
     const cadence = S.interval === 'annual' ? 'yearly' : 'monthly';
     const cadenceLoc = tt(S.interval === 'annual' ? 'co.cadence.yearly' : 'co.cadence.monthly', cadence);
     const trialNotice     = $('coTrialNotice');
     const payDisclaimer   = $('coPayDisclaimer');
     if (trialDays > 0) {
       // Copy trial localizzata (EN/IT/ES/FR via i18n.js) — cadence tradotta a parte
-      const map = { days: trialDays, date: formatTrialEnd(), total: fmt(total), cadence: cadenceLoc };
+      const map = { days: trialDays, date: formatTrialEnd(), total: fmt(grandTot), cadence: cadenceLoc };
       $('coTermChargeLabel').textContent = fill(tt('co.trial.charge',
         'I authorize Sevenda to charge {total} {cadence} after the {days}-day free trial. Cancel anytime before then and you won’t be charged.'), map);
       if (trialNotice) {
@@ -687,7 +690,7 @@
       }
     } else {
       $('coTermChargeLabel').textContent = fill(tt('co.terms.charge.notrial',
-        'I agree to be charged {total} {cadence}. I can cancel anytime via the billing page.'), { total: fmt(total), cadence: cadenceLoc });
+        'I agree to be charged {total} {cadence}. I can cancel anytime via the billing page.'), { total: fmt(grandTot), cadence: cadenceLoc });
       if (trialNotice) trialNotice.style.display = 'none';
       if (payDisclaimer) {
         payDisclaimer.textContent = tt('co.pay.disclaimer.default',
@@ -698,7 +701,7 @@
     // Renew note
     const periodLoc = tt(S.interval === 'annual' ? 'co.period.year' : 'co.period.month', S.interval === 'annual' ? 'year' : 'month');
     $('coRenewText').textContent = fill(tt('co.renew.text', 'Auto-renews {cadence} · {total} per {period}'),
-      { cadence: cadenceLoc, total: fmt(total), period: periodLoc });
+      { cadence: cadenceLoc, total: fmt(grandTot), period: periodLoc });
 
     // Errore IVA: se è a schermo va riscritto nella lingua corrente
     if ($('coVatError').style.display !== 'none') showVatError(true);
