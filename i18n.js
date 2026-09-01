@@ -58,6 +58,7 @@ const SEVENDA_I18N = {
     'co.err.connection.title':'Connection failed.','co.err.connection.body':'Check your connection and try again: your session is still valid.',
     'co.err.session.title':'Session expired.','co.err.session.body':'You need to be signed in to complete payment. Please sign in again and retry.',
     'co.err.setupFailed.title':'Payment setup failed.','co.err.tryAgain':'Please try again.',
+    'co.err.vatInvalid':'This VAT ID is not valid. Check it, or leave the field empty — it is optional.',
     'co.err.paymentFailed':'Payment failed. Please check your details.',
     'co.alert.stripeNotConfigured':'Stripe is not configured. Set the keys in stripe.config.js to enable payments.',
 
@@ -462,6 +463,7 @@ const SEVENDA_I18N = {
     'co.err.connection.title':'Connessione non riuscita.','co.err.connection.body':'Controlla la connessione e riprova: la tua sessione è ancora valida.',
     'co.err.session.title':'Sessione scaduta.','co.err.session.body':'Per completare il pagamento devi essere autenticato. Effettua di nuovo l\'accesso e riprova.',
     'co.err.setupFailed.title':'Configurazione del pagamento non riuscita.','co.err.tryAgain':'Riprova.',
+    'co.err.vatInvalid':'Questa partita IVA non è valida. Controllala, oppure lascia il campo vuoto — è facoltativo.',
     'co.err.paymentFailed':'Pagamento non riuscito. Controlla i tuoi dati.',
     'co.alert.stripeNotConfigured':'Stripe non è configurato. Imposta le chiavi in stripe.config.js per abilitare i pagamenti.',
 
@@ -851,6 +853,7 @@ const SEVENDA_I18N = {
     'co.err.connection.title':'Conexión fallida.','co.err.connection.body':'Comprueba tu conexión e inténtalo de nuevo: tu sesión sigue siendo válida.',
     'co.err.session.title':'Sesión caducada.','co.err.session.body':'Debes iniciar sesión para completar el pago. Vuelve a iniciar sesión e inténtalo de nuevo.',
     'co.err.setupFailed.title':'No se pudo configurar el pago.','co.err.tryAgain':'Inténtalo de nuevo.',
+    'co.err.vatInvalid':'Este NIF/IVA no es válido. Compruébalo o deja el campo vacío: es opcional.',
     'co.err.paymentFailed':'El pago ha fallado. Comprueba tus datos.',
     'co.alert.stripeNotConfigured':'Stripe no está configurado. Configura las claves en stripe.config.js para habilitar los pagos.',
 
@@ -1240,6 +1243,7 @@ const SEVENDA_I18N = {
     'co.err.connection.title':'Échec de la connexion.','co.err.connection.body':'Vérifiez votre connexion et réessayez : votre session est toujours valide.',
     'co.err.session.title':'Session expirée.','co.err.session.body':'Vous devez être connecté pour finaliser le paiement. Veuillez vous reconnecter et réessayer.',
     'co.err.setupFailed.title':'Échec de la préparation du paiement.','co.err.tryAgain':'Veuillez réessayer.',
+    'co.err.vatInvalid':'Ce numéro de TVA n\'est pas valide. Vérifiez-le ou laissez le champ vide : il est facultatif.',
     'co.err.paymentFailed':'Le paiement a échoué. Veuillez vérifier vos informations.',
     'co.alert.stripeNotConfigured':'Stripe n\'est pas configuré. Définissez les clés dans stripe.config.js pour activer les paiements.',
 

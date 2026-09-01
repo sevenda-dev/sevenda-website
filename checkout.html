@@ -350,6 +350,7 @@
           <label class="co-label" for="coVat"><span data-i18n="co.label.vat">VAT ID</span> <span class="req" data-i18n="co.optional">(optional)</span></label>
           <input class="co-input" type="text" id="coVat" placeholder="e.g. IT12345678901" data-i18n-placeholder="co.vat.ph">
           <p class="co-field-hint" data-i18n="co.vat.hint">This will appear on future invoices.</p>
+          <div class="co-error" id="coVatError" style="display:none;"></div>
         </div>
       </div>
     </div>
@@ -661,6 +662,9 @@
     $('coRenewText').textContent = fill(tt('co.renew.text', 'Auto-renews {cadence} · {total} per {period}'),
       { cadence: cadenceLoc, total: fmt(total), period: periodLoc });
 
+    // Errore IVA: se è a schermo va riscritto nella lingua corrente
+    if ($('coVatError').style.display !== 'none') showVatError(true);
+
     // Label del bottone dipende dal trial → tienila sincronizzata
     updateActionButton();
   }
@@ -719,6 +723,16 @@
       $('coEmail').classList.add('err'); ok = false;
     }
     return ok;
+  }
+
+  // Errore IVA restituito dalla fase 1. Il testo non può stare su data-i18n:
+  // applyLang() lo sovrascriverebbe al cambio lingua, quindi lo riscrive
+  // render() (chiamata dai bottoni EN/IT/ES/FR subito dopo setLang).
+  function showVatError(on) {
+    const box = $('coVatError');
+    box.style.display = on ? 'block' : 'none';
+    box.textContent = on ? tt('co.err.vatInvalid',
+      'This VAT ID is not valid. Check it, or leave the field empty — it is optional.') : '';
   }
 
   function collectBilling() {
@@ -821,6 +835,20 @@
           + '</strong><br>'
           + tt('co.err.alreadySubscribed.body',
                'You already have an active subscription. Manage your plan from the subscription page in the Sevenda extension.');
+        return false;
+      }
+
+      // vat_id_invalid (create-subscription v10): Stripe ha rifiutato il formato
+      // della partita IVA creando il Tax ID. È un errore di compilazione del
+      // form, non un guasto del pagamento: si torna allo step 2 col campo
+      // evidenziato, senza il prefisso "Payment setup failed.".
+      if (res.status === 400 && data.code === 'vat_id_invalid') {
+        load.style.display = 'none';
+        subscriptionReady = false;
+        goToStep(2);
+        $('coVat').classList.add('err');
+        showVatError(true);
+        $('coVat').focus();
         return false;
       }
 
@@ -1066,6 +1094,7 @@
   // Clear field error on input
   document.querySelectorAll('.co-input, .co-select').forEach(el =>
     el.addEventListener('input', () => el.classList.remove('err')));
+  $('coVat').addEventListener('input', () => showVatError(false));
 
   // Main action button
   $('coAction').addEventListener('click', async () => {
