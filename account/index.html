@@ -16,6 +16,8 @@
   <!-- Supabase JS (stesso CDN/versione di auth.js) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="/supabase.config.js"></script>
+  <!-- Aliquote IVA: fonte unica per il lordo del prossimo addebito -->
+  <script src="/iva.config.js"></script>
   <!-- SevendaAuth: riusato SOLO per il modale di login del sito (flusso esistente) -->
   <script defer src="/auth.js"></script>
 
@@ -64,6 +66,7 @@
     .row:last-child{border-bottom:0}
     .row .k{font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--text-3)}
     .row .v{font-family:var(--mono);font-size:13.5px;color:var(--text);text-align:right;word-break:break-word}
+    .row .v .vnote{color:var(--text-3);font-size:11.5px}
     .v.email{color:var(--text)}
 
     .badge{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.02em;
@@ -367,7 +370,7 @@
     // ── Stato runtime ────────────────────────────────────────────────────────
     var sb = null;             // client Supabase (persistente, storage condiviso con auth.js)
     var currentUser = null;    // utente validato lato server
-    var state = { overview: null, hasActiveSub: false };
+    var state = { overview: null, hasActiveSub: false, billing: null };
     var cooldownTimer = null;
 
     // ── Utilità UI ─────────────────────────────────────────────────────────────
@@ -401,6 +404,46 @@
           style: 'currency', currency: currency || 'EUR'
         }).format(n);
       } catch(e){ return (currency || '') + ' ' + n; }
+    }
+
+    /* ── IVA sul prossimo addebito ──────────────────────────────────────────────
+       renewal_amount arriva netto: i Price Stripe sono tax_behavior "exclusive",
+       quindi il canone in plan_price non è la cifra che verrà addebitata. Per
+       ricostruire il lordo serve il paese di fatturazione, che sta su
+       billing_profile (scritto dal webhook dall'indirizzo del customer Stripe).
+       Se la select non passa — RLS, oppure profilo non ancora creato — si resta
+       sul netto SENZA etichettarlo: meglio un importo non annotato che una
+       promessa "IVA inclusa" costruita su un'aliquota indovinata. */
+    async function fetchBillingProfile(){
+      try {
+        var r = await sb.from('billing_profile').select('country,vat_id').limit(1).maybeSingle();
+        if (r && !r.error && r.data && r.data.country) return r.data;
+      } catch(e){ /* profilo non leggibile: si degrada al netto */ }
+      return null;
+    }
+
+    // UE senza Italia: con P.IVA l'imposta è a carico del cliente (inversione
+    // contabile). Stessa regola applicata dal checkout, aliquote da iva.config.js.
+    function isEuNonItaly(c){
+      return c !== 'IT' && typeof SEVENDA_IVA !== 'undefined' && !!SEVENDA_IVA.euCountries[c];
+    }
+
+    // null = non sappiamo l'aliquota, l'importo va mostrato nudo.
+    function renewalVat(net, billing){
+      if (net === null || net === undefined || net === '') return null;
+      if (!billing || typeof getVatRate !== 'function' || typeof calcVat !== 'function') return null;
+      var n = Number(net);
+      if (isNaN(n)) return null;
+      var c = String(billing.country || '').toUpperCase();
+      if (!c) return null;
+      if (isEuNonItaly(c) && billing.vat_id) return { reverseCharge: true, rate: 0, gross: n };
+      var rate = getVatRate(c);
+      return { reverseCharge: false, rate: rate, gross: calcVat(n, rate).gross };
+    }
+
+    // 0.22 → "22", 0.255 → "25.5" (il prodotto float darebbe 22.000000000000004)
+    function pctLabel(rate){
+      return String(Math.round(rate * 1000) / 10);
     }
 
     // ── Sessione / token ───────────────────────────────────────────────────────
@@ -481,6 +524,9 @@
         // dal checkout → "nessun piano attivo" (non un errore).
         var overview = await rpc('get_subscription_overview', {});
         state.overview = overview;
+        // Serve solo se c'è un rinnovo da quotare; un errore qui non deve
+        // impedire il render dell'abbonamento.
+        state.billing = (overview && overview.renews_on) ? await fetchBillingProfile() : null;
         renderSubscription(overview);
         showScreen('scMain');
       } catch(e){
@@ -546,9 +592,19 @@
       // Prossimo addebito solo se è previsto un rinnovo. renewal_amount può essere
       // null (price non risolvibile in plan_price → plan_not_resolvable): reso come
       // "—", mai €0,00. currency ha fallback 'EUR' lato funzione (mai null).
+      // L'importo mostrato è quello che verrà addebitato, IVA compresa.
       if (renews && !cancels){
-        var amt = fmtAmount(overview.renewal_amount, overview.currency);
-        html += rowHtml(tr('acct.label.amount','Next charge'), escapeHtml(amt || '—'));
+        var vat = renewalVat(overview.renewal_amount, state.billing);
+        var amt = fmtAmount(vat ? vat.gross : overview.renewal_amount, overview.currency);
+        var note = '';
+        if (amt && vat && vat.reverseCharge){
+          note = tr('acct.amount.reverseCharge','reverse charge');
+        } else if (amt && vat && vat.rate > 0){
+          note = tr('acct.amount.vatIncl','VAT {rate}% incl.').replace('{rate}', pctLabel(vat.rate));
+        }
+        var amtHtml = escapeHtml(amt || '—') +
+          (note ? ' <span class="vnote">' + escapeHtml(note) + '</span>' : '');
+        html += rowHtml(tr('acct.label.amount','Next charge'), amtHtml);
       }
       var validFrom = fmtDate(overview.plan_started_at || overview.activated_at);
       if (validFrom){
