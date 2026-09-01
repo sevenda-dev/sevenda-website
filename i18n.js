@@ -113,14 +113,12 @@ const SEVENDA_I18N = {
     /* ── NAV comune ── */
     'nav.features':'Features','nav.insights':'Insights','nav.usecases':'Use Cases',
     'nav.how':'How it works','nav.pricing':'Pricing','nav.docs':'Docs','nav.faq':'FAQ','nav.privacy':'Privacy Policy',
-    'nav.cta':'Add to Chrome',
     'nav.account':'Account','nav.logout':'Logout',
 
     /* ── HERO (index) ── */
     'hero.pill':'Now powered by Claude Sonnet 4 →',
     'hero.h1':'Every click tells a story.<br><span class="dim">Sevenda reads it.</span>',
     'hero.sub':'Sevenda records your browser session and instantly generates BPMN 2.0 process diagrams AND actionable insights — helping developers, business analysts and marketing teams understand what really happens inside their digital processes.',
-    'hero.cta1':'Add to Chrome — it\'s free',
 
     /* ── HOW IT WORKS (index) ── */
     'how.label':'How it works',
@@ -199,7 +197,6 @@ const SEVENDA_I18N = {
     /* ── CTA FOOTER (index) ── */
     'ctaf.h':'Start documenting<br>in seconds.',
     'ctaf.sub':'Join developers, analysts and marketers who let Sevenda do the heavy lifting.',
-    'ctaf.cta':'Add to Chrome — it\'s free','ctaf.note':'No account required · 14-day free trial',
 
     /* ── DOCS.HTML ── */
     'dpage.pill':'User Manual · Version 0.2.0',
@@ -518,13 +515,11 @@ const SEVENDA_I18N = {
 
     'nav.features':'Funzionalità','nav.insights':'Insights','nav.usecases':'Casi d\'uso',
     'nav.how':'Come funziona','nav.pricing':'Prezzi','nav.docs':'Docs','nav.faq':'FAQ','nav.privacy':'Privacy Policy',
-    'nav.cta':'Aggiungi a Chrome',
     'nav.account':'Account','nav.logout':'Esci',
 
     'hero.pill':'Ora con Claude Sonnet 4 →',
     'hero.h1':'Ogni click racconta una storia.<br><span class="dim">Sevenda la legge.</span>',
     'hero.sub':'Sevenda registra la tua sessione browser e genera istantaneamente diagrammi di processo BPMN 2.0 e insight operativi — aiutando developer, business analyst e team marketing a capire cosa succede davvero nei loro processi digitali.',
-    'hero.cta1':'Aggiungi a Chrome — è gratis',
 
     'how.label':'Come funziona',
     'how.title':'Tre passi verso il<br>diagramma BPMN',
@@ -594,7 +589,6 @@ const SEVENDA_I18N = {
 
     'ctaf.h':'Inizia a documentare<br>in pochi secondi.',
     'ctaf.sub':'Unisciti a developer, analisti e marketer che lasciano che Sevenda faccia il lavoro pesante.',
-    'ctaf.cta':'Aggiungi a Chrome — è gratis','ctaf.note':'Nessun account richiesto · Prova gratuita di 14 giorni',
 
     'dpage.pill':'Manuale Utente · Versione 0.2.0',
     'dpage.h1':'Sevenda<br>Guida Completa',
@@ -909,13 +903,11 @@ const SEVENDA_I18N = {
 
     'nav.features':'Funciones','nav.insights':'Insights','nav.usecases':'Casos de uso',
     'nav.how':'Cómo funciona','nav.pricing':'Precios','nav.docs':'Docs','nav.faq':'FAQ','nav.privacy':'Política de Privacidad',
-    'nav.cta':'Añadir a Chrome',
     'nav.account':'Cuenta','nav.logout':'Salir',
 
     'hero.pill':'Ahora con Claude Sonnet 4 →',
     'hero.h1':'Cada clic cuenta una historia.<br><span class="dim">Sevenda la lee.</span>',
     'hero.sub':'Sevenda graba tu sesión de navegador y genera instantáneamente diagramas de proceso BPMN 2.0 e insights accionables — ayudando a desarrolladores, analistas de negocio y equipos de marketing a entender qué ocurre realmente en sus procesos digitales.',
-    'hero.cta1':'Añadir a Chrome — es gratis',
 
     'how.label':'Cómo funciona',
     'how.title':'Tres pasos hacia un<br>diagrama BPMN',
@@ -985,7 +977,6 @@ const SEVENDA_I18N = {
 
     'ctaf.h':'Empieza a documentar<br>en segundos.',
     'ctaf.sub':'Únete a desarrolladores, analistas y marketers que dejan que Sevenda haga el trabajo pesado.',
-    'ctaf.cta':'Añadir a Chrome — es gratis','ctaf.note':'Sin cuenta requerida · Prueba gratuita de 14 días',
 
     'dpage.pill':'Manual de Usuario · Versión 0.2.0',
     'dpage.h1':'Sevenda<br>Guía Completa',
@@ -1300,13 +1291,11 @@ const SEVENDA_I18N = {
 
     'nav.features':'Fonctionnalités','nav.insights':'Insights','nav.usecases':'Cas d\'usage',
     'nav.how':'Comment ça marche','nav.pricing':'Tarifs','nav.docs':'Docs','nav.faq':'FAQ','nav.privacy':'Politique de Confidentialité',
-    'nav.cta':'Ajouter à Chrome',
     'nav.account':'Compte','nav.logout':'Déconnexion',
 
     'hero.pill':'Maintenant avec Claude Sonnet 4 →',
     'hero.h1':'Chaque clic raconte une histoire.<br><span class="dim">Sevenda la lit.</span>',
     'hero.sub':'Sevenda enregistre votre session de navigation et génère instantanément des diagrammes de processus BPMN 2.0 et des insights actionnables — aidant les développeurs, analystes métier et équipes marketing à comprendre ce qui se passe vraiment dans leurs processus digitaux.',
-    'hero.cta1':'Ajouter à Chrome — c\'est gratuit',
 
     'how.label':'Comment ça marche',
     'how.title':'Trois étapes vers un<br>diagramme BPMN',
@@ -1376,7 +1365,6 @@ const SEVENDA_I18N = {
 
     'ctaf.h':'Commencez à documenter<br>en quelques secondes.',
     'ctaf.sub':'Rejoignez les développeurs, analystes et marketers qui laissent Sevenda faire le travail.',
-    'ctaf.cta':'Ajouter à Chrome — c\'est gratuit','ctaf.note':'Aucun compte requis · Essai gratuit de 14 jours',
 
     'dpage.pill':'Manuel Utilisateur · Version 0.2.0',
     'dpage.h1':'Sevenda<br>Guide Complet',

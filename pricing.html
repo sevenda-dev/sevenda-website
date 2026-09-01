@@ -85,13 +85,6 @@
       cursor: pointer; transition: color .18s;
     }
     .nav-lang span:hover, .nav-lang span.on { color: var(--text-2); }
-    .btn-chrome {
-      font-size: 12px; font-weight: 500;
-      padding: 7px 16px; border-radius: 6px;
-      background: var(--green); color: #0c0c0c;
-      transition: opacity .2s;
-    }
-    .btn-chrome:hover { opacity: .82; }
 
     /* ─── HERO ───────────────────────────────────────── */
     .hero {
@@ -367,6 +360,8 @@
       border: 1px dashed var(--border-2); color: var(--text-3);
     }
     .cta-ghost:hover { color: var(--text-2); border-color: var(--text-3); }
+    /* CTA non attiva: il piano non è acquistabile per la fascia di posti scelta */
+    .card-cta-off { opacity: .45; cursor: default; pointer-events: none; }
 
     /* card entry animation */
     @keyframes cardIn {
@@ -773,7 +768,6 @@
       <span class="lang-btn on active" data-lang="en" onclick="setLang('en')">EN</span><span class="lang-btn" data-lang="it" onclick="setLang('it')">IT</span><span class="lang-btn" data-lang="es" onclick="setLang('es')">ES</span><span class="lang-btn" data-lang="fr" onclick="setLang('fr')">FR</span>
     </div>
     <div id="nav-auth-area"></div>
-    <a href="#" class="btn-chrome">Add to Chrome</a>
   </div>
 </nav>
 
@@ -1587,7 +1581,8 @@ function render() {
       ctaEl = `<button class="card-cta ${ctaCls}" onclick="addToCheckout('${planId}', '${plan.name}', ${totalNet}, '${S.seats}', ${qty})">${plan.cta}</button>`;
     } else {
       // Free or not applicable for this seat range
-      ctaEl = `<a href="https://chromewebstore.google.com/detail/sevenda/PLACEHOLDER" class="card-cta ${ctaCls}" target="_blank">${plan.cta}</a>`;
+      // Nessun link al Chrome Web Store fuori dal checkout: CTA non attiva
+      ctaEl = `<span class="card-cta ${ctaCls} card-cta-off" aria-disabled="true">${plan.cta}</span>`;
     }
 
     grid.innerHTML += `

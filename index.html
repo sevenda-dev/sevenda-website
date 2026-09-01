@@ -220,21 +220,10 @@
       font-size: clamp(16px, 2vw, 19px);
       color: var(--muted);
       max-width: 600px;
-      margin: 0 auto 42px;
+      margin: 0 auto 96px;
       line-height: 1.65;
       animation: fadeUp .5s ease .2s both;
     }
-
-    .hero-ctas {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-bottom: 68px;
-      animation: fadeUp .5s ease .28s both;
-    }
-    .hero-ctas .btn-primary { font-size: 15px; padding: 12px 22px; }
-    .hero-ctas .btn-ghost   { font-size: 15px; padding: 12px 22px; }
 
     /* ── MOCKUP ──────────────────────────────────────────────── */
     .mockup-outer {
@@ -857,15 +846,8 @@
     .cta-sub {
       font-size: 16px;
       color: var(--muted);
-      margin: 0 0 36px;
+      margin: 0;
       line-height: 1.6;
-    }
-    .cta-note {
-      font-family: var(--mono);
-      font-size: 12px;
-      color: var(--dim);
-      margin-top: 16px;
-      letter-spacing: .02em;
     }
 
     /* ── PAGE FOOTER ─────────────────────────────────────────── */
@@ -1055,10 +1037,7 @@
       /* Hero */
       #hero { padding: 72px 20px 60px; }
       h1 { font-size: clamp(2.5rem, 8vw, 6rem); letter-spacing: -.03em; }
-      .hero-sub { max-width: 100%; }
-      .hero-ctas { flex-direction: column; align-items: stretch; }
-      .hero-ctas .btn-primary,
-      .hero-ctas .btn-ghost { width: 100%; justify-content: center; font-size: 15px; }
+      .hero-sub { max-width: 100%; margin-bottom: 64px; }
 
       /* Mockup: flatten 3D tilt, prevent overflow */
       .mockup { transform: none; max-width: 100%; }
@@ -1958,10 +1937,6 @@
     digital processes.
   </p>
 
-  <div class="hero-ctas">
-    <a href="#" class="btn btn-primary" data-i18n="hero.cta1">Add to Chrome — it's free</a>
-  </div>
-
   <!-- DevTools panel mockup -->
   <div class="wrap">
     <div class="mockup-outer">
@@ -2580,10 +2555,6 @@
   <div class="cta-foot-inner reveal">
     <p class="cta-h" data-i18n-html="ctaf.h">Start documenting<br>in seconds.</p>
     <p class="cta-sub" data-i18n="ctaf.sub">Join developers, analysts and marketers who let Sevenda do the heavy lifting.</p>
-    <a href="#" class="btn btn-primary" style="font-size:15px;padding:13px 28px;" data-i18n="ctaf.cta">
-      Add to Chrome — it's free
-    </a>
-    <p class="cta-note" data-i18n="ctaf.note">No account required · 14-day free trial</p>
   </div>
 </section>
 
@@ -3205,7 +3176,6 @@
             <div class="cta-benefit">Export to Camunda, Jira, .docx</div>
           </div>
           <div class="cta-final-actions">
-            <button class="cta-btn primary" onclick="window.open('https://chrome.google.com/webstore', '_blank')">Add to Chrome — It's Free</button>
             <button class="cta-btn secondary" onclick="alert('Schedule demo would open Calendly')">Schedule 15-min Demo</button>
           </div>
           <!-- Trust Elements -->
