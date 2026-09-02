@@ -158,12 +158,15 @@
         // Con Sign in / Retry in campo la CTA di installazione non è l'azione
         // primaria: passa a ghost per non competere con quella che sblocca il piano.
         cta.classList.remove('btn-ghost');
+        // Ripristina la visibilità: lo stato 'signin' la nasconde (vedi sotto).
+        cta.style.display = '';
 
         if (si && activation !== 'activated' && status !== 'processing' && !(status && status !== 'succeeded')) {
           // ── Fase 2 in corso o fallita: niente "Next steps" né area account
           //    finché non è chiusa, perché il piano non è ancora attivo. La CTA
-          //    di installazione invece resta: la carta è già salvata e nello
-          //    stato 'signin' il login si fa proprio dall'estensione. ──
+          //    di installazione resta negli altri stati, ma non in 'signin':
+          //    lì l'unica azione è il login, e l'invito a installare l'estensione
+          //    arriva nella pagina successiva (trial avviato / piano attivo). ──
           if (activation === 'failed') {
             icon.className = 'icon err'; icon.textContent = '!';
             title.removeAttribute('data-i18n'); title.textContent = tt('cs.title.activationFailed', 'Plan not activated yet');
@@ -185,7 +188,9 @@
             retry.disabled = false;
             // display esplicito: '' scoprirebbe la regola #retry{display:none}
             retry.style.display = 'inline-block';
-            cta.classList.add('btn-ghost');
+            // Niente "Add to Chrome" qui: la propone la pagina in cui l'utente
+            // atterra dopo il login.
+            cta.style.display = 'none';
           } else {
             icon.className = 'icon wait'; icon.textContent = '⏳';
             title.removeAttribute('data-i18n'); title.textContent = tt('cs.title.activating', 'Activating your plan');
