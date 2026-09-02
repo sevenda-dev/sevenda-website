@@ -368,28 +368,29 @@
     <div class="sh">
       <span class="sh-eyebrow" data-i18n="ds.02.eye">02 — Installation</span>
       <h2 data-i18n="ds.02.h2">Installing Sevenda</h2>
-      <p data-i18n="ds.02.p">Install from an unpacked folder in under 2 minutes.</p>
+      <p data-i18n="ds.02.p">Install from the Chrome Web Store in under a minute.</p>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start;">
       <div class="steps">
-        <div class="step"><div class="step-col"><div class="step-n">1</div><div class="step-line"></div></div><div class="step-body"><div class="step-h">Open extensions page</div><div class="step-p">Navigate to <code>chrome://extensions/</code> in your browser.</div></div></div>
-        <div class="step"><div class="step-col"><div class="step-n">2</div><div class="step-line"></div></div><div class="step-body"><div class="step-h">Enable Developer mode</div><div class="step-p">Toggle in the top right — it should turn green.</div></div></div>
-        <div class="step"><div class="step-col"><div class="step-n">3</div><div class="step-line"></div></div><div class="step-body"><div class="step-h">Load unpacked extension</div><div class="step-p">Click the button and select the root folder of the Sevenda project.</div></div></div>
-        <div class="step"><div class="step-col"><div class="step-n">4</div></div><div class="step-body"><div class="step-h">Icon in the toolbar</div><div class="step-p">The <strong>≋</strong> icon appears in the Chrome toolbar. Installation complete.</div><div class="tags"><span class="tag green">✓ Ready</span></div></div></div>
+        <div class="step"><div class="step-col"><div class="step-n">1</div><div class="step-line"></div></div><div class="step-body"><div class="step-h">Open the Chrome Web Store</div><div class="step-p">Go to the <a href="https://chromewebstore.google.com/detail/sevenda/nhlnbjlgfcgcoihkddmbnfdojgpmcjom" target="_blank" rel="noopener">Sevenda listing</a>.</div></div></div>
+        <div class="step"><div class="step-col"><div class="step-n">2</div><div class="step-line"></div></div><div class="step-body"><div class="step-h">Add to Chrome</div><div class="step-p">Click <strong>Add to Chrome</strong> and confirm the permissions dialog.</div></div></div>
+        <div class="step"><div class="step-col"><div class="step-n">3</div><div class="step-line"></div></div><div class="step-body"><div class="step-h">Icon in the toolbar</div><div class="step-p">The <strong>≋</strong> icon appears in the Chrome toolbar.</div></div></div>
+        <div class="step"><div class="step-col"><div class="step-n">4</div></div><div class="step-body"><div class="step-h">Open DevTools</div><div class="step-p">Press <code>F12</code> and pick the <strong>Sevenda</strong> tab. Installation complete.</div><div class="tags"><span class="tag green">✓ Ready</span></div></div></div>
       </div>
       <div>
         <div class="mockup">
           <div class="mkbar"><div class="mkdot r"></div><div class="mkdot y"></div><div class="mkdot g"></div><div class="mktitle">chrome://extensions/</div></div>
           <div class="mkbody" style="color:var(--muted)">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;"><span style="color:var(--text);font-size:14px;font-family:var(--sans);font-weight:600;">Extensions</span><span style="color:var(--green);font-size:11px;">● Developer mode active</span></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;"><span style="color:var(--text);font-size:14px;font-family:var(--sans);font-weight:600;">Extensions</span><span style="color:var(--green);font-size:11px;">● Installed from the Web Store</span></div>
             <div style="background:var(--surface);border:1px solid var(--border-hi);border-radius:8px;padding:16px;display:flex;align-items:center;gap:14px;">
               <div style="width:36px;height:36px;background:#1a1a1a;border:1px solid var(--border);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:18px;">≋</div>
-              <div><div style="color:var(--text);font-family:var(--sans);font-size:13px;font-weight:600;margin-bottom:2px;">Sevenda <span style="color:var(--muted);font-size:11px;font-family:var(--mono);">0.2.0</span></div><div style="font-size:11px;color:var(--muted);">Records browser sessions and generates BPMN 2.0</div></div>
+              <div><div style="color:var(--text);font-family:var(--sans);font-size:13px;font-weight:600;margin-bottom:2px;">Sevenda <span style="color:var(--muted);font-size:11px;font-family:var(--mono);">0.3.3</span></div><div style="font-size:11px;color:var(--muted);">Records browser sessions and generates BPMN 2.0</div></div>
               <div style="margin-left:auto;color:var(--green);font-size:18px;">●</div>
             </div>
           </div>
         </div>
         <div class="alert tip" style="margin-top:16px"><span class="alert-icon">💡</span><div>After installation, configure the Anthropic API key in Settings. Without a key, AI generation is unavailable.</div></div>
+        <div class="alert info" style="margin-top:12px"><span class="alert-icon">ℹ</span><div><strong>Developer build</strong> — to run Sevenda from source, open <code>chrome://extensions/</code>, turn on Developer mode and use <strong>Load unpacked</strong> on the project root. The published build and the unpacked one share the same extension ID.</div></div>
       </div>
     </div>
   </div>

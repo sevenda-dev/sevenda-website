@@ -211,24 +211,83 @@
     // L'ID non è hard-codato: cambierebbe fra build unpacked e Web Store. Lo
     // pubblica il content script dell'estensione su questo origin, e il canale è
     // ristretto lato manifest con externally_connectable.
+    // Il risveglio di un service worker MV3 e' quasi sempre sotto il secondo.
+    // 10s copre la macchina sotto carico senza lasciare l'utente davanti a un
+    // bottone bloccato per sempre.
+    const RELAY_TIMEOUT_MS = 10000;
+
+    // I tre modi in cui la consegna puo' fallire richiedono messaggi diversi:
+    // il codice serve a distinguerli senza fare pattern matching sul testo.
+    function relayError(code, message) {
+      const e = new Error(message);
+      e.code = code;
+      return e;
+    }
+
     function relaySession(session) {
       const extId = document.documentElement.dataset.sevendaExtensionId;
       const rt = window.chrome && chrome.runtime;
       if (!extId || !rt || !rt.sendMessage) {
-        return Promise.reject(new Error(
+        return Promise.reject(relayError('extension_not_found',
           'Sevenda extension not detected in this browser — is it installed and enabled?'));
       }
       return new Promise((resolve, reject) => {
+        // La callback puo' arrivare DOPO la scadenza del timer: senza questo
+        // flag risolverebbe una Promise gia' rigettata, e il bottone resterebbe
+        // su "Retry delivery" per una consegna in realta' riuscita.
+        // Il caso opposto — timeout scattato ma sessione gia' arrivata, con
+        // l'utente che ritenta — e' innocuo: il service worker riceve due volte
+        // la stessa sessione e la seconda sovrascrive la prima.
+        let settled = false;
+
+        const timer = setTimeout(() => {
+          if (settled) return;
+          settled = true;
+          // Caso tipico: il service worker ha ritornato true dal listener ed e'
+          // stato terminato da Chrome prima di chiamare sendResponse.
+          reject(relayError('relay_timeout',
+            'The extension did not answer. This usually clears on a second attempt — '
+            + 'your session is still valid, you do not need a new code.'));
+        }, RELAY_TIMEOUT_MS);
+
         rt.sendMessage(extId, { type: 'SEVENDA_AUTH_SESSION', session }, (res) => {
-          if (rt.lastError)      return reject(new Error(rt.lastError.message));
+          if (settled) return;
+          settled = true;
+          clearTimeout(timer);
+          if (rt.lastError) return reject(relayError('relay_unreachable', rt.lastError.message));
           // Il service worker risponde con `error` (codice) e, quando serve,
           // `message` (spiegazione azionabile). Mostrare solo il codice lascia
           // l'utente davanti a "environment_mismatch" senza sapere cosa farne.
-          if (!res || !res.ok)   return reject(new Error(
+          if (!res || !res.ok) return reject(relayError('relay_refused',
             (res && (res.message || res.error)) || 'relay refused'));
           resolve();
         });
       });
+    }
+
+    // Sessione gia' verificata e in attesa di consegna. Esiste solo nel ramo
+    // relay e solo finche' la consegna non riesce.
+    let pendingSession = null;
+
+    // Consegna (o riconsegna) la sessione all'estensione. Separata dal giro OTP
+    // di proposito: qui il codice e' gia' stato consumato, quindi un fallimento
+    // non deve costringere l'utente a chiederne un altro.
+    async function deliverPendingSession() {
+      const btn = $('verifyBtn');
+      btn.disabled = true;
+      btn.textContent = 'Delivering…';
+      setCodeMsg('');
+      try {
+        await relaySession(pendingSession);
+        pendingSession = null;
+        show('doneState');
+      } catch (e) {
+        setCodeMsg('✗ ' + (e && e.message ? e.message : 'Could not reach the extension.'), 'err');
+        btn.disabled = false;
+        // L'etichetta dice cosa succede davvero al click: si ritenta la sola
+        // consegna, non la verifica del codice.
+        btn.textContent = 'Retry delivery';
+      }
     }
 
     // ── hCaptcha wiring ──────────────────────────────────────────────────────
@@ -304,6 +363,10 @@
       const token = ($('code').value || '').replace(/\s+/g, '');   // spazio ammesso: "1234 5678"
       if (!/^\d{8}$/.test(token)) { setCodeMsg('Enter the 8-digit code.', 'err'); return; }
 
+      // Retry della sola consegna: il codice e' gia' stato bruciato da un
+      // verifyOtp andato a buon fine, ripeterlo darebbe "token expired".
+      if (pendingSession) { await deliverPendingSession(); return; }
+
       const btn = $('verifyBtn'); btn.disabled = true; btn.textContent = 'Verifying…'; setCodeMsg('');
       try {
         const { data, error } = await sb.auth.verifyOtp({ email, token, type: 'email' });
@@ -312,10 +375,13 @@
         if (!session || !session.access_token) throw new Error('No session returned.');
 
         if (RELAY) {
-          await relaySession(session);
-        } else {
-          $('doneSub').textContent = 'You can close this tab.';
+          // Da qui l'OTP e' consumato. La sessione resta in memoria: se la
+          // consegna fallisce, deliverPendingSession() la ritenta da sola.
+          pendingSession = session;
+          await deliverPendingSession();
+          return;
         }
+        $('doneSub').textContent = 'You can close this tab.';
         show('doneState');
       } catch (e) {
         setCodeMsg('✗ ' + (e && e.message ? e.message : 'Could not verify the code.'), 'err');
@@ -328,6 +394,9 @@
     });
 
     $('resendBtn').addEventListener('click', () => {
+      // Tornare indietro annulla anche la consegna in sospeso: la sessione
+      // vecchia non va riusata con un'altra email.
+      pendingSession = null;
       setMsg(''); setCodeMsg('');
       $('sendBtn').textContent = 'Send code';
       $('code').value = '';
