@@ -100,16 +100,6 @@ nav.scrolled {
 .nav-links a { font-size: 14px; color: var(--muted); text-decoration: none; transition: color .15s; }
 .nav-links a:hover, .nav-links a.active { color: var(--text); }
 
-.nav-cta {
-  display: inline-flex; align-items: center; gap: 6px;
-  font-family: var(--sans); font-weight: 500;
-  border-radius: var(--r); border: 1px solid transparent;
-  cursor: pointer; transition: all .15s; white-space: nowrap; line-height: 1;
-  background: #fff; color: #0d0d0d; border-color: #fff;
-  padding: 9px 17px; font-size: 14px; text-decoration: none;
-}
-.nav-cta:hover { background: #e0e0de; box-shadow: 0 0 0 3px rgba(255,255,255,.1); }
-
 .nav-burger {
   display: none; background: none; border: none; cursor: pointer;
   padding: 6px; flex-direction: column; gap: 5px; z-index: 110;
@@ -130,8 +120,6 @@ nav.scrolled {
 }
 .nav-drawer.open { display: flex; }
 .nav-drawer a { font-size: 24px; font-weight: 600; color: #fff; text-decoration: none; letter-spacing: -.02em; }
-.nav-drawer .drawer-cta { margin-top: 8px; background: #fff; color: #000; font-weight: 600; padding: 12px 28px; border-radius: 6px; }
-
 @media (max-width: 768px) {
   .nav-links { display: none; }
   .nav-burger { display: flex; }
@@ -391,7 +379,6 @@ footer {
     <li><a href="pricing.html" data-i18n="nav.pricing">Pricing</a></li>
     <li><a href="docs.html" data-i18n="nav.docs">Docs</a></li>
     <li><a href="faq.html" class="active" data-i18n="nav.faq">FAQ</a></li>
-    <li><a href="#" class="nav-cta" data-i18n="nav.cta">Add to Chrome</a></li>
   </ul>
   <div class="lang-sw">
     <button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
@@ -412,7 +399,6 @@ footer {
   <a href="pricing.html" data-i18n="nav.pricing">Pricing</a>
   <a href="docs.html" data-i18n="nav.docs">Docs</a>
   <a href="faq.html" data-i18n="nav.faq">FAQ</a>
-  <a href="#" class="drawer-cta" data-i18n="nav.cta">Add to Chrome</a>
   <div class="lang-sw" style="margin-top:8px;">
     <button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
     <button class="lang-btn" data-lang="it" onclick="setLang('it')">IT</button>

@@ -298,6 +298,15 @@
         max-width: 150px; overflow: hidden;
         text-overflow: ellipsis; white-space: nowrap;
       }
+      .nav-auth-account {
+        font-size: 12px; color: #e8e8e6; text-decoration: none;
+        background: none; border: 1px solid rgba(255,255,255,.13);
+        border-radius: 5px; padding: 5px 10px; font-family: inherit;
+        line-height: 1; white-space: nowrap;
+        transition: color .15s, border-color .15s, background .15s;
+      }
+      .nav-auth-account:hover { border-color: rgba(255,255,255,.32); background: rgba(255,255,255,.05); }
+
       .nav-auth-logout {
         font-size: 12px; color: #6e6e6a; cursor: pointer;
         background: none; border: 1px solid rgba(255,255,255,.1);
@@ -759,11 +768,20 @@
     if (session && session.user) {
       const email    = session.user.email || '';
       const initials = email.charAt(0).toUpperCase();
+      // Etichette tradotte quando i18n.js è presente (nav.account / nav.logout)
+      const tr = (k, fb) => {
+        try { const v = window.t && window.t(k); return (v && v !== k) ? v : fb; }
+        catch (e) { return fb; }
+      };
       area.innerHTML = `
         <div class="nav-auth-user">
-          <div class="nav-auth-avatar" title="${email}">${initials}</div>
-          <span class="nav-auth-email">${email}</span>
-          <button class="nav-auth-logout" onclick="SevendaAuth._logout()">Logout</button>
+          <a class="nav-auth-account-link" href="/account" title="${email}"
+             style="display:flex;align-items:center;gap:8px;text-decoration:none">
+            <div class="nav-auth-avatar">${initials}</div>
+            <span class="nav-auth-email">${email}</span>
+          </a>
+          <a class="nav-auth-account" href="/account">${tr('nav.account','Account')}</a>
+          <button class="nav-auth-logout" onclick="SevendaAuth._logout()">${tr('nav.logout','Logout')}</button>
         </div>
       `;
     } else {

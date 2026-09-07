@@ -217,24 +217,37 @@
     h1 .dim { color: #ffffff; }
 
     .hero-sub {
-      font-size: clamp(16px, 2vw, 19px);
-      color: var(--muted);
-      max-width: 600px;
-      margin: 0 auto 42px;
-      line-height: 1.65;
+      font-size: clamp(16.5px, 1.75vw, 20px);
+      color: #9d9d97;
+      max-width: 640px;
+      margin: 0 auto 96px;
+      line-height: 1.62;
+      letter-spacing: -.011em;
+      /* righe di lunghezza omogenea invece dell'ultima riga orfana */
+      text-wrap: balance;
       animation: fadeUp .5s ease .2s both;
     }
-
-    .hero-ctas {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-bottom: 68px;
-      animation: fadeUp .5s ease .28s both;
+    /* I due termini che dicono cosa esce davvero dal prodotto */
+    .hero-sub .hs-em { color: var(--text); font-weight: 500; }
+    /* Il maiuscolo di "AND" urlava fra due termini già in evidenza: qui
+       diventa un connettore tipografico, piccolo e in secondo piano */
+    .hero-sub .hs-and {
+      font-family: var(--mono);
+      font-size: .72em;
+      letter-spacing: .1em;
+      color: var(--muted);
+      padding: 0 2px;
     }
-    .hero-ctas .btn-primary { font-size: 15px; padding: 12px 22px; }
-    .hero-ctas .btn-ghost   { font-size: 15px; padding: 12px 22px; }
+    /* "BPMN 2.0" è lo standard, non una parola qualsiasi: mono + accento */
+    .hero-sub .hs-mono {
+      font-family: var(--mono);
+      font-size: .87em;
+      letter-spacing: -.005em;
+      color: var(--green);
+      white-space: nowrap;
+      padding-bottom: 1px;
+      border-bottom: 1px solid rgba(232,115,58,.32);
+    }
 
     /* ── MOCKUP ──────────────────────────────────────────────── */
     .mockup-outer {
@@ -857,15 +870,8 @@
     .cta-sub {
       font-size: 16px;
       color: var(--muted);
-      margin: 0 0 36px;
+      margin: 0;
       line-height: 1.6;
-    }
-    .cta-note {
-      font-family: var(--mono);
-      font-size: 12px;
-      color: var(--dim);
-      margin-top: 16px;
-      letter-spacing: .02em;
     }
 
     /* ── PAGE FOOTER ─────────────────────────────────────────── */
@@ -1055,10 +1061,7 @@
       /* Hero */
       #hero { padding: 72px 20px 60px; }
       h1 { font-size: clamp(2.5rem, 8vw, 6rem); letter-spacing: -.03em; }
-      .hero-sub { max-width: 100%; }
-      .hero-ctas { flex-direction: column; align-items: stretch; }
-      .hero-ctas .btn-primary,
-      .hero-ctas .btn-ghost { width: 100%; justify-content: center; font-size: 15px; }
+      .hero-sub { max-width: 100%; margin-bottom: 64px; }
 
       /* Mockup: flatten 3D tilt, prevent overflow */
       .mockup { transform: none; max-width: 100%; }
@@ -1951,16 +1954,14 @@
 
   <h1 data-i18n-html="hero.h1">Every click tells a story.<br><span class="dim">Sevenda reads it.</span></h1>
 
-  <p class="hero-sub" data-i18n="hero.sub">
-    Sevenda records your browser session and instantly generates BPMN&nbsp;2.0
-    process diagrams AND actionable insights — helping developers, business
+  <p class="hero-sub" data-i18n-html="hero.sub">
+    Sevenda records your browser session and instantly generates
+    <span class="hs-mono">BPMN&nbsp;2.0</span>
+    <span class="hs-em">process diagrams</span> <span class="hs-and">AND</span>
+    <span class="hs-em">actionable insights</span> — helping developers, business
     analysts and marketing teams understand what really happens inside their
     digital processes.
   </p>
-
-  <div class="hero-ctas">
-    <a href="#" class="btn btn-primary" data-i18n="hero.cta1">Add to Chrome — it's free</a>
-  </div>
 
   <!-- DevTools panel mockup -->
   <div class="wrap">
@@ -2013,7 +2014,7 @@
                 <!-- Pool -->
                 <rect x="1" y="1" width="528" height="120" rx="4" fill="rgba(255,255,255,.018)" stroke="rgba(255,255,255,.1)" stroke-width="1"/>
                 <!-- Lane strip -->
-                <rect x="1" y="1" width="20" height="120" fill="rgba(255,255,255,.025)" stroke="rgba(255,255,255,.09)" stroke-width="1" rx="4 0 0 4"/>
+                <path d="M5,1 H21 V121 H5 A4,4 0 0 1 1,117 V5 A4,4 0 0 1 5,1 Z" fill="rgba(255,255,255,.025)" stroke="rgba(255,255,255,.09)" stroke-width="1"/>
                 <text x="10" y="63" fill="rgba(255,255,255,.18)" font-size="7" font-family="Geist Mono,monospace" text-anchor="middle" transform="rotate(-90,10,63)">User</text>
 
                 <!-- Start event -->
@@ -2494,7 +2495,7 @@
         <a href="#" class="btn p-cta-team"
            data-action="checkout"
            data-plan="studio" data-qty="2"
-           data-i18n="plan.team.cta">Start with your team</a>
+           data-i18n="plan.team.cta">Start 14-day free trial</a>
       </div>
 
       <!-- ENTERPRISE -->
@@ -2580,10 +2581,6 @@
   <div class="cta-foot-inner reveal">
     <p class="cta-h" data-i18n-html="ctaf.h">Start documenting<br>in seconds.</p>
     <p class="cta-sub" data-i18n="ctaf.sub">Join developers, analysts and marketers who let Sevenda do the heavy lifting.</p>
-    <a href="#" class="btn btn-primary" style="font-size:15px;padding:13px 28px;" data-i18n="ctaf.cta">
-      Add to Chrome — it's free
-    </a>
-    <p class="cta-note" data-i18n="ctaf.note">No account required · 14-day free trial</p>
   </div>
 </section>
 
@@ -2719,7 +2716,12 @@
 
   function openDemo() { document.getElementById('demoOverlay').classList.add('active'); currentStep = 0; renderStep(); }
   function closeDemo() { document.getElementById('demoOverlay').classList.remove('active'); clearAllTimers(); }
-  document.getElementById('demoOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeDemo(); });
+  // #demoOverlay sta più in basso di questo script: senza attendere il DOM
+  // getElementById torna null e l'eccezione interrompe tutto il resto dello
+  // script inline (compreso il keydown di Escape in fondo).
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('demoOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeDemo(); });
+  });
 
   function setPersona(persona) {
     currentPersona = persona;
@@ -3205,7 +3207,6 @@
             <div class="cta-benefit">Export to Camunda, Jira, .docx</div>
           </div>
           <div class="cta-final-actions">
-            <button class="cta-btn primary" onclick="window.open('https://chrome.google.com/webstore', '_blank')">Add to Chrome — It's Free</button>
             <button class="cta-btn secondary" onclick="alert('Schedule demo would open Calendly')">Schedule 15-min Demo</button>
           </div>
           <!-- Trust Elements -->

@@ -1,5 +1,5 @@
 // ════════════════════════════════════════════════════════════════
-// Sevenda — Edge Function: create-subscription   (PATCH v2)
+// Sevenda — Edge Function: create-subscription   (PATCH v8)
 // ════════════════════════════════════════════════════════════════
 // Crea un Customer Stripe e una Subscription "incomplete", restituendo
 // il client_secret del PaymentIntent da confermare lato client con
@@ -20,6 +20,69 @@
 // Se trovato, il Customer viene riusato (e i dati di fatturazione
 // aggiornati); altrimenti se ne crea uno nuovo.
 //
+// PATCH v4 (trial 14gg): la subscription parte con trial_period_days=14. Con il
+// trial la prima fattura e' zero -> niente PaymentIntent: si usa il pending_setup_intent
+// (carta raccolta subito, addebito a fine trial). La risposta include mode
+// ("setup"|"payment"), trialEnd e trialDays per il branching lato checkout.html.
+//
+// PATCH v6 (metadata volatili rimossi): planId, interval e seats non vengono
+// più scritti nei metadata. Erano uno scatto congelato al momento del checkout
+// che nessuno aggiornava mai: il Customer Portal cambia piano, posti e ciclo
+// sugli ITEMS e non tocca i metadata. Osservato in staging il 03/08/2026 sulla
+// subscription sub_1Tu8Kc...: metadata planId="analyst"/seats="1" contro items
+// Suite Team con 2 posti — quattordici giorni e due cambi piano di ritardo.
+// Dalla v8 il webhook legge piano, ciclo e posti ESCLUSIVAMENTE dagli items e
+// non ha più alcun fallback sui metadata, quindi questi tre valori erano
+// diventati dato scritto e mai riletto: né dal webhook, né dall'estensione
+// (verificato: zero occorrenze). Lasciarli avrebbe significato conservare una
+// fonte plausibile e sbagliata a disposizione del prossimo che la trova.
+//   RESTANO: supabaseUserId (stabile, serve a resolveOrg e alle ricerche in
+//   dashboard), vatId e orgName sul Customer.
+//   NB: rimuovere una chiave da questo codice NON la cancella dagli oggetti
+//   Stripe già esistenti — l'update fa merge e encodeForm scarta i valori
+//   vuoti. La pulizia degli oggetti in essere va fatta a parte, via CLI.
+//
+// PATCH v5 (guard BR-001): prima di creare la subscription si verifica che
+// l'utente non abbia già una subscription live (trialing/active/past_due) sulla
+// propria organization. In tal caso si risponde 409 already_subscribed senza
+// creare nulla su Stripe: i cambi piano avvengono nel Customer Portal, non
+// ricreando una subscription. Chiude il difetto che produceva subscription/org
+// doppie. Best-effort: se i secret Supabase mancano, il guard è no-op (il
+// vincolo DB resta come rete di sicurezza a valle). NB: contro i checkout
+// ravvicinati (race prima che il webhook crei l'org) il guard non basta da solo
+// — la garanzia forte è il vincolo unique parziale su subscription(org_id).
+//
+// PATCH v7 (pre-check disponibilità del price): dopo la risoluzione del priceId
+// e PRIMA di creare la subscription si rilegge il price da Stripe con il product
+// espanso, e si richiede che siano attivi ENTRAMBI. I due casi osservati in
+// produzione sono diversi e nessuno dei due si sarebbe visto controllando un
+// campo solo: Auditor aveva price.active=true con product.active=false — ed è
+// così che è esploso — mentre Analyst ha ora price.active=false.
+//   Senza il controllo l'errore arrivava da /v1/subscriptions e il catch finale
+//   lo rimandava al client grezzo: un utente si è letto in pagina "The product
+//   prod_Ulntl... is marked as inactive... You provided the plan price_1TmGHc...".
+//   Gli identificativi Stripe non significano nulla per chi compra e non devono
+//   uscire dal server: restano nei log, al client va un testo generico.
+//   Il fallimento esce con un return dedicato e non con un throw, così il catch
+//   finale resta invariato e nessun altro percorso di errore cambia.
+//   Fail-closed anche quando il price non è leggibile o il product non risulta
+//   espanso: "non ho potuto verificare" non è "è a posto", e proseguire
+//   significherebbe ricadere esattamente nell'errore grezzo da evitare.
+//
+// PATCH v8 (validazione posti): la quantità viene verificata contro il range di
+// posti dichiarato dal piano (PLAN_SEATS) e RIFIUTATA se fuori, invece di essere
+// corretta in silenzio. Il limite esisteva solo in checkout.html, sui bottoni
+// +/− del contatore; questa funzione è però un endpoint pubblico (deploy con
+// --no-verify-jwt), quindi un POST diretto con quantity: 50 creava davvero una
+// subscription a 50 posti su un piano venduto fino a 20 — e dalla v8 il webhook
+// legge i posti dagli items, quindi quel numero sarebbe finito a DB come verità.
+//   Rifiuto e non clamp: addebitare un numero di posti diverso da quello
+//   richiesto è peggio dell'errore, perché passa inosservato fino alla fattura.
+//   Il vecchio Math.max(1, …) faceva esattamente questo, e per i piani team
+//   accettava anche 1 posto su un minimo di 2.
+//   Fail-closed sui piani non in tabella, come il pre-check v7: un piano di cui
+//   non si conosce il range non è un piano da vendere senza controllo.
+//
 // Deploy:  supabase functions deploy create-subscription --no-verify-jwt
 // Secrets opzionali per la mappa autorevole (consigliati):
 //   supabase secrets set SUPABASE_URL=https://<project>.supabase.co
@@ -27,6 +90,11 @@
 // ════════════════════════════════════════════════════════════════
 
 const STRIPE_API = "https://api.stripe.com/v1";
+const TRIAL_DAYS = 14;   // giorni di prova gratuita (carta subito, addebito a fine trial)
+
+// Stati considerati "vivi" per il guard BR-001 (una subscription in uno di
+// questi stati impedisce di crearne una seconda per lo stesso utente/org).
+const LIVE_SUB_STATES = ["trialing", "active", "past_due"];
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -42,6 +110,33 @@ const FALLBACK_PRICES: Record<string, { annual: string; monthly: string }> = {
   ssolo:   { annual: "price_REPLACE_ssolo_annual",   monthly: "price_REPLACE_ssolo_monthly" },
   steam:   { annual: "price_REPLACE_steam_annual",   monthly: "price_REPLACE_steam_monthly" },
 };
+
+// Range di posti vendibile per piano. Non è una preferenza di UI: è il vincolo
+// commerciale del piano, e l'unico posto del backend in cui è scritto. Deve
+// restare allineato a PLAN_CATALOG (stripe.config.js), che è ciò che l'utente
+// vede; le fasce interne 2–5 / 6–20 NON si replicano qui, perché sono scaglioni
+// di prezzo del price tiered su Stripe e non limiti di acquisto: dentro 2–20 il
+// Customer Portal può muovere i posti liberamente.
+const PLAN_SEATS: Record<string, { min: number; max: number }> = {
+  analyst: { min: 1, max: 1 },
+  auditor: { min: 1, max: 1 },
+  ssolo:   { min: 1, max: 1 },
+  studio:  { min: 2, max: 20 },
+  agency:  { min: 2, max: 20 },
+  steam:   { min: 2, max: 20 },
+};
+
+// Tre esiti distinti, perché "campo assente" e "campo scritto male" non devono
+// finire nello stesso ramo: null = assente (il chiamante userà il minimo del
+// piano), NaN = presente ma non è un intero, altrimenti il valore.
+// parseInt() da solo non basta: leggeva "3 posti" come 3 e 2.9 come 2, cioè
+// normalizzava input che non si è mai voluto accettare.
+function parseQuantity(raw: unknown): number | null {
+  if (raw === undefined || raw === null || raw === "") return null;
+  if (typeof raw === "number") return Number.isInteger(raw) ? raw : NaN;
+  const s = String(raw).trim();
+  return /^\d+$/.test(s) ? parseInt(s, 10) : NaN;
+}
 
 function priceMap(): Record<string, { annual: string; monthly: string }> {
   const raw = Deno.env.get("STRIPE_PRICES");
@@ -88,6 +183,63 @@ async function stripe(path: string, body: Record<string, unknown>, key: string) 
     throw new Error(data?.error?.message || `Stripe error (${res.status})`);
   }
   return data;
+}
+
+// ── v7 — GET su Stripe ──────────────────────────────────────────────────────
+// stripe() qui sopra fa solo POST con corpo form-encoded. Leggere un price è
+// una GET con query string: una funzione a parte costa meno che aggiungere un
+// parametro di metodo a una funzione già usata su tre percorsi di scrittura.
+async function stripeGet(path: string, key: string) {
+  const res = await fetch(`${STRIPE_API}${path}`, {
+    headers: { "Authorization": `Bearer ${key}` },
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data?.error?.message || `Stripe error (${res.status})`);
+  }
+  return data;
+}
+
+// ── v7 — il price è davvero acquistabile? ───────────────────────────────────
+// Servono ENTRAMBI i flag, perché descrivono due archiviazioni diverse: si può
+// archiviare il price lasciando vivo il product, o archiviare il product
+// lasciando il price attivo. Stripe rifiuta l'acquisto in tutti e due i casi,
+// ma solo al momento della creazione della subscription — cioè troppo tardi
+// per dire qualcosa di sensato all'utente.
+// `detail` è scritto per i log del server: è l'unico posto in cui gli ID
+// Stripe hanno diritto di comparire.
+async function checkPriceUsable(
+  priceId: string,
+  key: string,
+): Promise<{ ok: boolean; detail: string }> {
+  const qs = new URLSearchParams({ "expand[]": "product" });
+  let price: Record<string, unknown>;
+  try {
+    price = await stripeGet(`/prices/${encodeURIComponent(priceId)}?${qs}`, key);
+  } catch (e) {
+    return { ok: false, detail: `price ${priceId} non leggibile: ${(e as Error).message}` };
+  }
+  if (price?.active !== true) {
+    return { ok: false, detail: `price ${priceId} archiviato (price.active=${String(price?.active)})` };
+  }
+  const product = price.product;
+  if (product === null || typeof product !== "object") {
+    // L'expand non ha restituito un oggetto: l'attività del product NON è stata
+    // verificata. Si blocca invece di passare, perché è proprio il campo che nel
+    // caso Auditor era l'unico dei due a valere false.
+    return {
+      ok: false,
+      detail: `price ${priceId}: product non espanso (${typeof product}), attività non verificabile`,
+    };
+  }
+  const p = product as { id?: string; active?: unknown };
+  if (p.active !== true) {
+    return {
+      ok: false,
+      detail: `price ${priceId}: product ${p.id ?? "n/d"} archiviato (product.active=${String(p.active)})`,
+    };
+  }
+  return { ok: true, detail: `price ${priceId} / product ${p.id ?? "n/d"} attivi` };
 }
 
 // ── Dedup customer ──────────────────────────────────────────────────────────
@@ -148,6 +300,65 @@ async function searchStripeCustomerId(supabaseUserId: string, key: string): Prom
   }
 }
 
+// ── Guard BR-001 (PATCH v5) ───────────────────────────────────────────────────
+// Verifica se l'utente ha già una subscription live. Risolve l'org per
+// owner_id = supabaseUserId (modello un-utente-una-org) e cerca subscription in
+// stato live su quell'org. Best-effort: null su errore/secret mancanti → il
+// chiamante prosegue senza bloccare (la prima attivazione non ha ancora un'org,
+// quindi ritorna null e passa correttamente).
+async function findLiveSubscription(
+  supabaseUserId: string,
+): Promise<{ subId: string; status: string; planId: string | null } | null> {
+  const base = Deno.env.get("SUPABASE_URL");
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!base || !serviceKey) {
+    console.log(`[guard] check saltato: SUPABASE_URL=${!!base} SERVICE_ROLE_KEY=${!!serviceKey}`);
+    return null;
+  }
+  try {
+    // 1) org dell'utente (una sola per owner nel modello Sevenda)
+    const orgUrl = `${base}/rest/v1/organization`
+      + `?owner_id=eq.${encodeURIComponent(supabaseUserId)}`
+      + `&select=id&limit=1`;
+    const orgRes = await fetch(orgUrl, {
+      headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },
+    });
+    if (!orgRes.ok) {
+      console.error(`[guard] org query HTTP ${orgRes.status}: ${await orgRes.text()}`);
+      return null;
+    }
+    const orgs = await orgRes.json();
+    const orgId = Array.isArray(orgs) && orgs[0]?.id ? orgs[0].id : null;
+    if (!orgId) return null;   // nessuna org ancora → prima sottoscrizione legittima
+
+    // 2) subscription live su quell'org
+    const statesCsv = LIVE_SUB_STATES.map((s) => `"${s}"`).join(",");
+    const subUrl = `${base}/rest/v1/subscription`
+      + `?org_id=eq.${encodeURIComponent(orgId)}`
+      + `&status=in.(${statesCsv})`
+      + `&select=stripe_subscription_id,status,plan_id&limit=1`;
+    const subRes = await fetch(subUrl, {
+      headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },
+    });
+    if (!subRes.ok) {
+      console.error(`[guard] sub query HTTP ${subRes.status}: ${await subRes.text()}`);
+      return null;
+    }
+    const subs = await subRes.json();
+    if (Array.isArray(subs) && subs[0]?.stripe_subscription_id) {
+      return {
+        subId: subs[0].stripe_subscription_id,
+        status: subs[0].status,
+        planId: subs[0].plan_id ?? null,
+      };
+    }
+    return null;
+  } catch (e) {
+    console.error(`[guard] errore: ${(e as Error).message}`);
+    return null;
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   if (req.method !== "POST") {
@@ -170,13 +381,90 @@ Deno.serve(async (req) => {
     if (!supabaseUserId) {
       throw new Error("Missing supabaseUserId (utente Supabase loggato).");
     }
+
+    // ── GUARD BR-001 (PATCH v5): blocca una seconda subscription live ──────────
+    // Se l'utente ha già una subscription trialing/active/past_due sulla propria
+    // org, non si crea nulla su Stripe. La prima attivazione non ha ancora un'org
+    // (la crea il webhook dopo il primo checkout) → findLiveSubscription torna
+    // null e si prosegue. I cambi piano avvengono nel Customer Portal.
+    const existingLive = await findLiveSubscription(supabaseUserId);
+    if (existingLive) {
+      console.log(`[guard] blocco: utente ${supabaseUserId} ha già ${existingLive.subId} (${existingLive.status})`);
+      return new Response(
+        JSON.stringify({
+          error: "already_subscribed",
+          message: "You already have an active subscription. Manage your plan from the subscription page instead of starting a new one.",
+          currentStatus: existingLive.status,
+          currentPlan: existingLive.planId,
+        }),
+        { status: 409, headers: { ...CORS, "Content-Type": "application/json" } },
+      );
+    }
+
     const billingInterval = interval === "monthly" ? "monthly" : "annual";
-    const qty = Math.max(1, parseInt(String(quantity), 10) || 1);
+
+    // ── VALIDAZIONE POSTI (PATCH v8) ─────────────────────────────────────────
+    // Come il pre-check v7: return dedicato e non throw, così il catch finale
+    // resta invariato, e al client va un testo leggibile mentre il dettaglio
+    // (valore ricevuto compreso) resta nei log.
+    const seatRange = PLAN_SEATS[planId];
+    if (!seatRange) {
+      console.error(`[seats] piano "${planId}" senza range dichiarato — rifiutato`);
+      return new Response(
+        JSON.stringify({
+          error: "This plan is not available for purchase right now. Please choose another plan or contact support.",
+          code: "plan_unavailable",
+        }),
+        { status: 400, headers: { ...CORS, "Content-Type": "application/json" } },
+      );
+    }
+
+    // Quantità assente → minimo del piano: è il default che i piani solo hanno
+    // sempre avuto (1) e per i piani team è l'unico che non violi il minimo.
+    const parsedQty = parseQuantity(quantity);
+    const qty = parsedQty === null ? seatRange.min : parsedQty;
+    if (!Number.isInteger(qty) || qty < seatRange.min || qty > seatRange.max) {
+      console.error(`[seats] quantity ${JSON.stringify(quantity)} fuori range per "${planId}" (${seatRange.min}–${seatRange.max})`);
+      return new Response(
+        JSON.stringify({
+          // Il testo esce in pagina (checkout.html mostra data.error): per i
+          // piani a posto singolo "supports 1 to 1 seats" si legge come un bug.
+          error: seatRange.min === seatRange.max
+            ? `This plan includes exactly ${seatRange.min} seat${seatRange.min === 1 ? "" : "s"}.`
+            : `This plan supports ${seatRange.min} to ${seatRange.max} seats.`,
+          code: "invalid_quantity",
+          min: seatRange.min,
+          max: seatRange.max,
+        }),
+        { status: 400, headers: { ...CORS, "Content-Type": "application/json" } },
+      );
+    }
 
     const map = priceMap();
     const priceId = map[planId]?.[billingInterval as "annual" | "monthly"];
     if (!priceId || priceId.includes("REPLACE")) {
       throw new Error(`Stripe price not configured for plan "${planId}" (${billingInterval}).`);
+    }
+
+    // ── PRE-CHECK v7: price e product entrambi attivi ────────────────────────
+    // Ultimo controllo prima di toccare Stripe in scrittura. Al client va un
+    // testo generico e privo di identificativi; il dettaglio, con gli ID, resta
+    // nei log del server. È un return e non un throw proprio per non passare dal
+    // catch finale, che rimanda err.message così com'è.
+    const priceCheck = await checkPriceUsable(priceId, secret);
+    if (!priceCheck.ok) {
+      console.error(`[precheck] piano "${planId}" (${billingInterval}) non acquistabile — ${priceCheck.detail}`);
+      return new Response(
+        JSON.stringify({
+          // checkout.html mostra `error` all'utente (data.error || 'Could not
+          // start payment.'), quindi qui ci va il testo leggibile; `code` resta
+          // la chiave stabile per una gestione dedicata lato client, il giorno
+          // in cui la si vorrà, senza doverla introdurre adesso.
+          error: "This plan is not available for purchase right now. Please choose another plan or contact support.",
+          code: "plan_unavailable",
+        }),
+        { status: 400, headers: { ...CORS, "Content-Type": "application/json" } },
+      );
     }
 
     // 1) Customer — DEDUP: riusa quello già associato all'utente, se esiste.
@@ -198,7 +486,8 @@ Deno.serve(async (req) => {
           }
         : undefined,
       metadata: {
-        planId,
+        // v6: planId RIMOSSO — resolveOrg legge solo supabaseUserId, vatId e
+        // locale. Dopo un cambio piano dal Portal restava indietro in silenzio.
         vatId: vatId || "",
         supabaseUserId,                 // ← serve al webhook per creare/risolvere l'organization
         orgName: orgName || "",
@@ -241,23 +530,43 @@ Deno.serve(async (req) => {
       items: [{ price: priceId, quantity: qty }],
       payment_behavior: "default_incomplete",
       payment_settings: { save_default_payment_method: "on_subscription" },
-      "expand[]": "latest_invoice.confirmation_secret",
+      // Trial: prima fattura zero -> nessun PaymentIntent, si raccoglie la carta via
+      // pending_setup_intent e si addebita a fine trial. missing_payment_method:
+      // 'cancel' = se a fine trial manca una carta valida, la subscription si annulla.
+      trial_period_days: TRIAL_DAYS,
+      trial_settings: { end_behavior: { missing_payment_method: "cancel" } },
+      // Servono ENTRAMBI gli expand: pending_setup_intent (trial) e
+      // latest_invoice.confirmation_secret (no-trial). Indici distinti perche'
+      // encodeForm serializza correttamente expand[0]/expand[1] per Stripe.
+      "expand[0]": "latest_invoice.confirmation_secret",
+      "expand[1]": "pending_setup_intent",
+      // v6: planId/interval/seats RIMOSSI. La verità su piano, ciclo e posti
+      // sta negli items ed è lì che il webhook v8 la legge. Lo stato iniziale
+      // resta comunque ricostruibile dalla prima riga di subscription_event e
+      // dall'event log di Stripe: non si perde informazione, si smette di
+      // duplicarla in un posto che nessuno aggiorna.
       metadata: {
-        planId,
-        interval: billingInterval,
-        seats: String(qty),
         supabaseUserId,
       },
     }, secret);
 
-    const clientSecret = subscription?.latest_invoice?.confirmation_secret?.client_secret;
-    if (!clientSecret) throw new Error("Could not retrieve payment client secret.");
+    // Con il trial la subscription e' 'trialing' e la prima fattura e' zero: non c'e'
+    // un PaymentIntent da confermare, ma un pending_setup_intent (carta per il
+    // futuro). Senza trial resta il flusso PaymentIntent (confirmation_secret).
+    const setupSecret   = subscription?.pending_setup_intent?.client_secret ?? null;
+    const paymentSecret = subscription?.latest_invoice?.confirmation_secret?.client_secret ?? null;
+    const mode: "setup" | "payment" = setupSecret ? "setup" : "payment";
+    const clientSecret  = setupSecret ?? paymentSecret;
+    if (!clientSecret) throw new Error("Could not retrieve client secret (setup/payment).");
 
     return new Response(
       JSON.stringify({
         subscriptionId: subscription.id,
         customerId: customer.id,
         clientSecret,
+        mode,                                      // "setup" (trial) | "payment" (no-trial)
+        trialEnd: subscription?.trial_end ?? null, // unix seconds | null
+        trialDays: TRIAL_DAYS,
       }),
       { headers: { ...CORS, "Content-Type": "application/json" } },
     );

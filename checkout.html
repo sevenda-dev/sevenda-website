@@ -311,8 +311,8 @@
             <option value="US" data-i18n="co.country.US">United States</option>
             <option value="CA" data-i18n="co.country.CA">Canada</option>
             <option value="CH" data-i18n="co.country.CH">Switzerland</option>
-            <option value="OTHER" data-i18n="co.country.OTHER">Other</option>
           </select>
+          <p class="co-field-hint" data-i18n-html="co.country.notlisted">Country not listed? Write to <a href="mailto:hello@sevenda.dev">hello@sevenda.dev</a> and we'll add it.</p>
         </div>
 
         <div class="co-field">
@@ -350,6 +350,7 @@
           <label class="co-label" for="coVat"><span data-i18n="co.label.vat">VAT ID</span> <span class="req" data-i18n="co.optional">(optional)</span></label>
           <input class="co-input" type="text" id="coVat" placeholder="e.g. IT12345678901" data-i18n-placeholder="co.vat.ph">
           <p class="co-field-hint" data-i18n="co.vat.hint">This will appear on future invoices.</p>
+          <div class="co-error" id="coVatError" style="display:none;"></div>
         </div>
       </div>
     </div>
@@ -398,8 +399,9 @@
 
       <div class="co-sum-div"></div>
       <div class="co-sum-row"><span data-i18n="co.summary.subtotal">Subtotal</span><span id="coSumSubtotal">€0</span></div>
+      <div class="co-sum-row" id="coSumVatRow" style="display:none;"><span id="coSumVatLabel">VAT</span><span id="coSumVatAmt">€0</span></div>
       <div class="co-sum-total"><span data-i18n="co.summary.total">Total</span><span id="coSumTotal">€0</span></div>
-      <p class="co-sum-note" id="coSumNote" data-i18n="co.summary.note">Prices exclude applicable taxes.</p>
+      <p class="co-sum-note" id="coSumNote" data-i18n="co.summary.taxNote">VAT is an estimate based on your billing country. The final amount is calculated by Stripe when the invoice is issued, based on your billing details.</p>
 
       <!-- Avviso trial (mostrato solo se trialDays > 0) -->
       <div class="co-notice" id="coTrialNotice" style="display:none; margin-top:16px;"></div>
@@ -448,16 +450,27 @@
 
   const plan = CATALOG[planId];
 
+  /* ── Limiti di posti ──
+     Il piano dichiara il range assoluto (es. Studio 2–20), ma sulla pricing page
+     l'utente ha già scelto una fascia (2–5 oppure 6–20) ed è QUELLA a fissare il
+     prezzo per utente che ha visto in card. Ripartire dal range pieno gli
+     lasciava cambiare fascia qui dentro, pagando un prezzo diverso da quello
+     mostrato: i limiti effettivi sono quindi quelli della fascia arrivata in
+     ?band=. Fascia assente, non valida o piano senza fasce (Analyst, Auditor,
+     Suite Solo) → si ricade sul range completo del piano, come prima. */
+  const BAND   = (typeof planSeatBand === 'function') ? planSeatBand(planId, qs.get('band')) : null;
+  const LIMITS = BAND || { min: plan.seats.min, max: plan.seats.max };
+
   /* ── State ── */
   const S = {
     step: 1,
     interval: parseInterval(qs.get('interval')),
-    qty: clampQty(parseInt(qs.get('qty') || qs.get('seats'), 10) || plan.seats.min),
+    qty: clampQty(parseInt(qs.get('qty') || qs.get('seats'), 10) || LIMITS.min),
     name: nameOver || plan.name,
   };
 
   function clampQty(n) {
-    const { min, max } = plan.seats;
+    const { min, max } = LIMITS;
     if (isNaN(n)) return min;
     return Math.max(min, Math.min(max, n));
   }
@@ -490,6 +503,9 @@
       p.set('interval', S.interval);
       p.set('qty', String(S.qty));
       p.delete('seats');   // alias d'ingresso: normalizzato in qty
+      // La fascia sopravvive nell'URL solo se è stata riconosciuta: un ?band=
+      // spurio non deve tornare in circolo dopo il giro di login.
+      if (BAND) p.set('band', BAND.key.replace(/_/g, '-')); else p.delete('band');
       ['code', 'token_hash', 'type', 'error', 'error_code', 'error_description']
         .forEach(k => p.delete(k));   // residui del giro di auth, già consumati
       history.replaceState(null, '', location.pathname + '?' + p.toString());
@@ -503,6 +519,10 @@
 
   /* ── Stripe ── */
   let stripe = null, elements = null, paymentElement = null, clientSecret = null, subscriptionReady = false;
+  // Strada B: la fase 1 non crea più una subscription ma un SetupIntent. Il
+  // suo id è la chiave della fase 2 (create-subscription con setupIntentId),
+  // eseguita da checkout-success.html a carta confermata.
+  let setupIntentId = null;
   // Trial: durata di default lato client (14gg) così l'avviso "no charge today" è
   // visibile fin dallo step 1–2, prima del fetch. Override via ?trialDays=N o CFG.trialDays.
   // La conferma (setup vs payment) e lo stato reale del trial restano pilotati dal
@@ -522,11 +542,42 @@
   /* ─────────────────────────────────────────────────────────────
      PRICING
      ───────────────────────────────────────────────────────────── */
-  function unitPrice()   { return plan.prices[S.interval]; }                 // per seat / month
+  // Prezzo per posto: dipende dalla quantità, perché i piani team sono Volume
+  // tiered su Stripe (2–5 e 6–20 hanno prezzi diversi). Delegato al catalogo,
+  // che è la stessa fonte usata dalle card della pricing page: leggere qui
+  // plan.prices[] significava mostrare la fascia d'ingresso a chi ne aveva
+  // scelta un'altra, cioè un totale diverso da quello poi addebitato.
+  function unitPrice() {
+    if (typeof planUnitPrice === 'function') {
+      const p = planUnitPrice(planId, S.interval, S.qty);
+      if (typeof p === 'number') return p;
+    }
+    return plan.prices[S.interval];
+  }
   function periodTotal() { return S.interval === 'annual'
                              ? unitPrice() * 12 * S.qty
                              : unitPrice() * S.qty; }
   function fmt(n)        { return SYM + (Number.isInteger(n) ? n : n.toFixed(2)); }
+
+  /* ── Stima IVA (solo display) ────────────────────────────
+     Aliquote standard dei soli paesi presenti nel select: aggiungerne uno lì
+     significa aggiungerlo anche qui. Non è un calcolo fiscale — l'imposta vera
+     la determina Stripe Tax in fattura, questo serve a non mostrare un totale
+     che non corrisponde a quello che verrà addebitato. */
+  const VAT_RATES = { IT:22, ES:21, FR:20, DE:19, NL:21, BE:21, PT:23, IE:23, AT:20, GB:0, US:0, CA:0, CH:0 };
+  const EU_REVERSE = ['ES','FR','DE','NL','BE','PT','IE','AT'];  // UE senza IT: l'Italia è interna, niente inversione
+
+  // null = nessun paese scelto → la riga IVA resta nascosta e il totale non cambia.
+  function vatEstimate(subtotal) {
+    const country = $('coCountry').value;
+    if (!country) return null;
+    // B2B intra-UE con partita IVA: imposta a carico del cliente
+    if (EU_REVERSE.indexOf(country) !== -1 && $('coVat').value.trim()) {
+      return { reverseCharge: true, rate: 0, amount: 0 };
+    }
+    const rate = VAT_RATES[country] || 0;
+    return { reverseCharge: false, rate: rate, amount: Math.round(subtotal * rate) / 100 };
+  }
 
   // i18n: usa il sistema condiviso (i18n.js → window.t / window.getLang) con
   // fallback alla stringa EN inline se i18n.js non è caricato o la chiave manca.
@@ -575,9 +626,14 @@
       $('coQtyGroup').style.display = 'none';
     } else {
       $('coQtyVal').textContent = S.qty;
-      $('coQtyMinus').disabled  = S.qty <= plan.seats.min;
-      $('coQtyPlus').disabled   = S.qty >= plan.seats.max;
-      $('coQtyHint').textContent = fill(tt('co.qty.hint', 'This plan supports {min}–{max} seats.'), { min: plan.seats.min, max: plan.seats.max });
+      $('coQtyMinus').disabled  = S.qty <= LIMITS.min;
+      $('coQtyPlus').disabled   = S.qty >= LIMITS.max;
+      // Con una fascia attiva il limite non è una proprietà del piano ma una
+      // scelta fatta prima: il testo lo dice, altrimenti il + disabilitato a 5
+      // su un piano "2–20" sembrerebbe un bug.
+      $('coQtyHint').textContent = BAND
+        ? fill(tt('co.qty.hint.band', 'Selected seat range: {min}–{max}. Pick another range on the pricing page to go beyond it.'), { min: LIMITS.min, max: LIMITS.max })
+        : fill(tt('co.qty.hint', 'This plan supports {min}–{max} seats.'), { min: LIMITS.min, max: LIMITS.max });
     }
 
     // Interval toggle
@@ -589,18 +645,38 @@
     const seatWord = tt(S.qty > 1 ? 'co.seats' : 'co.seat', S.qty > 1 ? 'seats' : 'seat');
     const perSeatSuffix = tt(S.interval === 'annual' ? 'co.perSeat.annual' : 'co.perSeat.monthly', S.interval === 'annual' ? '/mo × 12' : '/mo');
     $('coSumSeats').textContent = S.qty + ' ' + seatWord + ' × ' + fmt(unitPrice()) + ' ' + perSeatSuffix;
+    // I Price sono tax_behavior "exclusive": il subtotale non è la cifra
+    // addebitata. La stima si ricalcola qui, quindi a ogni cambio di paese/IVA.
+    const vat      = vatEstimate(total);
+    const grandTot = vat ? Math.round((total + vat.amount) * 100) / 100 : total;
+    if (vat) {
+      $('coSumVatRow').style.display = 'flex';
+      if (vat.reverseCharge) {
+        $('coSumVatLabel').textContent = tt('co.summary.vat', 'VAT');
+        $('coSumVatAmt').textContent   = tt('co.summary.reverseCharge', 'Reverse charge');
+      } else {
+        $('coSumVatLabel').textContent = fill(tt('co.summary.vatRate', 'VAT ({rate}%)'), { rate: vat.rate });
+        $('coSumVatAmt').textContent   = fmt(vat.amount);
+      }
+    } else {
+      $('coSumVatRow').style.display = 'none';
+    }
+
     $('coSumPlanAmt').textContent  = fmt(total);
     $('coSumSubtotal').textContent = fmt(total);
-    $('coSumTotal').textContent    = fmt(total);
+    $('coSumTotal').textContent    = fmt(grandTot);
 
     // Charge agreement label + copy trial (mostrata solo se trialDays > 0)
+    // Qui e nella nota di rinnovo si usa grandTot, non total: è la cifra che
+    // l'utente autorizza ad addebitare, e deve coincidere con il Totale che
+    // legge sopra. Senza paese o in reverse charge grandTot === total.
     const cadence = S.interval === 'annual' ? 'yearly' : 'monthly';
     const cadenceLoc = tt(S.interval === 'annual' ? 'co.cadence.yearly' : 'co.cadence.monthly', cadence);
     const trialNotice     = $('coTrialNotice');
     const payDisclaimer   = $('coPayDisclaimer');
     if (trialDays > 0) {
       // Copy trial localizzata (EN/IT/ES/FR via i18n.js) — cadence tradotta a parte
-      const map = { days: trialDays, date: formatTrialEnd(), total: fmt(total), cadence: cadenceLoc };
+      const map = { days: trialDays, date: formatTrialEnd(), total: fmt(grandTot), cadence: cadenceLoc };
       $('coTermChargeLabel').textContent = fill(tt('co.trial.charge',
         'I authorize Sevenda to charge {total} {cadence} after the {days}-day free trial. Cancel anytime before then and you won’t be charged.'), map);
       if (trialNotice) {
@@ -614,7 +690,7 @@
       }
     } else {
       $('coTermChargeLabel').textContent = fill(tt('co.terms.charge.notrial',
-        'I agree to be charged {total} {cadence}. I can cancel anytime via the billing page.'), { total: fmt(total), cadence: cadenceLoc });
+        'I agree to be charged {total} {cadence}. I can cancel anytime via the billing page.'), { total: fmt(grandTot), cadence: cadenceLoc });
       if (trialNotice) trialNotice.style.display = 'none';
       if (payDisclaimer) {
         payDisclaimer.textContent = tt('co.pay.disclaimer.default',
@@ -625,7 +701,10 @@
     // Renew note
     const periodLoc = tt(S.interval === 'annual' ? 'co.period.year' : 'co.period.month', S.interval === 'annual' ? 'year' : 'month');
     $('coRenewText').textContent = fill(tt('co.renew.text', 'Auto-renews {cadence} · {total} per {period}'),
-      { cadence: cadenceLoc, total: fmt(total), period: periodLoc });
+      { cadence: cadenceLoc, total: fmt(grandTot), period: periodLoc });
+
+    // Errore IVA: se è a schermo va riscritto nella lingua corrente
+    if ($('coVatError').style.display !== 'none') showVatError(true);
 
     // Label del bottone dipende dal trial → tienila sincronizzata
     updateActionButton();
@@ -687,6 +766,16 @@
     return ok;
   }
 
+  // Errore IVA restituito dalla fase 1. Il testo non può stare su data-i18n:
+  // applyLang() lo sovrascriverebbe al cambio lingua, quindi lo riscrive
+  // render() (chiamata dai bottoni EN/IT/ES/FR subito dopo setLang).
+  function showVatError(on) {
+    const box = $('coVatError');
+    box.style.display = on ? 'block' : 'none';
+    box.textContent = on ? tt('co.err.vatInvalid',
+      'This VAT ID is not valid. Check it, or leave the field empty — it is optional.') : '';
+  }
+
   function collectBilling() {
     return {
       email:   $('coEmail').value.trim(),
@@ -706,7 +795,8 @@
   }
 
   /* ─────────────────────────────────────────────────────────────
-     STRIPE — create subscription + mount Payment Element
+     STRIPE — fase 1: customer + SetupIntent, mount Payment Element
+     (la subscription nasce in fase 2, da checkout-success.html)
      ───────────────────────────────────────────────────────────── */
   async function preparePayment() {
     const ready  = $('coPaymentReady');
@@ -789,9 +879,24 @@
         return false;
       }
 
+      // vat_id_invalid (create-subscription v10): Stripe ha rifiutato il formato
+      // della partita IVA creando il Tax ID. È un errore di compilazione del
+      // form, non un guasto del pagamento: si torna allo step 2 col campo
+      // evidenziato, senza il prefisso "Payment setup failed.".
+      if (res.status === 400 && data.code === 'vat_id_invalid') {
+        load.style.display = 'none';
+        subscriptionReady = false;
+        goToStep(2);
+        $('coVat').classList.add('err');
+        showVatError(true);
+        $('coVat').focus();
+        return false;
+      }
+
       if (!res.ok || !data.clientSecret) throw new Error(data.error || 'Could not start payment.');
 
-      clientSecret = data.clientSecret;
+      clientSecret  = data.clientSecret;
+      setupIntentId = data.setupIntentId || null;
 
       // ── Riconciliazione col server. Il trial è reale SOLO se la prima fattura è
       //    €0 → SetupIntent → mode "setup": in quel caso mostriamo il trial con la
@@ -833,9 +938,13 @@
 
   /* ─────────────────────────────────────────────────────────────
      WATCHDOG DI CONFERMA
-     confirmPayment/confirmSetup girano col default `redirect: 'always'`: in caso
-     di successo Stripe naviga verso return_url, il documento viene scaricato e
-     la promise non si risolve mai — by design. Il buco è l'altro ramo: se la
+     confirmPayment gira col default `redirect: 'always'`: in caso di successo
+     Stripe naviga verso return_url, il documento viene scaricato e la promise
+     non si risolve mai — by design. Strada B: confirmSetup usa invece
+     `redirect: 'if_required'` — senza 3DS la promise si risolve in pagina con
+     il setupIntent e si naviga da qui (goToOutcome); con 3DS Stripe naviga da
+     sé. In entrambi i casi la fase 2 avviene su checkout-success.html: un solo
+     punto di attivazione, idempotente e ritentabile. Il buco è l'altro ramo: se la
      promise *rigetta* (errori di integrazione, rete che cade a metà) senza che
      il redirect parta, la UI resta su "Processing…" a tempo indeterminato.
      Il watchdog copre quel caso interrogando Stripe sullo stato reale
@@ -967,13 +1076,25 @@
     idleProbes = 0;
     armWatchdog();
 
-    // Trial (prima fattura €0) → SetupIntent (confirmSetup); altrimenti PaymentIntent (confirmPayment).
+    // Trial → SetupIntent (confirmSetup); no-trial → PaymentIntent (confirmPayment).
+    // Strada B: sul ramo setup, `redirect: 'if_required'` restituisce il
+    // setupIntent senza navigare quando non serve 3DS. A quel punto la carta è
+    // salvata ma la subscription NON esiste ancora: la crea checkout-success.html
+    // (fase 2). Si naviga con gli stessi parametri del redirect nativo, così la
+    // pagina di esito non distingue i due percorsi.
     let error = null;
     try {
       const result = payMode === 'setup'
-        ? await stripe.confirmSetup({ elements, confirmParams })
+        ? await stripe.confirmSetup({ elements, confirmParams, redirect: 'if_required' })
         : await stripe.confirmPayment({ elements, confirmParams });
       error = result && result.error;
+      if (!error && payMode === 'setup' && result && result.setupIntent) {
+        const st = result.setupIntent.status;
+        if (st === 'succeeded' || st === 'processing') {
+          goToOutcome(result.setupIntent, st);
+          return;
+        }
+      }
     } catch (err) {
       // Stripe.js rigetta (invece di risolvere con {error}) sugli errori di
       // integrazione e su alcuni fallimenti di rete: senza questo ramo il
@@ -1014,6 +1135,11 @@
   // Clear field error on input
   document.querySelectorAll('.co-input, .co-select').forEach(el =>
     el.addEventListener('input', () => el.classList.remove('err')));
+  $('coVat').addEventListener('input', () => showVatError(false));
+
+  // Paese e partita IVA determinano l'aliquota stimata → ridisegna il riepilogo
+  $('coCountry').addEventListener('change', render);
+  $('coVat')    .addEventListener('input',  render);
 
   // Main action button
   $('coAction').addEventListener('click', async () => {
