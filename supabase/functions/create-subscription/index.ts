@@ -1,5 +1,5 @@
 // ════════════════════════════════════════════════════════════════
-// Sevenda — Edge Function: create-subscription   (PATCH v10)
+// Sevenda — Edge Function: create-subscription   (PATCH v11)
 // ════════════════════════════════════════════════════════════════
 // Flusso in DUE FASI (v9):
 //   fase 1 — crea/riusa il Customer e un SetupIntent; restituisce il
@@ -71,6 +71,36 @@
 //   esce senza imposta anche con le registrazioni fiscali attive. Con il trial
 //   la prima fattura è zero, quindi l'effetto si vede solo al primo rinnovo
 //   reale — motivo in più per non accorgersene testando il solo checkout.
+//
+// PATCH v11 (consenso art. 59 — esecuzione immediata per i consumatori).
+// checkout.html raccoglie dal consumatore la richiesta espressa di avviare
+// subito il servizio e la presa d'atto che il recesso si perde a esecuzione
+// completata (art. 59 D.Lgs. 206/2005). Senza quel consenso la clausola
+// "non-refundable" dei Termini non è opponibile a un consumatore nei primi 14
+// giorni — ma un consenso raccolto e mai scritto da nessuna parte non è
+// provabile, che in giudizio equivale a non averlo raccolto.
+//   DOVE: metadata del SetupIntent in fase 1, ricopiati sulla subscription in
+//   fase 2. È lo stesso canale che la v9 usa per il contesto d'ordine, per le
+//   stesse ragioni: sopravvive al redirect 3DS e non ripassa dal browser fra le
+//   due fasi. La subscription è l'oggetto giusto perché il consenso appartiene
+//   al contratto, non alla persona.
+//   NON sul Customer: customerParams viene riscritto a ogni fase 1 (è lo stesso
+//   oggetto usato per l'update del dedup v3), quindi un checkout successivo
+//   sovrascriverebbe il consenso del precedente. Un registro storico che si
+//   cancella da solo è peggio di nessun registro.
+//   NON è una validazione, è una REGISTRAZIONE: qui non si rifiuta nulla.
+//   L'obbligo della spunta sta in checkout.html. Un rifiuto lato server
+//   romperebbe (a) i checkout business, che la casella non la vedono per
+//   costruzione, e (b) i SetupIntent già in volo al momento del deploy, creati
+//   dalla fase 1 vecchia e attivati dalla fase 2 nuova. Metadata assenti ⇒
+//   nessuna chiave scritta, nessun errore.
+//   Il timestamp si scrive solo quando il consenso c'è: encodeForm scarta le
+//   stringhe vuote, quindi "false" finisce nei metadata e "" no. Distinguere
+//   "consumatore che non ha spuntato" da "acquisto business" si fa dal tax_id
+//   del Customer, non da qui.
+//   La v6 sconsiglia i metadata che invecchiano: questo non è di quelli. Piano,
+//   posti e ciclo cambiano dal Portal; un consenso prestato a una certa data è
+//   un fatto storico e non diventa mai obsoleto.
 //
 // PATCH v2: aggiunge `supabaseUserId` (e `orgName`) ai metadata del
 // Customer, così la Edge Function `stripe-webhook` può collegare il
@@ -609,7 +639,15 @@ async function activateSubscription(
       payment_settings: { save_default_payment_method: "on_subscription" },
       trial_period_days: TRIAL_DAYS,
       trial_settings: { end_behavior: { missing_payment_method: "cancel" } },
-      metadata: { supabaseUserId: callerUserId },
+      metadata: {
+        supabaseUserId: callerUserId,
+        // v11: il consenso passa dal SetupIntent al contratto. Un SetupIntent
+        // creato dalla fase 1 precedente non ha queste chiavi: restano stringhe
+        // vuote, encodeForm le scarta e la subscription nasce senza — che è
+        // esattamente il comportamento di prima, non un errore.
+        immediatePerformanceConsent: md.immediatePerformanceConsent ?? "",
+        immediatePerformanceConsentAt: md.immediatePerformanceConsentAt ?? "",
+      },
     }, secret, { "Idempotency-Key": `sevenda-activate-${setupIntentId}` });
   } catch (e) {
     // Gli ID Stripe restano nei log; al client un testo generico e ritentabile.
@@ -654,7 +692,7 @@ Deno.serve(async (req) => {
 
     // PATCH v2: supabaseUserId e orgName per il linking lato webhook
     const { planId, interval, quantity, email, name, phone, address, vatId,
-            supabaseUserId, orgName } = body;
+            supabaseUserId, orgName, consumerImmediatePerformance } = body;
 
     if (!planId || !interval || !email) {
       throw new Error("Missing required fields (planId, interval, email).");
@@ -823,6 +861,14 @@ Deno.serve(async (req) => {
       );
     }
 
+    // ── v11: consenso art. 59, come dichiarato da checkout.html ─────────────
+    // Confronto stretto: qualunque altro valore (assente, 0, "si") vale come
+    // consenso non prestato. Il client manda un booleano; la stringa "true" è
+    // ammessa perché un POST diretto o un proxy che serializza i form la
+    // produce, e leggerla come falsa sarebbe una perdita di dato silenziosa.
+    const art59Consent = consumerImmediatePerformance === true
+      || consumerImmediatePerformance === "true";
+
     // 2) v9 — SetupIntent: raccoglie la carta SENZA creare la subscription.
     // I metadata portano il contesto dell'ordine alla fase 2. Il priceId è
     // già risolto e verificato (pre-check v7) e i posti già validati (v8):
@@ -840,6 +886,11 @@ Deno.serve(async (req) => {
         interval: billingInterval,
         quantity: String(qty),
         priceId,
+        // v11: consenso art. 59 così come dichiarato dal client. Normalizzato a
+        // stringa perché i metadata Stripe sono solo stringhe; il timestamp
+        // resta vuoto (e quindi non scritto) quando il consenso non c'è.
+        immediatePerformanceConsent: String(art59Consent),
+        immediatePerformanceConsentAt: art59Consent ? new Date().toISOString() : "",
       },
     }, secret);
 
