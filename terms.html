@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Privacy Policy — Sevenda</title>
+  <title>Terms of Service — Sevenda</title>
   <script defer src="i18n.js"></script>
-  <meta name="description" content="Sevenda Privacy Policy — how we collect, use, and protect your data.">
+  <meta name="description" content="Sevenda Terms of Service — the terms governing the use of the Sevenda extension and services.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=Geist+Mono:wght@300;400;500&display=swap" rel="stylesheet">
@@ -469,7 +469,7 @@
 
 <!-- ── HERO ─────────────────────────────────────────────────── -->
 <div class="privacy-hero">
-  <h1 class="privacy-title" data-i18n="priv.title">Privacy Policy</h1>
+  <h1 class="privacy-title" data-i18n="terms.title">Terms of Service</h1>
   <p class="privacy-date">Last updated: September 10, 2026</p>
 </div>
 
@@ -477,198 +477,166 @@
 <article class="privacy-article">
 
   <div class="privacy-section">
-    <span class="section-number">Section 1</span>
-    <h2 class="section-title">Data controller</h2>
+    <span class="section-number">Notice</span>
+    <h2 class="section-title">Draft pending legal review</h2>
     <div class="section-body">
-      <p>The controller for the processing described in this policy is <strong>Sevenda Lab</strong>, operated by <span class="ph">[[RAGIONE SOCIALE]]</span>, registered office <span class="ph">[[INDIRIZZO SEDE]]</span>, VAT no. <span class="ph">[[P.IVA]]</span>.</p>
-      <p>Privacy contact: <a href="mailto:hello@sevenda.dev">hello@sevenda.dev</a>. Data Protection Officer, where one is appointed under Art. 37 GDPR: <span class="ph">[[EMAIL DPO se applicabile]]</span>.</p>
-      <p><em>Values shown as [[…]] are pending confirmation and will be completed before this policy is considered final.</em></p>
+      <p><span class="ph">[[BOZZA — DA REVISIONE LEGALE]]</span> This document is a working draft. The clauses below are not final and the values shown as [[…]] still have to be confirmed. Please do not rely on it as a binding agreement until it has been reviewed and published in final form.</p>
+    </div>
+  </div>
+
+  <div class="privacy-section">
+    <span class="section-number">Section 1</span>
+    <h2 class="section-title">Acceptance of terms</h2>
+    <div class="section-body">
+      <p>These Terms of Service (the "Terms") govern your access to and use of Sevenda — the Chrome extension, the sevenda.dev website, and the associated backend services (together, the "Service"), operated by Sevenda Lab, <span class="ph">[[RAGIONE SOCIALE]]</span>, registered office <span class="ph">[[INDIRIZZO SEDE]]</span>, VAT no. <span class="ph">[[P.IVA]]</span> ("Sevenda", "we", "us").</p>
+      <p>By installing the extension, creating an account, or subscribing to a plan, you accept these Terms. If you are accepting on behalf of a company or other organisation, you confirm that you have the authority to bind it, and "you" refers to that organisation.</p>
+      <p>Our <a href="/privacy.html">Privacy Policy</a> describes how we process personal data and forms an integral part of these Terms.</p>
     </div>
   </div>
 
   <div class="privacy-section">
     <span class="section-number">Section 2</span>
-    <h2 class="section-title">What the Extension records — and when</h2>
+    <h2 class="section-title">Description of the service</h2>
     <div class="section-body">
-      <p>Recording starts <strong>only</strong> when you press "Start Recording" in the Sevenda DevTools panel and stops when you press Stop. Outside of an active recording, the Extension does not monitor, intercept, or store any browsing activity: the network-monitoring component is injected into the page only at the moment you start a recording, and only into the tab you are recording.</p>
-      <p>During an active recording, the Extension captures, <strong>in the recorded tab only</strong>:</p>
+      <p>Sevenda consists of two parts:</p>
       <ul>
-        <li><strong>Navigation events</strong> — the URLs of pages you visit during the recording.</li>
-        <li><strong>Interaction events</strong> — clicks and form submissions: the element's tag, id, visible text (truncated to 100 characters), and position in the page. Form field <em>values</em> (what you type) are never captured.</li>
-        <li><strong>Network events</strong> — URL, HTTP method, status code and duration of fetch/XHR calls made by the page, plus a preview of request and response bodies truncated to 500 characters. Before capture, fields commonly containing credentials (passwords, tokens, API keys, card numbers, CVV, OTP codes and similar) are replaced with "[REDACTED]".</li>
-        <li><strong>JavaScript errors</strong> — error message, file, line and stack trace.</li>
-        <li><strong>Page structure events</strong> — opening/closing of modals and dialogs (element selector only, no content).</li>
-        <li><strong>Analytics events (Insights Mode)</strong> — Google Tag Manager dataLayer pushes and decoded GA4 hits emitted by the page, including consent-state signals. Where the Extension's PII-leak detector identifies personal data inside the page's own analytics traffic (a feature that helps you audit tracking compliance), the detected value is stored <strong>masked</strong> (e.g. <code>ma***@example.com</code>), never in clear text.</li>
+        <li>A <strong>Chrome extension (Manifest V3)</strong> that records a browser session you explicitly start — navigation, interactions, network calls, JavaScript errors and analytics events — and generates BPMN 2.0 diagrams, analytics reports and Google Tag Manager tag plans from it using AI.</li>
+        <li>A <strong>SaaS backend</strong> that handles accounts, plans and quotas, optional workspace sharing between team members, and the optional Google Tag Manager integration.</li>
       </ul>
+      <p>AI generation runs on the Anthropic Claude API using <strong>your own API key</strong> (BYOK). An Anthropic account with available credit is required to generate; the cost of those calls is billed to you by Anthropic, separately from your Sevenda subscription.</p>
+      <p>Where you connect the Google Tag Manager integration, Sevenda creates tags, triggers and variables as <strong>drafts</strong> in the workspace you choose. Sevenda never publishes a container version and never deletes container items: publishing to your live site remains your action, in the Google Tag Manager interface.</p>
+      <p>We may add, change or discontinue features. Where a change materially reduces the functionality of a paid plan, we will give you notice as described in Section 12.</p>
     </div>
   </div>
 
   <div class="privacy-section">
     <span class="section-number">Section 3</span>
-    <h2 class="section-title">Categories of data we process</h2>
+    <h2 class="section-title">Accounts and registration</h2>
     <div class="section-body">
-      <ul>
-        <li><strong>Account data</strong> — email address, name if you provide one, authentication credentials (stored as a hash) or the identifier of the sign-in provider you use, workspace membership and role, plan, interface language.</li>
-        <li><strong>Recorded browsing sessions</strong> — the events listed in Section 2, together with the diagrams, reports and tag plans generated from them. These stay on your device unless you explicitly share them to a workspace (Section 5).</li>
-        <li><strong>Billing data</strong> — company name, billing address, country, VAT ID, plan and seat count, invoices. <strong>Card data is entered directly into Stripe's payment form</strong>: Sevenda never receives or stores full card numbers, expiry or CVV. We store only the plan, the invoice metadata and the identifiers Stripe returns.</li>
-        <li><strong>Google account data (Tag Manager integration)</strong> — only if you connect it: the Google account identifier and email returned by OAuth, the list of Tag Manager accounts, containers and workspaces you can access, and the container items read or created on your instruction. See Section 6.</li>
-        <li><strong>Technical logs</strong> — IP address, user agent and request timestamps for sevenda.dev and for our backend, used for security and abuse prevention.</li>
-      </ul>
+      <p>Some features require an account. You must provide accurate registration details and keep them up to date. You are responsible for the confidentiality of your credentials and for all activity carried out under your account; tell us at <a href="mailto:hello@sevenda.dev">hello@sevenda.dev</a> as soon as you suspect unauthorised access.</p>
+      <p>You must be at least 16 years old to create an account. Accounts are personal: seats in a team plan are assigned to named individuals and may be reassigned, but not shared concurrently.</p>
+      <p>You can delete your account at any time from the account area. We may suspend or terminate an account that breaches these Terms, with notice where reasonably possible.</p>
     </div>
   </div>
 
   <div class="privacy-section">
     <span class="section-number">Section 4</span>
-    <h2 class="section-title">Where your data is stored</h2>
+    <h2 class="section-title">Plans, subscriptions and billing</h2>
     <div class="section-body">
-      <p>Recorded sessions, events, and generated diagrams are stored <strong>locally on your device</strong> in the browser's IndexedDB by default. They are transmitted to our backend only when you share them to a workspace (Section 5).</p>
-      <p>Local data is automatically deleted by a built-in retention policy: sessions older than <strong>30 days</strong>, or beyond the <strong>100 most recent sessions</strong>, are removed daily. You can delete any session manually at any time, and removing the Extension deletes all locally stored data. Sessions synced to a workspace follow the plan-based retention described in Section 8.</p>
-      <p>Your settings (interface language, capture filters, and your Anthropic API key if you provide one) are stored in Chrome's extension storage. If you have Chrome sync enabled, Chrome synchronizes this storage — including the API key — across your own signed-in browsers via your Google account, under Google's encryption and Google's own privacy policy. If you prefer not to sync it, you can disable extension sync in Chrome settings.</p>
-      <p>Backend data (accounts, shared sessions, billing metadata, integration tokens) is stored in our Supabase-hosted PostgreSQL database in the <strong>European Union</strong>, protected by row-level security.</p>
+      <p>Paid plans are sold as subscriptions with a <strong>monthly</strong> or <strong>annual</strong> billing cycle, as selected at checkout, and renew automatically for the same period until cancelled. Prices, seat bands and quotas are those published on the <a href="/pricing.html">pricing page</a> at the time of purchase.</p>
+      <ul>
+        <li><strong>Payments.</strong> Payments are processed by <strong>Stripe</strong>. Card details are entered directly into Stripe's form; Sevenda never receives or stores your full card data.</li>
+        <li><strong>Taxes.</strong> Prices are shown excluding applicable taxes. VAT is applied according to your billing country and status: Italian customers are charged Italian VAT at <span class="ph">[[ALIQUOTA IVA]]</span>; EU business customers with a valid VAT ID are invoiced under the reverse-charge mechanism; non-EU customers are invoiced according to the applicable rules. The final amount is determined when the invoice is issued, based on the billing details you provide.</li>
+        <li><strong>Invoicing (Italy).</strong> For Italian customers, invoices are issued electronically through the <strong>Sistema di Interscambio (SDI)</strong>. You must provide a valid VAT ID or tax code and your <em>codice destinatario</em> or PEC address; we are not liable for invoices that cannot be delivered because of incorrect details you supplied. Electronic invoicing details to confirm: <span class="ph">[[REGIME FISCALE]]</span>, <span class="ph">[[CODICE DESTINATARIO SEVENDA]]</span>.</li>
+        <li><strong>Renewal and price changes.</strong> Renewal is charged to your payment method on the renewal date. We will give you at least <span class="ph">[[PREAVVISO VARIAZIONE PREZZI — DA CONFERMARE]]</span> notice before a price change takes effect; you may cancel before renewal if you do not accept it.</li>
+        <li><strong>Failed payments.</strong> If a payment fails we may retry it and, after notice, suspend access until the amount due is settled.</li>
+      </ul>
+      <p>Quota overages, seat changes and mid-term upgrades are billed pro rata by Stripe at the time of the change.</p>
     </div>
   </div>
 
   <div class="privacy-section">
     <span class="section-number">Section 5</span>
-    <h2 class="section-title">When data leaves your device</h2>
+    <h2 class="section-title">Free trial and conversion</h2>
     <div class="section-body">
-      <p>Data leaves your device <strong>only</strong> through actions you explicitly take:</p>
-      <ul>
-        <li><strong>AI generation (Anthropic).</strong> When you press "Generate", the recorded event sequence of the selected session (as described in section 2, with redactions applied) is sent to the Anthropic Claude API to produce your diagram or report. This uses <strong>your own Anthropic API key</strong> — the Extension ships without one, and Sevenda Lab never sees your key or your prompts. Anthropic processes this data as your API provider under the <a href="https://www.anthropic.com/legal/commercial-terms">Anthropic Commercial Terms</a>; per Anthropic's API data policy, API inputs are not used to train models.</li>
-        <li><strong>Team workspaces (Supabase, optional).</strong> If you sign in to a Team workspace with your email, sessions you explicitly choose to share are uploaded to our Supabase-hosted backend (EU-hosted PostgreSQL with row-level security), where they are visible only to members of your workspace. We store: your email address, workspace membership, the shared session data, and comments. You can delete shared sessions and your account at any time; deletion is permanent.</li>
-        <li><strong>Google Tag Manager (optional).</strong> If you connect your Google account, the tag plan items you choose to apply are sent to the Google Tag Manager API and created as drafts in the workspace you select. See Section 6.</li>
-        <li><strong>Payments (Stripe).</strong> When you subscribe, your billing details and card data are submitted directly to Stripe from the checkout page.</li>
-        <li><strong>Jira export (optional).</strong> If you configure your Jira credentials in Settings, exports go directly from your browser to your own Jira instance. Credentials are stored locally and never pass through Sevenda Lab.</li>
-      </ul>
-      <p>Outside of these actions the Extension makes <strong>no other network requests</strong>. It loads no remote code, no remote fonts, no analytics scripts, and displays no ads.</p>
+      <p>Paid plans may be offered with a <strong>14-day free trial</strong>. A payment method is collected at sign-up but not charged during the trial.</p>
+      <p>Unless you cancel before the trial ends, the subscription converts automatically into a paid subscription on the first day after the trial and the first payment is taken on that date, at the price and cycle shown at checkout. You can cancel at any moment during the trial from the billing area, at no cost.</p>
+      <p>Trials are limited to one per customer and are intended for evaluation. We may withdraw or shorten a trial where we detect abuse.</p>
     </div>
   </div>
 
   <div class="privacy-section">
     <span class="section-number">Section 6</span>
-    <h2 class="section-title">Google Tag Manager integration</h2>
+    <h2 class="section-title">Cancellation, downgrade and refunds</h2>
     <div class="section-body">
-      <p>Sevenda's Insights module includes an <strong>active</strong> Google Tag Manager integration. It is optional and always initiated by you: nothing is read from or written to your Google account until you connect it through Google OAuth, and you can disconnect at any time.</p>
-      <p>When you connect, Sevenda requests the following OAuth scopes and uses them strictly as described:</p>
-      <ul>
-        <li><code>https://www.googleapis.com/auth/tagmanager.readonly</code> — to <strong>list your Tag Manager accounts, containers and workspaces</strong> so you can choose where to work, and to read the existing tags, triggers and variables of the selected workspace in order to compare them with the tag plan Sevenda generated and show you what is missing or duplicated.</li>
-        <li><code>https://www.googleapis.com/auth/tagmanager.edit.containers</code> — to <strong>create tags, triggers and variables as DRAFT items</strong> inside the single workspace you select, from the tag plan you have reviewed and approved in the interface.</li>
-      </ul>
-      <p>Sevenda <strong>never publishes</strong> a container version and <strong>never deletes</strong> containers, workspaces, tags, triggers or variables. Everything written by Sevenda stays as an unpublished draft in your workspace: reviewing and publishing it to your live site remains a manual action that you perform in the Google Tag Manager interface.</p>
-      <p>Data obtained through Google APIs is used <strong>only</strong> to provide these user-facing features to you. It is not used for advertising, not sold or transferred to third parties, not used for profiling, and not used to train or improve any AI or machine-learning model.</p>
-      <p><strong>Sevenda's use and transfer to any other app of information received from Google APIs will adhere to the <a href="https://developers.google.com/terms/api-services-user-data-policy">Google API Services User Data Policy</a>, including the Limited Use requirements.</strong></p>
-      <p>OAuth access and refresh tokens are stored encrypted in our EU-hosted backend and are used only to call the Tag Manager API on your behalf. You can revoke access at any time from the Sevenda interface or from <a href="https://myaccount.google.com/permissions">your Google Account permissions page</a>; on revocation or disconnection the stored tokens are deleted.</p>
+      <p><strong>Cancellation.</strong> You can cancel at any time from the billing area. Cancellation stops the next renewal: your plan stays active until the end of the period already paid for, and no partial refund is due for the remaining days unless stated below or required by law.</p>
+      <p><strong>Downgrade.</strong> A downgrade takes effect at the next renewal. Quotas, seat count and retention drop to the new plan's limits at that moment: export anything you need to keep beforehand (Section 9).</p>
+      <p><strong>Consumers — right of withdrawal.</strong> If you purchase as a consumer (a natural person acting outside your trade, business or profession) resident in the EU, you have <strong>14 days</strong> from the conclusion of the contract to withdraw without giving a reason, under Articles 52 et seq. of the Italian Consumer Code (D.Lgs. 206/2005). Write to <a href="mailto:hello@sevenda.dev">hello@sevenda.dev</a> to exercise it. By asking us to start the service immediately you acknowledge that, once the service has been fully performed within the withdrawal period, the right of withdrawal is lost, and that otherwise we may charge you in proportion to what has been supplied up to the moment of withdrawal.</p>
+      <p><strong>Business customers.</strong> Where you purchase in the course of a business or profession (B2B), the statutory right of withdrawal does not apply. Refunds outside the cases required by law are granted at our discretion: <span class="ph">[[POLITICA RIMBORSI DA CONFERMARE]]</span>.</p>
     </div>
   </div>
 
   <div class="privacy-section">
     <span class="section-number">Section 7</span>
-    <h2 class="section-title">Purposes and legal bases (GDPR)</h2>
+    <h2 class="section-title">Acceptable use</h2>
     <div class="section-body">
+      <p>You agree not to:</p>
       <ul>
-        <li><strong>Providing the Extension and the backend</strong> (accounts, authentication, workspace sharing, diagram and report generation) — performance of a contract, Art. 6(1)(b) GDPR.</li>
-        <li><strong>Google Tag Manager integration</strong> (reading your containers, creating draft items on your instruction) — performance of a contract, Art. 6(1)(b) GDPR; the access to your Google account is additionally authorised by the OAuth consent you grant to Google.</li>
-        <li><strong>Billing, subscription management and invoicing</strong>, including Italian electronic invoicing through SDI where applicable — performance of a contract, Art. 6(1)(b), and legal obligation, Art. 6(1)(c) GDPR.</li>
-        <li><strong>Security, fraud and abuse prevention, service logs</strong> — legitimate interest in keeping the service available and secure, Art. 6(1)(f) GDPR.</li>
-        <li><strong>Service communications</strong> (transactional email about your account, plan or incidents) — performance of a contract, Art. 6(1)(b) GDPR.</li>
-        <li><strong>Product and marketing email</strong>, where sent — consent, Art. 6(1)(a) GDPR, withdrawable at any time via the unsubscribe link.</li>
+        <li>Record sessions on systems or accounts you are not authorised to access, or capture other people's personal data without a lawful basis and the necessary authorisations.</li>
+        <li>Use the Service to build, train or benchmark a competing product, or to resell access to it without our written agreement.</li>
+        <li>Reverse engineer, decompile, or attempt to extract the source code of the Service, except where such a restriction is prohibited by mandatory law.</li>
+        <li>Circumvent quotas, seat limits, retention limits or authentication, or share a seat between several people.</li>
+        <li>Interfere with the Service's security or availability, probe it without authorisation, or use it to distribute malware or unlawful content.</li>
+        <li>Use the Google Tag Manager integration on containers you are not authorised to modify, or in breach of Google's own terms.</li>
       </ul>
-      <p>For recordings that never leave your device, you are the sole controller of that data: we have no access to it.</p>
+      <p>You remain responsible for complying with your organisation's policies and with applicable law when recording, sharing or publishing anything produced with the Service.</p>
     </div>
   </div>
 
   <div class="privacy-section">
     <span class="section-number">Section 8</span>
-    <h2 class="section-title">How long we keep data</h2>
+    <h2 class="section-title">Intellectual property</h2>
     <div class="section-body">
-      <ul>
-        <li><strong>Local recordings</strong> — 30 days, or the 100 most recent sessions, whichever comes first; deletable by you at any time.</li>
-        <li><strong>Sessions synced to a workspace</strong> — according to your plan: <strong>7 days</strong> (Free), <strong>90 days</strong> (Analyst / Auditor / Suite Solo), <strong>365 days</strong> (Studio / Agency / Suite Team), <strong>unlimited</strong> (Enterprise, until you delete them). Before expiry you can export your data as XML or SVG.</li>
-        <li><strong>Account data</strong> — for as long as the account exists, and deleted within 30 days of account deletion. Encrypted backups are purged within <span class="ph">[[RITENZIONE BACKUP DA CONFERMARE]]</span>.</li>
-        <li><strong>Invoices and accounting records</strong> — 10 years, as required by Italian tax and civil law (Art. 2220 Codice Civile).</li>
-        <li><strong>Google OAuth tokens</strong> — until you disconnect the integration or revoke access, then deleted.</li>
-        <li><strong>Technical logs</strong> — <span class="ph">[[RITENZIONE LOG DA CONFERMARE]]</span>.</li>
-      </ul>
+      <p>The Service, including the extension, the backend, the website, the interface, the prompts and the documentation, and all related trade marks and logos, belong to Sevenda Lab or its licensors. Nothing in these Terms transfers ownership to you.</p>
+      <p>Subject to your compliance with these Terms and to payment of the applicable fees, we grant you a <strong>limited, non-exclusive, non-transferable, revocable licence</strong> to use the Service for your internal business purposes for the duration of your subscription.</p>
+      <p>Third-party components are used under their own licences. Feedback you send us may be used to improve the Service without obligation or compensation to you.</p>
     </div>
   </div>
 
   <div class="privacy-section">
     <span class="section-number">Section 9</span>
-    <h2 class="section-title">Third parties and processors</h2>
+    <h2 class="section-title">Your data and generated content</h2>
     <div class="section-body">
-      <p>We use a small number of providers, each bound by a data processing agreement under Art. 28 GDPR where they act as our processors:</p>
-      <ul>
-        <li><strong>Supabase</strong> — database, authentication and storage for accounts and shared sessions (EU region). Processor.</li>
-        <li><strong>Vercel</strong> — hosting and CDN for sevenda.dev. Processor.</li>
-        <li><strong>Stripe</strong> — payment processing, subscriptions and invoicing. Stripe acts as an independent controller for payment and anti-fraud data under its own <a href="https://stripe.com/privacy">privacy policy</a>.</li>
-        <li><strong>Google</strong> — Google OAuth and the Tag Manager API, only if you connect the integration (Section 6). Google acts as an independent controller for your Google account under its own <a href="https://policies.google.com/privacy">privacy policy</a>.</li>
-        <li><strong>Anthropic</strong> — AI generation, called with <strong>your own API key</strong>: Anthropic is your provider for that processing, not ours, and we never see your key or your prompts.</li>
-      </ul>
-      <p>We do not use advertising networks, data brokers, or third-party analytics on the site or in the Extension.</p>
+      <p>Recorded sessions, diagrams, reports and tag plans ("Your Content") belong to <strong>you</strong>. We claim no ownership over them and do not use them to train AI models.</p>
+      <p>Recordings are stored locally on your device by default. You grant us only the licence needed to host, process, back up and display Your Content in order to provide the Service — for example when you sync a session to a shared workspace or apply a tag plan to your Google Tag Manager container.</p>
+      <p>Retention follows your plan, as described in the <a href="/privacy.html">Privacy Policy</a>: 7 days (Free), 90 days (Analyst / Auditor / Suite Solo), 365 days (Studio / Agency / Suite Team), unlimited (Enterprise). <strong>Export your data before it expires</strong> — diagrams and sessions can be exported as XML, SVG or JSON. On account deletion or after 30 days from the end of a subscription, Your Content stored on our backend is permanently deleted.</p>
+      <p>AI output is generated statistically and may be inaccurate or incomplete. You are responsible for reviewing anything generated before relying on it, and in particular before publishing a tag plan to a production container.</p>
     </div>
   </div>
 
   <div class="privacy-section">
     <span class="section-number">Section 10</span>
-    <h2 class="section-title">Transfers outside the EU</h2>
+    <h2 class="section-title">Disclaimer of warranties</h2>
     <div class="section-body">
-      <p>Our primary storage is in the European Union. Some of the providers listed in Section 9 are established in, or may process data from, the United States. Where such a transfer occurs it is covered by the European Commission's <strong>Standard Contractual Clauses</strong> and, where the provider is certified, by the <strong>EU–US Data Privacy Framework</strong>, together with supplementary technical measures (encryption in transit and at rest).</p>
-      <p>You can request a copy of the safeguards applied by writing to <a href="mailto:hello@sevenda.dev">hello@sevenda.dev</a>.</p>
+      <p>To the maximum extent permitted by law, the Service is provided <strong>"as is" and "as available"</strong>, without warranty of any kind, express or implied, including any implied warranty of merchantability, fitness for a particular purpose or non-infringement.</p>
+      <p>We do not warrant that the Service will be uninterrupted or error-free, that recordings will capture every event, or that generated diagrams, reports or tag plans will be accurate, complete or suitable for your purpose. The Service depends on third parties (Google, Anthropic, Stripe, Supabase, Vercel, and the Chrome browser itself) whose availability and behaviour we do not control.</p>
+      <p>Nothing here limits the statutory rights of consumers, including the legal guarantee of conformity.</p>
     </div>
   </div>
 
   <div class="privacy-section">
     <span class="section-number">Section 11</span>
-    <h2 class="section-title">Your rights (GDPR)</h2>
+    <h2 class="section-title">Limitation of liability</h2>
     <div class="section-body">
-      <p>Under Articles 15–22 GDPR you have the right to <strong>access</strong> your data, to <strong>rectify</strong> it, to <strong>erase</strong> it, to <strong>restrict</strong> or <strong>object</strong> to its processing, to <strong>data portability</strong>, and to <strong>withdraw consent</strong> at any time where processing is based on consent (without affecting processing carried out before withdrawal).</p>
-      <p>To exercise these rights, contact <a href="mailto:hello@sevenda.dev">hello@sevenda.dev</a> — we respond within 30 days. You also have the right to lodge a complaint with your supervisory authority (in Italy: <a href="https://www.garanteprivacy.it">Garante per la Protezione dei Dati Personali</a>).</p>
-      <p><strong>A note on recording third-party data:</strong> if you record sessions on systems containing other people's personal data (e.g. a CRM), you are responsible for ensuring you are authorized to do so under your organization's policies and applicable law. In that case you act as controller and Sevenda Lab, for anything you sync to a workspace, acts as your processor.</p>
+      <p>To the maximum extent permitted by law, Sevenda Lab is not liable for indirect, incidental, special or consequential damages, nor for loss of profit, revenue, business, data or goodwill, arising out of or in connection with the Service.</p>
+      <p>Our total aggregate liability for all claims arising in any twelve-month period is limited to the amount you actually paid us for the Service in the <strong>twelve months</strong> preceding the event giving rise to the claim.</p>
+      <p>These limits do not apply to liability that cannot be excluded by law, including liability for wilful misconduct or gross negligence (Art. 1229 Codice Civile), for death or personal injury, or under mandatory consumer protection rules.</p>
+      <p>You are responsible for keeping your own copies of Your Content; we are not liable for data you lose because it expired under your plan's retention limits.</p>
     </div>
   </div>
 
   <div class="privacy-section">
     <span class="section-number">Section 12</span>
-    <h2 class="section-title">Cookies</h2>
+    <h2 class="section-title">Changes to these terms</h2>
     <div class="section-body">
-      <p>sevenda.dev uses only <strong>strictly necessary</strong> cookies and local storage: your authenticated session, your interface language preference, and the anti-fraud cookies set by Stripe on the checkout page. These do not require prior consent under Art. 122 of the Italian Privacy Code.</p>
-      <p>We set no advertising, profiling or third-party analytics cookies. The Chrome Extension sets no cookies at all. If this ever changes, we will introduce a consent banner before any non-essential cookie is used.</p>
+      <p>We may update these Terms as the Service and the applicable law evolve. We will publish the updated version on this page with a new effective date and, for material changes, notify account holders by email or in-product at least <span class="ph">[[PREAVVISO MODIFICHE — DA CONFERMARE]]</span> in advance.</p>
+      <p>Continuing to use the Service after a change takes effect means you accept the updated Terms. If you do not accept them, you may cancel your subscription before the effective date; where the change materially disadvantages you, you may cancel with effect from that date and receive a refund of the unused, prepaid portion.</p>
     </div>
   </div>
 
   <div class="privacy-section">
     <span class="section-number">Section 13</span>
-    <h2 class="section-title">What we do NOT do</h2>
+    <h2 class="section-title">Governing law and jurisdiction</h2>
     <div class="section-body">
-      <ul>
-        <li>We do not collect telemetry, usage analytics, or crash reports from the Extension.</li>
-        <li>We do not sell, rent, or transfer your data to third parties.</li>
-        <li>We do not use your data for advertising, profiling, or creditworthiness.</li>
-        <li>We do not use data obtained from Google APIs to train AI or machine-learning models.</li>
-        <li>We do not capture keystrokes or form input values.</li>
-        <li>We do not record anything while a recording is not active.</li>
-      </ul>
+      <p>These Terms are governed by <span class="ph">[[LEGGE APPLICABILE: Italia]]</span>, without regard to conflict-of-law rules.</p>
+      <p>For business customers, the courts of <span class="ph">[[FORO COMPETENTE: città DA CONFERMARE]]</span> have exclusive jurisdiction over any dispute arising out of or in connection with these Terms.</p>
+      <p>If you are a consumer, this does not deprive you of the protection of the mandatory rules of the country of your habitual residence, and you may bring proceedings in the courts of your place of residence. Consumers resident in the EU may also use the European Commission's <a href="https://ec.europa.eu/consumers/odr">Online Dispute Resolution platform</a>.</p>
+      <p>If any provision of these Terms is held invalid, the remaining provisions stay in force.</p>
     </div>
   </div>
 
   <div class="privacy-section">
     <span class="section-number">Section 14</span>
-    <h2 class="section-title">Children</h2>
-    <div class="section-body">
-      <p>Sevenda is a professional tool and is not directed at children under 16. We do not knowingly process children's data.</p>
-    </div>
-  </div>
-
-  <div class="privacy-section">
-    <span class="section-number">Section 15</span>
-    <h2 class="section-title">Changes</h2>
-    <div class="section-body">
-      <p>We will update this policy as the product evolves. Material changes — such as a new integration, a new processor, or a change in retention — will be announced on sevenda.dev and reflected in the effective date above. Your continued use of Sevenda after a change takes effect means you accept the updated policy.</p>
-    </div>
-  </div>
-
-  <div class="privacy-section">
-    <span class="section-number">Section 16</span>
     <h2 class="section-title">Contact</h2>
     <div class="section-body">
       <p>Sevenda Lab — <a href="mailto:hello@sevenda.dev">hello@sevenda.dev</a> — <a href="https://sevenda.dev">https://sevenda.dev</a></p>

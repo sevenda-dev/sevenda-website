@@ -225,12 +225,12 @@ const SEVENDA_I18N = {
     'fpage.cta.docs':'Read the docs →',
 
     /* ── PRIVACY.HTML ── */
-    'priv.title':'Privacy Policy',
+    'priv.title':'Privacy Policy','terms.title':'Terms of Service',
 
     /* ── FOOTER comune ── */
     'foot.copy':'© 2025 Sevenda · Built with Claude',
     'foot.features':'Features','foot.insights':'Insights','foot.pricing':'Pricing',
-    'foot.github':'GitHub','foot.privacy':'Privacy Policy','foot.docs':'Docs','foot.faq':'FAQ',
+    'foot.github':'GitHub','foot.privacy':'Privacy Policy','foot.terms':'Terms','foot.docs':'Docs','foot.faq':'FAQ',
 
     /* ── FAQ page Q&A ── */
     'faq.g1.q':'What is Sevenda and what does it do?',
@@ -622,11 +622,11 @@ const SEVENDA_I18N = {
     'fpage.cta.sub':'Leggi la documentazione completa o scrivici direttamente.',
     'fpage.cta.docs':'Leggi i docs →',
 
-    'priv.title':'Informativa sulla Privacy',
+    'priv.title':'Informativa sulla Privacy','terms.title':'Termini di Servizio',
 
     'foot.copy':'© 2025 Sevenda · Realizzato con Claude',
     'foot.features':'Funzionalità','foot.insights':'Insights','foot.pricing':'Prezzi',
-    'foot.github':'GitHub','foot.privacy':'Privacy Policy','foot.docs':'Docs','foot.faq':'FAQ',
+    'foot.github':'GitHub','foot.privacy':'Privacy Policy','foot.terms':'Termini','foot.docs':'Docs','foot.faq':'FAQ',
 
     /* ── FAQ Q&A IT ── */
     'faq.g1.q':'Cos\'è Sevenda e cosa fa?',
@@ -1018,11 +1018,11 @@ const SEVENDA_I18N = {
     'fpage.cta.sub':'Lee la documentación completa o escríbenos directamente.',
     'fpage.cta.docs':'Leer los docs →',
 
-    'priv.title':'Política de Privacidad',
+    'priv.title':'Política de Privacidad','terms.title':'Términos del Servicio',
 
     'foot.copy':'© 2025 Sevenda · Hecho con Claude',
     'foot.features':'Funciones','foot.insights':'Insights','foot.pricing':'Precios',
-    'foot.github':'GitHub','foot.privacy':'Política de privacidad','foot.docs':'Docs','foot.faq':'FAQ',
+    'foot.github':'GitHub','foot.privacy':'Política de privacidad','foot.terms':'Términos','foot.docs':'Docs','foot.faq':'FAQ',
 
     /* ── FAQ Q&A ES ── */
     'faq.g1.q':'¿Qué es Sevenda y qué hace?',
@@ -1414,11 +1414,11 @@ const SEVENDA_I18N = {
     'fpage.cta.sub':'Lisez la documentation complète ou écrivez-nous directement.',
     'fpage.cta.docs':'Lire les docs →',
 
-    'priv.title':'Politique de Confidentialité',
+    'priv.title':'Politique de Confidentialité','terms.title':'Conditions d\'Utilisation',
 
     'foot.copy':'© 2025 Sevenda · Réalisé avec Claude',
     'foot.features':'Fonctionnalités','foot.insights':'Insights','foot.pricing':'Tarifs',
-    'foot.github':'GitHub','foot.privacy':'Politique de confidentialité','foot.docs':'Docs','foot.faq':'FAQ',
+    'foot.github':'GitHub','foot.privacy':'Politique de confidentialité','foot.terms':'Conditions','foot.docs':'Docs','foot.faq':'FAQ',
 
     /* ── FAQ Q&A FR ── */
     'faq.g1.q':'Qu\'est-ce que Sevenda et que fait-il ?',
