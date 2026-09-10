@@ -416,6 +416,10 @@
           <input type="checkbox" id="coTermCharge">
           <span id="coTermChargeLabel" data-i18n="co.terms.charge.default">I agree to be charged and understand I can cancel anytime.</span>
         </label>
+        <label class="co-term" id="coTermImmediateRow" style="display:none;">
+          <input type="checkbox" id="coTermImmediate">
+          <span data-i18n="co.terms.immediate">I expressly request that Sevenda begins providing the service immediately, during the 14-day withdrawal period. I acknowledge that I lose my right of withdrawal once the service has been fully performed, and that if I withdraw before then I will pay for what has already been supplied.</span>
+        </label>
       </div>
 
       <button class="co-action" id="coAction" data-i18n="co.btn.next">Next</button>
@@ -706,6 +710,9 @@
     // Errore IVA: se è a schermo va riscritto nella lingua corrente
     if ($('coVatError').style.display !== 'none') showVatError(true);
 
+    // La riga del consenso art. 59 dipende dalla partita IVA
+    syncImmediateConsent();
+
     // Label del bottone dipende dal trial → tienila sincronizzata
     updateActionButton();
   }
@@ -729,14 +736,34 @@
     // Terms visible from step 2
     $('coTerms').style.display = n >= 2 ? 'flex' : 'none';
     $('coRenew').style.display = n >= 2 ? 'flex' : 'none';
+    syncImmediateConsent();
 
     updateActionButton();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
+  /* ── Consenso all'esecuzione immediata (art. 59 Codice del Consumo) ──
+     Serve solo a chi acquista come consumatore: il recesso di 14 giorni si
+     perde unicamente se il consumatore ha chiesto espressamente l'avvio
+     immediato E ha preso atto della conseguenza. Il form non ha un selettore
+     B2C/B2B, quindi usiamo la partita IVA come discriminante: chi la compila
+     sta acquistando nell'esercizio di un'attività. */
+  function isConsumerPurchase() {
+    return !$('coVat').value.trim();
+  }
+
+  function syncImmediateConsent() {
+    const show = isConsumerPurchase();
+    $('coTermImmediateRow').style.display = show ? 'flex' : 'none';
+    // Passando a un acquisto business la spunta non deve restare implicita
+    if (!show) $('coTermImmediate').checked = false;
+  }
+
   function termsOk() {
     if (S.step < 2) return true;
-    return $('coTermPrivacy').checked && $('coTermCharge').checked;
+    if (!$('coTermPrivacy').checked || !$('coTermCharge').checked) return false;
+    if (isConsumerPurchase() && !$('coTermImmediate').checked) return false;
+    return true;
   }
 
   function updateActionButton() {
@@ -791,6 +818,10 @@
       },
       phone: $('coPhone').value.trim(),
       vatId: $('coVat').value.trim(),
+      // Consenso art. 59 Codice del Consumo (solo acquisti da consumatore).
+      // NB: la Edge Function create-subscription al momento IGNORA questo campo
+      // — per conservarne la prova va scritto nei metadata del customer Stripe.
+      consumerImmediatePerformance: isConsumerPurchase() && $('coTermImmediate').checked,
     };
   }
 
@@ -859,6 +890,7 @@
           phone: billing.phone,
           address: billing.address,
           vatId: billing.vatId,
+          consumerImmediatePerformance: billing.consumerImmediatePerformance,
           supabaseUserId: user.id, // collega il pagamento all'utente/organization (webhook)
           orgName: billing.name,   // nome organizzazione = ragione sociale (Company name)
         }),
@@ -1129,8 +1161,9 @@
   $('coQtyPlus') .addEventListener('click', () => { S.qty = clampQty(S.qty + 1); subscriptionReady = false; syncUrl(); render(); });
 
   // Terms checkboxes
-  $('coTermPrivacy').addEventListener('change', updateActionButton);
-  $('coTermCharge') .addEventListener('change', updateActionButton);
+  $('coTermPrivacy')  .addEventListener('change', updateActionButton);
+  $('coTermCharge')   .addEventListener('change', updateActionButton);
+  $('coTermImmediate').addEventListener('change', updateActionButton);
 
   // Clear field error on input
   document.querySelectorAll('.co-input, .co-select').forEach(el =>
