@@ -1,9 +1,76 @@
 // ════════════════════════════════════════════════════════════════
-// Sevenda — Edge Function: create-subscription   (PATCH v8)
+// Sevenda — Edge Function: create-subscription   (PATCH v10)
 // ════════════════════════════════════════════════════════════════
-// Crea un Customer Stripe e una Subscription "incomplete", restituendo
-// il client_secret del PaymentIntent da confermare lato client con
-// Stripe Elements (checkout.html).
+// Flusso in DUE FASI (v9):
+//   fase 1 — crea/riusa il Customer e un SetupIntent; restituisce il
+//            client_secret da confermare con Stripe Elements (checkout.html);
+//   fase 2 — a carta confermata, crea la Subscription con la carta già
+//            agganciata (checkout-success.html, body con `setupIntentId`).
+//
+// PATCH v9 (Strada B — la subscription nasce SOLO a carta confermata).
+// Fino alla v8 la subscription veniva creata all'apertura del checkout, PRIMA
+// che l'utente inserisse la carta: con trial_period_days > 0 Stripe ignora
+// default_incomplete e la crea direttamente 'trialing' (osservato su staging il
+// 31/08/2026: sub creata alle 15:36:03, carta agganciata alle 15:40:55). Nella
+// finestra fra i due istanti, e per sempre se l'utente abbandona:
+//   (a) resolve_entitlement concedeva il tier 'paid' sul solo status, quindi
+//       accesso completo per 14 giorni senza alcuna carta;
+//   (b) findLiveSubscription vedeva una subscription 'trialing' e rispondeva
+//       409 already_subscribed a chi tentava di completare l'acquisto;
+//   (c) il webhook inviava COM-10 "il tuo piano è attivo" a chi non aveva
+//       ancora pagato.
+// Ora la fase 1 non crea alcuna subscription. Il contesto dell'ordine (piano,
+// ciclo, posti, price, utente) viaggia nei METADATA del SetupIntent e la fase 2
+// lo rilegge da lì, non dal body: sopravvive al redirect 3DS senza stato lato
+// client e non è manipolabile dal browser.
+//   Idempotenza: la creazione della subscription usa Idempotency-Key = id del
+//   SetupIntent. Un refresh della pagina di esito o un retry esplicito
+//   restituiscono la STESSA subscription invece di crearne una seconda. Il
+//   guard BR-001 non basta da solo perché dipende dal fatto che il webhook
+//   abbia già scritto l'org — una race.
+//   Autorizzazione della fase 2: il supabaseUserId del body deve coincidere
+//   con quello nei metadata del SetupIntent, e il SetupIntent deve essere
+//   'succeeded' con un payment_method. Non è una difesa forte (la funzione è
+//   --no-verify-jwt come prima), ma non peggiora la postura attuale e rende
+//   il vincolo esplicito.
+//   Guard BR-001 in fase 2: se scatta, si risponde 200 con
+//   status 'already_subscribed' e NON 409. La fase 2 è raggiungibile solo dopo
+//   una fase 1 andata a buon fine, quindi un guard positivo qui significa che la
+//   subscription di QUESTO flusso (o di una race gemella) esiste già: per la
+//   pagina di esito è un successo, non un errore.
+//   trialEnd in fase 1 è null: non esiste ancora una subscription. checkout.html
+//   ha già il fallback "oggi + trialDays" per quel caso.
+//
+// PATCH v10 (IVA — il vatId diventa un Tax ID vero).
+// Fino alla v9 la partita IVA raccolta in checkout.html finiva SOLO in
+// customer.metadata.vatId. Stripe Tax non legge i metadata: legge la collection
+// tax_ids del Customer. Conseguenza: ogni Customer aveva tax_ids vuoto
+// (verificato in produzione su cus_VA42cU... il 01/09/2026, total_count: 0) e il
+// reverse charge non sarebbe MAI scattato — un cliente business tedesco che
+// inserisce correttamente la sua VAT si sarebbe visto addebitare il 19%.
+//   È la stessa classe di difetto chiusa dalla v6 sui metadata volatili: un
+//   valore scritto e mai riletto da chi dovrebbe. Con l'aggravante che qui la
+//   fonte plausibile e sbagliata sta davanti all'utente, che compila il campo
+//   convinto che serva a qualcosa.
+//   syncTaxId() è idempotente (la fase 1 è rieseguibile: retry, refresh, 3DS
+//   fallito) e sostitutiva: un vatId corretto a metà checkout rimpiazza il
+//   precedente invece di accumularsi, perché con due tax_id attivi la scelta di
+//   quale applicare non è nostra.
+//   Formato invalido = RIFIUTO, non prosecuzione silenziosa. Stessa logica del
+//   rifiuto posti della v8: addebitare l'IVA a chi ha diritto al reverse charge
+//   passa inosservato fino alla fattura, e a quel punto è tardi. L'errore esce
+//   in fase 1, prima che l'utente inserisca la carta.
+//   Errori NON di formato (rete, Stripe 5xx) sono best-effort: si logga e si
+//   prosegue. Un tax_id mancante è recuperabile dal Customer Portal e corregge
+//   la fattura successiva; un checkout bloccato da un timeout no.
+//   Tipi supportati: eu_vat, gb_vat, ch_vat. NON si mappa US/CA: negli Stati
+//   Uniti l'EIN non produce esenzione (serve un exemption certificate) e
+//   mapparlo darebbe una falsa sicurezza; per il Canada il tipo dipende dalla
+//   provincia. Paese non mappato ⇒ nessun tax_id, log e avanti.
+//   automatic_tax sulla subscription (fase 2): senza, ogni fattura di rinnovo
+//   esce senza imposta anche con le registrazioni fiscali attive. Con il trial
+//   la prima fattura è zero, quindi l'effetto si vede solo al primo rinnovo
+//   reale — motivo in più per non accorgersene testando il solo checkout.
 //
 // PATCH v2: aggiunge `supabaseUserId` (e `orgName`) ai metadata del
 // Customer, così la Edge Function `stripe-webhook` può collegare il
@@ -169,12 +236,18 @@ function encodeForm(obj: Record<string, unknown>, prefix = ""): string {
   return parts.filter(Boolean).join("&");
 }
 
-async function stripe(path: string, body: Record<string, unknown>, key: string) {
+async function stripe(
+  path: string,
+  body: Record<string, unknown>,
+  key: string,
+  extraHeaders: Record<string, string> = {},   // v9: es. Idempotency-Key
+) {
   const res = await fetch(`${STRIPE_API}${path}`, {
     method: "POST",
     headers: {
       "Authorization": `Bearer ${key}`,
       "Content-Type": "application/x-www-form-urlencoded",
+      ...extraHeaders,
     },
     body: encodeForm(body),
   });
@@ -198,6 +271,94 @@ async function stripeGet(path: string, key: string) {
     throw new Error(data?.error?.message || `Stripe error (${res.status})`);
   }
   return data;
+}
+
+// ── v10 — DELETE su Stripe ──────────────────────────────────────────────────
+// Serve solo a rimuovere un tax_id superato. Best-effort per costruzione: il
+// chiamante decide se un fallimento è bloccante.
+async function stripeDelete(path: string, key: string) {
+  const res = await fetch(`${STRIPE_API}${path}`, {
+    method: "DELETE",
+    headers: { "Authorization": `Bearer ${key}` },
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data?.error?.message || `Stripe error (${res.status})`);
+  }
+  return data;
+}
+
+// ── v10 — paese → tipo di tax ID ────────────────────────────────────────────
+// Copre i paesi del select di checkout.html per cui esiste un tipo che produce
+// un effetto fiscale reale. L'elenco va tenuto allineato a quel select: un
+// paese aggiunto lì e non qui non è un errore (nessun tax_id, si prosegue), ma
+// è un reverse charge che non scatta.
+const TAX_ID_TYPE_BY_COUNTRY: Record<string, string> = {
+  IT: "eu_vat", ES: "eu_vat", FR: "eu_vat", DE: "eu_vat", NL: "eu_vat",
+  BE: "eu_vat", PT: "eu_vat", IE: "eu_vat", AT: "eu_vat",
+  GB: "gb_vat",
+  CH: "ch_vat",
+};
+
+// ── v10 — allinea il tax_id del Customer al vatId dell'ordine ───────────────
+// Tre esiti: { ok: true } (allineato o niente da fare), { ok: false, invalid:
+// true } (formato rifiutato da Stripe — bloccante), { ok: false } (errore
+// tecnico — non bloccante, il chiamante prosegue).
+//   La verifica VIES è ASINCRONA e successiva: Stripe qui valida il formato,
+//   non l'esistenza dell'azienda. Una partita IVA formalmente valida ma
+//   inesistente passa e torna 'unverified' più tardi, sull'evento
+//   customer.tax_id.updated. Quel caso resta fuori da questa funzione.
+async function syncTaxId(
+  customerId: string,
+  vatId: string,
+  country: string | undefined,
+  key: string,
+): Promise<{ ok: boolean; invalid?: boolean; detail: string }> {
+  const value = (vatId || "").replace(/\s/g, "").toUpperCase();
+  const type = country ? TAX_ID_TYPE_BY_COUNTRY[country.toUpperCase()] : undefined;
+
+  // Elenco dei tax_id attuali: serve sia per l'idempotenza sia per capire se
+  // c'è un valore superato da rimuovere.
+  let esistenti: Array<{ id: string; type: string; value: string }> = [];
+  try {
+    const list = await stripeGet(`/customers/${encodeURIComponent(customerId)}/tax_ids?limit=10`, key);
+    esistenti = Array.isArray(list?.data) ? list.data : [];
+  } catch (e) {
+    return { ok: false, detail: `tax_ids di ${customerId} non leggibili: ${(e as Error).message}` };
+  }
+
+  // Nessun vatId nell'ordine, o paese senza tipo noto: non si crea nulla. Non
+  // si cancella nemmeno ciò che esiste — un campo lasciato vuoto in un retry
+  // non è la richiesta di rimuovere una partita IVA già data.
+  if (!value || !type) {
+    return { ok: true, detail: value ? `paese "${country}" senza tipo tax_id noto — nessuna azione` : "nessun vatId nell'ordine" };
+  }
+
+  if (esistenti.some((t) => t.type === type && t.value === value)) {
+    return { ok: true, detail: `tax_id ${type} ${value} già presente su ${customerId}` };
+  }
+
+  // Sostituzione, non accumulo: con due tax_id attivi la scelta di quale
+  // applicare non sarebbe nostra.
+  for (const t of esistenti) {
+    try {
+      await stripeDelete(`/customers/${encodeURIComponent(customerId)}/tax_ids/${encodeURIComponent(t.id)}`, key);
+      console.log(`[tax] rimosso tax_id superato ${t.id} (${t.type} ${t.value}) da ${customerId}`);
+    } catch (e) {
+      console.warn(`[tax] rimozione ${t.id} fallita: ${(e as Error).message}`);
+    }
+  }
+
+  try {
+    const creato = await stripe(`/customers/${encodeURIComponent(customerId)}/tax_ids`, { type, value }, key);
+    return { ok: true, detail: `tax_id ${creato.id} (${type} ${value}) creato su ${customerId}` };
+  } catch (e) {
+    const msg = (e as Error).message || "";
+    // Stripe risponde con code tax_id_invalid e messaggio "Invalid value for
+    // <type>." — verificato in produzione il 01/09/2026 su eu_vat "DE123".
+    const invalid = /invalid value for|tax_id_invalid/i.test(msg);
+    return { ok: false, invalid, detail: `creazione tax_id ${type} ${value} fallita: ${msg}` };
+  }
 }
 
 // ── v7 — il price è davvero acquistabile? ───────────────────────────────────
@@ -359,6 +520,117 @@ async function findLiveSubscription(
   }
 }
 
+// ── v9 — FASE 2: crea la subscription a carta confermata ────────────────────
+// Tutto il contesto dell'ordine viene dai metadata del SetupIntent scritti in
+// fase 1. Del body si usa SOLO supabaseUserId, e solo per il confronto.
+function jsonResp(payload: Record<string, unknown>, status = 200): Response {
+  return new Response(JSON.stringify(payload), {
+    status, headers: { ...CORS, "Content-Type": "application/json" },
+  });
+}
+
+async function activateSubscription(
+  setupIntentId: string,
+  callerUserId: string | undefined,
+  secret: string,
+): Promise<Response> {
+  if (!/^seti_[A-Za-z0-9]+$/.test(setupIntentId)) {
+    return jsonResp({ error: "Invalid setup reference.", code: "invalid_setup_intent" }, 400);
+  }
+
+  let si: Record<string, unknown>;
+  try {
+    si = await stripeGet(`/setup_intents/${encodeURIComponent(setupIntentId)}`, secret);
+  } catch (e) {
+    console.error(`[activate] SetupIntent ${setupIntentId} non leggibile: ${(e as Error).message}`);
+    return jsonResp({ error: "Could not verify your payment method. Please try again.", code: "setup_unreadable" }, 400);
+  }
+
+  const md = (si.metadata ?? {}) as Record<string, string>;
+  const pm = typeof si.payment_method === "string" ? si.payment_method
+    : (si.payment_method as { id?: string } | null)?.id ?? null;
+  const customerId = typeof si.customer === "string" ? si.customer
+    : (si.customer as { id?: string } | null)?.id ?? null;
+
+  // Il SetupIntent deve essere davvero concluso, con una carta, per un customer
+  // noto, e appartenere all'utente che sta chiamando.
+  if (si.status !== "succeeded" || !pm || !customerId) {
+    console.error(`[activate] ${setupIntentId}: status=${String(si.status)} pm=${pm} customer=${customerId}`);
+    return jsonResp({ error: "Your payment method was not confirmed. Please try again.", code: "setup_not_succeeded" }, 400);
+  }
+  if (!md.supabaseUserId || !callerUserId || md.supabaseUserId !== callerUserId) {
+    console.error(`[activate] ${setupIntentId}: utente non coincidente (meta=${md.supabaseUserId} body=${callerUserId})`);
+    return jsonResp({ error: "This payment setup does not belong to the current user.", code: "user_mismatch" }, 403);
+  }
+  const planId = md.planId, priceId = md.priceId;
+  const qty = parseInt(md.quantity ?? "", 10);
+  if (!planId || !priceId || !Number.isInteger(qty) || qty < 1) {
+    console.error(`[activate] ${setupIntentId}: metadata incompleti ${JSON.stringify(md)}`);
+    return jsonResp({ error: "Order details are missing. Please start the checkout again.", code: "order_context_missing" }, 400);
+  }
+
+  // Guard BR-001 anche qui: un esito positivo è la subscription di questo
+  // stesso flusso già creata (retry, refresh, race) → successo, non 409.
+  const existingLive = await findLiveSubscription(callerUserId);
+  if (existingLive) {
+    console.log(`[activate] ${setupIntentId}: subscription già live ${existingLive.subId} (${existingLive.status})`);
+    return jsonResp({
+      status: "already_subscribed",
+      subscriptionId: existingLive.subId,
+      subscriptionStatus: existingLive.status,
+      mode: "setup",
+    });
+  }
+
+  // La carta diventa anche il default del Customer, così il Portal la mostra
+  // come metodo corrente. Best-effort: la subscription la riceve comunque.
+  try {
+    await stripe(`/customers/${customerId}`, {
+      invoice_settings: { default_payment_method: pm },
+    }, secret);
+  } catch (e) {
+    console.warn(`[activate] default pm su ${customerId} non impostato: ${(e as Error).message}`);
+  }
+
+  let subscription: Record<string, unknown>;
+  try {
+    subscription = await stripe("/subscriptions", {
+      customer: customerId,
+      items: [{ price: priceId, quantity: qty }],
+      default_payment_method: pm,
+      // v10: senza questo ogni fattura esce senza imposta, anche con le
+      // registrazioni fiscali attive. Richiede un indirizzo valido sul Customer
+      // — garantito dalla fase 1, che lo raccoglie come campo obbligatorio.
+      automatic_tax: { enabled: true },
+      // Con il trial la prima fattura è zero e nulla viene addebitato ora. Senza
+      // trial (futuro) la fattura iniziale viene pagata off-session con la carta
+      // salvata: se fallisse, meglio un errore esplicito che una 'incomplete'.
+      payment_behavior: "error_if_incomplete",
+      payment_settings: { save_default_payment_method: "on_subscription" },
+      trial_period_days: TRIAL_DAYS,
+      trial_settings: { end_behavior: { missing_payment_method: "cancel" } },
+      metadata: { supabaseUserId: callerUserId },
+    }, secret, { "Idempotency-Key": `sevenda-activate-${setupIntentId}` });
+  } catch (e) {
+    // Gli ID Stripe restano nei log; al client un testo generico e ritentabile.
+    console.error(`[activate] ${setupIntentId}: creazione subscription fallita — ${(e as Error).message}`);
+    return jsonResp({
+      error: "We saved your card but could not activate the plan. Please retry: you will not be charged twice.",
+      code: "activation_failed",
+    }, 502);
+  }
+
+  console.log(`[activate] ${setupIntentId} → subscription ${subscription.id} (${subscription.status})`);
+  return jsonResp({
+    status: "activated",
+    subscriptionId: subscription.id,
+    subscriptionStatus: subscription.status,
+    mode: "setup",
+    trialEnd: (subscription.trial_end as number | null) ?? null,
+    trialDays: TRIAL_DAYS,
+  });
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   if (req.method !== "POST") {
@@ -371,9 +643,18 @@ Deno.serve(async (req) => {
     const secret = Deno.env.get("STRIPE_SECRET_KEY");
     if (!secret) throw new Error("STRIPE_SECRET_KEY not configured on the server.");
 
+    const body = await req.json();
+
+    // ── v9 — FASE 2: la presenza di setupIntentId seleziona il ramo ─────────
+    // Prima delle validazioni di fase 1, che richiedono campi (planId, email)
+    // che la fase 2 non invia: il contesto è nei metadata del SetupIntent.
+    if (typeof body?.setupIntentId === "string" && body.setupIntentId) {
+      return await activateSubscription(body.setupIntentId, body.supabaseUserId, secret);
+    }
+
     // PATCH v2: supabaseUserId e orgName per il linking lato webhook
     const { planId, interval, quantity, email, name, phone, address, vatId,
-            supabaseUserId, orgName } = await req.json();
+            supabaseUserId, orgName } = body;
 
     if (!planId || !interval || !email) {
       throw new Error("Missing required fields (planId, interval, email).");
@@ -524,48 +805,54 @@ Deno.serve(async (req) => {
       console.log(`[dedup] customer NUOVO ${customer.id} per ${supabaseUserId}`);
     }
 
-    // 2) Subscription (incomplete → PaymentIntent da confermare lato client)
-    const subscription = await stripe("/subscriptions", {
+    // ── v10: il vatId diventa un tax_id vero ─────────────────────────────────
+    // Qui e non in fase 2: il vatId arriva solo nel body della fase 1 (non è nei
+    // metadata del SetupIntent) e un formato sbagliato va detto PRIMA che
+    // l'utente inserisca la carta, non dopo averla salvata.
+    const taxSync = await syncTaxId(customer.id, vatId, address?.country, secret);
+    console.log(`[tax] ${taxSync.detail}`);
+    if (!taxSync.ok && taxSync.invalid) {
+      // Return dedicato e non throw, come il pre-check v7 e la validazione posti
+      // v8: il catch finale rimanderebbe il messaggio Stripe grezzo.
+      return new Response(
+        JSON.stringify({
+          error: "The VAT ID you entered is not valid. Please check it, or leave the field empty.",
+          code: "vat_id_invalid",
+        }),
+        { status: 400, headers: { ...CORS, "Content-Type": "application/json" } },
+      );
+    }
+
+    // 2) v9 — SetupIntent: raccoglie la carta SENZA creare la subscription.
+    // I metadata portano il contesto dell'ordine alla fase 2. Il priceId è
+    // già risolto e verificato (pre-check v7) e i posti già validati (v8):
+    // la fase 2 non deve rifare quelle scelte, deve solo eseguirle.
+    const setupIntent = await stripe("/setup_intents", {
       customer: customer.id,
-      items: [{ price: priceId, quantity: qty }],
-      payment_behavior: "default_incomplete",
-      payment_settings: { save_default_payment_method: "on_subscription" },
-      // Trial: prima fattura zero -> nessun PaymentIntent, si raccoglie la carta via
-      // pending_setup_intent e si addebita a fine trial. missing_payment_method:
-      // 'cancel' = se a fine trial manca una carta valida, la subscription si annulla.
-      trial_period_days: TRIAL_DAYS,
-      trial_settings: { end_behavior: { missing_payment_method: "cancel" } },
-      // Servono ENTRAMBI gli expand: pending_setup_intent (trial) e
-      // latest_invoice.confirmation_secret (no-trial). Indici distinti perche'
-      // encodeForm serializza correttamente expand[0]/expand[1] per Stripe.
-      "expand[0]": "latest_invoice.confirmation_secret",
-      "expand[1]": "pending_setup_intent",
-      // v6: planId/interval/seats RIMOSSI. La verità su piano, ciclo e posti
-      // sta negli items ed è lì che il webhook v8 la legge. Lo stato iniziale
-      // resta comunque ricostruibile dalla prima riga di subscription_event e
-      // dall'event log di Stripe: non si perde informazione, si smette di
-      // duplicarla in un posto che nessuno aggiorna.
+      usage: "off_session",
+      // Solo carta: si conferma in modo SINCRONO. Con automatic_payment_methods
+      // Elements potrebbe proporre metodi asincroni (es. SEPA), che lasciano il
+      // SetupIntent in 'processing' e la fase 2 senza un esito su cui attivare.
+      payment_method_types: ["card"],
       metadata: {
         supabaseUserId,
+        planId,
+        interval: billingInterval,
+        quantity: String(qty),
+        priceId,
       },
     }, secret);
 
-    // Con il trial la subscription e' 'trialing' e la prima fattura e' zero: non c'e'
-    // un PaymentIntent da confermare, ma un pending_setup_intent (carta per il
-    // futuro). Senza trial resta il flusso PaymentIntent (confirmation_secret).
-    const setupSecret   = subscription?.pending_setup_intent?.client_secret ?? null;
-    const paymentSecret = subscription?.latest_invoice?.confirmation_secret?.client_secret ?? null;
-    const mode: "setup" | "payment" = setupSecret ? "setup" : "payment";
-    const clientSecret  = setupSecret ?? paymentSecret;
-    if (!clientSecret) throw new Error("Could not retrieve client secret (setup/payment).");
+    const clientSecret = (setupIntent?.client_secret as string | undefined) ?? null;
+    if (!clientSecret) throw new Error("Could not retrieve client secret (setup).");
 
     return new Response(
       JSON.stringify({
-        subscriptionId: subscription.id,
+        setupIntentId: setupIntent.id,
         customerId: customer.id,
         clientSecret,
-        mode,                                      // "setup" (trial) | "payment" (no-trial)
-        trialEnd: subscription?.trial_end ?? null, // unix seconds | null
+        mode: "setup",       // v9: sempre setup — la carta si conferma, l'addebito arriva a fine trial
+        trialEnd: null,      // non esiste ancora una subscription: checkout.html usa oggi + trialDays
         trialDays: TRIAL_DAYS,
       }),
       { headers: { ...CORS, "Content-Type": "application/json" } },
