@@ -165,7 +165,18 @@
     // redirect fisso su sevenda.dev rimanderebbe l'utente in produzione, dove la
     // sessione appena emessa da un altro progetto Supabase non vale nulla.
     // L'origin va comunque registrato nella redirect allowlist del progetto.
-    const REDIRECT_TO = location.origin + '/join';
+    //   Va conservata la QUERY STRING, non solo il path. Il redirect ricostruisce
+    //   l'URL da zero: con `location.origin + '/join'` si perdevano ?relay,
+    //   ?email e ?token, quindi chi CLICCAVA il link invece di digitare il codice
+    //   tornava su una pagina senza contesto — sessione valida, ma nessuna
+    //   consegna all'estensione e nessun riscatto dell'invito. Verificato in
+    //   campo il 15/09/2026 su un invito: l'utente risultava autenticato e il
+    //   workspace restava vuoto.
+    //   RICHIEDE che la redirect allowlist del progetto Supabase ammetta la
+    //   query string: voce `<origin>/join*` (con l'asterisco). Con la sola voce
+    //   esatta, un redirect con query non corrisponde e Supabase rimanda al
+    //   Site URL, cioe' alla home.
+    const REDIRECT_TO = location.origin + location.pathname + location.search;
 
     // L'hint mostra l'host reale: su staging citare sevenda.dev sarebbe una bugia.
     (function () {
@@ -221,6 +232,41 @@
     // pannello resta quindi un secondo passo, spiegato in doneSteps.
     const INVITE_TOKEN = (params.get('token') || '').trim();
     const IS_INVITE = !RELAY && INVITE_TOKEN.length > 0;
+
+    // Copia di servizio del token, per il solo caso in cui il ritorno dal magic
+    // link avvenga in una SCHEDA DIVERSA dello stesso browser (email aperta in
+    // webmail): li' la query string c'e' ancora nell'URL del redirect, ma se
+    // l'utente arriva da un link piu' vecchio o l'allowlist non e' ancora
+    // configurata, questa copia salva il giro. Scade in un'ora: un token
+    // dimenticato in localStorage non deve poter agire settimane dopo.
+    // NON viene MAI usata nel flusso normale con codice digitato — li' il token
+    // e' nella query — ne' nel ramo relay: la si legge solo al ritorno da un
+    // magic link. Vedi handleHashSession().
+    const INVITE_STORE_KEY = 'sevenda_invite_token';
+    const INVITE_STORE_TTL = 60 * 60 * 1000;
+
+    function rememberInviteToken(tok) {
+      try {
+        localStorage.setItem(INVITE_STORE_KEY, JSON.stringify({ t: tok, exp: Date.now() + INVITE_STORE_TTL }));
+      } catch (_) { /* modalita' privata o storage pieno: si prosegue senza */ }
+    }
+    function recallInviteToken() {
+      try {
+        const raw = localStorage.getItem(INVITE_STORE_KEY);
+        if (!raw) return '';
+        const o = JSON.parse(raw);
+        if (!o || !o.t || !o.exp || Date.now() > o.exp) { forgetInviteToken(); return ''; }
+        return String(o.t);
+      } catch (_) { return ''; }
+    }
+    function forgetInviteToken() {
+      try { localStorage.removeItem(INVITE_STORE_KEY); } catch (_) {}
+    }
+
+    if (IS_INVITE) rememberInviteToken(INVITE_TOKEN);
+    // Il relay e' un flusso dell'estensione e non c'entra con gli inviti: se una
+    // copia e' rimasta da un giro precedente, qui non deve poter interferire.
+    if (RELAY) forgetInviteToken();
 
     if (IS_INVITE) {
       document.querySelector('#formState h1').textContent = 'Join the workspace';
@@ -324,7 +370,7 @@
     //
     // La RPC non solleva sui casi di business: risponde { ok:false, code, message }.
     // Un 'seats_full' non è un errore della pagina, è una risposta da mostrare.
-    async function redeemInvite(session) {
+    async function redeemInvite(session, inviteToken) {
       const res = await fetch(SUPABASE_URL + '/rest/v1/rpc/redeem_invite', {
         method: 'POST',
         headers: {
@@ -332,7 +378,7 @@
           'Authorization': 'Bearer ' + session.access_token,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ p_token: INVITE_TOKEN }),
+        body: JSON.stringify({ p_token: inviteToken }),
       });
       const data = await res.json().catch(() => null);
       if (!res.ok) {
@@ -343,6 +389,26 @@
           : ((data && (data.message || data.hint)) || ('Could not redeem the invite (HTTP ' + res.status + ')')));
       }
       return data || {};
+    }
+
+    // Esito del riscatto a schermo. Unico punto di rendering per i due percorsi
+    // che ci arrivano: codice digitato e ritorno da magic link.
+    function showInviteDone(r, email) {
+      const wsName = r.workspace_name ? String(r.workspace_name) : 'the workspace';
+      $('doneTitle').textContent = r.code === 'already_member'
+        ? 'You are already in ' + wsName
+        : 'You have joined ' + wsName;
+      $('doneSub').textContent = 'Your seat is active. One more step to use Sevenda:';
+      if (email) {
+        $('doneEmail').textContent = email;
+      } else {
+        // Senza indirizzo certo si evita di stamparne uno sbagliato: la frase
+        // regge lo stesso, e sbagliare l'email qui manderebbe l'utente a
+        // firmare in un account senza piano.
+        $('doneEmail').textContent = 'the same address you used here';
+      }
+      $('doneSteps').style.display = 'block';
+      show('doneState');
     }
 
     // ── hCaptcha wiring ──────────────────────────────────────────────────────
@@ -416,11 +482,15 @@
     $('verifyBtn').addEventListener('click', async () => {
       const email = ($('email').value || '').trim();
       const token = ($('code').value || '').replace(/\s+/g, '');   // spazio ammesso: "1234 5678"
-      if (!/^\d{8}$/.test(token)) { setCodeMsg('Enter the 8-digit code.', 'err'); return; }
 
       // Retry della sola consegna: il codice e' gia' stato bruciato da un
       // verifyOtp andato a buon fine, ripeterlo darebbe "token expired".
+      // PRIMA della validazione del campo: quando la sessione arriva da un magic
+      // link il campo codice e' vuoto, e chiedere otto cifre inesistenti
+      // bloccherebbe il solo pulsante che puo' ancora concludere il login.
       if (pendingSession) { await deliverPendingSession(); return; }
+
+      if (!/^\d{8}$/.test(token)) { setCodeMsg('Enter the 8-digit code.', 'err'); return; }
 
       const btn = $('verifyBtn'); btn.disabled = true; btn.textContent = 'Verifying…'; setCodeMsg('');
       try {
@@ -438,7 +508,7 @@
         }
         if (IS_INVITE) {
           btn.textContent = 'Joining…';
-          const r = await redeemInvite(session);
+          const r = await redeemInvite(session, INVITE_TOKEN);
           if (r.ok !== true) {
             // L'utente è comunque autenticato: il codice è già consumato e
             // ripetere la verifica darebbe "token expired". Si resta su questo
@@ -447,14 +517,8 @@
             btn.textContent = 'Verify & sign in';
             return;
           }
-          const wsName = r.workspace_name ? String(r.workspace_name) : 'the workspace';
-          $('doneTitle').textContent = r.code === 'already_member'
-            ? 'You are already in ' + wsName
-            : 'You have joined ' + wsName;
-          $('doneSub').textContent = 'Your seat is active. One more step to use Sevenda:';
-          $('doneEmail').textContent = email;
-          $('doneSteps').style.display = 'block';
-          show('doneState');
+          forgetInviteToken();
+          showInviteDone(r, email);
           return;
         }
         $('doneSub').textContent = 'You can close this tab.';
@@ -468,6 +532,95 @@
     $('code').addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !$('verifyBtn').disabled) $('verifyBtn').click();
     });
+
+    // ── Ritorno da magic link: sessione nel fragment ──────────────────────────
+    // Chi clicca il link nell'email invece di digitare il codice torna qui con
+    // #access_token=...&type=signup. Con detectSessionInUrl:false quel frammento
+    // veniva ignorato: la pagina rimostrava il form a un utente gia'
+    // autenticato, e il flusso (relay o invito) restava a meta'.
+    //   Il token NON viene verificato qui: e' gia' firmato da Supabase e serve
+    //   solo come bearer verso le API, che lo validano loro. La decodifica del
+    //   payload serve unicamente a stampare l'indirizzo a schermo.
+    function readHashSession() {
+      const h = (location.hash || '').replace(/^#/, '');
+      if (!h) return null;
+      const p = new URLSearchParams(h);
+      const err = p.get('error_description') || p.get('error');
+      const at  = p.get('access_token');
+      if (!err && !at) return null;
+      return {
+        error: err,
+        session: at ? {
+          access_token:  at,
+          refresh_token: p.get('refresh_token') || '',
+          expires_in:    Number(p.get('expires_in') || 3600),
+          expires_at:    Number(p.get('expires_at') || 0),
+          token_type:    p.get('token_type') || 'bearer',
+        } : null,
+      };
+    }
+
+    function emailFromJwt(accessToken) {
+      try {
+        const part = accessToken.split('.')[1];
+        const json = atob(part.replace(/-/g, '+').replace(/_/g, '/'));
+        return JSON.parse(decodeURIComponent(escape(json))).email || '';
+      } catch (_) { return ''; }
+    }
+
+    async function handleHashSession() {
+      const h = readHashSession();
+      if (!h) return;
+
+      // I token non restano nella barra degli indirizzi: verrebbero copiati in
+      // un incolla, finirebbero nella cronologia e nei referrer.
+      try { history.replaceState(null, '', location.pathname + location.search); } catch (_) {}
+
+      if (h.error || !h.session) {
+        setMsg('\u2717 ' + (h.error || 'This link is no longer valid. Request a new code.'), 'err');
+        show('formState');
+        return;
+      }
+
+      const email = emailFromJwt(h.session.access_token);
+
+      // Ramo relay: l'handshake e' gia' armato dal pannello, manca solo la
+      // consegna. Si passa da codeState perche' e' li' che vivono il messaggio
+      // di errore e il pulsante "Retry delivery".
+      if (RELAY) {
+        pendingSession = h.session;
+        $('codeSub').innerHTML = 'Delivering your session to the Sevenda panel\u2026';
+        show('codeState');
+        await deliverPendingSession();
+        return;
+      }
+
+      // Ramo invito: il token arriva dalla query (allowlist configurata) oppure
+      // dalla copia di servizio, se il ritorno e' avvenuto senza query string.
+      const tok = INVITE_TOKEN || recallInviteToken();
+      if (tok) {
+        $('codeSub').innerHTML = 'Joining the workspace\u2026';
+        show('codeState');
+        try {
+          const r = await redeemInvite(h.session, tok);
+          if (r.ok !== true) {
+            setCodeMsg('\u2717 ' + (r.message || 'This invite cannot be used.'), 'err');
+            return;
+          }
+          forgetInviteToken();
+          showInviteDone(r, email);
+        } catch (e) {
+          setCodeMsg('\u2717 ' + (e && e.message ? e.message : 'Could not redeem the invite.'), 'err');
+        }
+        return;
+      }
+
+      // Login semplice dal sito: nessun contesto da onorare, l'utente e' dentro.
+      $('doneSub').textContent = 'You can close this tab.';
+      show('doneState');
+    }
+
+    handleHashSession();
 
     $('resendBtn').addEventListener('click', () => {
       // Tornare indietro annulla anche la consegna in sospeso: la sessione
