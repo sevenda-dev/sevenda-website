@@ -794,11 +794,45 @@
     }
   }
 
+  // ── ERRORI OAUTH DI RITORNO ──────────────────────────────────────────────────
+  // Quando Google/GitHub falliscono lo scambio del code (es. client secret
+  // scaduto su Supabase), GoTrue rimanda comunque il browser al sito con
+  // ?error=...&error_code=...&error_description=... invece dei token. Senza
+  // questo handler l'utente resta sulla home, sloggato, senza alcun feedback:
+  // deve leggere l'URL per capire cosa è successo. Qui riapriamo il modal di
+  // login con un messaggio leggibile e ripuliamo l'URL.
+  function _consumeOAuthError() {
+    let params;
+    try {
+      params = new URL(window.location.href).searchParams;
+      // L'implicit flow mette gli stessi parametri nel fragment (#error=...)
+      if (!params.get('error') && window.location.hash.length > 1) {
+        params = new URLSearchParams(window.location.hash.slice(1));
+      }
+    } catch (e) { return; }
+
+    const error = params.get('error');
+    if (!error) return;
+
+    // URLSearchParams decodifica già %XX e '+' → non serve un decode manuale.
+    const desc = params.get('error_description');
+    const friendly = desc || 'Sign-in failed. Please try again.';
+
+    // Ripulisce l'URL dai parametri d'errore senza ricaricare la pagina.
+    try {
+      history.replaceState(null, '', _returnUrl());
+    } catch (e) { /* ignore */ }
+
+    _openModal('login');
+    _showErr('sa-login-err', friendly);
+  }
+
   // ── INIT ─────────────────────────────────────────────────────────────────────
   async function _init() {
     _injectStyles();
     _injectModal();
     _loadHcaptcha();
+    _consumeOAuthError();
 
     if (IS_DEV) {
       console.info('[SevendaAuth] Modalità development — Supabase non configurato.');
