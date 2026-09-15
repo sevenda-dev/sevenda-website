@@ -119,12 +119,21 @@
       <button id="resendBtn" class="cta" style="background:transparent;border:1px solid var(--border);color:var(--text-muted)">Use a different email</button>
     </section>
 
-    <!-- STATE 3: sessione consegnata -->
+    <!-- STATE 3: sessione consegnata / invito riscattato -->
     <section id="doneState" class="state center">
       <div class="big-ok">✓</div>
-      <h1>You're signed in</h1>
+      <h1 id="doneTitle">You're signed in</h1>
       <p class="sub" id="doneSub">Return to the <strong>Sevenda</strong> panel in Chrome DevTools —
         it has already picked up your session. You can close this tab.</p>
+      <!-- Mostrato solo dopo un invito riscattato: il membro è dentro al
+           workspace ma non ha ancora una sessione NELL'ESTENSIONE, e il relay
+           non può partire da qui (richiede un handshake avviato dal pannello). -->
+      <ol id="doneSteps" class="hint" style="display:none;text-align:left;padding-left:18px;margin-top:18px">
+        <li>Install <a href="/" target="_blank" rel="noopener">Sevenda</a> in Chrome, if you haven't.</li>
+        <li>Open DevTools (F12, or ⌥ ⌘ I on Mac) and pick the <strong>Sevenda</strong> tab.</li>
+        <li>Click <strong>☁ Sign in</strong>, enter <code id="doneEmail"></code> and press
+            <strong>Send code</strong>. Use the same address you used here.</li>
+      </ol>
     </section>
   </div>
 
@@ -202,6 +211,23 @@
     // Se un giorno i due casi divergono ancora, separare le pagine invece di
     // aggiungere un terzo ramo qui.
     const RELAY = params.get('relay') === 'extension';
+
+    // ?token=... — invito a un workspace, copiato dal pannello dall'owner.
+    // Terzo comportamento della pagina, distinto dagli altri due: qui la
+    // sessione NON viene consegnata all'estensione. Il relay pretende un
+    // handshake armato dal pannello (service-worker.js rifiuta con
+    // 'relay_not_requested' qualunque sessione non richiesta), e chi apre un
+    // invito spesso non ha nemmeno l'estensione installata. L'accesso al
+    // pannello resta quindi un secondo passo, spiegato in doneSteps.
+    const INVITE_TOKEN = (params.get('token') || '').trim();
+    const IS_INVITE = !RELAY && INVITE_TOKEN.length > 0;
+
+    if (IS_INVITE) {
+      document.querySelector('#formState h1').textContent = 'Join the workspace';
+      document.querySelector('#formState .sub').textContent =
+        'You have been invited to a Sevenda workspace. Enter your email and we will '
+        + 'send you an 8-digit code to confirm it is you.';
+    }
 
     // Prefill dell'email passata dall'estensione
     const pre = params.get('email');
@@ -288,6 +314,35 @@
         // consegna, non la verifica del codice.
         btn.textContent = 'Retry delivery';
       }
+    }
+
+    // ── Riscatto dell'invito ─────────────────────────────────────────
+    // Il token dell'header è passato ESPLICITAMENTE invece di affidarsi alla
+    // sessione in memoria del client: qui persistSession è false e la sessione
+    // appena verificata è già in mano al chiamante — usarla direttamente toglie
+    // ogni dipendenza da come supabase-js tiene lo stato interno.
+    //
+    // La RPC non solleva sui casi di business: risponde { ok:false, code, message }.
+    // Un 'seats_full' non è un errore della pagina, è una risposta da mostrare.
+    async function redeemInvite(session) {
+      const res = await fetch(SUPABASE_URL + '/rest/v1/rpc/redeem_invite', {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_ANON,
+          'Authorization': 'Bearer ' + session.access_token,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ p_token: INVITE_TOKEN }),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        // 404 = funzione non deployata su questo progetto: va detto, altrimenti
+        // sembra un invito non valido.
+        throw new Error(res.status === 404
+          ? 'Invite redemption is not available on this environment yet.'
+          : ((data && (data.message || data.hint)) || ('Could not redeem the invite (HTTP ' + res.status + ')')));
+      }
+      return data || {};
     }
 
     // ── hCaptcha wiring ──────────────────────────────────────────────────────
@@ -379,6 +434,27 @@
           // consegna fallisce, deliverPendingSession() la ritenta da sola.
           pendingSession = session;
           await deliverPendingSession();
+          return;
+        }
+        if (IS_INVITE) {
+          btn.textContent = 'Joining…';
+          const r = await redeemInvite(session);
+          if (r.ok !== true) {
+            // L'utente è comunque autenticato: il codice è già consumato e
+            // ripetere la verifica darebbe "token expired". Si resta su questo
+            // stato con il messaggio, senza rimandarlo al form.
+            setCodeMsg('✗ ' + (r.message || 'This invite cannot be used.'), 'err');
+            btn.textContent = 'Verify & sign in';
+            return;
+          }
+          const wsName = r.workspace_name ? String(r.workspace_name) : 'the workspace';
+          $('doneTitle').textContent = r.code === 'already_member'
+            ? 'You are already in ' + wsName
+            : 'You have joined ' + wsName;
+          $('doneSub').textContent = 'Your seat is active. One more step to use Sevenda:';
+          $('doneEmail').textContent = email;
+          $('doneSteps').style.display = 'block';
+          show('doneState');
           return;
         }
         $('doneSub').textContent = 'You can close this tab.';
