@@ -162,6 +162,17 @@
     .resend:hover:not(:disabled){color:var(--text)}
     .resend:disabled{opacity:.5;cursor:not-allowed}
 
+    /* Codice di riferimento (job_id) nel dialog di fallimento */
+    .fail-ref{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px;
+      margin-top:16px;padding:10px 12px;background:var(--panel-2);
+      border:1px solid var(--border);border-radius:var(--r-sm)}
+    .fail-ref-label{font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--text-3)}
+    .fail-ref-code{font-family:var(--mono);font-size:12.5px;color:var(--text);
+      word-break:break-all;user-select:all;-webkit-user-select:all}
+    .fail-ref-copy{background:none;border:0;color:var(--text-2);font-family:var(--sans);
+      font-size:11.5px;font-weight:500;cursor:pointer;padding:2px 4px;transition:color .15s}
+    .fail-ref-copy:hover{color:var(--text)}
+
     /* Language switcher (coerente col resto del sito) */
     .lang{margin-top:34px;display:flex;gap:4px;justify-content:center;font-size:12px}
     .lang-btn{color:var(--text-3);cursor:pointer;padding:2px 6px;border-radius:4px;transition:color .15s}
@@ -305,11 +316,18 @@
         </div>
       </div>
 
-      <!-- Step: fallimento (500) — contatta supporto, NON invita a riprovare -->
+      <!-- Step: fallimento job (500) — testo scelto da failed_step, NON invita a riprovare.
+           Il rilancio è a carico dell'operatore (action:"resume" sul job_id). -->
       <div id="ovFail" class="ov-step hidden center">
         <div class="icon-badge err">!</div>
-        <h3 data-i18n="acct.del.fail.title">Something went wrong</h3>
+        <h3 data-i18n="acct.del.fail.title">Account deletion incomplete</h3>
         <p class="muted" id="failMsg"></p>
+        <!-- Codice di riferimento (job_id): nascosto se il job non è stato aperto -->
+        <div class="fail-ref hidden" id="failRefRow">
+          <span class="fail-ref-label" data-i18n="acct.del.fail.ref">Reference code</span>
+          <span class="fail-ref-code" id="failRef"></span>
+          <button class="fail-ref-copy" id="failCopy" type="button" data-i18n="acct.del.fail.copy">Copy</button>
+        </div>
         <div class="btns" style="justify-content:center;margin-top:20px">
           <a class="btn primary" id="failContact" href="mailto:hello@sevenda.dev" data-i18n="acct.del.fail.contact">Contact support</a>
         </div>
@@ -855,10 +873,88 @@
         closeOverlay(); showScreen('scAuth');
         return;
       }
-      // 500 (o altro): l'account può essere parzialmente eliminato → supporto, NON riprovare.
-      $('failMsg').textContent = tr('acct.del.fail.sub',
-        'Your account may be partially deleted. Please contact hello@sevenda.dev — do not try again.');
+      // Job fallito (500) o risposta inattesa: il testo dipende da quanto è già
+      // stato distrutto (failed_step). Il campo d.error è tecnico (può contenere
+      // messaggi Stripe) → solo console, mai a schermo. Nessun invito a riprovare:
+      // un nuovo tentativo dell'utente aprirebbe un secondo job. Sessione invariata
+      // (l'utente su A/B esiste ancora; su C il comportamento odierno non fa sign-out).
+      if (d.error){
+        try { console.error('[delete-account] job failed at', d.failed_step || '(no step)', '—', d.error); } catch(_){}
+      }
+      lastFail = d;
+      renderFail();
       openOverlay('ovFail');
+    }
+
+    // ── Dialog di fallimento: variante e contenuti da failed_step ────────────────
+    // stripe_cancel      → A (nulla di irreversibile; sub può essere già disdetta)
+    // db_purge           → B (DB intatto, ma Stripe già cancellato)
+    // storage_purge …    → C (dati DB già eliminati)
+    // 500 senza step     → A (errore prima dell'apertura del job: nulla toccato)
+    // step sconosciuto   → C (prudenza)
+    var lastFail = null;   // dati dell'ultimo fallimento, per il re-render su cambio lingua
+
+    function failVariant(step){
+      if (step === 'stripe_cancel') return 'a';
+      if (step === 'db_purge')      return 'b';
+      return 'c'; // storage_purge, auth_delete, email_confirm e ogni valore futuro
+    }
+
+    function renderFail(){
+      var d = lastFail || {};
+      var jobId = d.job_id || '';
+      // Senza failed_step l'errore precede l'apertura del job → variante A (nulla toccato)
+      var variant = d.failed_step ? failVariant(d.failed_step) : 'a';
+
+      var lead = tr('acct.del.fail.' + variant, '');
+      // La coda cambia se c'è un codice da citare: evita "il codice qui sotto" quando manca
+      var tail = jobId
+        ? tr('acct.del.fail.tail',    "Please contact support with the reference code below and we'll finish the process for you.")
+        : tr('acct.del.fail.tailNoRef',"Please contact support and we'll finish the process for you.");
+      $('failMsg').textContent = lead + ' ' + tail;
+
+      // Riga "Codice di riferimento": solo se il job è stato aperto
+      if (jobId){
+        $('failRef').textContent = jobId;
+        $('failRefRow').classList.remove('hidden');
+      } else {
+        $('failRef').textContent = '';
+        $('failRefRow').classList.add('hidden');
+      }
+
+      // CTA mailto precompilata (subject + body col codice), sempre encodeURIComponent
+      var subj = tr('acct.del.fail.mail.subj', 'Account deletion');
+      if (jobId) subj += ' – ' + jobId;
+      var href = 'mailto:hello@sevenda.dev?subject=' + encodeURIComponent(subj);
+      if (jobId){
+        var body = tr('acct.del.fail.mail.body', 'Reference code: {id}').replace('{id}', jobId);
+        href += '&body=' + encodeURIComponent(body);
+      }
+      $('failContact').setAttribute('href', href);
+    }
+
+    function copyFailRef(){
+      var id = ($('failRef').textContent || '').trim();
+      if (!id) return;
+      var btn = $('failCopy');
+      var flash = function(){
+        btn.textContent = tr('acct.del.fail.copied', 'Copied');
+        setTimeout(function(){ btn.textContent = tr('acct.del.fail.copy', 'Copy'); }, 1600);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(id).then(flash, selectFailRef);
+      } else {
+        selectFailRef();
+      }
+    }
+    // Fallback senza Clipboard API: seleziona il codice così è copiabile a mano
+    function selectFailRef(){
+      try {
+        var el = $('failRef'), rng = document.createRange();
+        rng.selectNodeContents(el);
+        var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(rng);
+        if (document.execCommand) document.execCommand('copy');
+      } catch(e){}
     }
 
     function localSignOut(){
@@ -876,6 +972,7 @@
           $('disclaimerText').textContent = disclaimerText(state.hasActiveSub);
         }
         if (!$('ovBlocked').classList.contains('hidden')) renderBlocked();
+        if (!$('ovFail').classList.contains('hidden')) renderFail();
         if (!$('ovOtp').classList.contains('hidden')){
           var email = (currentUser && currentUser.email) || '';
           $('otpSub').textContent = tr('acct.otp.sub','We sent an 8-digit code to {email}.').replace('{email}', email);
@@ -900,6 +997,7 @@
       $('ovBack').addEventListener('click', closeOverlay);
       $('ovNetCancel').addEventListener('click', closeOverlay);
       $('ovNetRetry').addEventListener('click', runDeleteAccount);
+      $('failCopy').addEventListener('click', copyFailRef);
 
       $('chkConfirm').addEventListener('change', function(){
         $('ovContinue').disabled = !this.checked;
