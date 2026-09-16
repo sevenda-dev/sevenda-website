@@ -377,6 +377,31 @@
     //
     // La RPC non solleva sui casi di business: risponde { ok:false, code, message }.
     // Un 'seats_full' non è un errore della pagina, è una risposta da mostrare.
+    // COM-13 — avvisa l'owner di cosa e' successo sul suo link d'invito.
+    // Due soli esiti gli interessano: qualcuno e' entrato, oppure qualcuno e'
+    // rimasto fuori per posti esauriti. Il secondo e' quello che oggi lascia
+    // una persona bloccata e un owner ignaro.
+    //
+    // Deliberatamente SENZA await e senza gestione dell'errore a schermo: il
+    // riscatto e' gia' concluso, e una notifica che non parte non deve
+    // trasformarsi in un messaggio d'errore su un'operazione riuscita. La
+    // funzione verifica comunque lato server che l'esito dichiarato sia vero,
+    // quindi non c'e' niente da difendere qui.
+    function notifyOwner(session, inviteToken, code) {
+      if (code !== 'joined' && code !== 'seats_full') return;
+      try {
+        fetch(SUPABASE_URL + '/functions/v1/notify-join', {
+          method: 'POST',
+          headers: {
+            'apikey': SUPABASE_ANON,
+            'Authorization': 'Bearer ' + session.access_token,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ token: inviteToken, code: code }),
+        }).catch(function () { /* best-effort */ });
+      } catch (_) { /* best-effort */ }
+    }
+
     async function redeemInvite(session, inviteToken) {
       const res = await fetch(SUPABASE_URL + '/rest/v1/rpc/redeem_invite', {
         method: 'POST',
@@ -395,6 +420,10 @@
           ? 'Invite redemption is not available on this environment yet.'
           : ((data && (data.message || data.hint)) || ('Could not redeem the invite (HTTP ' + res.status + ')')));
       }
+      // Un solo punto di aggancio per entrambi i percorsi di riscatto (codice
+      // digitato e ritorno da magic link): la notifica parte da qui, non dai
+      // due chiamanti.
+      notifyOwner(session, inviteToken, (data && data.code) || '');
       return data || {};
     }
 
