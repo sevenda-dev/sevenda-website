@@ -52,6 +52,14 @@
       padding:12px 13px;border-radius:9px;outline:none;transition:border-color .15s;
     }
     input[type=email]:focus{border-color:var(--accent)}
+    /* Input OTP — identico a index.html (.otp-input) */
+    .otp-input{
+      width:100%;background:#0e0e0e;border:1px solid var(--border);color:var(--text);
+      font-family:var(--mono);font-size:22px;letter-spacing:.32em;text-align:center;
+      padding:14px 12px;border-radius:9px;outline:none;transition:border-color .15s;
+    }
+    .otp-input:focus{border-color:var(--accent)}
+    .otp-input.err{border-color:var(--err)}
     .captcha{margin:16px 0 4px;min-height:78px;display:flex;justify-content:center}
     button.cta{
       width:100%;margin-top:18px;background:var(--accent);color:#1a0e06;
@@ -109,9 +117,8 @@
       <p class="sub" id="codeSub">We sent you an 8-digit code.</p>
 
       <label for="code">Confirmation code</label>
-      <input id="code" type="text" inputmode="numeric" autocomplete="one-time-code"
-             maxlength="9" placeholder="1234 5678"
-             style="font-family:var(--mono,monospace);letter-spacing:4px;text-align:center" />
+      <input id="code" class="otp-input" type="text" inputmode="numeric" autocomplete="one-time-code"
+             maxlength="9" placeholder="1234 5678" aria-label="Confirmation code" />
 
       <button id="verifyBtn" class="cta">Verify &amp; sign in</button>
       <div id="codeMsg" class="msg"></div>
