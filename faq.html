@@ -805,7 +805,7 @@ footer {
       <div class="faq-a">
         <div class="faq-a-inner" data-i18n-html="faq.p1.a">
           All session data is stored <strong>locally on your device</strong> using the browser's <code>IndexedDB</code> API (database name: <code>flowlens</code>). Your settings and API key are stored in <code>chrome.storage.sync</code>, which is synced across your Chrome devices by Google — not by Sevenda.<br><br>
-          <strong>Sevenda Lab operates no backend infrastructure.</strong> There is no server that receives, stores, or processes your session data. You can delete all sessions at any time from the Sessions tab → Delete, or by uninstalling the extension.
+          <strong>Sevenda is local-first: your sessions stay on your device by default.</strong> They are transmitted to the Sevenda Lab backend (a Supabase-hosted PostgreSQL database in the European Union, protected by row-level security) only when you explicitly share a session with a team workspace. You can delete all sessions at any time from the Sessions tab → Delete, or by uninstalling the extension.
         </div>
       </div>
     </div>
@@ -849,7 +849,7 @@ footer {
       <div class="faq-a">
         <div class="faq-a-inner" data-i18n-html="faq.p4.a">
           Yes. Sevenda is designed with a <strong>local-first, privacy-by-design</strong> architecture:<br><br>
-          • No backend infrastructure — zero data transmitted to Sevenda Lab servers<br>
+          • Local-first by default — sessions stay on your device and are transmitted to the Sevenda Lab backend (Supabase, EU, with row-level security) only when you explicitly share them with a team workspace<br>
           • Explicit user consent required before any AI generation (you must click Generate)<br>
           • Full user control over stored data — delete sessions at any time<br>
           • No collection of personally identifiable information (PII)<br><br>
