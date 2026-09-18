@@ -153,6 +153,46 @@
     }
     .btn-ghost:hover { color: var(--text); border-color: rgba(255,255,255,.28); }
 
+    /* ── HERO: bottone "Guarda la demo" (apre il video in modal) ─────── */
+    .hero-actions {
+      display: flex;
+      justify-content: center;
+      margin: 0 0 84px;
+    }
+    .hero-watch {
+      display: inline-flex;
+      align-items: center;
+      gap: 11px;
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border-hi);
+      border-radius: var(--r);
+      padding: 8px 18px 8px 8px;
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .hero-watch:hover {
+      border-color: rgba(255,255,255,.28);
+      background: rgba(255,255,255,.03);
+    }
+    /* Pallino play bianco su scuro, coerente col logo/accent */
+    .hero-watch .hw-play {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #fff;
+      color: #0d0d0d;
+      flex-shrink: 0;
+      transition: transform .15s;
+    }
+    .hero-watch:hover .hw-play { transform: scale(1.06); }
+
     /* ── WRAP ────────────────────────────────────────────────── */
     .wrap {
       position: relative;
@@ -220,7 +260,7 @@
       font-size: clamp(16.5px, 1.75vw, 20px);
       color: #9d9d97;
       max-width: 640px;
-      margin: 0 auto 96px;
+      margin: 0 auto 40px;
       line-height: 1.62;
       letter-spacing: -.011em;
       /* righe di lunghezza omogenea invece dell'ultima riga orfana */
@@ -1061,7 +1101,8 @@
       /* Hero */
       #hero { padding: 72px 20px 60px; }
       h1 { font-size: clamp(2.5rem, 8vw, 6rem); letter-spacing: -.03em; }
-      .hero-sub { max-width: 100%; margin-bottom: 64px; }
+      .hero-sub { max-width: 100%; margin-bottom: 32px; }
+      .hero-actions { margin-bottom: 56px; }
 
       /* Mockup: flatten 3D tilt, prevent overflow */
       .mockup { transform: none; max-width: 100%; }
@@ -1259,6 +1300,45 @@
   margin-left: 12px;
 }
 .demo-close:hover { background: var(--surface); color: var(--text); }
+
+/* ── VIDEO MODAL (facade: l'iframe YouTube viene iniettato solo al click) ─ */
+.video-modal {
+  background: #000;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  width: 100%;
+  max-width: 960px;
+  overflow: hidden;
+  box-shadow: 0 40px 120px rgba(0,0,0,0.8);
+  animation: demoSlideUp 0.3s cubic-bezier(0.16,1,0.3,1);
+  display: flex;
+  flex-direction: column;
+}
+.video-topbar {
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  height: 48px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  flex-shrink: 0;
+  gap: 12px;
+}
+.video-topbar .demo-logo { margin-right: auto; }
+/* Contenitore 16:9 responsive per l'iframe */
+.video-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000;
+}
+.video-frame iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
 
 /* ── MODE TABS ────────────────────────────────────────────────────────── */
 .demo-tabs {
@@ -1962,6 +2042,18 @@
     analysts and marketing teams understand what really happens inside their
     digital processes.
   </p>
+
+  <!-- CTA video: apre la demo in un modal (l'iframe si carica solo al click) -->
+  <div class="hero-actions">
+    <button type="button" class="hero-watch" onclick="openVideo()" aria-label="Guarda la demo di Sevenda">
+      <span class="hw-play" aria-hidden="true">
+        <svg width="11" height="13" viewBox="0 0 11 13" fill="none">
+          <path d="M1 1.2v10.6a.8.8 0 0 0 1.22.68l8.4-5.3a.8.8 0 0 0 0-1.36L2.22.52A.8.8 0 0 0 1 1.2Z" fill="currentColor"/>
+        </svg>
+      </span>
+      <span data-i18n="hero.watch">Guarda la demo</span>
+    </button>
+  </div>
 
   <!-- DevTools panel mockup -->
   <div class="wrap">
@@ -2984,6 +3076,65 @@
     if (e.key === 'ArrowLeft')  prevStep();
     if (e.key === 'Escape')     closeDemo();
   });
+</script>
+
+<!-- ─────────────────────── VIDEO MODAL ────────────────────────────────── -->
+<div class="demo-overlay" id="videoOverlay">
+  <div class="video-modal">
+    <!-- Topbar minimale in stile brand -->
+    <div class="video-topbar">
+      <div class="demo-logo">
+        <svg width="18" height="13" viewBox="0 0 28 20" fill="none">
+          <path d="M2,3.5 Q8,1 14,3.5 Q20,6 26,3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          <path d="M2,8.5 Q8,6 14,8.5 Q20,11 26,8.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          <path d="M2,13.5 Q8,11 14,13.5 Q20,16 26,13.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          <path d="M2,18.5 Q8,16 14,18.5 Q20,21 26,18.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+        Sevenda
+      </div>
+      <button class="demo-close" onclick="closeVideo()" aria-label="Chiudi il video">✕</button>
+    </div>
+    <!-- L'iframe viene iniettato qui solo all'apertura (nessun cookie/peso al load) -->
+    <div class="video-frame" id="videoFrame"></div>
+  </div>
+</div>
+
+<script>
+  // ── Video demo: facade YouTube ──────────────────────────────────────
+  // L'iframe (youtube-nocookie) esiste solo mentre il modal è aperto:
+  // zero richieste a YouTube e zero cookie finché l'utente non clicca.
+  (function () {
+    var VIDEO_ID = 'zUxN3pVGM2I';
+    var overlay = document.getElementById('videoOverlay');
+    var frame   = document.getElementById('videoFrame');
+
+    window.openVideo = function () {
+      // autoplay=1 è lecito: è una scelta esplicita dell'utente (ha cliccato)
+      var src = 'https://www.youtube-nocookie.com/embed/' + VIDEO_ID +
+                '?autoplay=1&rel=0&modestbranding=1';
+      frame.innerHTML =
+        '<iframe src="' + src + '" title="Demo di Sevenda" ' +
+        'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" ' +
+        'allowfullscreen></iframe>';
+      overlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    };
+
+    window.closeVideo = function () {
+      overlay.classList.remove('active');
+      frame.innerHTML = ''; // rimuove l'iframe → interrompe la riproduzione
+      document.body.style.overflow = '';
+    };
+
+    // Click sullo sfondo per chiudere
+    overlay.addEventListener('click', function (e) {
+      if (e.target === overlay) closeVideo();
+    });
+    // Esc per chiudere
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && overlay.classList.contains('active')) closeVideo();
+    });
+  })();
 </script>
 <!-- ─────────────────────── DEMO MODAL ─────────────────────────────────── -->
 <div class="demo-overlay" id="demoOverlay">
