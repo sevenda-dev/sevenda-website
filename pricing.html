@@ -415,29 +415,6 @@
       font-size: 13.5px; color: var(--text-2); margin-bottom: 30px;
     }
 
-    /* ─── ADD-ONS ─────────────────────────────────────── */
-    .addons-grid {
-      display: grid; grid-template-columns: repeat(3,1fr); gap: 14px;
-    }
-    .ao-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--r); padding: 22px;
-    }
-    .ao-icon { font-size: 22px; margin-bottom: 10px; }
-    .ao-name { font-size: 13.5px; font-weight: 600; margin-bottom: 3px; }
-    .ao-desc { font-size: 12px; color: var(--text-2); margin-bottom: 14px; }
-    .ao-rows { display: flex; flex-direction: column; gap: 7px; }
-    .ao-row  {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 7px 11px; border-radius: 7px;
-      background: var(--surface-2); border: 1px solid var(--border);
-      font-size: 12px;
-    }
-    .ao-label { color: var(--text-2); }
-    .ao-price { font-family: var(--mono); font-weight: 500; }
-    .ao-buy   { font-size: 10.5px; color: var(--green); margin-left: 8px; opacity: .65; cursor: pointer; transition: opacity .18s; }
-    .ao-buy:hover { opacity: 1; }
-
     /* ─── FEATURE MATRIX ─────────────────────────────── */
     .matrix-wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px 68px; }
     .matrix-tabs {
@@ -494,6 +471,12 @@
     .m-chk svg { width: 8px; height: 8px; }
     .m-dash    { color: var(--text-3); font-size: 13px; }
     .m-val     { font-family: var(--mono); font-size: 11.5px; color: var(--text); }
+    .m-val-note{ font-family: var(--font); font-size: 11.5px; color: var(--text-2); }
+
+    /* Retention: unico limite che cambia davvero tra i piani → evidenziata */
+    .m-row-hi td { background: var(--surface); }
+    .m-row-hi td:first-child { color: var(--text); font-weight: 550; }
+    .m-row-hi .m-val { color: var(--green); }
 
     /* ─── BETA CARD ──────────────────────────────────── */
     .beta-wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px 68px; }
@@ -536,6 +519,7 @@
       font-size: 13px; color: var(--text-2); line-height: 1.72;
     }
     .faq-item.open .faq-a { display: block; }
+    .faq-a a { color: var(--green); text-decoration: underline; text-underline-offset: 2px; }
 
     /* ─── FOOTER ──────────────────────────────────────── */
     footer {
@@ -737,7 +721,13 @@
     /* ─── RESPONSIVE ──────────────────────────────────── */
     @media (max-width: 800px) {
       .nav-links { display: none; }
-      .cards-grid, .addons-grid { grid-template-columns: 1fr; }
+      .cards-grid { grid-template-columns: 1fr; }
+      /* Le tabelle di confronto hanno 4 colonne di testo: sotto gli 800px
+         scorrono dentro il loro contenitore invece di allargare la pagina. */
+      .matrix-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .m-table th, .m-table td { padding: 10px 7px; font-size: 11.5px; }
+      .m-table .m-val { font-size: 10.5px; }
+      .m-table th:first-child { width: 30%; }
       .beta-card { flex-direction: column; text-align: center; }
       .beta-p    { max-width: none; }
       .hero h1   { font-size: 34px; }
@@ -828,29 +818,8 @@
 ════════════════════════════════════ -->
 <div class="free-wrap">
   <div class="free-banner">
-    <div class="free-left">
-      <strong>AI usage is billed to your own Claude account (BYOK)</strong> — you only pay Sevenda for the software. A Claude account with active credit is required to generate. Typical cost: ~$0.03–0.15 per generation depending on model.
-    </div>
-  </div>
-</div>
-
-<!-- ════════════════════════════════════
-  ADD-ONS
-════════════════════════════════════ -->
-<div class="section">
-  <p class="s-eye">ADD-ONS</p>
-  <h2 class="s-title">Pay-as-you-go add-ons</h2>
-  <p class="s-sub">On top of your plan limits. Purchase anytime. Never expire.</p>
-  <div class="addons-grid">
-    <div class="ao-card">
-      <div class="ao-icon">⬇</div>
-      <div class="ao-name">Extra exports</div>
-      <div class="ao-desc">All formats: .bpmn, .svg, .png, .docx, Jira, Camunda</div>
-      <div class="ao-rows">
-        <div class="ao-row"><span class="ao-label">+25 exports</span><span><span class="ao-price">€4</span><span class="ao-buy" style="cursor:default;opacity:.35;pointer-events:none;" aria-disabled="true">Coming soon</span></span></div>
-        <div class="ao-row"><span class="ao-label">+100 exports</span><span><span class="ao-price">€13</span><span class="ao-buy" style="cursor:default;opacity:.35;pointer-events:none;" aria-disabled="true">Coming soon</span></span></div>
-        <div class="ao-row"><span class="ao-label">+500 exports</span><span><span class="ao-price">€49</span><span class="ao-buy" style="cursor:default;opacity:.35;pointer-events:none;" aria-disabled="true">Coming soon</span></span></div>
-      </div>
+    <div class="free-left" data-i18n-html="p.byok">
+      <strong>AI usage is billed to your own Claude account (BYOK)</strong> — you only pay Sevenda for the software. A Claude account with active credit is required to generate. Typical cost: ~€0.06–0.85 per generation depending on the model.
     </div>
   </div>
 </div>
@@ -877,11 +846,10 @@
       </tr>
     </thead>
     <tbody>
-      <tr class="m-sect"><td colspan="4">Sessions &amp; Limits</td></tr>
-      <tr><td>Sessions / month</td><td class="m-val">30</td><td class="m-val">200 pool</td><td class="m-val">Unlimited</td></tr>
-      <tr><td>AI calls / month</td><td class="m-val">100</td><td class="m-val">500 pool</td><td class="m-val">Unlimited</td></tr>
-      <tr><td>Max events / session</td><td class="m-val">2,000</td><td class="m-val">5,000</td><td class="m-val">Unlimited</td></tr>
-      <tr><td>Session retention</td><td class="m-val">90 days</td><td class="m-val">365 days</td><td class="m-val">Unlimited</td></tr>
+      <tr class="m-sect"><td colspan="4" data-i18n="pm.sect.core">Sessions, audits &amp; retention</td></tr>
+      <tr><td data-i18n="pm.sessions">Sessions &amp; audits</td><td class="m-val" data-i18n="pm.unlimited">Unlimited</td><td class="m-val" data-i18n="pm.unlimited">Unlimited</td><td class="m-val" data-i18n="pm.unlimited">Unlimited</td></tr>
+      <tr class="m-row-hi"><td data-i18n="pm.retention">Session retention</td><td class="m-val" data-i18n="pm.ret90">90 days</td><td class="m-val" data-i18n="pm.ret365">365 days</td><td class="m-val" data-i18n="pm.retInf">Unlimited</td></tr>
+      <tr><td data-i18n="pm.ai">AI generation</td><td class="m-val-note" colspan="3" data-i18n="pm.ai.val">Your own Claude key (BYOK) — usage billed by Anthropic</td></tr>
       <tr class="m-sect"><td colspan="4">Export &amp; Deliverables</td></tr>
       <tr><td>Export .bpmn + .svg</td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
@@ -970,11 +938,11 @@
       <tr><th>Feature</th><th>Auditor</th><th>Agency</th><th>Enterprise</th></tr>
     </thead>
     <tbody>
-      <tr class="m-sect"><td colspan="4">Audits &amp; Limits</td></tr>
-      <tr><td>Audits / month</td><td class="m-val">20</td><td class="m-val">100 pool</td><td class="m-val">Unlimited</td></tr>
-      <tr><td>Tracked properties</td><td class="m-val">1</td><td class="m-val">Unlimited</td><td class="m-val">Unlimited</td></tr>
-      <tr><td>AI calls / month</td><td class="m-val">100</td><td class="m-val">500 pool</td><td class="m-val">Unlimited</td></tr>
-      <tr><td>Session retention</td><td class="m-val">90 days</td><td class="m-val">365 days</td><td class="m-val">Unlimited</td></tr>
+      <tr class="m-sect"><td colspan="4" data-i18n="pm.sect.core">Sessions, audits &amp; retention</td></tr>
+      <tr><td data-i18n="pm.sessions">Sessions &amp; audits</td><td class="m-val" data-i18n="pm.unlimited">Unlimited</td><td class="m-val" data-i18n="pm.unlimited">Unlimited</td><td class="m-val" data-i18n="pm.unlimited">Unlimited</td></tr>
+      <tr class="m-row-hi"><td data-i18n="pm.retention">Session retention</td><td class="m-val" data-i18n="pm.ret90">90 days</td><td class="m-val" data-i18n="pm.ret365">365 days</td><td class="m-val" data-i18n="pm.retInf">Unlimited</td></tr>
+      <tr><td data-i18n="pm.properties">Tracked properties</td><td class="m-val">1</td><td class="m-val" data-i18n="pm.unlimited">Unlimited</td><td class="m-val" data-i18n="pm.unlimited">Unlimited</td></tr>
+      <tr><td data-i18n="pm.ai">AI generation</td><td class="m-val-note" colspan="3" data-i18n="pm.ai.val">Your own Claude key (BYOK) — usage billed by Anthropic</td></tr>
       <tr class="m-sect"><td colspan="4">Analysis &amp; Reports</td></tr>
       <tr><td>Tracking gap analysis</td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
@@ -1037,11 +1005,10 @@
       <tr><th>Feature</th><th>Suite Solo</th><th>Suite Team</th><th>Enterprise</th></tr>
     </thead>
     <tbody>
-      <tr class="m-sect"><td colspan="4">Sessions &amp; Limits</td></tr>
-      <tr><td>Sessions / month</td><td class="m-val">50</td><td class="m-val">400 pool</td><td class="m-val">Unlimited</td></tr>
-      <tr><td>Audits / month</td><td class="m-val">30</td><td class="m-val">200 pool</td><td class="m-val">Unlimited</td></tr>
-      <tr><td>AI calls / month</td><td class="m-val">200</td><td class="m-val">1,000 pool</td><td class="m-val">Unlimited</td></tr>
-      <tr><td>Session retention</td><td class="m-val">90 days</td><td class="m-val">365 days</td><td class="m-val">Unlimited</td></tr>
+      <tr class="m-sect"><td colspan="4" data-i18n="pm.sect.core">Sessions, audits &amp; retention</td></tr>
+      <tr><td data-i18n="pm.sessions">Sessions &amp; audits</td><td class="m-val" data-i18n="pm.unlimited">Unlimited</td><td class="m-val" data-i18n="pm.unlimited">Unlimited</td><td class="m-val" data-i18n="pm.unlimited">Unlimited</td></tr>
+      <tr class="m-row-hi"><td data-i18n="pm.retention">Session retention</td><td class="m-val" data-i18n="pm.ret90">90 days</td><td class="m-val" data-i18n="pm.ret365">365 days</td><td class="m-val" data-i18n="pm.retInf">Unlimited</td></tr>
+      <tr><td data-i18n="pm.ai">AI generation</td><td class="m-val-note" colspan="3" data-i18n="pm.ai.val">Your own Claude key (BYOK) — usage billed by Anthropic</td></tr>
       <tr class="m-sect"><td colspan="4">All Process features included</td></tr>
       <tr><td>BPMN 2.0 generation</td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
@@ -1127,32 +1094,32 @@
   FAQ
 ════════════════════════════════════ -->
 <div class="faq-wrap">
-  <p class="s-eye">FAQ</p>
-  <h2 class="s-title" style="margin-bottom:30px">Frequently asked questions</h2>
+  <p class="s-eye" data-i18n="pfaq.eyebrow">FAQ</p>
+  <h2 class="s-title" style="margin-bottom:30px" data-i18n="pfaq.title">Frequently asked questions</h2>
 
   <div class="faq-item">
-    <button class="faq-q">What happens if I exceed my plan limits?<span class="faq-ico"><svg viewBox="0 0 10 10" fill="none"><path d="M5 2v6M2 5h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>
-    <p class="faq-a">The extension notifies you when you reach 80% of your limit. You can purchase add-ons on demand or upgrade to the next plan. There are no automatic blocks without prior notice.</p>
+    <button class="faq-q"><span data-i18n="pfaq.1.q">Are there limits on sessions and audits?</span><span class="faq-ico"><svg viewBox="0 0 10 10" fill="none"><path d="M5 2v6M2 5h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>
+    <p class="faq-a" data-i18n-html="pfaq.1.a">No. Sessions and audits are unlimited on every plan — there is nothing to run out of and no counter to watch. We only ask for fair use: automated, resold or abusive usage that degrades the service for others falls under the acceptable use rules of our <a href="/terms.html">Terms of Service</a>. We get in touch before taking any action — there are no automatic blocks without prior notice.</p>
   </div>
   <div class="faq-item">
-    <button class="faq-q">How does volume pricing work?<span class="faq-ico"><svg viewBox="0 0 10 10" fill="none"><path d="M5 2v6M2 5h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>
-    <p class="faq-a">The more users on your workspace, the less you pay per seat. With 2–5 users you pay €13/user/mo (annual); with 6–20 users the price drops to €10/user/mo. Volume discounts apply automatically when you add members.</p>
+    <button class="faq-q"><span data-i18n="pfaq.2.q">How does volume pricing work?</span><span class="faq-ico"><svg viewBox="0 0 10 10" fill="none"><path d="M5 2v6M2 5h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>
+    <p class="faq-a" data-i18n-html="pfaq.2.a">The more users on your workspace, the less you pay per seat. With 2–5 users you pay €13/user/mo (annual); with 6–20 users the price drops to €10/user/mo. Volume discounts apply automatically when you add members.</p>
   </div>
   <div class="faq-item">
-    <button class="faq-q">Is my Claude account separate from Sevenda limits?<span class="faq-ico"><svg viewBox="0 0 10 10" fill="none"><path d="M5 2v6M2 5h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>
-    <p class="faq-a">Yes. Sevenda limits apply to platform features (sessions, exports, retention). AI usage (BPMN generation, Insights analysis) is billed to your own Claude account (BYOK), separately from Sevenda — a Claude account with active credit is required to generate. Typical cost: ~$0.03–0.15 per generation depending on model.</p>
+    <button class="faq-q"><span data-i18n="pfaq.3.q">Is my Claude account separate from Sevenda?</span><span class="faq-ico"><svg viewBox="0 0 10 10" fill="none"><path d="M5 2v6M2 5h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>
+    <p class="faq-a" data-i18n-html="pfaq.3.a">Yes. Your Sevenda plan covers the software: unlimited sessions and audits, exports, collaboration and retention. AI generation (BPMN, Insights analysis) runs on your own Claude account (BYOK) and is billed to you by Anthropic — a Claude account with active credit is required to generate. Typical cost: ~€0.06–0.85 per generation depending on the model.</p>
   </div>
   <div class="faq-item">
-    <button class="faq-q">Can I switch between Process and Analytics mode?<span class="faq-ico"><svg viewBox="0 0 10 10" fill="none"><path d="M5 2v6M2 5h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>
-    <p class="faq-a">Single-track plans give full access to your chosen mode. The Suite plan unlocks both Process and Analytics in one workspace — ideal for consultants who produce BPMN deliverables and GTM audits for the same clients.</p>
+    <button class="faq-q"><span data-i18n="pfaq.4.q">Can I switch between Process and Analytics mode?</span><span class="faq-ico"><svg viewBox="0 0 10 10" fill="none"><path d="M5 2v6M2 5h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>
+    <p class="faq-a" data-i18n-html="pfaq.4.a">Single-track plans give full access to your chosen mode. The Suite plans unlock both Process and Analytics in one workspace — ideal for consultants who produce BPMN deliverables and GTM audits for the same clients.</p>
   </div>
   <div class="faq-item">
-    <button class="faq-q">Can I change plans at any time?<span class="faq-ico"><svg viewBox="0 0 10 10" fill="none"><path d="M5 2v6M2 5h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>
-    <p class="faq-a">Yes. Upgrades are immediate. Downgrades take effect at the end of the current billing cycle. All data within new plan limits is preserved.</p>
+    <button class="faq-q"><span data-i18n="pfaq.5.q">Can I change plans at any time?</span><span class="faq-ico"><svg viewBox="0 0 10 10" fill="none"><path d="M5 2v6M2 5h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>
+    <p class="faq-a" data-i18n-html="pfaq.5.a">Yes. Upgrades are immediate. Downgrades take effect at the end of the current billing cycle. Sessions and audits stay unlimited on every plan; on a downgrade, retention drops to the new plan's window — export anything you want to keep beforehand.</p>
   </div>
   <div class="faq-item">
-    <button class="faq-q">Do saved sessions expire?<span class="faq-ico"><svg viewBox="0 0 10 10" fill="none"><path d="M5 2v6M2 5h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>
-    <p class="faq-a">Retention depends on your plan: 90 days (Analyst / Auditor / Suite Solo), 365 days (Studio / Agency / Suite Team), unlimited (Enterprise). Before expiry you can export everything as XML or SVG.</p>
+    <button class="faq-q"><span data-i18n="pfaq.6.q">Do saved sessions expire?</span><span class="faq-ico"><svg viewBox="0 0 10 10" fill="none"><path d="M5 2v6M2 5h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>
+    <p class="faq-a" data-i18n-html="pfaq.6.a">Sessions and audits are unlimited, but how long they stay stored depends on your plan: 90 days on Analyst, Auditor and Suite Solo; 365 days on Studio, Agency and Suite Team; unlimited on Enterprise. Retention is the real difference between the tiers. Before expiry you can export everything as XML, SVG or JSON.</p>
   </div>
 </div>
 
@@ -1218,13 +1185,13 @@ const DATA = {
       seatsFor: ['1'],
       subFn: (s, b) => `billed ${b} · 1 user`,
       feats: [
-        '30 sessions / month',
-        'BPMN 2.0 generation',
-        'Export .bpmn / .svg / .png / .docx',
-        'Natural language refinement',
-        'Jira + Camunda integration',
-        'Smart Context Suggester',
-        '90-day retention',
+        ['pfeat.unlimited', 'Unlimited sessions & audits'],
+        ['pfeat.ret90',     '90-day retention'],
+        ['pfeat.bpmn',      'BPMN 2.0 generation'],
+        ['pfeat.export',    'Export .bpmn / .svg / .png / .docx'],
+        ['pfeat.refine',    'Natural language refinement'],
+        ['pfeat.jira',      'Jira + Camunda integration'],
+        ['pfeat.suggester', 'Smart Context Suggester'],
       ],
       cta: 'Start 14-day free trial', ctaType: 'primary', ctaHref: '#',
       save: null,
@@ -1242,13 +1209,13 @@ const DATA = {
       seatsFor: ['2-5', '6-20'],
       subFn: (s, b) => `billed ${b} · per user · ${s === '2-5' ? '2–5 users' : '6–20 users'}`,
       feats: [
-        'Everything in Analyst',
-        '200 sessions / month',
-        'Custom prompts',
-        'Shared library',
-        'Team dashboard',
-        'Priority support',
-        '365-day retention',
+        ['pfeat.allAnalyst', 'Everything in Analyst'],
+        ['pfeat.unlimited',  'Unlimited sessions & audits'],
+        ['pfeat.ret365',     '365-day retention'],
+        ['pfeat.prompts',    'Custom prompts'],
+        ['pfeat.library',    'Shared library'],
+        ['pfeat.teamdash',   'Team dashboard'],
+        ['pfeat.support',    'Priority support'],
       ],
       cta: 'Start 14-day free trial', ctaType: 'secondary', ctaHref: '#',
       save: null,
@@ -1263,14 +1230,15 @@ const DATA = {
       seatsFor: ['2-5', '6-20', '20+'],
       subFn: () => 'custom pricing · 20+ users',
       feats: [
-        'Everything in Studio',
-        'Unlimited sessions',
-        'Custom integrations',
-        'Audit logs',
-        'Dedicated account manager',
-        'Dedicated SLA',
-        'SSO',
-        'Unlimited retention',
+        ['pfeat.unlimited', 'Unlimited sessions & audits'],
+        ['pfeat.seats20',   '20+ seats'],
+        ['pfeat.retInf',    'Unlimited retention'],
+        ['pfeat.sso',       'SSO'],
+        ['pfeat.auditlogs', 'Audit logs'],
+        ['pfeat.sla',       'Dedicated SLA'],
+        ['pfeat.am',        'Dedicated account manager'],
+        ['pfeat.allStudio', 'Everything in Studio'],
+        ['pfeat.customint', 'Custom integrations'],
       ],
       cta: 'Contact us', ctaType: 'ghost',
       ctaHref: '/contact-sales.html?plan=pent',
@@ -1292,14 +1260,14 @@ const DATA = {
       seatsFor: ['1'],
       subFn: (s, b) => `billed ${b} · 1 user`,
       feats: [
-        '20 audits / month',
-        '1 tracked property',
-        'Tracking gap analysis',
-        'Tag plan export (.docx)',
-        'GA4 report generation',
-        'GTM integration',
-        'DNA Fingerprint + Narrative',
-        '90-day retention',
+        ['pfeat.unlimited', 'Unlimited sessions & audits'],
+        ['pfeat.ret90',     '90-day retention'],
+        ['pfeat.prop1',     '1 tracked property'],
+        ['pfeat.gap',       'Tracking gap analysis'],
+        ['pfeat.tagplan',   'Tag plan export (.docx)'],
+        ['pfeat.ga4',       'GA4 report generation'],
+        ['pfeat.gtm',       'GTM integration'],
+        ['pfeat.dna',       'DNA Fingerprint + Narrative'],
       ],
       cta: 'Start 14-day free trial', ctaType: 'primary', ctaHref: '#',
       save: null,
@@ -1317,12 +1285,12 @@ const DATA = {
       seatsFor: ['2-5', '6-20'],
       subFn: (s, b) => `billed ${b} · per user · ${s === '2-5' ? '2–5 users' : '6–20 users'}`,
       feats: [
-        'Everything in Auditor',
-        '100 audits / month',
-        'Unlimited properties',
-        'Multi-client dashboard',
-        'Priority support',
-        '365-day retention',
+        ['pfeat.allAuditor',  'Everything in Auditor'],
+        ['pfeat.unlimited',   'Unlimited sessions & audits'],
+        ['pfeat.ret365',      '365-day retention'],
+        ['pfeat.propInf',     'Unlimited properties'],
+        ['pfeat.multiclient', 'Multi-client dashboard'],
+        ['pfeat.support',     'Priority support'],
       ],
       cta: 'Start 14-day free trial', ctaType: 'secondary', ctaHref: '#',
       save: null,
@@ -1337,13 +1305,14 @@ const DATA = {
       seatsFor: ['2-5', '6-20', '20+'],
       subFn: () => 'custom pricing · 20+ users',
       feats: [
-        'Everything in Agency',
-        'Unlimited audits',
-        'Unlimited retention',
-        'Audit logs',
-        'Dedicated account manager',
-        'Dedicated SLA',
-        'SSO',
+        ['pfeat.unlimited', 'Unlimited sessions & audits'],
+        ['pfeat.seats20',   '20+ seats'],
+        ['pfeat.retInf',    'Unlimited retention'],
+        ['pfeat.sso',       'SSO'],
+        ['pfeat.auditlogs', 'Audit logs'],
+        ['pfeat.sla',       'Dedicated SLA'],
+        ['pfeat.am',        'Dedicated account manager'],
+        ['pfeat.allAgency', 'Everything in Agency'],
       ],
       cta: 'Contact us', ctaType: 'ghost',
       ctaHref: '/contact-sales.html?plan=aent',
@@ -1365,12 +1334,11 @@ const DATA = {
       seatsFor: ['1'],
       subFn: (s, b) => `billed ${b} · 1 user`,
       feats: [
-        'Everything in Analyst',
-        'Everything in Auditor',
-        'BPMN + Insights workspace',
-        '50 sessions / month',
-        '30 audits / month',
-        '90-day retention',
+        ['pfeat.unlimited',    'Unlimited sessions & audits'],
+        ['pfeat.ret90',        '90-day retention'],
+        ['pfeat.allAnalyst',   'Everything in Analyst'],
+        ['pfeat.allAuditor',   'Everything in Auditor'],
+        ['pfeat.bpmnInsights', 'BPMN + Insights workspace'],
       ],
       cta: 'Start 14-day free trial', ctaType: 'primary', ctaHref: '#',
       save: 'Save €4/mo vs buying both',
@@ -1388,12 +1356,11 @@ const DATA = {
       seatsFor: ['2-5', '6-20'],
       subFn: (s, b) => `billed ${b} · per user · ${s === '2-5' ? '2–5 users' : '6–20 users'}`,
       feats: [
-        'Everything in Studio',
-        'Everything in Agency',
-        'Unified workspace',
-        '400 sessions / month',
-        '200 audits / month',
-        '365-day retention',
+        ['pfeat.unlimited', 'Unlimited sessions & audits'],
+        ['pfeat.ret365',    '365-day retention'],
+        ['pfeat.allStudio', 'Everything in Studio'],
+        ['pfeat.allAgency', 'Everything in Agency'],
+        ['pfeat.unified',   'Unified workspace'],
       ],
       cta: 'Start 14-day free trial', ctaType: 'secondary', ctaHref: '#',
       save: 'Save €8/user vs buying both',
@@ -1408,14 +1375,15 @@ const DATA = {
       seatsFor: ['2-5', '6-20', '20+'],
       subFn: () => 'custom pricing · 20+ users',
       feats: [
-        'Everything in Suite Team',
-        'Unlimited sessions & audits',
-        'Unlimited retention',
-        'Audit logs',
-        'Custom integrations',
-        'Dedicated account manager',
-        'Dedicated SLA',
-        'SSO',
+        ['pfeat.unlimited', 'Unlimited sessions & audits'],
+        ['pfeat.seats20',   '20+ seats'],
+        ['pfeat.retInf',    'Unlimited retention'],
+        ['pfeat.sso',       'SSO'],
+        ['pfeat.auditlogs', 'Audit logs'],
+        ['pfeat.sla',       'Dedicated SLA'],
+        ['pfeat.am',        'Dedicated account manager'],
+        ['pfeat.allSteam',  'Everything in Suite Team'],
+        ['pfeat.customint', 'Custom integrations'],
       ],
       cta: 'Contact us', ctaType: 'ghost',
       ctaHref: '/contact-sales.html?plan=sent',
@@ -1553,9 +1521,11 @@ function render() {
         </div>`;
     }
 
-    // Features
-    const featsHTML = plan.feats.map(f =>
-      `<li><span class="feat-icon ${ic}">${CHK}</span><span>${f}</span></li>`
+    // Features — [chiave i18n, fallback EN]: il markup è generato prima che
+    // i18n.js (defer) sia eseguito, quindi si stampa il fallback e si lascia
+    // che applyLang() traduca via data-i18n, sia al load che a ogni re-render.
+    const featsHTML = plan.feats.map(([key, en]) =>
+      `<li><span class="feat-icon ${ic}">${CHK}</span><span data-i18n="${key}">${en}</span></li>`
     ).join('');
 
     // CTA class
@@ -1598,6 +1568,11 @@ function render() {
         ${ctaEl}
       </div>`;
   });
+
+  // Le card sono ridisegnate a ogni cambio di track / posti / fatturazione:
+  // ritraduce il markup nuovo. Assente al primo render (i18n.js è defer),
+  // dove ci pensa il doApply() su DOMContentLoaded.
+  if (window.applyI18n) window.applyI18n();
 }
 
 /* ─── EVENTS ─────────────────────────────────────────────── */
@@ -1895,37 +1870,37 @@ render();
     analyst: {
       track: 'process', trackLabel: 'Process Track',
       name: 'Analyst', price: 'From €8/month (annual)',
-      feats: ['30 sessions / month', 'BPMN 2.0 generation', 'Export .bpmn / .svg / .png / .docx', 'Natural language refinement', 'Jira + Camunda integration', 'Smart Context Suggester'],
+      feats: [['pfeat.unlimited','Unlimited sessions & audits'], ['pfeat.ret90','90-day retention'], ['pfeat.bpmn','BPMN 2.0 generation'], ['pfeat.export','Export .bpmn / .svg / .png / .docx'], ['pfeat.jira','Jira + Camunda integration'], ['pfeat.suggester','Smart Context Suggester']],
       ctaText: 'Start 14-day free trial →', ctaHref: '#',
     },
     studio: {
       track: 'process', trackLabel: 'Process Track',
       name: 'Studio', price: 'From €13/user/month (annual, 2-5 users)',
-      feats: ['200 sessions / month', 'BPMN 2.0 generation', 'Shared library', 'Team dashboard', 'Priority support'],
+      feats: [['pfeat.unlimited','Unlimited sessions & audits'], ['pfeat.ret365','365-day retention'], ['pfeat.library','Shared library'], ['pfeat.teamdash','Team dashboard'], ['pfeat.support','Priority support']],
       ctaText: 'Start 14-day free trial →', ctaHref: '#',
     },
     auditor: {
       track: 'analytics', trackLabel: 'Analytics Track',
       name: 'Auditor', price: 'From €8/month (annual)',
-      feats: ['20 audits / month', 'Tracking gap analysis', 'GA4 report generation', 'GTM integration', 'DNA Fingerprint + Narrative'],
+      feats: [['pfeat.unlimited','Unlimited sessions & audits'], ['pfeat.ret90','90-day retention'], ['pfeat.gap','Tracking gap analysis'], ['pfeat.ga4','GA4 report generation'], ['pfeat.dna','DNA Fingerprint + Narrative']],
       ctaText: 'Start 14-day free trial →', ctaHref: '#',
     },
     agency: {
       track: 'analytics', trackLabel: 'Analytics Track',
       name: 'Agency', price: 'From €13/user/month (annual, 2-5 users)',
-      feats: ['100 audits / month', 'Unlimited properties', 'Multi-client dashboard', 'GA4 report generation', 'Priority support'],
+      feats: [['pfeat.unlimited','Unlimited sessions & audits'], ['pfeat.ret365','365-day retention'], ['pfeat.propInf','Unlimited properties'], ['pfeat.multiclient','Multi-client dashboard'], ['pfeat.support','Priority support']],
       ctaText: 'Start 14-day free trial →', ctaHref: '#',
     },
     ssolo: {
       track: 'suite', trackLabel: 'Suite Track',
       name: 'Suite — Solo', price: 'From €12/month (annual)',
-      feats: ['Process + Analytics in one', 'BPMN 2.0 + GA4 reports', '50 sessions / month + 30 audits / month', 'All export formats', 'All integrations'],
+      feats: [['pfeat.unlimited','Unlimited sessions & audits'], ['pfeat.ret90','90-day retention'], ['pfeat.bpmnInsights','BPMN + Insights workspace'], ['pfeat.allAnalyst','Everything in Analyst'], ['pfeat.allAuditor','Everything in Auditor']],
       ctaText: 'Start 14-day free trial →', ctaHref: '#',
     },
     steam: {
       track: 'suite', trackLabel: 'Suite Track',
       name: 'Suite — Team', price: 'From €18/user/month (annual, 2-5 users)',
-      feats: ['Process + Analytics for teams', 'BPMN 2.0 + GA4 reports', '400 sessions / month + 200 audits / month', 'Unified workspace', 'Priority support'],
+      feats: [['pfeat.unlimited','Unlimited sessions & audits'], ['pfeat.ret365','365-day retention'], ['pfeat.unified','Unified workspace'], ['pfeat.allStudio','Everything in Studio'], ['pfeat.allAgency','Everything in Agency']],
       ctaText: 'Start 14-day free trial →', ctaHref: '#',
     },
   };
@@ -2021,9 +1996,9 @@ render();
 
         const featsEl = $('pfRecFeats');
         featsEl.innerHTML = '';
-        plan.feats.forEach(f => {
+        plan.feats.forEach(([key, en]) => {
           const li = document.createElement('li');
-          li.textContent = f;
+          li.textContent = window.t ? window.t(key) : en;
           featsEl.appendChild(li);
         });
 
