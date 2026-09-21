@@ -1,11 +1,35 @@
 // ════════════════════════════════════════════════════════════════════════════
-// Sevenda — Edge Function: stripe-webhook   (PATCH v14 — COM-11 cessazione per morosità)
+// Sevenda — Edge Function: stripe-webhook   (PATCH v15 — IVA da tax rate manuali)
 // ════════════════════════════════════════════════════════════════════════════
 // Chiude il giro Stripe → Supabase. Riceve gli eventi Stripe, verifica la firma,
 // garantisce l'idempotenza (tabella stripe_event) e fa upsert di organization,
 // subscription e invoice. Usa la service-role key (bypassa la RLS).
 //
-// ── PATCH v14 (questa versione) ────────────────────────────────────────────
+// ── PATCH v15 (questa versione) ────────────────────────────────────────────
+// "AUTOMATIC_TAX DISABILITATO" NON SIGNIFICA PIÙ "NESSUNA IMPOSTA".
+// create-subscription v12 applica l'IVA italiana ai consumatori UE fuori
+// dall'Italia con default_tax_rates e automatic_tax spento: sotto la soglia dei
+// 10.000 EUR/anno di vendite B2C transfrontaliere quella cessione è imponibile
+// in Italia al 22% (art. 59c Dir. 2006/112/CE, art. 7-octies DPR 633/72), e
+// Stripe Tax da solo restituiva 0 con taxability_reason "not_collecting"
+// (verificato in produzione il 21/09/2026 con la Tax Calculation API).
+//   La v13 codifica l'equivalenza opposta: total_taxes vuoto + automatic_tax non
+//   abilitato ⇒ "zero per configurazione". Da oggi quel ramo può incontrare una
+//   fattura che l'imposta ce l'ha davvero, e scriverebbe vat_cents: 0 su un
+//   incasso di 638 — lo stesso "zero per dato mancante" che la v13 esiste per
+//   impedire, solo entrato da un'altra porta.
+//   hasManualTaxRates() guarda default_tax_rates della fattura e, in subordine,
+//   le taxes delle righe. Se ci sono e total_taxes è vuoto, l'imposta NON è
+//   determinata: null e log di errore, mai zero.
+//   NO-OP NEL CASO ATTESO: quando total_taxes riporta le voci — comportamento
+//   atteso anche per i tax rate manuali — vince il ramo voci.length > 0 e questa
+//   patch non viene nemmeno raggiunta. È una rete, non un percorso.
+//   NOTA SUL DATO, non sul codice: per un consumatore tedesco la riga invoice
+//   avrà vat_country "DE" (il paese del CLIENTE, come da v13) e vat_cents con
+//   IVA italiana. Non serve Natura, perché l'imposta non è zero, ma chi
+//   costruirà l'export SDI non deve leggere vat_country come paese dell'imposta.
+//
+// ── PATCH v14 ──────────────────────────────────────────────────────────────
 // COM-11 — CESSAZIONE PER MOROSITÀ. Quando il dunning Stripe esaurisce i
 // tentativi e cancella la subscription, arriva un customer.subscription.deleted
 // identico a quello della disdetta volontaria. Senza distinzione, a chi perde
@@ -1542,6 +1566,26 @@ interface InvoiceTax {
   detail: string;
 }
 
+// ── v15 — la fattura porta tax rate manuali? ───────────────────────────────
+// Serve solo al ramo total_taxes VUOTO di invoiceTax(): là, senza questo
+// controllo, l'assenza di automatic_tax verrebbe letta come assenza di imposta.
+// default_tax_rates è la fonte primaria (è ciò che create-subscription v12
+// imposta sulla subscription e che Stripe riporta sulla fattura); le taxes di
+// riga sono il subordine, per le fatture che portano l'aliquota solo sulle
+// singole righe.
+function hasManualTaxRates(rec: Record<string, unknown>): boolean {
+  const dtr = rec.default_tax_rates;
+  if (Array.isArray(dtr) && dtr.length > 0) return true;
+  const lines = (rec.lines as { data?: unknown } | null | undefined)?.data;
+  if (Array.isArray(lines)) {
+    for (const l of lines) {
+      const t = (l as Record<string, unknown>).taxes;
+      if (Array.isArray(t) && t.length > 0) return true;
+    }
+  }
+  return false;
+}
+
 function invoiceTax(inv: Stripe.Invoice): InvoiceTax {
   const rec = inv as unknown as Record<string, unknown>;
 
@@ -1583,12 +1627,20 @@ function invoiceTax(inv: Stripe.Invoice): InvoiceTax {
       };
     }
 
-    // Array vuoto: il significato dipende INTERAMENTE da automatic_tax.
+    // Array vuoto: il significato dipende da automatic_tax e — dalla v15 —
+    // anche dalla presenza di tax rate manuali, che hanno la precedenza perché
+    // sono l'unico caso in cui l'imposta esiste pur con automatic_tax spento.
+    if (hasManualTaxRates(rec)) {
+      return {
+        cents: null, reason: null, country, rateId: null,
+        detail: "total_taxes vuoto su una fattura con tax rate manuali → imposta NON determinata",
+      };
+    }
     if (status === "complete") {
       return { cents: 0, reason: null, country, rateId: null, detail: "total_taxes vuoto, calcolo completo → zero determinato" };
     }
     if (!enabled) {
-      return { cents: 0, reason: "not_collecting", country, rateId: null, detail: "automatic_tax disabilitato → zero per configurazione" };
+      return { cents: 0, reason: "not_collecting", country, rateId: null, detail: "automatic_tax disabilitato e nessun tax rate manuale → zero per configurazione" };
     }
     // 'requires_location_inputs', 'failed', o status assente: la fattura è
     // stata emessa senza che l'imposta fosse determinata. Questo NON è zero.
