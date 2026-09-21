@@ -1,11 +1,102 @@
 // ════════════════════════════════════════════════════════════════════════════
-// Sevenda — Edge Function: stripe-webhook   (PATCH v11 — legame invoice → subscription)
+// Sevenda — Edge Function: stripe-webhook   (PATCH v14 — COM-11 cessazione per morosità)
 // ════════════════════════════════════════════════════════════════════════════
 // Chiude il giro Stripe → Supabase. Riceve gli eventi Stripe, verifica la firma,
 // garantisce l'idempotenza (tabella stripe_event) e fa upsert di organization,
 // subscription e invoice. Usa la service-role key (bypassa la RLS).
 //
-// ── PATCH v11 (questa versione) ────────────────────────────────────────────
+// ── PATCH v14 (questa versione) ────────────────────────────────────────────
+// COM-11 — CESSAZIONE PER MOROSITÀ. Quando il dunning Stripe esaurisce i
+// tentativi e cancella la subscription, arriva un customer.subscription.deleted
+// identico a quello della disdetta volontaria. Senza distinzione, a chi perde
+// il servizio per una carta scaduta partiva la COM-3: "il tuo abbonamento è
+// terminato", nessuna causa, nessun percorso di rientro — e l'ultimo segnale
+// ricevuto era la COM-7 del PRIMO tentativo fallito, giorni prima.
+//   Il discriminante non richiede stato nuovo: cancellation_details.reason vale
+//   'payment_failed' e viene già persistito in subscription.cancel_reason,
+//   quindi la scelta si fa sulla stessa riga che si sta scrivendo.
+//   → Il ramo deleted passa da due a TRE casi: eliminazione account (COM-5,
+//     intercettata dalla guardia B3 a monte), morosità (COM-11), disdetta o
+//     scadenza naturale (COM-3). Il test di RF-CAN-003 va esteso di un caso.
+//
+// CTA POST-CESSAZIONE VERSO IL LISTINO. Le etichette di COM-3 promettevano già
+// "Riattiva un piano" / "Start a plan", ma buildEmail mandava tutto ciò che non
+// è COM-6 su PORTAL_ENTRY_URL: a subscription cessata il portale non ha nulla
+// da gestire e il pulsante non manteneva la promessa. COM-3 e COM-11 puntano
+// ora a /pricing, da cui il checkout riparte. È l'unico cambiamento di questa
+// patch che tocca una comunicazione già in esercizio.
+//
+// NON COPERTO PER DECISIONE: gli stati intermedi past_due/unpaid restano senza
+// comunicazione. Il testo della COM-7 annuncia già i retry automatici; una
+// seconda email a metà dunning sarebbe rumore. Se un giorno servirà, il punto
+// di innesto è lo stesso blocco comunicazioni di handleSubscription.
+//
+// ── PATCH v13 ──────────────────────────────────────────────────────────────
+// IMPOSTA LETTA DA total_taxes[]. handleInvoice scriveva `vat_cents: inv.tax ??
+// 0`. Il campo scalare `tax` non esiste più sull'Invoice: dalla 2025-03-31.basil
+// l'imposta è un ARRAY, total_taxes[], e per riga lines.data[].taxes[]. È la
+// terza occorrenza dello stesso difetto — dopo cancel_at_period_end (v6) e
+// inv.subscription (v11) — e l'aveva già prevista il commento della v11: "il
+// giorno in cui l'IVA verrà applicata il dato sarà silenziosamente sbagliato".
+// Quel giorno è arrivato: Stripe Tax è attivo in live dal 01/09/2026.
+//   I tipi di stripe@^17 dichiarano ANCORA Invoice.tax, quindi `deno check`
+//   passava pulito: il compilatore non poteva vederlo. Come per la v11, la
+//   verifica è stata fatta sul PAYLOAD REALE (in_1UAvYK..., invoice.paid, live).
+//
+// ZERO DETERMINATO ≠ ZERO PER DATO MANCANTE. Il difetto vero non era leggere il
+// campo sbagliato: era che `?? 0` collassava due fatti opposti nello stesso
+// valore. Un total_taxes vuoto con automatic_tax.status 'complete' significa
+// "ho calcolato, viene zero" (reverse charge, extra-UE, trial). Lo stesso array
+// vuoto con status 'failed' significa "non ho calcolato", e la fattura è stata
+// emessa senza imposta. Da ora il secondo caso scrive NULL e logga un errore.
+//   Richiede vat_cents NULLABLE: con NOT NULL il null produce un 23502, che
+//   dbFail classifica classe 23 → NonRetryableError → si perde l'intera riga
+//   invoice, non solo il campo fiscale.
+//
+// NATURA PER LA FATTURA ELETTRONICA. vat_cents = 0 non basta per lo SDI: una
+// operazione senza imposta richiede il codice Natura, e reverse charge (N6.x) e
+// fuori campo per territorialità (N2.1) sono nature diverse che producono lo
+// stesso zero. Si persistono quindi taxability_reason e il paese.
+//   ATTENZIONE — tax_rate_details sull'Invoice NON è quello del tax.calculation:
+//   nel calcolo porta country e percentage_decimal, qui porta solo un puntatore
+//   { tax_rate: "txr_..." }. Verificato sul payload reale. Il paese si prende
+//   quindi da customer_address, che è anche lo snapshot corretto al momento
+//   dell'emissione; l'aliquota, se servirà, si recupera dal TaxRate.
+//
+// ── PATCH v12 ──────────────────────────────────────────────────────────────
+// COM-10 — TRIGGER CORRETTO. La versione precedente inviava su .created con
+// status trialing: nel flusso Elements + trial la subscription nasceva PRIMA
+// della carta (staging 31/08/2026: creata 15:36:03, carta agganciata 15:40:55)
+// e l'email partiva nel mezzo — "il tuo piano è attivo" a chi non aveva ancora
+// pagato, e a chi abbandonava il checkout restava una promessa mai mantenuta.
+// Con la Strada B (create-subscription v9) la subscription viene creata solo a
+// SetupIntent concluso e arriva già con default_payment_method: quello è il
+// segnale. Un .created senza carta non è un'attivazione — non deve più
+// esistere, ma se arrivasse (replay, subscription creata a mano in dashboard)
+// non genera nulla. Resta il ramo incomplete → active per un futuro piano
+// senza prova.
+//
+// RETE DI SICUREZZA SULL'ATTIVAZIONE. Nuovo handler setup_intent.succeeded:
+// se il SetupIntent si conclude in modo differito (redirect_status
+// 'processing', scheda chiusa dopo il 3DS) il client non chiama mai la fase 2 e
+// la carta resta salvata senza subscription — nessun recupero possibile, e la
+// pagina di esito prometteva un'email che non sarebbe mai arrivata. L'handler
+// invoca la STESSA create-subscription usata dal client, non una copia della
+// logica: unica implementazione, due inneschi, idempotenza già garantita.
+// RICHIEDE di aggiungere setup_intent.succeeded all'endpoint Stripe.
+//
+// IMPORTO DAL PREVIEW. unit_amount × quantity era sbagliato per i price a
+// scaglioni (billing_scheme 'tiered' → unit_amount null → "a —"), ed è
+// esattamente il caso di Sevenda Studio Monthly con 2 posti. Ora si legge
+// POST /v1/invoices/create_preview (customer + subscription): è la fattura che
+// Stripe emetterà a fine trial, scaglioni e sconti inclusi. L'Upcoming Invoice
+// API è stata rimossa in 2025-03-31.basil, quindi si chiama il nuovo endpoint
+// via fetch con Stripe-Version esplicito: i tipi di stripe@^17 non lo conoscono.
+// Se il preview non è leggibile, la FRASE sull'importo viene omessa: un
+// carattere vuoto dove il cliente si aspetta una cifra è peggio di una frase
+// in meno.
+//
+// ── PATCH v11 ────────────────────────────────────────────
 // LEGAME INVOICE → SUBSCRIPTION RIPRISTINATO. handleInvoice leggeva
 // inv.subscription, campo che l'API 2026-04-22.dahlia non invia più
 // sull'invoice. Effetto in produzione: 8 invoice su 8 con subscription_id
@@ -218,7 +309,9 @@
 // Eventi Stripe da sottoscrivere (invariati rispetto a v3):
 //   customer.subscription.created / .updated / .deleted,
 //   subscription_schedule.updated / .released,
-//   invoice.paid / .payment_failed / .finalized, customer.updated
+//   invoice.paid / .payment_failed / .finalized, customer.updated,
+//   setup_intent.succeeded   ← NUOVO in v12: va aggiunto all'endpoint Stripe,
+//     altrimenti la rete di sicurezza sull'attivazione non riceve nulla.
 // ════════════════════════════════════════════════════════════════════════════
 
 import Stripe from "npm:stripe@^17";
@@ -337,6 +430,10 @@ const APP_BASE_URL   = Deno.env.get("APP_BASE_URL") ?? "https://sevenda.dev";
 // che apre il Customer Portal: le sessioni Portal sono monouso e scadono, quindi
 // NON si può incorporare un URL di sessione in un'email.
 const PORTAL_ENTRY_URL = `${APP_BASE_URL}/account`;
+// v14 — destinazione delle comunicazioni post-cessazione. Non il portale: a
+// subscription cessata non c'è nulla da gestire, si riparte dal listino.
+// cleanUrls è attivo su Vercel, quindi /pricing senza estensione.
+const REACTIVATE_URL = `${APP_BASE_URL}/pricing`;
 
 function fmtDate(value: string | number | null | undefined): string {
   if (value === null || value === undefined) return "—";
@@ -495,7 +592,7 @@ interface MailVars {
 }
 
 type MailKey = "com1" | "com2" | "com3" | "com6" | "com7" | "com8" | "com9"
-  | "com10a" | "com10b";
+  | "com10a" | "com10b" | "com11";
 
 interface MailCopy {
   subject: string;
@@ -529,8 +626,8 @@ const COM10_BODY: Record<Locale, (v: MailVars) => string> = {
   it: (v) => `Ciao,<br><br>
 grazie per aver completato l'acquisto, il tuo piano ${hi(v.planName)} è attivo.<br><br>
 ${v.trialEnd
-  ? `Sei in prova fino al ${hi(v.trialEnd)}. Fino ad allora non ti addebitiamo nulla. Dopo, il rinnovo parte a ${hi(v.amount)}/${escapeHtml(v.interval ?? "—")}.`
-  : `Il prossimo rinnovo è il ${hi(v.nextRenewal)}, a ${hi(v.amount)}.`}<br><br>
+  ? `Sei in prova fino al ${hi(v.trialEnd)}. Fino ad allora non ti addebitiamo nulla.${v.amount ? ` Dopo, il rinnovo parte a ${hi(v.amount)}/${escapeHtml(v.interval ?? "")}.` : ""}`
+  : `Il prossimo rinnovo è il ${hi(v.nextRenewal)}${v.amount ? `, a ${hi(v.amount)}` : ""}.`}<br><br>
 Ci sei quasi<br><br>
 Per accedere dall'estensione usa ${hi(v.email ?? undefined)}. È l'indirizzo a cui è collegato l'abbonamento. Con un'email diversa entreresti in un account senza piano.<br><br>
 Da qui bastano tre cose:<br><br>
@@ -541,8 +638,8 @@ Aggiungi la tua API key Claude nelle impostazioni. Sevenda usa la tua chiave, qu
   en: (v) => `Hi,<br><br>
 thanks for completing your purchase — your ${hi(v.planName)} plan is active.<br><br>
 ${v.trialEnd
-  ? `You're on trial until ${hi(v.trialEnd)}. Until then we won't charge you anything. After that, renewal starts at ${hi(v.amount)}/${escapeHtml(v.interval ?? "—")}.`
-  : `Your next renewal is ${hi(v.nextRenewal)}, at ${hi(v.amount)}.`}<br><br>
+  ? `You're on trial until ${hi(v.trialEnd)}. Until then we won't charge you anything.${v.amount ? ` After that, renewal starts at ${hi(v.amount)}/${escapeHtml(v.interval ?? "")}.` : ""}`
+  : `Your next renewal is ${hi(v.nextRenewal)}${v.amount ? `, at ${hi(v.amount)}` : ""}.`}<br><br>
 Almost there<br><br>
 To sign in from the extension, use ${hi(v.email ?? undefined)}. That's the address your subscription is linked to. With a different email you'd end up in an account with no plan.<br><br>
 From here it takes three things:<br><br>
@@ -553,8 +650,8 @@ Add your Claude API key in settings. Sevenda uses your key, so your data stays b
   es: (v) => `Hola:<br><br>
 gracias por completar la compra, tu plan ${hi(v.planName)} está activo.<br><br>
 ${v.trialEnd
-  ? `Tienes una prueba hasta el ${hi(v.trialEnd)}. Hasta entonces no te cobramos nada. Después, la renovación empieza en ${hi(v.amount)}/${escapeHtml(v.interval ?? "—")}.`
-  : `La próxima renovación es el ${hi(v.nextRenewal)}, por ${hi(v.amount)}.`}<br><br>
+  ? `Tienes una prueba hasta el ${hi(v.trialEnd)}. Hasta entonces no te cobramos nada.${v.amount ? ` Después, la renovación empieza en ${hi(v.amount)}/${escapeHtml(v.interval ?? "")}.` : ""}`
+  : `La próxima renovación es el ${hi(v.nextRenewal)}${v.amount ? `, por ${hi(v.amount)}` : ""}.`}<br><br>
 Ya casi está<br><br>
 Para acceder desde la extensión usa ${hi(v.email ?? undefined)}. Es la dirección a la que está vinculada la suscripción. Con otro correo entrarías en una cuenta sin plan.<br><br>
 A partir de aquí bastan tres cosas:<br><br>
@@ -565,8 +662,8 @@ Añade tu clave de API de Claude en los ajustes. Sevenda usa tu clave, así que 
   fr: (v) => `Bonjour,<br><br>
 merci d'avoir finalisé votre achat, votre formule ${hi(v.planName)} est active.<br><br>
 ${v.trialEnd
-  ? `Vous êtes en essai jusqu'au ${hi(v.trialEnd)}. D'ici là, nous ne vous facturons rien. Ensuite, le renouvellement démarre à ${hi(v.amount)}/${escapeHtml(v.interval ?? "—")}.`
-  : `Votre prochain renouvellement est le ${hi(v.nextRenewal)}, à ${hi(v.amount)}.`}<br><br>
+  ? `Vous êtes en essai jusqu'au ${hi(v.trialEnd)}. D'ici là, nous ne vous facturons rien.${v.amount ? ` Ensuite, le renouvellement démarre à ${hi(v.amount)}/${escapeHtml(v.interval ?? "")}.` : ""}`
+  : `Votre prochain renouvellement est le ${hi(v.nextRenewal)}${v.amount ? `, à ${hi(v.amount)}` : ""}.`}<br><br>
 Vous y êtes presque<br><br>
 Pour vous connecter depuis l'extension, utilisez ${hi(v.email ?? undefined)}. C'est l'adresse à laquelle votre abonnement est rattaché. Avec une autre adresse, vous arriveriez dans un compte sans formule.<br><br>
 À partir de là, il suffit de trois choses :<br><br>
@@ -639,6 +736,12 @@ const COPY: Record<Locale, Record<MailKey, MailCopy>> = {
       cta: "Gestisci abbonamento",
       footnote: "Se qualcosa non torna, rispondi pure a questa email.<br><br>— Sevenda",
     },
+    com11: {
+      subject: "Il tuo abbonamento è terminato — pagamento non riuscito",
+      title: "Abbonamento terminato",
+      body: () => "Non siamo riusciti a incassare il rinnovo del tuo abbonamento, nemmeno dopo i tentativi successivi, e per questo l'abbonamento è terminato. Non hai più accesso alle funzionalità premium, ma il tuo account e i tuoi dati sono ancora disponibili. Puoi riattivare un piano in qualsiasi momento, con lo stesso metodo di pagamento o con uno nuovo.",
+      cta: "Riattiva un piano",
+    },
   },
 
   en: {
@@ -699,6 +802,12 @@ const COPY: Record<Locale, Record<MailKey, MailCopy>> = {
       body: COM10_BODY.en,
       cta: "Manage subscription",
       footnote: "If something doesn't add up, just reply to this email.<br><br>— Sevenda",
+    },
+    com11: {
+      subject: "Your subscription has ended — payment failed",
+      title: "Subscription ended",
+      body: () => "We were unable to collect the payment for your renewal, not even on the later attempts, so your subscription has ended. You no longer have access to premium features, but your account and your data are still available. You can start a plan again at any time, with the same payment method or a new one.",
+      cta: "Start a plan",
     },
   },
 
@@ -761,6 +870,12 @@ const COPY: Record<Locale, Record<MailKey, MailCopy>> = {
       cta: "Gestionar suscripción",
       footnote: "Si algo no cuadra, responde a este correo.<br><br>— Sevenda",
     },
+    com11: {
+      subject: "Tu suscripción ha finalizado — pago no realizado",
+      title: "Suscripción finalizada",
+      body: () => "No hemos podido cobrar la renovación de tu suscripción, tampoco en los intentos posteriores, por lo que la suscripción ha finalizado. Ya no tienes acceso a las funciones premium, pero tu cuenta y tus datos siguen disponibles. Puedes contratar un plan en cualquier momento, con el mismo método de pago o con uno nuevo.",
+      cta: "Contratar un plan",
+    },
   },
 
   fr: {
@@ -822,6 +937,12 @@ const COPY: Record<Locale, Record<MailKey, MailCopy>> = {
       cta: "Gérer l'abonnement",
       footnote: "Si quelque chose ne va pas, répondez simplement à cet e-mail.<br><br>— Sevenda",
     },
+    com11: {
+      subject: "Votre abonnement a pris fin — échec du paiement",
+      title: "Abonnement terminé",
+      body: () => "Nous n'avons pas pu encaisser le renouvellement de votre abonnement, ni lors des tentatives suivantes, et votre abonnement a donc pris fin. Vous n'avez plus accès aux fonctionnalités premium, mais votre compte et vos données restent disponibles. Vous pouvez souscrire un forfait à tout moment, avec le même moyen de paiement ou un nouveau.",
+      cta: "Souscrire un forfait",
+    },
   },
 };
 
@@ -831,7 +952,12 @@ function buildEmail(locale: Locale, key: MailKey, v: MailVars = {}): { subject: 
   const c = (COPY[locale] ?? COPY[DEFAULT_LOCALE])[key];
   // COM-6 è l'unica con CTA verso un URL esterno (la ricevuta Stripe): se manca,
   // l'email parte comunque, senza pulsante.
-  const ctaUrl = key === "com6" ? (v.receiptUrl ?? null) : PORTAL_ENTRY_URL;
+  // v14 — le due comunicazioni post-cessazione (COM-3 naturale, COM-11
+  // morosità) portano al listino: la loro CTA promette un piano nuovo, non la
+  // gestione di un abbonamento che non esiste più.
+  const ctaUrl = key === "com6" ? (v.receiptUrl ?? null)
+    : (key === "com3" || key === "com11") ? REACTIVATE_URL
+    : PORTAL_ENTRY_URL;
   return {
     subject: c.subject,
     html: emailLayout({
@@ -843,6 +969,36 @@ function buildEmail(locale: Locale, key: MailKey, v: MailVars = {}): { subject: 
       footnote: c.footnote,        // v10
     }),
   };
+}
+
+// ── v12 — importo del prossimo addebito (Create Preview Invoice) ────────────
+// Best-effort: null su qualunque errore, e il chiamante omette la frase.
+async function previewNextAmount(
+  customerId: string,
+  subscriptionId: string,
+): Promise<{ cents: number; currency: string } | null> {
+  try {
+    const res = await fetch("https://api.stripe.com/v1/invoices/create_preview", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${Deno.env.get("STRIPE_SECRET_KEY")}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Stripe-Version": String(STRIPE_API_VERSION),
+      },
+      body: new URLSearchParams({ customer: customerId, subscription: subscriptionId }).toString(),
+    });
+    const data = await res.json().catch(() => null) as Record<string, unknown> | null;
+    if (!res.ok || !data) {
+      console.warn(`[webhook] preview ${subscriptionId}: HTTP ${res.status} ${JSON.stringify((data as { error?: unknown } | null)?.error ?? "").slice(0, 200)}`);
+      return null;
+    }
+    const cents = typeof data.total === "number" ? data.total : null;
+    if (cents === null) return null;
+    return { cents, currency: typeof data.currency === "string" ? data.currency : "eur" };
+  } catch (err) {
+    console.warn(`[webhook] preview ${subscriptionId}: ${(err as Error).message}`);
+    return null;
+  }
 }
 
 // ── Risolve (o crea) l'organization a partire dal Customer Stripe ─────────────
@@ -1131,23 +1287,34 @@ async function handleSubscription(
       // COM-3 — cessazione NATURALE. La cessazione da eliminazione account non
       // arriva mai qui: la guardia B3 in testa alla funzione l'ha già
       // intercettata, e in quel caso la comunicazione è COM-5, inviata da
-      // delete-account. Da qui in poi il test di COM-3 è a due casi
-      // (RF-CAN-003).
-      const m = buildEmail(locale, "com3");
-      await sendEmail(email, m.subject, m.html, "COM-3");
+      // delete-account.
+      //   v14 — terzo caso: la MOROSITÀ. Il dunning Stripe, esauriti i
+      //   tentativi, cancella la subscription ed emette questo stesso evento.
+      //   Il discriminante è cancellation_details.reason = 'payment_failed',
+      //   già letto sopra in row.cancel_reason: nessuno stato da mantenere.
+      //   Qualunque altro reason (o l'assenza di reason) resta cessazione
+      //   naturale: si sceglie COM-11 solo su un segnale esplicito, mai per
+      //   esclusione. Da qui in poi il test è a TRE casi (RF-CAN-003).
+      const dunning = row.cancel_reason === "payment_failed";
+      const m = buildEmail(locale, dunning ? "com11" : "com3");
+      await sendEmail(email, m.subject, m.html, dunning ? "COM-11" : "COM-3");
       return;
     }
 
-    // ── v10 — COM-10: attivazione del piano ────────────────────────────────
-    // Si innesca sulla prima transizione verso uno stato SERVITO, non sulla
-    // creazione: con Elements + 3DS la subscription nasce 'incomplete' e un
-    // messaggio "il tuo piano è attivo" a quel punto sarebbe falso. Il ramo
-    // .updated è ristretto a previous_attributes.status === 'incomplete' per
-    // non intercettare un past_due → active, che è un recupero da dunning.
+    // ── v12 — COM-10: attivazione del piano ────────────────────────────────
+    // La subscription nasce ora SOLO a carta confermata (create-subscription
+    // v9, Strada B) e arriva già con default_payment_method: quel campo è il
+    // segnale di attivazione, non lo stato. Senza carta non c'è nulla da
+    // annunciare — un .created senza default_payment_method non è più prodotto
+    // dal checkout e, se arrivasse (replay, subscription creata a mano), non
+    // genera nulla. Il ramo .updated resta per un futuro piano senza prova,
+    // ristretto a previous_attributes.status === 'incomplete' per non
+    // intercettare un past_due → active, che è un recupero da dunning.
     const SERVED_STATES = new Set(["active", "trialing"]);
     const statusBefore = (previousAttributes ?? {}).status;
+    const hasCard = sub.default_payment_method != null;
     const activatedNow =
-      (eventType === "customer.subscription.created" && SERVED_STATES.has(sub.status))
+      (eventType === "customer.subscription.created" && SERVED_STATES.has(sub.status) && hasCard)
       || (eventType === "customer.subscription.updated"
           && statusBefore === "incomplete"
           && SERVED_STATES.has(sub.status));
@@ -1162,16 +1329,15 @@ async function handleSubscription(
       if (cntErr) console.error(`[webhook] COM-10 storico org ${orgId}: ${cntErr.message}`);
       const returning = (count ?? 0) > 0;
 
-      // Importo: canone ricorrente dagli items (unit_amount × posti), non un
-      // totale fatturato — l'evento subscription non lo contiene. È corretto
-      // per una previsione di rinnovo, ma divergerebbe dal totale reale in
-      // presenza di un coupon: da rivedere se attiverai codici sconto.
-      const unit = item?.price?.unit_amount ?? null;
+      // v12 — importo dal preview della prossima fattura: esatto anche per i
+      // price a scaglioni (unit_amount null) e con eventuali sconti. Se non
+      // leggibile resta undefined e il testo omette la frase.
+      const preview = await previewNextAmount(sub.customer as string, sub.id);
       const key: MailKey = returning ? "com10b" : "com10a";
       const m = buildEmail(locale, key, {
         planName: await resolvePlanName(planId),
         email,
-        amount: unit != null ? fmtAmount(unit * seats, item?.price?.currency, locale) : "—",
+        amount: preview ? fmtAmount(preview.cents, preview.currency, locale) : undefined,
         interval: INTERVAL_WORD[locale][interval] ?? interval,
         trialEnd: sub.status === "trialing" ? fmtDate(sub.trial_end) : undefined,
         nextRenewal: fmtDate(periodEnd ?? null),
@@ -1364,6 +1530,80 @@ function mapInvoiceStatus(s: string | null): string {
 //      vecchi ancora presenti in stripe_event.
 // Entrambi possono arrivare come stringa o come oggetto espanso: si accettano
 // tutte e due le forme invece di assumere quella non espansa.
+// ── v13 — imposta della fattura ─────────────────────────────────────────────
+// `cents: null` NON significa zero: significa "non determinata". La colonna è
+// nullable proprio per poterlo dire. Ogni null passa dal log come errore, mai
+// in silenzio: è il requisito che questa patch esiste per soddisfare.
+interface InvoiceTax {
+  cents: number | null;
+  reason: string | null;
+  country: string | null;
+  rateId: string | null;
+  detail: string;
+}
+
+function invoiceTax(inv: Stripe.Invoice): InvoiceTax {
+  const rec = inv as unknown as Record<string, unknown>;
+
+  // Paese: da customer_address, lo snapshot al momento dell'emissione. Non da
+  // tax_rate_details, che sull'Invoice porta solo un puntatore al TaxRate.
+  const addr = rec.customer_address as { country?: unknown } | null | undefined;
+  const country = typeof addr?.country === "string" ? addr.country : null;
+
+  const at = rec.automatic_tax as { enabled?: unknown; status?: unknown } | null | undefined;
+  const status = typeof at?.status === "string" ? at.status : null;
+  const enabled = at?.enabled === true;
+
+  const arr = rec.total_taxes;
+
+  if (Array.isArray(arr)) {
+    const voci = arr as Array<Record<string, unknown>>;
+
+    if (voci.length > 0) {
+      // Si somma: l'array può contenere più imposte concorrenti. Leggere
+      // voci[0].amount sarebbe corretto solo per caso, sul caso a una voce.
+      let somma = 0;
+      for (const v of voci) {
+        if (typeof v.amount !== "number") {
+          return {
+            cents: null, reason: null, country, rateId: null,
+            detail: `total_taxes con amount non numerico (${typeof v.amount})`,
+          };
+        }
+        somma += v.amount;
+      }
+      const prima = voci[0];
+      const trd = prima.tax_rate_details as { tax_rate?: unknown } | null | undefined;
+      return {
+        cents: somma,
+        reason: typeof prima.taxability_reason === "string" ? prima.taxability_reason : null,
+        country,
+        rateId: typeof trd?.tax_rate === "string" ? trd.tax_rate : null,
+        detail: `total_taxes: ${voci.length} voce/i → ${somma} cent`,
+      };
+    }
+
+    // Array vuoto: il significato dipende INTERAMENTE da automatic_tax.
+    if (status === "complete") {
+      return { cents: 0, reason: null, country, rateId: null, detail: "total_taxes vuoto, calcolo completo → zero determinato" };
+    }
+    if (!enabled) {
+      return { cents: 0, reason: "not_collecting", country, rateId: null, detail: "automatic_tax disabilitato → zero per configurazione" };
+    }
+    // 'requires_location_inputs', 'failed', o status assente: la fattura è
+    // stata emessa senza che l'imposta fosse determinata. Questo NON è zero.
+    return { cents: null, reason: null, country, rateId: null, detail: `automatic_tax.status=${status ?? "n/d"} → imposta NON determinata` };
+  }
+
+  // total_taxes assente: evento generato da una versione API precedente e
+  // rigiocato da stripe_event. Il campo scalare vale ancora, lì.
+  const legacy = rec.tax;
+  if (typeof legacy === "number") {
+    return { cents: legacy, reason: null, country, rateId: null, detail: "fallback inv.tax (evento pre-basil rigiocato)" };
+  }
+  return { cents: null, reason: null, country, rateId: null, detail: "né total_taxes né tax nel payload" };
+}
+
 function invoiceSubscriptionId(inv: Stripe.Invoice): string | null {
   const rec = inv as unknown as Record<string, unknown>;
   const parent = rec.parent as
@@ -1407,6 +1647,25 @@ async function handleInvoice(inv: Stripe.Invoice, eventType: string) {
     console.error(`[webhook] invoice ${inv.id}: nessun id subscription nel payload (parent.type=${String(parentType ?? "n/d")})`);
   }
 
+  // ── v13 — imposta ───────────────────────────────────────────────────────
+  // Un'imposta non determinata NON diventa zero in silenzio: si scrive null e
+  // si logga come errore. L'evento resta 'processed' — la fattura va comunque
+  // registrata — ma il buco è visibile sia nei log sia in query (vat_cents is
+  // null), invece di confondersi con gli zero legittimi.
+  const tax = invoiceTax(inv);
+  if (tax.cents === null) {
+    console.error(`[webhook] invoice ${inv.id}: IMPOSTA NON DETERMINATA — ${tax.detail}`);
+  } else {
+    console.log(`[webhook] invoice ${inv.id}: imposta ${tax.cents} cent (${tax.reason ?? "n/d"}) — ${tax.detail}`);
+    // Controllo di coerenza: con i price esclusivi total - subtotal è l'imposta.
+    // Una divergenza significa che l'interpretazione del payload è sbagliata, ed
+    // è meglio saperlo prima che il dato alimenti l'emissione verso SDI.
+    const atteso = (inv.total ?? 0) - (inv.subtotal ?? 0);
+    if (atteso !== tax.cents) {
+      console.warn(`[webhook] invoice ${inv.id}: imposta ${tax.cents} ≠ total-subtotal ${atteso} (sconti o imposta inclusiva?)`);
+    }
+  }
+
   const provider = country === "IT" ? "aruba" : (EU.has(country) ? "stripe" : "stripe");
 
   const row = {
@@ -1416,7 +1675,11 @@ async function handleInvoice(inv: Stripe.Invoice, eventType: string) {
     status: mapInvoiceStatus(inv.status),
     currency: (inv.currency || "eur").toUpperCase(),
     subtotal_cents: inv.subtotal ?? 0,
-    vat_cents: inv.tax ?? 0,
+    // v13 — vedi invoiceTax(): null = non determinata, 0 = determinata ed è zero.
+    vat_cents: tax.cents,
+    vat_reason: tax.reason,
+    vat_country: tax.country,
+    vat_rate_id: tax.rateId,
     total_cents: inv.total ?? 0,
     stripe_invoice_id: inv.id,
     provider,
@@ -1472,6 +1735,72 @@ async function handleInvoice(inv: Stripe.Invoice, eventType: string) {
   } catch (err) {
     console.error("[webhook] comunicazioni invoice:", err);
   }
+}
+
+// ── v12 — setup_intent.succeeded: rete di sicurezza dell'attivazione ────────
+// Il percorso normale è il client: checkout-success.html chiama la fase 2 di
+// create-subscription appena la carta è confermata. Resta però un buco: se il
+// SetupIntent si conclude in modo differito (redirect_status 'processing', o
+// scheda chiusa dopo il 3DS), quella chiamata non parte mai e la carta resta
+// salvata SENZA alcuna subscription — nessun recupero, nessuna email.
+//   Qui NON si duplica la logica di attivazione: si invoca la stessa
+//   create-subscription, che è già idempotente (Idempotency-Key = id del
+//   SetupIntent) e già validata. Una sola implementazione, due inneschi.
+//   Se il client ha già attivato, la chiamata torna la stessa subscription; se
+//   le due partono davvero in contemporanea, Stripe rifiuta la seconda per
+//   conflitto senza memorizzare l'esito e il retry di Stripe la risolve.
+//
+// FILTRO OBBLIGATORIO: setup_intent.succeeded scatta anche per i SetupIntent
+// creati dal Customer Portal quando un cliente aggiorna la carta. Quelli non
+// portano i metadata dell'ordine e non devono creare nulla: si saltano per
+// decisione, non per errore.
+async function handleSetupIntent(si: Stripe.SetupIntent) {
+  const md = (si.metadata ?? {}) as Record<string, string>;
+  if (!md.planId || !md.priceId || !md.supabaseUserId) {
+    throw new SkipEvent(`setup_intent_non_checkout:${si.id}`);
+  }
+
+  const base = Deno.env.get("SUPABASE_URL");
+  const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!base || !key) {
+    // Transitorio per definizione: è una configurazione mancante, e un retry
+    // dopo il fix la trova a posto.
+    throw new Error(`setup_intent ${si.id}: SUPABASE_URL/SERVICE_ROLE_KEY non configurati`);
+  }
+
+  let res: Response;
+  let data: Record<string, unknown> = {};
+  try {
+    res = await fetch(`${base}/functions/v1/create-subscription`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": key,
+        "Authorization": `Bearer ${key}`,
+      },
+      body: JSON.stringify({ setupIntentId: si.id, supabaseUserId: md.supabaseUserId }),
+    });
+    data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+  } catch (err) {
+    throw new Error(`setup_intent ${si.id}: attivazione non raggiungibile — ${(err as Error).message}`);
+  }
+
+  if (res.ok && (data.status === "activated" || data.status === "already_subscribed")) {
+    console.log(`[webhook] setup_intent ${si.id}: ${String(data.status)} → ${String(data.subscriptionId ?? "n/d")}`);
+    return;
+  }
+
+  // 400/403 = SetupIntent non concluso, metadata incompleti, utente non
+  // coincidente: nessun retry può cambiarli.
+  if (res.status === 400 || res.status === 403) {
+    throw new NonRetryableError(
+      `setup_intent ${si.id}: attivazione rifiutata (${res.status}) ${String(data.code ?? data.error ?? "")}`,
+      typeof data.code === "string" ? data.code : "activation_rejected",
+    );
+  }
+  // Tutto il resto (502, 5xx, conflitto idempotenza concorrente) è transitorio:
+  // Stripe ritenta e la seconda volta trova l'esito memorizzato.
+  throw new Error(`setup_intent ${si.id}: attivazione fallita (${res.status}) ${String(data.error ?? "")}`);
 }
 
 // ── customer.updated → aggiorna profilo fiscale ───────────────────────────────
@@ -1551,6 +1880,9 @@ Deno.serve(async (req) => {
         break;
       case "customer.updated":
         await handleCustomer(event.data.object as Stripe.Customer);
+        break;
+      case "setup_intent.succeeded":            // v12 — rete di sicurezza
+        await handleSetupIntent(event.data.object as Stripe.SetupIntent);
         break;
       default:
         break;                                  // evento registrato ma non gestito
