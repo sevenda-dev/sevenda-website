@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Simple, transparent, scalable plans for analysts, teams, and organizations. Start for free.">
-  <title>Pricing — Sevenda</title>
+  <title data-i18n="p.title">Pricing — Sevenda</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -415,29 +415,6 @@
       font-size: 13.5px; color: var(--text-2); margin-bottom: 30px;
     }
 
-    /* ─── ADD-ONS ─────────────────────────────────────── */
-    .addons-grid {
-      display: grid; grid-template-columns: repeat(3,1fr); gap: 14px;
-    }
-    .ao-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--r); padding: 22px;
-    }
-    .ao-icon { font-size: 22px; margin-bottom: 10px; }
-    .ao-name { font-size: 13.5px; font-weight: 600; margin-bottom: 3px; }
-    .ao-desc { font-size: 12px; color: var(--text-2); margin-bottom: 14px; }
-    .ao-rows { display: flex; flex-direction: column; gap: 7px; }
-    .ao-row  {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 7px 11px; border-radius: 7px;
-      background: var(--surface-2); border: 1px solid var(--border);
-      font-size: 12px;
-    }
-    .ao-label { color: var(--text-2); }
-    .ao-price { font-family: var(--mono); font-weight: 500; }
-    .ao-buy   { font-size: 10.5px; color: var(--green); margin-left: 8px; opacity: .65; cursor: pointer; transition: opacity .18s; }
-    .ao-buy:hover { opacity: 1; }
-
     /* ─── FEATURE MATRIX ─────────────────────────────── */
     .matrix-wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px 68px; }
     .matrix-tabs {
@@ -494,6 +471,12 @@
     .m-chk svg { width: 8px; height: 8px; }
     .m-dash    { color: var(--text-3); font-size: 13px; }
     .m-val     { font-family: var(--mono); font-size: 11.5px; color: var(--text); }
+    .m-val-note{ font-family: var(--font); font-size: 11.5px; color: var(--text-2); }
+
+    /* Retention: unico limite che cambia davvero tra i piani → evidenziata */
+    .m-row-hi td { background: var(--surface); }
+    .m-row-hi td:first-child { color: var(--text); font-weight: 550; }
+    .m-row-hi .m-val { color: var(--green); }
 
     /* ─── BETA CARD ──────────────────────────────────── */
     .beta-wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px 68px; }
@@ -536,6 +519,7 @@
       font-size: 13px; color: var(--text-2); line-height: 1.72;
     }
     .faq-item.open .faq-a { display: block; }
+    .faq-a a { color: var(--green); text-decoration: underline; text-underline-offset: 2px; }
 
     /* ─── FOOTER ──────────────────────────────────────── */
     footer {
@@ -737,7 +721,13 @@
     /* ─── RESPONSIVE ──────────────────────────────────── */
     @media (max-width: 800px) {
       .nav-links { display: none; }
-      .cards-grid, .addons-grid { grid-template-columns: 1fr; }
+      .cards-grid { grid-template-columns: 1fr; }
+      /* Le tabelle di confronto hanno 4 colonne di testo: sotto gli 800px
+         scorrono dentro il loro contenitore invece di allargare la pagina. */
+      .matrix-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .m-table th, .m-table td { padding: 10px 7px; font-size: 11.5px; }
+      .m-table .m-val { font-size: 10.5px; }
+      .m-table th:first-child { width: 30%; }
       .beta-card { flex-direction: column; text-align: center; }
       .beta-p    { max-width: none; }
       .hero h1   { font-size: 34px; }
@@ -756,12 +746,12 @@
     Sevenda
   </a>
   <ul class="nav-links">
-    <li><a href="/#features">Features</a></li>
-    <li><a href="/#insights">Insights</a></li>
-    <li><a href="/#how">How it works</a></li>
-    <li><a href="/pricing.html" aria-current="page">Pricing</a></li>
-    <li><a href="/docs.html">Docs</a></li>
-    <li><a href="/faq.html">FAQ</a></li>
+    <li><a href="/#features" data-i18n="nav.features">Features</a></li>
+    <li><a href="/#insights" data-i18n="nav.insights">Insights</a></li>
+    <li><a href="/#how" data-i18n="nav.how">How it works</a></li>
+    <li><a href="/pricing.html" aria-current="page" data-i18n="nav.pricing">Pricing</a></li>
+    <li><a href="/docs.html" data-i18n="nav.docs">Docs</a></li>
+    <li><a href="/faq.html" data-i18n="nav.faq">FAQ</a></li>
   </ul>
   <div class="nav-right">
     <div class="nav-lang">
@@ -779,7 +769,7 @@
   <h1 data-i18n-html="pricing.hero.title">Simple, transparent,<br>scalable.</h1>
   <p class="hero-sub" data-i18n-html="pricing.subtitle">Start with a 14-day free trial.<br>Scale when you need. No surprises.</p>
   <button class="pf-trigger" onclick="PlanFinder.open()">
-    Not sure which plan? Let AI find your fit
+    <span data-i18n="p.pf.open">Not sure which plan? Let AI find your fit</span>
   </button>
 </section>
 
@@ -828,29 +818,8 @@
 ════════════════════════════════════ -->
 <div class="free-wrap">
   <div class="free-banner">
-    <div class="free-left">
-      <strong>AI usage is billed to your own Claude account (BYOK)</strong> — you only pay Sevenda for the software. A Claude account with active credit is required to generate. Typical cost: ~$0.03–0.15 per generation depending on model.
-    </div>
-  </div>
-</div>
-
-<!-- ════════════════════════════════════
-  ADD-ONS
-════════════════════════════════════ -->
-<div class="section">
-  <p class="s-eye">ADD-ONS</p>
-  <h2 class="s-title">Pay-as-you-go add-ons</h2>
-  <p class="s-sub">On top of your plan limits. Purchase anytime. Never expire.</p>
-  <div class="addons-grid">
-    <div class="ao-card">
-      <div class="ao-icon">⬇</div>
-      <div class="ao-name">Extra exports</div>
-      <div class="ao-desc">All formats: .bpmn, .svg, .png, .docx, Jira, Camunda</div>
-      <div class="ao-rows">
-        <div class="ao-row"><span class="ao-label">+25 exports</span><span><span class="ao-price">€4</span><span class="ao-buy" style="cursor:default;opacity:.35;pointer-events:none;" aria-disabled="true">Coming soon</span></span></div>
-        <div class="ao-row"><span class="ao-label">+100 exports</span><span><span class="ao-price">€13</span><span class="ao-buy" style="cursor:default;opacity:.35;pointer-events:none;" aria-disabled="true">Coming soon</span></span></div>
-        <div class="ao-row"><span class="ao-label">+500 exports</span><span><span class="ao-price">€49</span><span class="ao-buy" style="cursor:default;opacity:.35;pointer-events:none;" aria-disabled="true">Coming soon</span></span></div>
-      </div>
+    <div class="free-left" data-i18n-html="p.byok">
+      <strong>AI usage is billed to your own Claude account (BYOK)</strong> — you only pay Sevenda for the software. A Claude account with active credit is required to generate. Typical cost: ~€0.06–0.85 per generation depending on the model.
     </div>
   </div>
 </div>
@@ -859,105 +828,104 @@
   FEATURE MATRIX
 ════════════════════════════════════ -->
 <div class="matrix-wrap">
-  <p class="s-eye">COMPARE PLANS</p>
-  <h2 class="s-title">Full feature comparison</h2>
-  <p class="s-sub">Everything you need to make the right call.</p>
+  <p class="s-eye" data-i18n="pm.eyebrow">COMPARE PLANS</p>
+  <h2 class="s-title" data-i18n="pm.title">Full feature comparison</h2>
+  <p class="s-sub" data-i18n="pm.sub">Everything you need to make the right call.</p>
 
   <div class="matrix-tabs">
-    <button class="m-tab on" data-mtab="process">Process</button>
-    <button class="m-tab"    data-mtab="analytics">Analytics</button>
-    <button class="m-tab"    data-mtab="suite">Suite</button>
+    <button class="m-tab on" data-mtab="process" data-i18n="pricing.process">Process</button>
+    <button class="m-tab"    data-mtab="analytics" data-i18n="pricing.analytics">Analytics</button>
+    <button class="m-tab"    data-mtab="suite" data-i18n="pricing.suite">Suite</button>
   </div>
 
   <!-- ── PROCESS MATRIX ── -->
   <table class="m-table on" id="matrix-process">
     <thead>
       <tr>
-        <th>Feature</th><th>Analyst</th><th>Studio</th><th>Enterprise</th>
+        <th data-i18n="pm.feature">Feature</th><th>Analyst</th><th>Studio</th><th>Enterprise</th>
       </tr>
     </thead>
     <tbody>
-      <tr class="m-sect"><td colspan="4">Sessions &amp; Limits</td></tr>
-      <tr><td>Sessions / month</td><td class="m-val">30</td><td class="m-val">200 pool</td><td class="m-val">Unlimited</td></tr>
-      <tr><td>AI calls / month</td><td class="m-val">100</td><td class="m-val">500 pool</td><td class="m-val">Unlimited</td></tr>
-      <tr><td>Max events / session</td><td class="m-val">2,000</td><td class="m-val">5,000</td><td class="m-val">Unlimited</td></tr>
-      <tr><td>Session retention</td><td class="m-val">90 days</td><td class="m-val">365 days</td><td class="m-val">Unlimited</td></tr>
-      <tr class="m-sect"><td colspan="4">Export &amp; Deliverables</td></tr>
-      <tr><td>Export .bpmn + .svg</td>
+      <tr class="m-sect"><td colspan="4" data-i18n="pm.sect.core">Sessions, audits &amp; retention</td></tr>
+      <tr><td data-i18n="pm.sessions">Sessions &amp; audits</td><td class="m-val" data-i18n="pm.unlimited">Unlimited</td><td class="m-val" data-i18n="pm.unlimited">Unlimited</td><td class="m-val" data-i18n="pm.unlimited">Unlimited</td></tr>
+      <tr class="m-row-hi"><td data-i18n="pm.retention">Session retention</td><td class="m-val" data-i18n="pm.ret90">90 days</td><td class="m-val" data-i18n="pm.ret365">365 days</td><td class="m-val" data-i18n="pm.retInf">Unlimited</td></tr>
+      <tr><td data-i18n="pm.ai">AI generation</td><td class="m-val-note" colspan="3" data-i18n="pm.ai.val">Your own Claude key (BYOK) — usage billed by Anthropic</td></tr>
+      <tr class="m-sect"><td colspan="4" data-i18n="pm.sect.export">Export &amp; deliverables</td></tr>
+      <tr><td data-i18n="pm.exportBpmnSvg">Export .bpmn + .svg</td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
       </tr>
-      <tr><td>Export .png</td>
+      <tr><td data-i18n="pm.exportPng">Export .png</td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
       </tr>
-      <tr><td>Export .docx reports</td>
+      <tr><td data-i18n="pm.exportDocx">Export .docx reports</td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
       </tr>
-      <tr class="m-sect"><td colspan="4">Integrations</td></tr>
-      <tr><td>Jira Cloud</td>
+      <tr class="m-sect"><td colspan="4" data-i18n="pm.sect.integrations">Integrations</td></tr>
+      <tr><td data-i18n="pm.jiraCloud">Jira Cloud</td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
       </tr>
-      <tr><td>Camunda-compatible export</td>
+      <tr><td data-i18n="pm.camunda">Camunda-compatible export</td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
       </tr>
-      <tr><td>Custom integrations</td>
+      <tr><td data-i18n="pfeat.customint">Custom integrations</td>
         <td><span class="m-dash">—</span></td><td><span class="m-dash">—</span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
       </tr>
-      <tr class="m-sect"><td colspan="4">AI &amp; Refinement</td></tr>
-      <tr><td>BPMN 2.0 generation</td>
+      <tr class="m-sect"><td colspan="4" data-i18n="pm.sect.ai">AI &amp; refinement</td></tr>
+      <tr><td data-i18n="pfeat.bpmn">BPMN 2.0 generation</td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
       </tr>
-      <tr><td>Natural language refinement</td>
+      <tr><td data-i18n="pfeat.refine">Natural language refinement</td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
       </tr>
-      <tr><td>Smart Context Suggester</td>
+      <tr><td data-i18n="pfeat.suggester">Smart Context Suggester</td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
       </tr>
-      <tr><td>Custom prompts</td>
+      <tr><td data-i18n="pfeat.prompts">Custom prompts</td>
         <td><span class="m-dash">—</span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
       </tr>
-      <tr class="m-sect"><td colspan="4">Collaboration &amp; Security</td></tr>
-      <tr><td>Shared library</td>
+      <tr class="m-sect"><td colspan="4" data-i18n="pm.sect.collab">Collaboration &amp; security</td></tr>
+      <tr><td data-i18n="pfeat.library">Shared library</td>
         <td><span class="m-dash">—</span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
       </tr>
-      <tr><td>Team dashboard</td>
+      <tr><td data-i18n="pfeat.teamdash">Team dashboard</td>
         <td><span class="m-dash">—</span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
       </tr>
-      <tr><td>SSO</td>
+      <tr><td data-i18n="pfeat.sso">SSO</td>
         <td><span class="m-dash">—</span></td><td><span class="m-dash">—</span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
       </tr>
-      <tr><td>Dedicated SLA</td>
+      <tr><td data-i18n="pfeat.sla">Dedicated SLA</td>
         <td><span class="m-dash">—</span></td><td><span class="m-dash">—</span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
       </tr>
-      <tr><td>Dedicated account manager</td>
+      <tr><td data-i18n="pfeat.am">Dedicated account manager</td>
         <td><span class="m-dash">—</span></td><td><span class="m-dash">—</span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
       </tr>
-      <tr><td>Audit logs</td>
+      <tr><td data-i18n="pfeat.auditlogs">Audit logs</td>
         <td><span class="m-dash">—</span></td><td><span class="m-dash">—</span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
       </tr>
@@ -967,64 +935,64 @@
   <!-- ── ANALYTICS MATRIX ── -->
   <table class="m-table" id="matrix-analytics">
     <thead>
-      <tr><th>Feature</th><th>Auditor</th><th>Agency</th><th>Enterprise</th></tr>
+      <tr><th data-i18n="pm.feature">Feature</th><th>Auditor</th><th>Agency</th><th>Enterprise</th></tr>
     </thead>
     <tbody>
-      <tr class="m-sect"><td colspan="4">Audits &amp; Limits</td></tr>
-      <tr><td>Audits / month</td><td class="m-val">20</td><td class="m-val">100 pool</td><td class="m-val">Unlimited</td></tr>
-      <tr><td>Tracked properties</td><td class="m-val">1</td><td class="m-val">Unlimited</td><td class="m-val">Unlimited</td></tr>
-      <tr><td>AI calls / month</td><td class="m-val">100</td><td class="m-val">500 pool</td><td class="m-val">Unlimited</td></tr>
-      <tr><td>Session retention</td><td class="m-val">90 days</td><td class="m-val">365 days</td><td class="m-val">Unlimited</td></tr>
-      <tr class="m-sect"><td colspan="4">Analysis &amp; Reports</td></tr>
-      <tr><td>Tracking gap analysis</td>
+      <tr class="m-sect"><td colspan="4" data-i18n="pm.sect.core">Sessions, audits &amp; retention</td></tr>
+      <tr><td data-i18n="pm.sessions">Sessions &amp; audits</td><td class="m-val" data-i18n="pm.unlimited">Unlimited</td><td class="m-val" data-i18n="pm.unlimited">Unlimited</td><td class="m-val" data-i18n="pm.unlimited">Unlimited</td></tr>
+      <tr class="m-row-hi"><td data-i18n="pm.retention">Session retention</td><td class="m-val" data-i18n="pm.ret90">90 days</td><td class="m-val" data-i18n="pm.ret365">365 days</td><td class="m-val" data-i18n="pm.retInf">Unlimited</td></tr>
+      <tr><td data-i18n="pm.properties">Tracked properties</td><td class="m-val">1</td><td class="m-val" data-i18n="pm.unlimited">Unlimited</td><td class="m-val" data-i18n="pm.unlimited">Unlimited</td></tr>
+      <tr><td data-i18n="pm.ai">AI generation</td><td class="m-val-note" colspan="3" data-i18n="pm.ai.val">Your own Claude key (BYOK) — usage billed by Anthropic</td></tr>
+      <tr class="m-sect"><td colspan="4" data-i18n="pm.sect.reports">Analysis &amp; reports</td></tr>
+      <tr><td data-i18n="pfeat.gap">Tracking gap analysis</td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
       </tr>
-      <tr><td>Tag plan export (.docx)</td>
+      <tr><td data-i18n="pfeat.tagplan">Tag plan export (.docx)</td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
       </tr>
-      <tr><td>GA4 report generation</td>
+      <tr><td data-i18n="pfeat.ga4">GA4 report generation</td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
       </tr>
-      <tr><td>GTM integration</td>
+      <tr><td data-i18n="pfeat.gtm">GTM integration</td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
       </tr>
-      <tr><td>DNA Fingerprint + Narrative</td>
+      <tr><td data-i18n="pfeat.dna">DNA Fingerprint + Narrative</td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
       </tr>
-      <tr class="m-sect"><td colspan="4">Collaboration &amp; Security</td></tr>
-      <tr><td>Multi-client dashboard</td>
+      <tr class="m-sect"><td colspan="4" data-i18n="pm.sect.collab">Collaboration &amp; security</td></tr>
+      <tr><td data-i18n="pfeat.multiclient">Multi-client dashboard</td>
         <td><span class="m-dash">—</span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
       </tr>
-      <tr><td>Priority support</td>
+      <tr><td data-i18n="pfeat.support">Priority support</td>
         <td><span class="m-dash">—</span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
       </tr>
-      <tr><td>SSO</td>
+      <tr><td data-i18n="pfeat.sso">SSO</td>
         <td><span class="m-dash">—</span></td><td><span class="m-dash">—</span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
       </tr>
-      <tr><td>Dedicated SLA</td>
+      <tr><td data-i18n="pfeat.sla">Dedicated SLA</td>
         <td><span class="m-dash">—</span></td><td><span class="m-dash">—</span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
       </tr>
-      <tr><td>Dedicated account manager</td>
+      <tr><td data-i18n="pfeat.am">Dedicated account manager</td>
         <td><span class="m-dash">—</span></td><td><span class="m-dash">—</span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
       </tr>
-      <tr><td>Audit logs</td>
+      <tr><td data-i18n="pfeat.auditlogs">Audit logs</td>
         <td><span class="m-dash">—</span></td><td><span class="m-dash">—</span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
       </tr>
@@ -1034,74 +1002,73 @@
   <!-- ── SUITE MATRIX ── -->
   <table class="m-table" id="matrix-suite">
     <thead>
-      <tr><th>Feature</th><th>Suite Solo</th><th>Suite Team</th><th>Enterprise</th></tr>
+      <tr><th data-i18n="pm.feature">Feature</th><th>Suite Solo</th><th>Suite Team</th><th>Enterprise</th></tr>
     </thead>
     <tbody>
-      <tr class="m-sect"><td colspan="4">Sessions &amp; Limits</td></tr>
-      <tr><td>Sessions / month</td><td class="m-val">50</td><td class="m-val">400 pool</td><td class="m-val">Unlimited</td></tr>
-      <tr><td>Audits / month</td><td class="m-val">30</td><td class="m-val">200 pool</td><td class="m-val">Unlimited</td></tr>
-      <tr><td>AI calls / month</td><td class="m-val">200</td><td class="m-val">1,000 pool</td><td class="m-val">Unlimited</td></tr>
-      <tr><td>Session retention</td><td class="m-val">90 days</td><td class="m-val">365 days</td><td class="m-val">Unlimited</td></tr>
-      <tr class="m-sect"><td colspan="4">All Process features included</td></tr>
-      <tr><td>BPMN 2.0 generation</td>
+      <tr class="m-sect"><td colspan="4" data-i18n="pm.sect.core">Sessions, audits &amp; retention</td></tr>
+      <tr><td data-i18n="pm.sessions">Sessions &amp; audits</td><td class="m-val" data-i18n="pm.unlimited">Unlimited</td><td class="m-val" data-i18n="pm.unlimited">Unlimited</td><td class="m-val" data-i18n="pm.unlimited">Unlimited</td></tr>
+      <tr class="m-row-hi"><td data-i18n="pm.retention">Session retention</td><td class="m-val" data-i18n="pm.ret90">90 days</td><td class="m-val" data-i18n="pm.ret365">365 days</td><td class="m-val" data-i18n="pm.retInf">Unlimited</td></tr>
+      <tr><td data-i18n="pm.ai">AI generation</td><td class="m-val-note" colspan="3" data-i18n="pm.ai.val">Your own Claude key (BYOK) — usage billed by Anthropic</td></tr>
+      <tr class="m-sect"><td colspan="4" data-i18n="pm.sect.allProcess">All Process features included</td></tr>
+      <tr><td data-i18n="pfeat.bpmn">BPMN 2.0 generation</td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
       </tr>
-      <tr><td>Export .bpmn / .svg / .png / .docx</td>
+      <tr><td data-i18n="pfeat.export">Export .bpmn / .svg / .png / .docx</td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
       </tr>
-      <tr><td>Jira + Camunda integration</td>
+      <tr><td data-i18n="pfeat.jira">Jira + Camunda integration</td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
       </tr>
-      <tr><td>Smart Context Suggester</td>
+      <tr><td data-i18n="pfeat.suggester">Smart Context Suggester</td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
       </tr>
-      <tr class="m-sect"><td colspan="4">All Analytics features included</td></tr>
-      <tr><td>Tracking gap analysis</td>
+      <tr class="m-sect"><td colspan="4" data-i18n="pm.sect.allAnalytics">All Analytics features included</td></tr>
+      <tr><td data-i18n="pfeat.gap">Tracking gap analysis</td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
       </tr>
-      <tr><td>Tag plan + GA4 reports</td>
+      <tr><td data-i18n="pm.tagplanGa4">Tag plan + GA4 reports</td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
       </tr>
-      <tr><td>GTM integration</td>
+      <tr><td data-i18n="pfeat.gtm">GTM integration</td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
       </tr>
-      <tr><td>Unlimited properties</td>
+      <tr><td data-i18n="pfeat.propInf">Unlimited properties</td>
         <td><span class="m-dash">—</span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
       </tr>
       <tr class="m-sect"><td colspan="4">Enterprise</td></tr>
-      <tr><td>SSO</td>
+      <tr><td data-i18n="pfeat.sso">SSO</td>
         <td><span class="m-dash">—</span></td><td><span class="m-dash">—</span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
       </tr>
-      <tr><td>Dedicated SLA</td>
+      <tr><td data-i18n="pfeat.sla">Dedicated SLA</td>
         <td><span class="m-dash">—</span></td><td><span class="m-dash">—</span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
       </tr>
-      <tr><td>Dedicated account manager</td>
+      <tr><td data-i18n="pfeat.am">Dedicated account manager</td>
         <td><span class="m-dash">—</span></td><td><span class="m-dash">—</span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
       </tr>
-      <tr><td>Audit logs</td>
+      <tr><td data-i18n="pfeat.auditlogs">Audit logs</td>
         <td><span class="m-dash">—</span></td><td><span class="m-dash">—</span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
       </tr>
-      <tr><td>Custom integrations</td>
+      <tr><td data-i18n="pfeat.customint">Custom integrations</td>
         <td><span class="m-dash">—</span></td><td><span class="m-dash">—</span></td>
         <td><span class="m-chk"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
       </tr>
@@ -1115,11 +1082,11 @@
 <div class="beta-wrap">
   <div class="beta-card">
     <div>
-      <p class="beta-eye">🤝 Beta Partnership Program</p>
-      <h3 class="beta-h">Are you a data-driven consulting firm?</h3>
-      <p class="beta-p">Join the Beta Partnership Program with special terms, dedicated onboarding, and direct influence on the roadmap. Limited to 10 partners.</p>
+      <p class="beta-eye" data-i18n="p.beta.eyebrow">🤝 Beta Partnership Program</p>
+      <h3 class="beta-h" data-i18n="p.beta.title">Are you a data-driven consulting firm?</h3>
+      <p class="beta-p" data-i18n="p.beta.desc">Join the Beta Partnership Program with special terms, dedicated onboarding, and direct influence on the roadmap. Limited to 10 partners.</p>
     </div>
-    <a href="mailto:hello@sevenda.dev?subject=Beta Partnership Program" class="beta-btn">Apply to the program →</a>
+    <a href="mailto:hello@sevenda.dev?subject=Beta Partnership Program" class="beta-btn" data-i18n="p.beta.cta">Apply to the program →</a>
   </div>
 </div>
 
@@ -1127,32 +1094,32 @@
   FAQ
 ════════════════════════════════════ -->
 <div class="faq-wrap">
-  <p class="s-eye">FAQ</p>
-  <h2 class="s-title" style="margin-bottom:30px">Frequently asked questions</h2>
+  <p class="s-eye" data-i18n="pfaq.eyebrow">FAQ</p>
+  <h2 class="s-title" style="margin-bottom:30px" data-i18n="pfaq.title">Frequently asked questions</h2>
 
   <div class="faq-item">
-    <button class="faq-q">What happens if I exceed my plan limits?<span class="faq-ico"><svg viewBox="0 0 10 10" fill="none"><path d="M5 2v6M2 5h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>
-    <p class="faq-a">The extension notifies you when you reach 80% of your limit. You can purchase add-ons on demand or upgrade to the next plan. There are no automatic blocks without prior notice.</p>
+    <button class="faq-q"><span data-i18n="pfaq.1.q">Are there limits on sessions and audits?</span><span class="faq-ico"><svg viewBox="0 0 10 10" fill="none"><path d="M5 2v6M2 5h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>
+    <p class="faq-a" data-i18n-html="pfaq.1.a">No. Sessions and audits are unlimited on every plan — there is nothing to run out of and no counter to watch. We only ask for fair use: automated, resold or abusive usage that degrades the service for others falls under the acceptable use rules of our <a href="/terms.html">Terms of Service</a>. We get in touch before taking any action — there are no automatic blocks without prior notice.</p>
   </div>
   <div class="faq-item">
-    <button class="faq-q">How does volume pricing work?<span class="faq-ico"><svg viewBox="0 0 10 10" fill="none"><path d="M5 2v6M2 5h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>
-    <p class="faq-a">The more users on your workspace, the less you pay per seat. With 2–5 users you pay €13/user/mo (annual); with 6–20 users the price drops to €10/user/mo. Volume discounts apply automatically when you add members.</p>
+    <button class="faq-q"><span data-i18n="pfaq.2.q">How does volume pricing work?</span><span class="faq-ico"><svg viewBox="0 0 10 10" fill="none"><path d="M5 2v6M2 5h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>
+    <p class="faq-a" data-i18n-html="pfaq.2.a">The more users on your workspace, the less you pay per seat. With 2–5 users you pay €13/user/mo (annual); with 6–20 users the price drops to €10/user/mo. Volume discounts apply automatically when you add members.</p>
   </div>
   <div class="faq-item">
-    <button class="faq-q">Is my Claude account separate from Sevenda limits?<span class="faq-ico"><svg viewBox="0 0 10 10" fill="none"><path d="M5 2v6M2 5h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>
-    <p class="faq-a">Yes. Sevenda limits apply to platform features (sessions, exports, retention). AI usage (BPMN generation, Insights analysis) is billed to your own Claude account (BYOK), separately from Sevenda — a Claude account with active credit is required to generate. Typical cost: ~$0.03–0.15 per generation depending on model.</p>
+    <button class="faq-q"><span data-i18n="pfaq.3.q">Is my Claude account separate from Sevenda?</span><span class="faq-ico"><svg viewBox="0 0 10 10" fill="none"><path d="M5 2v6M2 5h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>
+    <p class="faq-a" data-i18n-html="pfaq.3.a">Yes. Your Sevenda plan covers the software: unlimited sessions and audits, exports, collaboration and retention. AI generation (BPMN, Insights analysis) runs on your own Claude account (BYOK) and is billed to you by Anthropic — a Claude account with active credit is required to generate. Typical cost: ~€0.06–0.85 per generation depending on the model.</p>
   </div>
   <div class="faq-item">
-    <button class="faq-q">Can I switch between Process and Analytics mode?<span class="faq-ico"><svg viewBox="0 0 10 10" fill="none"><path d="M5 2v6M2 5h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>
-    <p class="faq-a">Single-track plans give full access to your chosen mode. The Suite plan unlocks both Process and Analytics in one workspace — ideal for consultants who produce BPMN deliverables and GTM audits for the same clients.</p>
+    <button class="faq-q"><span data-i18n="pfaq.4.q">Can I switch between Process and Analytics mode?</span><span class="faq-ico"><svg viewBox="0 0 10 10" fill="none"><path d="M5 2v6M2 5h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>
+    <p class="faq-a" data-i18n-html="pfaq.4.a">Single-track plans give full access to your chosen mode. The Suite plans unlock both Process and Analytics in one workspace — ideal for consultants who produce BPMN deliverables and GTM audits for the same clients.</p>
   </div>
   <div class="faq-item">
-    <button class="faq-q">Can I change plans at any time?<span class="faq-ico"><svg viewBox="0 0 10 10" fill="none"><path d="M5 2v6M2 5h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>
-    <p class="faq-a">Yes. Upgrades are immediate. Downgrades take effect at the end of the current billing cycle. All data within new plan limits is preserved.</p>
+    <button class="faq-q"><span data-i18n="pfaq.5.q">Can I change plans at any time?</span><span class="faq-ico"><svg viewBox="0 0 10 10" fill="none"><path d="M5 2v6M2 5h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>
+    <p class="faq-a" data-i18n-html="pfaq.5.a">Yes. Upgrades are immediate. Downgrades take effect at the end of the current billing cycle. Sessions and audits stay unlimited on every plan; on a downgrade, retention drops to the new plan's window — export anything you want to keep beforehand.</p>
   </div>
   <div class="faq-item">
-    <button class="faq-q">Do saved sessions expire?<span class="faq-ico"><svg viewBox="0 0 10 10" fill="none"><path d="M5 2v6M2 5h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>
-    <p class="faq-a">Retention depends on your plan: 90 days (Analyst / Auditor / Suite Solo), 365 days (Studio / Agency / Suite Team), unlimited (Enterprise). Before expiry you can export everything as XML or SVG.</p>
+    <button class="faq-q"><span data-i18n="pfaq.6.q">Do saved sessions expire?</span><span class="faq-ico"><svg viewBox="0 0 10 10" fill="none"><path d="M5 2v6M2 5h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button>
+    <p class="faq-a" data-i18n-html="pfaq.6.a">Sessions and audits are unlimited, but how long they stay stored depends on your plan: 90 days on Analyst, Auditor and Suite Solo; 365 days on Studio, Agency and Suite Team; unlimited on Enterprise. Retention is the real difference between the tiers. Before expiry you can export everything as XML, SVG or JSON.</p>
   </div>
 </div>
 
@@ -1161,15 +1128,15 @@
 ════════════════════════════════════ -->
 <div id="checkoutModal" class="checkout-modal">
   <div class="checkout-inner">
-    <h3 class="checkout-h">Order Summary</h3>
+    <h3 class="checkout-h" data-i18n="pco.title">Order Summary</h3>
     <div id="checkoutItems"></div>
     <div class="checkout-total">
-      <span>Total:</span>
+      <span data-i18n="pco.total">Total:</span>
       <span id="checkoutTotal">€0</span>
     </div>
     <div class="checkout-actions">
-      <button class="checkout-btn checkout-stripe" id="checkoutStripe">Proceed to Stripe →</button>
-      <button class="checkout-btn checkout-close" onclick="closeCheckout()">Cancel</button>
+      <button class="checkout-btn checkout-stripe" id="checkoutStripe" data-i18n="pco.stripe">Proceed to Stripe →</button>
+      <button class="checkout-btn checkout-close" onclick="closeCheckout()" data-i18n="pco.cancel">Cancel</button>
     </div>
   </div>
 </div>
@@ -1179,7 +1146,7 @@
 ════════════════════════════════════ -->
 <!-- Pricing disclaimer -->
 <div style="max-width:1100px;margin:0 auto;padding:0 24px 40px;text-align:center;">
-  <p style="font-size:11px;color:var(--text-3);line-height:1.6;">
+  <p style="font-size:11px;color:var(--text-3);line-height:1.6;" data-i18n="p.tax">
     Prices shown exclude applicable taxes.
   </p>
 </div>
@@ -1193,7 +1160,7 @@
     <a href="/privacy.html" data-i18n="nav.privacy">Privacy Policy</a>
     <a href="/terms.html" data-i18n="foot.terms">Terms</a>
   </div>
-  <span class="foot-copy">© 2025 Sevenda · Built with Claude</span>
+  <span class="foot-copy" data-i18n="foot.copy">© 2025 Sevenda · Built with Claude</span>
 </footer>
 
 <!-- ════════════════════════════════════
@@ -1208,7 +1175,7 @@ const DATA = {
     {
       id: 'analyst',
       name: 'Analyst',
-      tag: 'For the independent BA',
+      tag: ['pcard.tag.analyst', 'For the independent BA'],
       badge: null,
       track: 'process',
       prices: {
@@ -1216,63 +1183,64 @@ const DATA = {
         monthly: { '1': 10 },
       },
       seatsFor: ['1'],
-      subFn: (s, b) => `billed ${b} · 1 user`,
+      subKind: '1user',
       feats: [
-        '30 sessions / month',
-        'BPMN 2.0 generation',
-        'Export .bpmn / .svg / .png / .docx',
-        'Natural language refinement',
-        'Jira + Camunda integration',
-        'Smart Context Suggester',
-        '90-day retention',
+        ['pfeat.unlimited', 'Unlimited sessions & audits'],
+        ['pfeat.ret90',     '90-day retention'],
+        ['pfeat.bpmn',      'BPMN 2.0 generation'],
+        ['pfeat.export',    'Export .bpmn / .svg / .png / .docx'],
+        ['pfeat.refine',    'Natural language refinement'],
+        ['pfeat.jira',      'Jira + Camunda integration'],
+        ['pfeat.suggester', 'Smart Context Suggester'],
       ],
-      cta: 'Start 14-day free trial', ctaType: 'primary', ctaHref: '#',
+      cta: ['pcard.cta.trial', 'Start 14-day free trial'], ctaType: 'primary', ctaHref: '#',
       save: null,
     },
     {
       id: 'studio',
       name: 'Studio',
-      tag: 'For consulting teams',
-      badge: 'Most popular', badgeCls: 'badge-pop',
+      tag: ['pcard.tag.studio', 'For consulting teams'],
+      badge: ['pcard.badge.pop', 'Most popular'], badgeCls: 'badge-pop',
       track: 'process',
       prices: {
         annual:  { '2-5': 13, '6-20': 10 },
         monthly: { '2-5': 17, '6-20': 13 },
       },
       seatsFor: ['2-5', '6-20'],
-      subFn: (s, b) => `billed ${b} · per user · ${s === '2-5' ? '2–5 users' : '6–20 users'}`,
+      subKind: 'perUser',
       feats: [
-        'Everything in Analyst',
-        '200 sessions / month',
-        'Custom prompts',
-        'Shared library',
-        'Team dashboard',
-        'Priority support',
-        '365-day retention',
+        ['pfeat.allAnalyst', 'Everything in Analyst'],
+        ['pfeat.unlimited',  'Unlimited sessions & audits'],
+        ['pfeat.ret365',     '365-day retention'],
+        ['pfeat.prompts',    'Custom prompts'],
+        ['pfeat.library',    'Shared library'],
+        ['pfeat.teamdash',   'Team dashboard'],
+        ['pfeat.support',    'Priority support'],
       ],
-      cta: 'Start 14-day free trial', ctaType: 'secondary', ctaHref: '#',
+      cta: ['pcard.cta.trial', 'Start 14-day free trial'], ctaType: 'secondary', ctaHref: '#',
       save: null,
     },
     {
       id: 'pent',
       name: 'Enterprise',
-      tag: 'For large organizations',
-      badge: 'Enterprise', badgeCls: 'badge-ent',
+      tag: ['pcard.tag.pent', 'For large organizations'],
+      badge: ['pcard.badge.ent', 'Enterprise'], badgeCls: 'badge-ent',
       track: 'process',
       prices: null,
       seatsFor: ['2-5', '6-20', '20+'],
-      subFn: () => 'custom pricing · 20+ users',
+      subKind: 'custom',
       feats: [
-        'Everything in Studio',
-        'Unlimited sessions',
-        'Custom integrations',
-        'Audit logs',
-        'Dedicated account manager',
-        'Dedicated SLA',
-        'SSO',
-        'Unlimited retention',
+        ['pfeat.unlimited', 'Unlimited sessions & audits'],
+        ['pfeat.seats20',   '20+ seats'],
+        ['pfeat.retInf',    'Unlimited retention'],
+        ['pfeat.sso',       'SSO'],
+        ['pfeat.auditlogs', 'Audit logs'],
+        ['pfeat.sla',       'Dedicated SLA'],
+        ['pfeat.am',        'Dedicated account manager'],
+        ['pfeat.allStudio', 'Everything in Studio'],
+        ['pfeat.customint', 'Custom integrations'],
       ],
-      cta: 'Contact us', ctaType: 'ghost',
+      cta: ['pcard.cta.contact', 'Contact us'], ctaType: 'ghost',
       ctaHref: '/contact-sales.html?plan=pent',
       save: null,
     },
@@ -1282,7 +1250,7 @@ const DATA = {
     {
       id: 'auditor',
       name: 'Auditor',
-      tag: 'For the GTM / GA4 specialist',
+      tag: ['pcard.tag.auditor', 'For the GTM / GA4 specialist'],
       badge: null,
       track: 'analytics',
       prices: {
@@ -1290,62 +1258,63 @@ const DATA = {
         monthly: { '1': 10 },
       },
       seatsFor: ['1'],
-      subFn: (s, b) => `billed ${b} · 1 user`,
+      subKind: '1user',
       feats: [
-        '20 audits / month',
-        '1 tracked property',
-        'Tracking gap analysis',
-        'Tag plan export (.docx)',
-        'GA4 report generation',
-        'GTM integration',
-        'DNA Fingerprint + Narrative',
-        '90-day retention',
+        ['pfeat.unlimited', 'Unlimited sessions & audits'],
+        ['pfeat.ret90',     '90-day retention'],
+        ['pfeat.prop1',     '1 tracked property'],
+        ['pfeat.gap',       'Tracking gap analysis'],
+        ['pfeat.tagplan',   'Tag plan export (.docx)'],
+        ['pfeat.ga4',       'GA4 report generation'],
+        ['pfeat.gtm',       'GTM integration'],
+        ['pfeat.dna',       'DNA Fingerprint + Narrative'],
       ],
-      cta: 'Start 14-day free trial', ctaType: 'primary', ctaHref: '#',
+      cta: ['pcard.cta.trial', 'Start 14-day free trial'], ctaType: 'primary', ctaHref: '#',
       save: null,
     },
     {
       id: 'agency',
       name: 'Agency',
-      tag: 'For multi-client agencies',
-      badge: 'Most popular', badgeCls: 'badge-pop',
+      tag: ['pcard.tag.agency', 'For multi-client agencies'],
+      badge: ['pcard.badge.pop', 'Most popular'], badgeCls: 'badge-pop',
       track: 'analytics',
       prices: {
         annual:  { '2-5': 13, '6-20': 10 },
         monthly: { '2-5': 17, '6-20': 13 },
       },
       seatsFor: ['2-5', '6-20'],
-      subFn: (s, b) => `billed ${b} · per user · ${s === '2-5' ? '2–5 users' : '6–20 users'}`,
+      subKind: 'perUser',
       feats: [
-        'Everything in Auditor',
-        '100 audits / month',
-        'Unlimited properties',
-        'Multi-client dashboard',
-        'Priority support',
-        '365-day retention',
+        ['pfeat.allAuditor',  'Everything in Auditor'],
+        ['pfeat.unlimited',   'Unlimited sessions & audits'],
+        ['pfeat.ret365',      '365-day retention'],
+        ['pfeat.propInf',     'Unlimited properties'],
+        ['pfeat.multiclient', 'Multi-client dashboard'],
+        ['pfeat.support',     'Priority support'],
       ],
-      cta: 'Start 14-day free trial', ctaType: 'secondary', ctaHref: '#',
+      cta: ['pcard.cta.trial', 'Start 14-day free trial'], ctaType: 'secondary', ctaHref: '#',
       save: null,
     },
     {
       id: 'aent',
       name: 'Enterprise',
-      tag: 'For large marketing orgs',
-      badge: 'Enterprise', badgeCls: 'badge-ent',
+      tag: ['pcard.tag.aent', 'For large marketing orgs'],
+      badge: ['pcard.badge.ent', 'Enterprise'], badgeCls: 'badge-ent',
       track: 'analytics',
       prices: null,
       seatsFor: ['2-5', '6-20', '20+'],
-      subFn: () => 'custom pricing · 20+ users',
+      subKind: 'custom',
       feats: [
-        'Everything in Agency',
-        'Unlimited audits',
-        'Unlimited retention',
-        'Audit logs',
-        'Dedicated account manager',
-        'Dedicated SLA',
-        'SSO',
+        ['pfeat.unlimited', 'Unlimited sessions & audits'],
+        ['pfeat.seats20',   '20+ seats'],
+        ['pfeat.retInf',    'Unlimited retention'],
+        ['pfeat.sso',       'SSO'],
+        ['pfeat.auditlogs', 'Audit logs'],
+        ['pfeat.sla',       'Dedicated SLA'],
+        ['pfeat.am',        'Dedicated account manager'],
+        ['pfeat.allAgency', 'Everything in Agency'],
       ],
-      cta: 'Contact us', ctaType: 'ghost',
+      cta: ['pcard.cta.contact', 'Contact us'], ctaType: 'ghost',
       ctaHref: '/contact-sales.html?plan=aent',
       save: null,
     },
@@ -1355,7 +1324,7 @@ const DATA = {
     {
       id: 'ssolo',
       name: 'Suite Solo',
-      tag: 'Process + Analytics for consultants',
+      tag: ['pcard.tag.ssolo', 'Process + Analytics for consultants'],
       badge: null,
       track: 'suite',
       prices: {
@@ -1363,61 +1332,60 @@ const DATA = {
         monthly: { '1': 16 },
       },
       seatsFor: ['1'],
-      subFn: (s, b) => `billed ${b} · 1 user`,
+      subKind: '1user',
       feats: [
-        'Everything in Analyst',
-        'Everything in Auditor',
-        'BPMN + Insights workspace',
-        '50 sessions / month',
-        '30 audits / month',
-        '90-day retention',
+        ['pfeat.unlimited',    'Unlimited sessions & audits'],
+        ['pfeat.ret90',        '90-day retention'],
+        ['pfeat.allAnalyst',   'Everything in Analyst'],
+        ['pfeat.allAuditor',   'Everything in Auditor'],
+        ['pfeat.bpmnInsights', 'BPMN + Insights workspace'],
       ],
-      cta: 'Start 14-day free trial', ctaType: 'primary', ctaHref: '#',
-      save: 'Save €4/mo vs buying both',
+      cta: ['pcard.cta.trial', 'Start 14-day free trial'], ctaType: 'primary', ctaHref: '#',
+      save: ['pcard.save.ssolo', 'Save €4/mo vs buying both'],
     },
     {
       id: 'steam',
       name: 'Suite Team',
-      tag: 'Full suite for data-driven teams',
-      badge: 'Best value', badgeCls: 'badge-val',
+      tag: ['pcard.tag.steam', 'Full suite for data-driven teams'],
+      badge: ['pcard.badge.val', 'Best value'], badgeCls: 'badge-val',
       track: 'suite',
       prices: {
         annual:  { '2-5': 18, '6-20': 15 },
         monthly: { '2-5': 23, '6-20': 19 },
       },
       seatsFor: ['2-5', '6-20'],
-      subFn: (s, b) => `billed ${b} · per user · ${s === '2-5' ? '2–5 users' : '6–20 users'}`,
+      subKind: 'perUser',
       feats: [
-        'Everything in Studio',
-        'Everything in Agency',
-        'Unified workspace',
-        '400 sessions / month',
-        '200 audits / month',
-        '365-day retention',
+        ['pfeat.unlimited', 'Unlimited sessions & audits'],
+        ['pfeat.ret365',    '365-day retention'],
+        ['pfeat.allStudio', 'Everything in Studio'],
+        ['pfeat.allAgency', 'Everything in Agency'],
+        ['pfeat.unified',   'Unified workspace'],
       ],
-      cta: 'Start 14-day free trial', ctaType: 'secondary', ctaHref: '#',
-      save: 'Save €8/user vs buying both',
+      cta: ['pcard.cta.trial', 'Start 14-day free trial'], ctaType: 'secondary', ctaHref: '#',
+      save: ['pcard.save.steam', 'Save €8/user vs buying both'],
     },
     {
       id: 'sent',
       name: 'Suite Enterprise',
-      tag: 'Complete platform for large firms',
-      badge: 'Enterprise', badgeCls: 'badge-ent',
+      tag: ['pcard.tag.sent', 'Complete platform for large firms'],
+      badge: ['pcard.badge.ent', 'Enterprise'], badgeCls: 'badge-ent',
       track: 'suite',
       prices: null,
       seatsFor: ['2-5', '6-20', '20+'],
-      subFn: () => 'custom pricing · 20+ users',
+      subKind: 'custom',
       feats: [
-        'Everything in Suite Team',
-        'Unlimited sessions & audits',
-        'Unlimited retention',
-        'Audit logs',
-        'Custom integrations',
-        'Dedicated account manager',
-        'Dedicated SLA',
-        'SSO',
+        ['pfeat.unlimited', 'Unlimited sessions & audits'],
+        ['pfeat.seats20',   '20+ seats'],
+        ['pfeat.retInf',    'Unlimited retention'],
+        ['pfeat.sso',       'SSO'],
+        ['pfeat.auditlogs', 'Audit logs'],
+        ['pfeat.sla',       'Dedicated SLA'],
+        ['pfeat.am',        'Dedicated account manager'],
+        ['pfeat.allSteam',  'Everything in Suite Team'],
+        ['pfeat.customint', 'Custom integrations'],
       ],
-      cta: 'Contact us', ctaType: 'ghost',
+      cta: ['pcard.cta.contact', 'Contact us'], ctaType: 'ghost',
       ctaHref: '/contact-sales.html?plan=sent',
       save: null,
     },
@@ -1433,6 +1401,28 @@ const S = {
 
 /* ─── HELPERS ────────────────────────────────────────────── */
 const CHK = `<svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>`;
+
+/* i18n per il markup generato qui: al primo render i18n.js (defer) non è
+   ancora eseguito e window.t non esiste, quindi si stampa il fallback
+   inglese. Appena i18n.js applica la lingua emette 'sevenda:langchange' e
+   render() rigira con la traduzione. */
+const T  = ([key, en]) => (window.t ? window.t(key) : en);
+const TK = (key, en) => (window.t ? window.t(key) : en);
+const TF = (key, en, vars) =>
+  Object.keys(vars).reduce((s, k) => s.split('{' + k + '}').join(vars[k]), TK(key, en));
+
+/* Sottotitolo del prezzo: "fatturazione annuale · per utente · 2–5 utenti" */
+function planSub(plan) {
+  if (plan.subKind === 'custom') return TK('pcard.sub.custom', 'custom pricing · 20+ users');
+  const billing = S.billing === 'annual'
+    ? TK('pcard.billing.annual', 'annually')
+    : TK('pcard.billing.monthly', 'monthly');
+  if (plan.subKind === '1user') return TF('pcard.sub.1user', 'billed {billing} · 1 user', { billing });
+  const range = S.seats === '2-5'
+    ? TK('pcard.range.2-5', '2–5 users')
+    : TK('pcard.range.6-20', '6–20 users');
+  return TF('pcard.sub.perUser', 'billed {billing} · per user · {range}', { billing, range });
+}
 
 function getPrice(plan) {
   if (!plan.prices) return null;
@@ -1493,7 +1483,7 @@ function render() {
 
     // Badge
     const badge = plan.badge
-      ? `<span class="card-badge ${plan.badgeCls || ''}">${plan.badge}</span>`
+      ? `<span class="card-badge ${plan.badgeCls || ''}">${T(plan.badge)}</span>`
       : '';
 
     // Initialize bulk quantity if not set
@@ -1507,8 +1497,8 @@ function render() {
     if (isEnt) {
       priceHTML = `
         <div class="price-block">
-          <div class="price-row"><span class="p-custom">Contact us</span></div>
-          <p class="p-sub">${plan.subFn(S.seats, S.billing)}</p>
+          <div class="price-row"><span class="p-custom">${TK('pcard.contact', 'Contact us')}</span></div>
+          <p class="p-sub">${planSub(plan)}</p>
         </div>`;
     } else if (price !== null) {
       const saveCls = plan.track === 'suite' ? 'suite-save' : 'process-save';
@@ -1516,7 +1506,7 @@ function render() {
       const range = getSeatsRange(S.seats);
       const counterHTML = S.seats !== '1' ? `
         <div class="bulk-counter">
-          <span class="bulk-label">Qty</span>
+          <span class="bulk-label">${TK('pcard.qty', 'Qty')}</span>
           <div class="bulk-ctrl">
             <button class="bulk-btn bulk-minus" data-plan-id="${planId}" data-min="${range.min}">−</button>
             <span class="bulk-value">${qty}</span>
@@ -1532,11 +1522,13 @@ function render() {
           <div class="price-row">
             <span class="p-cur">€</span>
             <span class="p-amt">${fmtPrice(totalPrice)}</span>
-            <span class="p-per">/mo</span>
+            <span class="p-per">${TK('pcard.per', '/mo')}</span>
           </div>
-          <p class="p-sub">${qty > 1 ? `€${fmtPrice(price)}/user × ${qty} users` : `${plan.subFn(S.seats, S.billing)}`}</p>
+          <p class="p-sub">${qty > 1
+            ? TF('pcard.perUserTimes', '€{price}/user × {qty} users', { price: fmtPrice(price), qty })
+            : planSub(plan)}</p>
           ${counterHTML}
-          ${plan.save ? `<span class="p-save ${saveCls}">${plan.save}</span>` : ''}
+          ${plan.save ? `<span class="p-save ${saveCls}">${T(plan.save)}</span>` : ''}
         </div>`;
     } else {
       // Plan exists but this seats range doesn't apply — show greyed placeholder
@@ -1547,15 +1539,17 @@ function render() {
           <div class="price-row">
             <span class="p-cur" style="color:var(--text-3)">€</span>
             <span class="p-amt" style="color:var(--text-3)">${anyAmt}</span>
-            <span class="p-per">/mo</span>
+            <span class="p-per">${TK('pcard.per', '/mo')}</span>
           </div>
-          <p class="p-sub">select the right seat range above</p>
+          <p class="p-sub">${TK('pcard.selectRange', 'select the right seat range above')}</p>
         </div>`;
     }
 
-    // Features
+    // Features — [chiave i18n, fallback EN]: il markup è generato prima che
+    // i18n.js (defer) sia eseguito, quindi si stampa il fallback e si lascia
+    // che applyLang() traduca via data-i18n, sia al load che a ogni re-render.
     const featsHTML = plan.feats.map(f =>
-      `<li><span class="feat-icon ${ic}">${CHK}</span><span>${f}</span></li>`
+      `<li><span class="feat-icon ${ic}">${CHK}</span><span>${T(f)}</span></li>`
     ).join('');
 
     // CTA class
@@ -1563,7 +1557,8 @@ function render() {
       ? `cta-primary-${plan.track}`
       : plan.ctaType === 'secondary' ? 'cta-secondary' : 'cta-ghost';
 
-    const trackLabel = plan.track.charAt(0).toUpperCase() + plan.track.slice(1);
+    const trackLabel = TK('pricing.' + plan.track,
+      plan.track.charAt(0).toUpperCase() + plan.track.slice(1));
 
     // Determine if plan is free, paid, or enterprise
     const isEnterprise = !plan.prices;
@@ -1573,17 +1568,17 @@ function render() {
     // Generate CTA element based on plan type
     let ctaEl;
     if (isEnterprise) {
-      ctaEl = `<a href="${plan.ctaHref}" class="card-cta ${ctaCls}">${plan.cta}</a>`;
+      ctaEl = `<a href="${plan.ctaHref}" class="card-cta ${ctaCls}">${T(plan.cta)}</a>`;
     } else if (isPaid && price !== null) {
       // For paid plans, calculate the actual total NET price with quantity
       // (VAT is computed dynamically at checkout from the current tax profile)
       const qty = S.bulkQty[planId] || 1;
       const totalNet = price * qty;
-      ctaEl = `<button class="card-cta ${ctaCls}" onclick="addToCheckout('${planId}', '${plan.name}', ${totalNet}, '${S.seats}', ${qty})">${plan.cta}</button>`;
+      ctaEl = `<button class="card-cta ${ctaCls}" onclick="addToCheckout('${planId}', '${plan.name}', ${totalNet}, '${S.seats}', ${qty})">${T(plan.cta)}</button>`;
     } else {
       // Free or not applicable for this seat range
       // Nessun link al Chrome Web Store fuori dal checkout: CTA non attiva
-      ctaEl = `<span class="card-cta ${ctaCls} card-cta-off" aria-disabled="true">${plan.cta}</span>`;
+      ctaEl = `<span class="card-cta ${ctaCls} card-cta-off" aria-disabled="true">${T(plan.cta)}</span>`;
     }
 
     grid.innerHTML += `
@@ -1591,13 +1586,14 @@ function render() {
         ${badge}
         <p class="card-track">${trackLabel}</p>
         <h3 class="card-name">${plan.name}</h3>
-        <p class="card-tag">${plan.tag}</p>
+        <p class="card-tag">${T(plan.tag)}</p>
         ${priceHTML}
         <div class="card-div"></div>
         <ul class="card-feats">${featsHTML}</ul>
         ${ctaEl}
       </div>`;
   });
+
 }
 
 /* ─── EVENTS ─────────────────────────────────────────────── */
@@ -1712,7 +1708,7 @@ function addToCheckout(planId, planName, priceNet, seats, qty) {
   // Validation: ensure plan data is valid
   if (!planId || !planName || priceNet === undefined || priceNet === null) {
     console.error('Invalid plan data:', { planId, planName, priceNet });
-    alert('Error adding plan to cart. Please try again.');
+    alert(TK('pco.err.add', 'Error adding plan to cart. Please try again.'));
     return;
   }
 
@@ -1727,7 +1723,7 @@ function addToCheckout(planId, planName, priceNet, seats, qty) {
 function showCheckout() {
   // Validation: ensure cart is not empty
   if (Object.keys(S.cart).length === 0) {
-    alert('Please select a plan before proceeding to checkout.');
+    alert(TK('pco.err.select', 'Please select a plan before proceeding to checkout.'));
     return;
   }
 
@@ -1746,9 +1742,13 @@ function showCheckout() {
       <div class="checkout-item">
         <div class="checkout-item-info">
           <strong>${item.planName}</strong><br>
-          <small>${item.qty} user${item.qty > 1 ? 's' : ''} · ${item.billing === 'annual' ? 'Annual' : 'Monthly'}</small>
+          <small>${item.qty > 1
+            ? TF('pco.users', '{qty} users', { qty: item.qty })
+            : TF('pco.user', '{qty} user', { qty: item.qty })} · ${item.billing === 'annual'
+            ? TK('pco.annual', 'Annual')
+            : TK('pco.monthly', 'Monthly')}</small>
         </div>
-        <div class="checkout-item-price">€${fmtPrice(price)}<span class="checkout-remove" onclick="removeFromCart('${planId}')" style="cursor:pointer;margin-left:12px;font-size:11px;color:var(--text-3);">Remove</span></div>
+        <div class="checkout-item-price">€${fmtPrice(price)}<span class="checkout-remove" onclick="removeFromCart('${planId}')" style="cursor:pointer;margin-left:12px;font-size:11px;color:var(--text-3);">${TK('pco.remove', 'Remove')}</span></div>
       </div>
     `;
   });
@@ -1779,7 +1779,7 @@ function closeCheckout() {
 function proceedToStripe() {
   // Validation: ensure cart is not empty
   if (Object.keys(S.cart).length === 0) {
-    alert('Please select a plan before proceeding to checkout.');
+    alert(TK('pco.err.select', 'Please select a plan before proceeding to checkout.'));
     return;
   }
 
@@ -1814,6 +1814,16 @@ document.getElementById('checkoutStripe')?.addEventListener('click', proceedToSt
 // Init
 loadCartFromStorage();   // Load cart from localStorage
 render();
+
+/* i18n.js emette questo evento dopo aver applicato la lingua, sia al load
+   che a ogni click sulle bandierine: il markup generato qui non ha
+   data-i18n, quindi si ridisegna leggendo la tabella aggiornata. */
+document.addEventListener('sevenda:langchange', () => {
+  render();
+  if (document.getElementById('checkoutModal').classList.contains('open')) {
+    showCheckout();
+  }
+});
 </script>
 
 <!-- ════════════════════════════════════
@@ -1821,7 +1831,7 @@ render();
 ════════════════════════════════════ -->
 <div id="pfOverlay" class="pf-overlay" role="dialog" aria-modal="true" aria-label="Plan Finder">
   <div class="pf-card">
-    <button class="pf-close" onclick="PlanFinder.close()" aria-label="Close">&times;</button>
+    <button class="pf-close" onclick="PlanFinder.close()" aria-label="Close" data-i18n-aria-label="ppf.close">&times;</button>
 
     <!-- Progress bar -->
     <div class="pf-step-bar">
@@ -1831,37 +1841,38 @@ render();
 
     <!-- ── STEP 1 ── -->
     <div id="pfStep1">
-      <p class="pf-eyebrow">
+      <p class="pf-eyebrow" data-i18n="ppf.eyebrow">
         AI Plan Finder
       </p>
-      <h2 class="pf-title">What's your main goal?</h2>
-      <p class="pf-sub">Describe what you want to achieve and we'll match you to the right Sevenda plan.</p>
+      <h2 class="pf-title" data-i18n="ppf.title">What's your main goal?</h2>
+      <p class="pf-sub" data-i18n="ppf.sub">Describe what you want to achieve and we'll match you to the right Sevenda plan.</p>
 
       <textarea
         id="pfInput"
         class="pf-textarea"
-        placeholder="E.g. I need to map onboarding flows for my dev team and also audit our GA4 tracking..."
+        placeholder="E.g. I need to map onboarding flows for my dev team and also audit our GA4 tracking…"
+        data-i18n-placeholder="ppf.placeholder"
         rows="4"
       ></textarea>
 
-      <p class="pf-chips-label">Or pick an example:</p>
+      <p class="pf-chips-label" data-i18n="ppf.chipsLabel">Or pick an example:</p>
       <div class="pf-chips" id="pfChips">
-        <button class="pf-chip" data-value="Document and map business processes with BPMN 2.0 diagrams">Document processes</button>
-        <button class="pf-chip" data-value="Analyze GA4 funnels and audit tracking tags and events">Analyze GA4 funnels</button>
-        <button class="pf-chip" data-value="Map user journeys and create workflow diagrams for stakeholders">Map user journeys</button>
-        <button class="pf-chip" data-value="Team collaboration on process documentation with multiple users">Team workflows</button>
-        <button class="pf-chip" data-value="Audit Google Analytics tracking tags GTM events and conversions">Audit tracking tags</button>
-        <button class="pf-chip" data-value="I need both BPMN process documentation and analytics insights tracking">Process + Analytics</button>
+        <button class="pf-chip" data-value="Document and map business processes with BPMN 2.0 diagrams" data-i18n="ppf.chip.1">Document processes</button>
+        <button class="pf-chip" data-value="Analyze GA4 funnels and audit tracking tags and events" data-i18n="ppf.chip.2">Analyze GA4 funnels</button>
+        <button class="pf-chip" data-value="Map user journeys and create workflow diagrams for stakeholders" data-i18n="ppf.chip.3">Map user journeys</button>
+        <button class="pf-chip" data-value="Team collaboration on process documentation with multiple users" data-i18n="ppf.chip.4">Team workflows</button>
+        <button class="pf-chip" data-value="Audit Google Analytics tracking tags GTM events and conversions" data-i18n="ppf.chip.5">Audit tracking tags</button>
+        <button class="pf-chip" data-value="I need both BPMN process documentation and analytics insights tracking" data-i18n="ppf.chip.6">Process + Analytics</button>
       </div>
 
       <button class="pf-cta" id="pfExploreCta" onclick="PlanFinder.explore()" disabled>
-        Explore with AI
+        <span data-i18n="ppf.explore">Explore with AI</span>
       </button>
     </div>
 
     <!-- ── STEP 2 ── -->
     <div id="pfStep2" style="display:none">
-      <p class="pf-eyebrow">
+      <p class="pf-eyebrow" data-i18n="ppf.result">
         Your recommended plan
       </p>
       <h2 class="pf-title" id="pfResultTitle">—</h2>
@@ -1879,7 +1890,7 @@ render();
 
       <div class="pf-actions">
         <a href="#" class="pf-btn-primary" id="pfRecCta">Start 14-day free trial →</a>
-        <button class="pf-btn-ghost" onclick="PlanFinder.reset()">← Try again</button>
+        <button class="pf-btn-ghost" onclick="PlanFinder.reset()" data-i18n="ppf.retry">← Try again</button>
       </div>
     </div>
   </div>
@@ -1890,43 +1901,49 @@ render();
 (function () {
   'use strict';
 
+  /* i18n: il pannello si apre su azione dell'utente, quindi window.t c'è
+     già; il fallback inglese copre il caso in cui i18n.js non sia caricato. */
+  const TK = (key, en) => (window.t ? window.t(key) : en);
+  const TF = (key, en, vars) =>
+    Object.keys(vars).reduce((s, k) => s.split('{' + k + '}').join(vars[k]), TK(key, en));
+
   /* ── Plan database ───────────────────────────────────────────── */
   const PLANS = {
     analyst: {
-      track: 'process', trackLabel: 'Process Track',
-      name: 'Analyst', price: 'From €8/month (annual)',
-      feats: ['30 sessions / month', 'BPMN 2.0 generation', 'Export .bpmn / .svg / .png / .docx', 'Natural language refinement', 'Jira + Camunda integration', 'Smart Context Suggester'],
-      ctaText: 'Start 14-day free trial →', ctaHref: '#',
+      track: 'process', trackLabel: ['ppf.track.process', 'Process Track'],
+      name: 'Analyst', priceFrom: 8, priceKind: 'solo',
+      feats: [['pfeat.unlimited','Unlimited sessions & audits'], ['pfeat.ret90','90-day retention'], ['pfeat.bpmn','BPMN 2.0 generation'], ['pfeat.export','Export .bpmn / .svg / .png / .docx'], ['pfeat.jira','Jira + Camunda integration'], ['pfeat.suggester','Smart Context Suggester']],
+      ctaKey: 'ppf.cta', ctaEn: 'Start 14-day free trial →', ctaHref: '#',
     },
     studio: {
-      track: 'process', trackLabel: 'Process Track',
-      name: 'Studio', price: 'From €13/user/month (annual, 2-5 users)',
-      feats: ['200 sessions / month', 'BPMN 2.0 generation', 'Shared library', 'Team dashboard', 'Priority support'],
-      ctaText: 'Start 14-day free trial →', ctaHref: '#',
+      track: 'process', trackLabel: ['ppf.track.process', 'Process Track'],
+      name: 'Studio', priceFrom: 13, priceKind: 'team',
+      feats: [['pfeat.unlimited','Unlimited sessions & audits'], ['pfeat.ret365','365-day retention'], ['pfeat.library','Shared library'], ['pfeat.teamdash','Team dashboard'], ['pfeat.support','Priority support']],
+      ctaKey: 'ppf.cta', ctaEn: 'Start 14-day free trial →', ctaHref: '#',
     },
     auditor: {
-      track: 'analytics', trackLabel: 'Analytics Track',
-      name: 'Auditor', price: 'From €8/month (annual)',
-      feats: ['20 audits / month', 'Tracking gap analysis', 'GA4 report generation', 'GTM integration', 'DNA Fingerprint + Narrative'],
-      ctaText: 'Start 14-day free trial →', ctaHref: '#',
+      track: 'analytics', trackLabel: ['ppf.track.analytics', 'Analytics Track'],
+      name: 'Auditor', priceFrom: 8, priceKind: 'solo',
+      feats: [['pfeat.unlimited','Unlimited sessions & audits'], ['pfeat.ret90','90-day retention'], ['pfeat.gap','Tracking gap analysis'], ['pfeat.ga4','GA4 report generation'], ['pfeat.dna','DNA Fingerprint + Narrative']],
+      ctaKey: 'ppf.cta', ctaEn: 'Start 14-day free trial →', ctaHref: '#',
     },
     agency: {
-      track: 'analytics', trackLabel: 'Analytics Track',
-      name: 'Agency', price: 'From €13/user/month (annual, 2-5 users)',
-      feats: ['100 audits / month', 'Unlimited properties', 'Multi-client dashboard', 'GA4 report generation', 'Priority support'],
-      ctaText: 'Start 14-day free trial →', ctaHref: '#',
+      track: 'analytics', trackLabel: ['ppf.track.analytics', 'Analytics Track'],
+      name: 'Agency', priceFrom: 13, priceKind: 'team',
+      feats: [['pfeat.unlimited','Unlimited sessions & audits'], ['pfeat.ret365','365-day retention'], ['pfeat.propInf','Unlimited properties'], ['pfeat.multiclient','Multi-client dashboard'], ['pfeat.support','Priority support']],
+      ctaKey: 'ppf.cta', ctaEn: 'Start 14-day free trial →', ctaHref: '#',
     },
     ssolo: {
-      track: 'suite', trackLabel: 'Suite Track',
-      name: 'Suite — Solo', price: 'From €12/month (annual)',
-      feats: ['Process + Analytics in one', 'BPMN 2.0 + GA4 reports', '50 sessions / month + 30 audits / month', 'All export formats', 'All integrations'],
-      ctaText: 'Start 14-day free trial →', ctaHref: '#',
+      track: 'suite', trackLabel: ['ppf.track.suite', 'Suite Track'],
+      name: 'Suite — Solo', priceFrom: 12, priceKind: 'solo',
+      feats: [['pfeat.unlimited','Unlimited sessions & audits'], ['pfeat.ret90','90-day retention'], ['pfeat.bpmnInsights','BPMN + Insights workspace'], ['pfeat.allAnalyst','Everything in Analyst'], ['pfeat.allAuditor','Everything in Auditor']],
+      ctaKey: 'ppf.cta', ctaEn: 'Start 14-day free trial →', ctaHref: '#',
     },
     steam: {
-      track: 'suite', trackLabel: 'Suite Track',
-      name: 'Suite — Team', price: 'From €18/user/month (annual, 2-5 users)',
-      feats: ['Process + Analytics for teams', 'BPMN 2.0 + GA4 reports', '400 sessions / month + 200 audits / month', 'Unified workspace', 'Priority support'],
-      ctaText: 'Start 14-day free trial →', ctaHref: '#',
+      track: 'suite', trackLabel: ['ppf.track.suite', 'Suite Track'],
+      name: 'Suite — Team', priceFrom: 18, priceKind: 'team',
+      feats: [['pfeat.unlimited','Unlimited sessions & audits'], ['pfeat.ret365','365-day retention'], ['pfeat.unified','Unified workspace'], ['pfeat.allStudio','Everything in Studio'], ['pfeat.allAgency','Everything in Agency']],
+      ctaKey: 'ppf.cta', ctaEn: 'Start 14-day free trial →', ctaHref: '#',
     },
   };
 
@@ -1953,13 +1970,13 @@ render();
 
     if (isBoth) {
       planId = isTeam ? 'steam' : 'ssolo';
-      reason = 'Your goal combines process documentation and analytics tracking. The Suite track gives you BPMN 2.0 generation AND GA4/GTM auditing in one unified workflow.';
+      reason = TK('ppf.reason.suite', 'Your goal combines process documentation and analytics tracking. The Suite track gives you BPMN 2.0 generation AND GA4/GTM auditing in one unified workflow.');
     } else if (as > ps) {
       planId = isTeam ? 'agency' : 'auditor';
-      reason = 'Your goal is focused on analytics tracking and funnel analysis. The Analytics track is purpose-built to detect GA4 gaps, audit GTM tags and generate actionable reports.';
+      reason = TK('ppf.reason.analytics', 'Your goal is focused on analytics tracking and funnel analysis. The Analytics track is purpose-built to detect GA4 gaps, audit GTM tags and generate actionable reports.');
     } else {
       planId = isTeam ? 'studio' : 'analyst';
-      reason = 'Your goal is to document and visualize processes. The Process track generates production-ready BPMN 2.0 diagrams directly from your browser sessions — no manual drawing required.';
+      reason = TK('ppf.reason.process', 'Your goal is to document and visualize processes. The Process track generates production-ready BPMN 2.0 diagrams directly from your browser sessions — no manual drawing required.');
     }
 
     return { plan: PLANS[planId], planId, reason };
@@ -2001,7 +2018,7 @@ render();
       /* Loading state */
       const cta = $('pfExploreCta');
       const origInner = cta.innerHTML;
-      cta.innerHTML = '<span class="pf-spinner"></span> Analyzing…';
+      cta.innerHTML = '<span class="pf-spinner"></span> ' + TK('ppf.analyzing', 'Analyzing…');
       cta.disabled = true;
 
       /* Simulate brief AI thinking delay */
@@ -2012,23 +2029,25 @@ render();
         /* Populate result */
         $('pfResultTitle').textContent = plan.name;
         $('pfResultQuote').textContent = '"' + input.slice(0, 120) + (input.length > 120 ? '…' : '') + '"';
-        $('pfRecTrack').textContent  = plan.trackLabel;
+        $('pfRecTrack').textContent  = TK(plan.trackLabel[0], plan.trackLabel[1]);
         $('pfRecTrack').className    = 'pf-rec-track ' + tc + '-c';
         $('pfRecName').textContent   = plan.name;
-        $('pfRecPrice').textContent  = plan.price;
+        $('pfRecPrice').textContent  = plan.priceKind === 'team'
+          ? TF('ppf.price.team', 'From €{p}/user/month (annual, 2–5 users)', { p: plan.priceFrom })
+          : TF('ppf.price.solo', 'From €{p}/month (annual)', { p: plan.priceFrom });
         $('pfRecCard').className     = 'pf-rec-card ' + tc + '-accent';
         $('pfReason').textContent    = reason;
 
         const featsEl = $('pfRecFeats');
         featsEl.innerHTML = '';
-        plan.feats.forEach(f => {
+        plan.feats.forEach(([key, en]) => {
           const li = document.createElement('li');
-          li.textContent = f;
+          li.textContent = window.t ? window.t(key) : en;
           featsEl.appendChild(li);
         });
 
         const recCta = $('pfRecCta');
-        recCta.textContent = plan.ctaText;
+        recCta.textContent = TK(plan.ctaKey, plan.ctaEn);
         recCta.href = plan.ctaHref;
         recCta.className = 'pf-btn-primary ' + tc + '-btn';
 
