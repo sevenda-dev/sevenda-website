@@ -1,5 +1,5 @@
 // ════════════════════════════════════════════════════════════════
-// Sevenda — Edge Function: create-subscription   (PATCH v11)
+// Sevenda — Edge Function: create-subscription   (PATCH v12)
 // ════════════════════════════════════════════════════════════════
 // Flusso in DUE FASI (v9):
 //   fase 1 — crea/riusa il Customer e un SetupIntent; restituisce il
@@ -101,6 +101,46 @@
 //   La v6 sconsiglia i metadata che invecchiano: questo non è di quelli. Piano,
 //   posti e ciclo cambiano dal Portal; un consenso prestato a una certa data è
 //   un fatto storico e non diventa mai obsoleto.
+//
+// PATCH v12 (IVA italiana ai consumatori UE — tax rate manuale).
+// Sotto la soglia dei 10.000 EUR/anno di vendite B2C transfrontaliere, e senza
+// opzione OSS esercitata, le cessioni a consumatori UE restano imponibili in
+// Italia (art. 59c Dir. 2006/112/CE, art. 7-octies DPR 633/72): al consumatore
+// tedesco si applica il 22% italiano, non il 19% tedesco.
+//   PERCHÉ NON BASTA STRIPE TAX: verificato in produzione il 21/09/2026 con la
+//   Tax Calculation API. Con la registrazione oss_union attiva Stripe applicava
+//   l'aliquota di destinazione (DE 19%); fatta scadere quella registrazione e
+//   rimasta la sola domestica IT, Stripe passa a 0% con taxability_reason
+//   "not_collecting". Non implementa la micro-esenzione: segue le registrazioni
+//   e basta. Le due alternative native sarebbero registrarsi in ogni paese UE
+//   (falso: non lo siamo) o riattivare l'OSS (l'opzione non è stata esercitata),
+//   quindi resta il tax rate manuale.
+//   DOVE: solo sul ramo consumatore UE FUORI dall'Italia. Gli altri tre casi
+//   Stripe Tax li risolve già correttamente — IT 22%, reverse charge B2B
+//   intra-UE con partita IVA, extra-UE 0% — e restano su automatic_tax, perché
+//   un tax rate manuale spegne anche il reporting di Stripe Tax e non va esteso
+//   dove non serve.
+//   COME: automatic_tax disabilitato e default_tax_rates con l'aliquota IT 22%
+//   (TaxRate da creare una volta per modalità, ID in STRIPE_IT_VAT_RATE_ID).
+//   Vale anche sui rinnovi, che è il punto: default_tax_rates resta sulla
+//   subscription.
+//   DISCRIMINANTE: la stessa di tutto il checkout, cioè la presenza della
+//   partita IVA. Deciso in fase 1, dove il vatId e il paese esistono, e
+//   trasportato alla fase 2 nei metadata del SetupIntent — stesso canale del
+//   consenso art. 59 della v11, per le stesse ragioni.
+//   SE IL TAXRATE NON È CONFIGURATO si blocca in fase 1, prima che l'utente
+//   inserisca la carta, invece di proseguire su automatic_tax. Proseguire
+//   significherebbe una subscription a IVA zero su un'operazione imponibile in
+//   Italia: un ammanco che nessuno vede fino alla dichiarazione, che è
+//   esattamente il modo di sbagliare che la v10 rifiutava sul reverse charge.
+//   LIMITE NOTO: con automatic_tax spento, una partita IVA aggiunta più tardi
+//   dal Customer Portal non fa scattare il reverse charge sui rinnovi (con
+//   automatic_tax sarebbe stato automatico). Va gestita a mano sulla
+//   subscription. Il caso inverso — B2B che perde la partita IVA — non esiste.
+//   QUANDO RIMUOVERE TUTTO QUESTO: superata la soglia, o esercitata l'opzione
+//   OSS, torna l'aliquota di destinazione. Allora si aggiunge la registrazione
+//   OSS in Stripe, si toglie il ramo manuale qui e si rimettono le aliquote per
+//   paese in iva.config.js e in checkout.html.
 //
 // PATCH v2: aggiunge `supabaseUserId` (e `orgName`) ai metadata del
 // Customer, così la Edge Function `stripe-webhook` può collegare il
@@ -329,6 +369,24 @@ const TAX_ID_TYPE_BY_COUNTRY: Record<string, string> = {
   GB: "gb_vat",
   CH: "ch_vat",
 };
+
+// ── v12 — paesi UE ──────────────────────────────────────────────────────────
+// Derivato da TAX_ID_TYPE_BY_COUNTRY invece di ripetere l'elenco: "eu_vat" È la
+// definizione di paese UE in questo file, e due liste da tenere allineate a
+// mano sono una lista sbagliata che aspetta il suo turno.
+const EU_COUNTRIES: ReadonlySet<string> = new Set(
+  Object.entries(TAX_ID_TYPE_BY_COUNTRY)
+    .filter(([, type]) => type === "eu_vat")
+    .map(([country]) => country),
+);
+
+// Consumatore UE fuori dall'Italia: niente partita IVA, paese UE diverso da IT.
+// È l'unico caso in cui Stripe Tax da solo sbaglierebbe (0% invece di 22%).
+function needsManualItVat(country: unknown, vatId: unknown): boolean {
+  const c = String(country ?? "").trim().toUpperCase();
+  const v = String(vatId ?? "").trim();
+  return c !== "IT" && EU_COUNTRIES.has(c) && v === "";
+}
 
 // ── v10 — allinea il tax_id del Customer al vatId dell'ordine ───────────────
 // Tre esiti: { ok: true } (allineato o niente da fare), { ok: false, invalid:
@@ -622,16 +680,41 @@ async function activateSubscription(
     console.warn(`[activate] default pm su ${customerId} non impostato: ${(e as Error).message}`);
   }
 
+  // ── v12: regime IVA della subscription, deciso in fase 1 ─────────────────
+  // Confronto stretto sulla stringa, come per il consenso art. 59: un
+  // SetupIntent creato dalla fase 1 precedente non ha la chiave e ricade su
+  // automatic_tax, cioè il comportamento di prima.
+  // Il TaxRate è già stato verificato in fase 1. Se qui manca (variabile
+  // rimossa fra le due fasi) si attiva comunque: la carta è salvata e la
+  // subscription è l'unico esito che non lascia l'utente pagato e senza piano.
+  // L'IVA mancante si corregge sulla subscription, un ordine perso no.
+  const itVatRateId = Deno.env.get("STRIPE_IT_VAT_RATE_ID") ?? "";
+  const manualItVat = md.manualItVat === "true" && !!itVatRateId;
+  if (md.manualItVat === "true" && !itVatRateId) {
+    console.error(
+      `[tax] ${setupIntentId}: manualItVat richiesto ma STRIPE_IT_VAT_RATE_ID `
+      + `non configurato — subscription attivata su automatic_tax, IVA DA `
+      + `CORREGGERE A MANO`,
+    );
+  }
+  const taxParams = manualItVat
+    // Consumatore UE fuori dall'Italia: 22% italiano, anche sui rinnovi.
+    ? { automatic_tax: { enabled: false }, default_tax_rates: [itVatRateId] }
+    // v10: senza automatic_tax ogni fattura esce senza imposta, anche con le
+    // registrazioni fiscali attive. Richiede un indirizzo valido sul Customer
+    // — garantito dalla fase 1, che lo raccoglie come campo obbligatorio.
+    : { automatic_tax: { enabled: true } };
+  console.log(
+    `[tax] ${setupIntentId}: regime ${manualItVat ? `manuale IT 22% (${itVatRateId})` : "automatic_tax"}`,
+  );
+
   let subscription: Record<string, unknown>;
   try {
     subscription = await stripe("/subscriptions", {
       customer: customerId,
       items: [{ price: priceId, quantity: qty }],
       default_payment_method: pm,
-      // v10: senza questo ogni fattura esce senza imposta, anche con le
-      // registrazioni fiscali attive. Richiede un indirizzo valido sul Customer
-      // — garantito dalla fase 1, che lo raccoglie come campo obbligatorio.
-      automatic_tax: { enabled: true },
+      ...taxParams,
       // Con il trial la prima fattura è zero e nulla viene addebitato ora. Senza
       // trial (futuro) la fattura iniziale viene pagata off-session con la carta
       // salvata: se fallisse, meglio un errore esplicito che una 'incomplete'.
@@ -869,6 +952,27 @@ Deno.serve(async (req) => {
     const art59Consent = consumerImmediatePerformance === true
       || consumerImmediatePerformance === "true";
 
+    // ── v12: consumatore UE fuori dall'Italia → IVA italiana a tax rate ────
+    // La verifica del TaxRate sta qui, non in fase 2: è l'ultimo punto in cui
+    // si può fermare l'ordine senza aver ancora preso la carta. In fase 2 la
+    // carta è già salvata e l'unica uscita sarebbe attivare senza imposta.
+    const manualItVat = needsManualItVat(address?.country, vatId);
+    const itVatRateId = Deno.env.get("STRIPE_IT_VAT_RATE_ID") ?? "";
+    if (manualItVat && !itVatRateId) {
+      console.error(
+        `[tax] STRIPE_IT_VAT_RATE_ID non configurato: ordine da consumatore `
+        + `${String(address?.country ?? "n/d")} bloccato per non emettere una `
+        + `subscription a IVA zero su un'operazione imponibile in Italia`,
+      );
+      return new Response(
+        JSON.stringify({
+          error: "We cannot complete the purchase right now. Please try again later or contact support.",
+          code: "tax_rate_unavailable",
+        }),
+        { status: 503, headers: { ...CORS, "Content-Type": "application/json" } },
+      );
+    }
+
     // 2) v9 — SetupIntent: raccoglie la carta SENZA creare la subscription.
     // I metadata portano il contesto dell'ordine alla fase 2. Il priceId è
     // già risolto e verificato (pre-check v7) e i posti già validati (v8):
@@ -891,6 +995,10 @@ Deno.serve(async (req) => {
         // resta vuoto (e quindi non scritto) quando il consenso non c'è.
         immediatePerformanceConsent: String(art59Consent),
         immediatePerformanceConsentAt: art59Consent ? new Date().toISOString() : "",
+        // v12: la scelta del regime IVA appartiene all'ordine, e in fase 2 il
+        // vatId non c'è più. Stringa vuota quando non serve: encodeForm la
+        // scarta, e la fase 2 legge "chiave assente" come automatic_tax.
+        manualItVat: manualItVat ? "true" : "",
       },
     }, secret);
 
