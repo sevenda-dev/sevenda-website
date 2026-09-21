@@ -564,12 +564,21 @@
   function fmt(n)        { return SYM + (Number.isInteger(n) ? n : n.toFixed(2)); }
 
   /* ── Stima IVA (solo display) ────────────────────────────
-     Aliquote standard dei soli paesi presenti nel select: aggiungerne uno lì
-     significa aggiungerlo anche qui. Non è un calcolo fiscale — l'imposta vera
-     la determina Stripe Tax in fattura, questo serve a non mostrare un totale
-     che non corrisponde a quello che verrà addebitato. */
-  const VAT_RATES = { IT:22, ES:21, FR:20, DE:19, NL:21, BE:21, PT:23, IE:23, AT:20, GB:0, US:0, CA:0, CH:0 };
-  const EU_REVERSE = ['ES','FR','DE','NL','BE','PT','IE','AT'];  // UE senza IT: l'Italia è interna, niente inversione
+     Non è un calcolo fiscale — l'imposta vera la determina Stripe Tax in
+     fattura; questo serve solo a non mostrare un totale diverso da quello che
+     verrà addebitato.
+     Al consumatore UE si applica il 22% italiano, non l'aliquota del suo paese:
+     sotto la soglia dei 10.000 €/anno di vendite B2C transfrontaliere e senza
+     opzione OSS, le cessioni a consumatori UE restano imponibili in Italia
+     (art. 59c Dir. 2006/112/CE, art. 7-octies DPR 633/72). Lo specchio lato
+     Stripe è la sola registrazione domestica IT: superata la soglia, o esercitata
+     l'opzione OSS, torna l'aliquota di destinazione e qui vanno rimesse le
+     aliquote per paese.
+     EU_COUNTRIES elenca i paesi UE del select: aggiungerne uno lì significa
+     aggiungerlo anche qui, altrimenti un cliente UE viene stimato a zero. */
+  const IT_VAT_RATE  = 22;
+  const EU_COUNTRIES = ['IT','ES','FR','DE','NL','BE','PT','IE','AT'];
+  const EU_REVERSE   = EU_COUNTRIES.filter(c => c !== 'IT');  // l'Italia è interna, niente inversione
 
   // null = nessun paese scelto → la riga IVA resta nascosta e il totale non cambia.
   function vatEstimate(subtotal) {
@@ -579,7 +588,8 @@
     if (EU_REVERSE.indexOf(country) !== -1 && $('coVat').value.trim()) {
       return { reverseCharge: true, rate: 0, amount: 0 };
     }
-    const rate = VAT_RATES[country] || 0;
+    // Consumatore UE (e qualunque acquisto italiano): 22%. Extra-UE: fuori campo.
+    const rate = EU_COUNTRIES.indexOf(country) !== -1 ? IT_VAT_RATE : 0;
     return { reverseCharge: false, rate: rate, amount: Math.round(subtotal * rate) / 100 };
   }
 

@@ -3,8 +3,16 @@
  *
  * Modello fiscale:
  *  - Italia: aliquota varia in base al tipo fiscale (PA = 0%, altri = 22%)
- *  - UE (MOSS): aliquota standard del paese di residenza del cliente
+ *  - UE: 22% italiano. Sotto la soglia dei 10.000 EUR/anno di vendite B2C
+ *    transfrontaliere, e senza opzione OSS esercitata, le cessioni a
+ *    consumatori UE restano imponibili in Italia (art. 59c Dir. 2006/112/CE,
+ *    art. 7-octies DPR 633/72). Il B2B intra-UE con partita IVA e' reverse
+ *    charge e non passa da qui: lo gestisce il chiamante.
  *  - Extra-UE: 0% (operazione non imponibile)
+ *
+ * Quando si supera la soglia, o si opta per l'OSS, torna l'aliquota del paese
+ * del cliente: in Stripe va aggiunta la registrazione OSS, qui va rimessa
+ * euCountries[].rate al posto di standardRateIT.
  *
  * Aggiornamento aliquote: modificare i valori sotto e committare su git
  * (il commit message tiene traccia della data di efficacia — audit trail).
@@ -26,8 +34,10 @@ const SEVENDA_IVA = {
     startupPMI:       { rate: 0.22, labelKey: 'iva.tax.startup',labelEn: 'Startup / SME' },
   },
 
-  /* ── Paesi UE (regime MOSS) — aliquota standard ──────────────
-     Fonte: aliquote IVA standard UE vigenti. */
+  /* ── Paesi UE ────────────────────────────────────────────────
+     L'elenco serve a riconoscere un paese come UE. Le aliquote sono un
+     riferimento documentale: finche' vale la micro-esenzione NON sono quelle
+     addebitate — getVatRate() restituisce standardRateIT. */
   euCountries: {
     IT: { name: 'Italia',       rate: 0.22, flag: '🇮🇹' },
     DE: { name: 'Deutschland',  rate: 0.19, flag: '🇩🇪' },
@@ -54,6 +64,9 @@ const SEVENDA_IVA = {
     OTHER: { name: 'Other (non-EU)', rate: 0.00, flag: '🌍' },
   },
 
+  /* Aliquota italiana applicata anche ai consumatori UE (vedi header) */
+  standardRateIT: 0.22,
+
   /* Paese di default se l'utente non ha mai selezionato */
   defaultCountry: 'IT',
   defaultItalyTaxType: 'ditta',
@@ -73,7 +86,8 @@ function getVatRate(countryCode, italyTaxType) {
     return t ? t.rate : 0.22;
   }
   if (SEVENDA_IVA.euCountries[countryCode]) {
-    return SEVENDA_IVA.euCountries[countryCode].rate;
+    // Consumatore UE: 22% italiano, non l'aliquota del paese di residenza.
+    return SEVENDA_IVA.standardRateIT;
   }
   if (SEVENDA_IVA.thirdCountries[countryCode]) {
     return SEVENDA_IVA.thirdCountries[countryCode].rate;
@@ -119,7 +133,7 @@ function getVatLabel(countryCode, italyTaxType) {
     return `IVA Italia ${pct}% — ${t ? t.labelEn : ''}`;
   }
   if (SEVENDA_IVA.euCountries[countryCode]) {
-    return `VAT ${SEVENDA_IVA.euCountries[countryCode].name} ${pct}% (EU MOSS)`;
+    return `IVA Italia ${pct}% — ${SEVENDA_IVA.euCountries[countryCode].name} (sotto soglia UE)`;
   }
   if (SEVENDA_IVA.thirdCountries[countryCode]) {
     return `No VAT 0% — non-EU (reverse charge / out of scope)`;
