@@ -1,19 +1,21 @@
 // ════════════════════════════════════════════════════════════════════════════
-// Sevenda — Edge Function: stripe-webhook   (PATCH v16 — Codice Destinatario SDI)
+// Sevenda — Edge Function: stripe-webhook   (PATCH v16 — Codice Destinatario e Codice Fiscale)
 // ════════════════════════════════════════════════════════════════════════════
 // Chiude il giro Stripe → Supabase. Riceve gli eventi Stripe, verifica la firma,
 // garantisce l'idempotenza (tabella stripe_event) e fa upsert di organization,
 // subscription e invoice. Usa la service-role key (bypassa la RLS).
 //
 // ── PATCH v16 (questa versione) ────────────────────────────────────────────
-// CODICE DESTINATARIO PERSISTITO. create-subscription v13 lo raccoglie dalle
-// aziende italiane al checkout e lo scrive su customer.metadata.sdiCode e nei
-// custom_fields della fattura. Qui arriva a destinazione:
-//   - billing_profile.sdi_code — l'anagrafica del cliente, accanto a vat_id.
-//     Scritto sia alla creazione dell'org (resolveOrg) sia su customer.updated
-//     (handleCustomer), come già avviene per la partita IVA.
-//   - invoice.sdi_code — lo SNAPSHOT al momento dell'emissione, che per un
-//     documento fiscale è il dato che conta. La fonte primaria è
+// CODICE DESTINATARIO E CODICE FISCALE PERSISTITI. create-subscription v13
+// raccoglie al checkout il Codice Destinatario dalle aziende italiane e il
+// Codice Fiscale dai privati italiani (rami complementari: mai entrambi), e li
+// scrive su customer.metadata (sdiCode / fiscalCode) e nei custom_fields della
+// fattura. Qui arrivano a destinazione:
+//   - billing_profile.sdi_code / .fiscal_code — l'anagrafica del cliente,
+//     accanto a vat_id. Scritti sia alla creazione dell'org (resolveOrg) sia su
+//     customer.updated (handleCustomer), come già avviene per la partita IVA.
+//   - invoice.sdi_code / .fiscal_code — lo SNAPSHOT al momento dell'emissione,
+//     che per un documento fiscale è il dato che conta. La fonte primaria è
 //     invoice.custom_fields, perché Stripe li congela sulla fattura alla
 //     finalizzazione: è il valore che sta stampato su QUEL PDF, non quello che
 //     il cliente ha in anagrafica oggi. Il metadata del Customer resta come
@@ -23,8 +25,8 @@
 //   verrà costruita si scoprirà che il dato non è mai stato conservato e andrà
 //   chiesto a ritroso a ogni cliente italiano. Raccoglierlo ora costa due
 //   colonne; recuperarlo dopo costa una campagna di email.
-//   PREREQUISITO: migrazione 2026-09-22-sdi-code.sql (colonne
-//   billing_profile.sdi_code e invoice.sdi_code, entrambe nullable).
+//   PREREQUISITO: migrazione 2026-09-22-sdi-fiscal-code.sql (colonne sdi_code
+//   e fiscal_code su billing_profile e invoice, tutte nullable).
 //
 // ── PATCH v15 ──────────────────────────────────────────────────────────────
 // "AUTOMATIC_TAX DISABILITATO" NON SIGNIFICA PIÙ "NESSUNA IMPOSTA".
@@ -1051,7 +1053,7 @@ async function previewNextAmount(
 // delle comunicazioni, senza una seconda retrieve.
 async function resolveOrg(
   customerId: string,
-): Promise<{ orgId: string; country: string; email: string | null; name: string | null; locale: Locale; sdiCode: string | null }> {
+): Promise<{ orgId: string; country: string; email: string | null; name: string | null; locale: Locale; sdiCode: string | null; fiscalCode: string | null }> {
   // 1) già mappata?
   const { data: existing } = await supabase
     .from("organization").select("id, locale").eq("stripe_customer_id", customerId).maybeSingle();
@@ -1066,13 +1068,15 @@ async function resolveOrg(
   const country = c.address?.country || "IT";
   const email = c.email ?? null;
   const name = c.name ?? null;
-  // v16: scritto da create-subscription v13 per le sole aziende italiane.
+  // v16: scritti da create-subscription v13 — sdiCode per le aziende italiane,
+  // fiscalCode per i privati italiani. Al più uno dei due è valorizzato.
   const sdiCode = String(c.metadata?.sdiCode ?? "").trim().toUpperCase() || null;
+  const fiscalCode = String(c.metadata?.fiscalCode ?? "").trim().toUpperCase() || null;
 
   // v5: la lingua registrata sull'org vince sempre. È l'unico valore che
   // l'utente può aver scelto deliberatamente; i campi Stripe sono ripieghi.
   if (existing) {
-    return { orgId: existing.id, country, email, name, locale: pickLocale(existing.locale, c), sdiCode };
+    return { orgId: existing.id, country, email, name, locale: pickLocale(existing.locale, c), sdiCode, fiscalCode };
   }
 
   // Org non ancora esistente: la lingua si fissa ora, dai metadata del checkout.
@@ -1131,9 +1135,10 @@ async function resolveOrg(
     org_id: org.id, legal_name: c.name, vat_id: c.metadata?.vatId || null,
     country, is_business: !!c.metadata?.vatId,
     sdi_code: sdiCode,                  // v16
+    fiscal_code: fiscalCode,            // v16
   }, { onConflict: "org_id" });
 
-  return { orgId: org.id, country, email, name, locale, sdiCode };
+  return { orgId: org.id, country, email, name, locale, sdiCode, fiscalCode };
 }
 
 // Risolve plan_id dal price Stripe via catalogo plan_price. I piani a
@@ -1590,22 +1595,27 @@ interface InvoiceTax {
   detail: string;
 }
 
-// ── v16 — Codice Destinatario sulla fattura ────────────────────────────────
-// L'etichetta deve coincidere con SDI_FIELD_NAME di create-subscription v13: è
-// la chiave con cui il custom field si riconosce fra gli altri.
+// ── v16 — Codice Destinatario / Codice Fiscale sulla fattura ───────────────
+// Le etichette devono coincidere con quelle di create-subscription v13: sono la
+// chiave con cui il custom field si riconosce fra gli altri.
 const SDI_FIELD_NAME = "Codice Destinatario";
+const CF_FIELD_NAME = "Codice Fiscale";
 
 // Fonte primaria: i custom_fields della fattura, che Stripe congela alla
 // finalizzazione. È il valore stampato su QUEL PDF, che per un documento
 // fiscale è l'unico che conti — l'anagrafica del cliente può essere cambiata
 // dopo. `fallback` è il metadata del Customer, e copre le fatture emesse prima
 // della v13, che i custom_fields non ce l'hanno.
-function invoiceSdiCode(inv: Stripe.Invoice, fallback: string | null): string | null {
+function invoiceCustomField(
+  inv: Stripe.Invoice,
+  name: string,
+  fallback: string | null,
+): string | null {
   const cf = (inv as unknown as Record<string, unknown>).custom_fields;
   if (Array.isArray(cf)) {
     for (const f of cf) {
       const o = f as Record<string, unknown>;
-      if (o.name === SDI_FIELD_NAME && typeof o.value === "string" && o.value.trim()) {
+      if (o.name === name && typeof o.value === "string" && o.value.trim()) {
         return o.value.trim().toUpperCase();
       }
     }
@@ -1719,7 +1729,7 @@ function invoiceSubscriptionId(inv: Stripe.Invoice): string | null {
 }
 
 async function handleInvoice(inv: Stripe.Invoice, eventType: string) {
-  const { orgId, country, email, locale, sdiCode } = await resolveOrg(inv.customer as string);
+  const { orgId, country, email, locale, sdiCode, fiscalCode } = await resolveOrg(inv.customer as string);
 
   // collega alla subscription locale, se presente
   // v11: l'id non sta più su inv.subscription — vedi invoiceSubscriptionId().
@@ -1779,8 +1789,9 @@ async function handleInvoice(inv: Stripe.Invoice, eventType: string) {
     vat_reason: tax.reason,
     vat_country: tax.country,
     vat_rate_id: tax.rateId,
-    // v16: snapshot al momento dell'emissione — vedi invoiceSdiCode().
-    sdi_code: invoiceSdiCode(inv, sdiCode),
+    // v16: snapshot al momento dell'emissione — vedi invoiceCustomField().
+    sdi_code: invoiceCustomField(inv, SDI_FIELD_NAME, sdiCode),
+    fiscal_code: invoiceCustomField(inv, CF_FIELD_NAME, fiscalCode),
     total_cents: inv.total ?? 0,
     stripe_invoice_id: inv.id,
     provider,
@@ -1926,6 +1937,7 @@ async function handleCustomer(c: Stripe.Customer) {
     // v16: stesso trattamento della partita IVA — un valore vuoto nei metadata
     // azzera la colonna, perché è il Customer Stripe a essere autorevole.
     sdi_code: String(c.metadata?.sdiCode ?? "").trim().toUpperCase() || null,
+    fiscal_code: String(c.metadata?.fiscalCode ?? "").trim().toUpperCase() || null,
     country: c.address?.country || "IT",
     address_line1: c.address?.line1 ?? null,
     address_line2: c.address?.line2 ?? null,

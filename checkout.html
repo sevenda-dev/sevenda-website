@@ -359,6 +359,13 @@
           <p class="co-field-hint" data-i18n="co.sdi.hint">Seven letters or digits, required for Italian electronic invoicing. If you don't have one, enter 0000000: your invoice will be available in your Agenzia delle Entrate tax drawer.</p>
           <div class="co-error" id="coSdiError" style="display:none;"></div>
         </div>
+
+        <div class="co-field" id="coCfField" style="display:none;">
+          <label class="co-label" for="coCf"><span data-i18n="co.label.cf">Italian Tax Code (Codice Fiscale)</span> <span class="req" data-i18n="co.required">(required)</span></label>
+          <input class="co-input" type="text" id="coCf" placeholder="RSSMRA80A01H501U" data-i18n-placeholder="co.cf.ph" maxlength="16" autocomplete="off" spellcheck="false">
+          <p class="co-field-hint" data-i18n="co.cf.hint">Sixteen characters, required by law for Italian electronic invoicing to private individuals. Your invoice will also be delivered to your Agenzia delle Entrate tax drawer.</p>
+          <div class="co-error" id="coCfError" style="display:none;"></div>
+        </div>
       </div>
     </div>
 
@@ -730,9 +737,11 @@
     // La riga del consenso art. 59 dipende dalla partita IVA
     syncImmediateConsent();
 
-    // Il Codice Destinatario dipende da partita IVA e paese
+    // Codice Destinatario e Codice Fiscale dipendono da partita IVA e paese
     syncSdiField();
+    syncCfField();
     if ($('coSdiError').style.display !== 'none') showSdiError(true);
+    if ($('coCfError').style.display !== 'none') showCfError(true);
 
     // Label del bottone dipende dal trial → tienila sincronizzata
     updateActionButton();
@@ -823,6 +832,39 @@
       'Enter seven letters or digits, or 0000000 if you do not have a Recipient Code.') : '';
   }
 
+  /* ── Codice Fiscale (privati italiani) ────────────────────────────────
+     Il ramo opposto del Codice Destinatario: la fatturazione elettronica è
+     obbligatoria anche verso i privati residenti in Italia, e per un privato
+     lo SDI vuole il codice fiscale (il recapito è il cassetto fiscale,
+     CodiceDestinatario 0000000, che non si chiede: è implicito). Si mostra
+     quindi a paese Italia CON partita IVA vuota — l'esatto complemento di
+     isItalianBusiness(), mai visibili insieme. Sedici caratteri alfanumerici:
+     il formato strutturale completo (con omocodia e carattere di controllo)
+     resta fuori per scelta, l'Agenzia lo verifica comunque allo scarto. */
+  const CF_RE = /^[A-Za-z0-9]{16}$/;
+
+  function isItalianConsumer() {
+    return $('coCountry').value === 'IT' && !$('coVat').value.trim();
+  }
+
+  function syncCfField() {
+    const show = isItalianConsumer();
+    $('coCfField').style.display = show ? '' : 'none';
+    // Come per il Codice Destinatario: niente valori residui in campi invisibili.
+    if (!show) {
+      $('coCf').value = '';
+      $('coCf').classList.remove('err');
+      showCfError(false);
+    }
+  }
+
+  function showCfError(on) {
+    const box = $('coCfError');
+    box.style.display = on ? 'block' : 'none';
+    box.textContent = on ? tt('co.err.cfInvalid',
+      'Enter your sixteen-character Italian tax code (Codice Fiscale).') : '';
+  }
+
   function termsOk() {
     if (S.step < 2) return true;
     if (!$('coTermPrivacy').checked || !$('coTermCharge').checked) return false;
@@ -862,6 +904,14 @@
       showSdiError(bad);
       if (bad) ok = false;
     }
+    // Codice Fiscale: obbligatorio per i privati italiani, mai insieme al
+    // Codice Destinatario — i due predicati sono complementari su paese IT.
+    if (isItalianConsumer()) {
+      const bad = !CF_RE.test($('coCf').value.trim());
+      $('coCf').classList.toggle('err', bad);
+      showCfError(bad);
+      if (bad) ok = false;
+    }
     return ok;
   }
 
@@ -893,6 +943,8 @@
       // Codice Destinatario SDI: solo per le aziende italiane, maiuscolo perché
       // è così che viaggia verso lo SDI e che va stampato in fattura.
       sdiCode: isItalianBusiness() ? $('coSdi').value.trim().toUpperCase() : '',
+      // Codice Fiscale: solo per i privati italiani, stesso trattamento.
+      fiscalCode: isItalianConsumer() ? $('coCf').value.trim().toUpperCase() : '',
       // Consenso art. 59 Codice del Consumo (solo acquisti da consumatore).
       // La Edge Function lo registra nei metadata del SetupIntent e lo ricopia
       // sulla subscription (create-subscription v11).
@@ -966,6 +1018,7 @@
           address: billing.address,
           vatId: billing.vatId,
           sdiCode: billing.sdiCode,
+          fiscalCode: billing.fiscalCode,
           consumerImmediatePerformance: billing.consumerImmediatePerformance,
           supabaseUserId: user.id, // collega il pagamento all'utente/organization (webhook)
           orgName: billing.name,   // nome organizzazione = ragione sociale (Company name)
@@ -991,6 +1044,18 @@
       // della partita IVA creando il Tax ID. È un errore di compilazione del
       // form, non un guasto del pagamento: si torna allo step 2 col campo
       // evidenziato, senza il prefisso "Payment setup failed.".
+      // fiscal_code_invalid (create-subscription v13): come sdi_code_invalid,
+      // sul ramo dei privati italiani.
+      if (res.status === 400 && data.code === 'fiscal_code_invalid') {
+        load.style.display = 'none';
+        subscriptionReady = false;
+        goToStep(2);
+        $('coCf').classList.add('err');
+        showCfError(true);
+        $('coCf').focus();
+        return false;
+      }
+
       // sdi_code_invalid (create-subscription v13): il codice non rispetta il
       // formato. Come per la partita IVA è un errore di compilazione, non un
       // guasto del pagamento: si torna allo step 2 col campo evidenziato.
@@ -1259,6 +1324,7 @@
     el.addEventListener('input', () => el.classList.remove('err')));
   $('coVat').addEventListener('input', () => showVatError(false));
   $('coSdi').addEventListener('input', () => showSdiError(false));
+  $('coCf').addEventListener('input', () => showCfError(false));
 
   // Paese e partita IVA determinano l'aliquota stimata → ridisegna il riepilogo
   $('coCountry').addEventListener('change', render);
