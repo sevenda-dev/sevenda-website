@@ -1,11 +1,32 @@
 // ════════════════════════════════════════════════════════════════════════════
-// Sevenda — Edge Function: stripe-webhook   (PATCH v15 — IVA da tax rate manuali)
+// Sevenda — Edge Function: stripe-webhook   (PATCH v16 — Codice Destinatario SDI)
 // ════════════════════════════════════════════════════════════════════════════
 // Chiude il giro Stripe → Supabase. Riceve gli eventi Stripe, verifica la firma,
 // garantisce l'idempotenza (tabella stripe_event) e fa upsert di organization,
 // subscription e invoice. Usa la service-role key (bypassa la RLS).
 //
-// ── PATCH v15 (questa versione) ────────────────────────────────────────────
+// ── PATCH v16 (questa versione) ────────────────────────────────────────────
+// CODICE DESTINATARIO PERSISTITO. create-subscription v13 lo raccoglie dalle
+// aziende italiane al checkout e lo scrive su customer.metadata.sdiCode e nei
+// custom_fields della fattura. Qui arriva a destinazione:
+//   - billing_profile.sdi_code — l'anagrafica del cliente, accanto a vat_id.
+//     Scritto sia alla creazione dell'org (resolveOrg) sia su customer.updated
+//     (handleCustomer), come già avviene per la partita IVA.
+//   - invoice.sdi_code — lo SNAPSHOT al momento dell'emissione, che per un
+//     documento fiscale è il dato che conta. La fonte primaria è
+//     invoice.custom_fields, perché Stripe li congela sulla fattura alla
+//     finalizzazione: è il valore che sta stampato su QUEL PDF, non quello che
+//     il cliente ha in anagrafica oggi. Il metadata del Customer resta come
+//     ripiego per le fatture emesse prima della v13.
+//   PERCHÉ SERVE: l'emissione verso SDI non esiste ancora (vedi il TODO in
+//   handleInvoice, provider 'aruba'). Senza questo campo, il giorno in cui
+//   verrà costruita si scoprirà che il dato non è mai stato conservato e andrà
+//   chiesto a ritroso a ogni cliente italiano. Raccoglierlo ora costa due
+//   colonne; recuperarlo dopo costa una campagna di email.
+//   PREREQUISITO: migrazione 2026-09-22-sdi-code.sql (colonne
+//   billing_profile.sdi_code e invoice.sdi_code, entrambe nullable).
+//
+// ── PATCH v15 ──────────────────────────────────────────────────────────────
 // "AUTOMATIC_TAX DISABILITATO" NON SIGNIFICA PIÙ "NESSUNA IMPOSTA".
 // create-subscription v12 applica l'IVA italiana ai consumatori UE fuori
 // dall'Italia con default_tax_rates e automatic_tax spento: sotto la soglia dei
@@ -1030,7 +1051,7 @@ async function previewNextAmount(
 // delle comunicazioni, senza una seconda retrieve.
 async function resolveOrg(
   customerId: string,
-): Promise<{ orgId: string; country: string; email: string | null; name: string | null; locale: Locale }> {
+): Promise<{ orgId: string; country: string; email: string | null; name: string | null; locale: Locale; sdiCode: string | null }> {
   // 1) già mappata?
   const { data: existing } = await supabase
     .from("organization").select("id, locale").eq("stripe_customer_id", customerId).maybeSingle();
@@ -1045,11 +1066,13 @@ async function resolveOrg(
   const country = c.address?.country || "IT";
   const email = c.email ?? null;
   const name = c.name ?? null;
+  // v16: scritto da create-subscription v13 per le sole aziende italiane.
+  const sdiCode = String(c.metadata?.sdiCode ?? "").trim().toUpperCase() || null;
 
   // v5: la lingua registrata sull'org vince sempre. È l'unico valore che
   // l'utente può aver scelto deliberatamente; i campi Stripe sono ripieghi.
   if (existing) {
-    return { orgId: existing.id, country, email, name, locale: pickLocale(existing.locale, c) };
+    return { orgId: existing.id, country, email, name, locale: pickLocale(existing.locale, c), sdiCode };
   }
 
   // Org non ancora esistente: la lingua si fissa ora, dai metadata del checkout.
@@ -1107,9 +1130,10 @@ async function resolveOrg(
   await supabase.from("billing_profile").upsert({
     org_id: org.id, legal_name: c.name, vat_id: c.metadata?.vatId || null,
     country, is_business: !!c.metadata?.vatId,
+    sdi_code: sdiCode,                  // v16
   }, { onConflict: "org_id" });
 
-  return { orgId: org.id, country, email, name, locale };
+  return { orgId: org.id, country, email, name, locale, sdiCode };
 }
 
 // Risolve plan_id dal price Stripe via catalogo plan_price. I piani a
@@ -1566,6 +1590,29 @@ interface InvoiceTax {
   detail: string;
 }
 
+// ── v16 — Codice Destinatario sulla fattura ────────────────────────────────
+// L'etichetta deve coincidere con SDI_FIELD_NAME di create-subscription v13: è
+// la chiave con cui il custom field si riconosce fra gli altri.
+const SDI_FIELD_NAME = "Codice Destinatario";
+
+// Fonte primaria: i custom_fields della fattura, che Stripe congela alla
+// finalizzazione. È il valore stampato su QUEL PDF, che per un documento
+// fiscale è l'unico che conti — l'anagrafica del cliente può essere cambiata
+// dopo. `fallback` è il metadata del Customer, e copre le fatture emesse prima
+// della v13, che i custom_fields non ce l'hanno.
+function invoiceSdiCode(inv: Stripe.Invoice, fallback: string | null): string | null {
+  const cf = (inv as unknown as Record<string, unknown>).custom_fields;
+  if (Array.isArray(cf)) {
+    for (const f of cf) {
+      const o = f as Record<string, unknown>;
+      if (o.name === SDI_FIELD_NAME && typeof o.value === "string" && o.value.trim()) {
+        return o.value.trim().toUpperCase();
+      }
+    }
+  }
+  return fallback;
+}
+
 // ── v15 — la fattura porta tax rate manuali? ───────────────────────────────
 // Serve solo al ramo total_taxes VUOTO di invoiceTax(): là, senza questo
 // controllo, l'assenza di automatic_tax verrebbe letta come assenza di imposta.
@@ -1672,7 +1719,7 @@ function invoiceSubscriptionId(inv: Stripe.Invoice): string | null {
 }
 
 async function handleInvoice(inv: Stripe.Invoice, eventType: string) {
-  const { orgId, country, email, locale } = await resolveOrg(inv.customer as string);
+  const { orgId, country, email, locale, sdiCode } = await resolveOrg(inv.customer as string);
 
   // collega alla subscription locale, se presente
   // v11: l'id non sta più su inv.subscription — vedi invoiceSubscriptionId().
@@ -1732,6 +1779,8 @@ async function handleInvoice(inv: Stripe.Invoice, eventType: string) {
     vat_reason: tax.reason,
     vat_country: tax.country,
     vat_rate_id: tax.rateId,
+    // v16: snapshot al momento dell'emissione — vedi invoiceSdiCode().
+    sdi_code: invoiceSdiCode(inv, sdiCode),
     total_cents: inv.total ?? 0,
     stripe_invoice_id: inv.id,
     provider,
@@ -1874,6 +1923,9 @@ async function handleCustomer(c: Stripe.Customer) {
     org_id: org.id,
     legal_name: c.name,
     vat_id: c.metadata?.vatId || null,
+    // v16: stesso trattamento della partita IVA — un valore vuoto nei metadata
+    // azzera la colonna, perché è il Customer Stripe a essere autorevole.
+    sdi_code: String(c.metadata?.sdiCode ?? "").trim().toUpperCase() || null,
     country: c.address?.country || "IT",
     address_line1: c.address?.line1 ?? null,
     address_line2: c.address?.line2 ?? null,

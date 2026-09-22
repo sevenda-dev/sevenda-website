@@ -1,5 +1,5 @@
 // ════════════════════════════════════════════════════════════════
-// Sevenda — Edge Function: create-subscription   (PATCH v12)
+// Sevenda — Edge Function: create-subscription   (PATCH v13)
 // ════════════════════════════════════════════════════════════════
 // Flusso in DUE FASI (v9):
 //   fase 1 — crea/riusa il Customer e un SetupIntent; restituisce il
@@ -141,6 +141,37 @@
 //   OSS, torna l'aliquota di destinazione. Allora si aggiunge la registrazione
 //   OSS in Stripe, si toglie il ramo manuale qui e si rimettono le aliquote per
 //   paese in iva.config.js e in checkout.html.
+//
+// PATCH v13 (Codice Destinatario — fatturazione elettronica italiana).
+// Lo SDI recapita la fattura elettronica a un'azienda italiana solo se sa dove
+// mandarla: sette caratteri alfanumerici, oppure 0000000 che significa
+// "cassetto fiscale". Senza nessuno dei due la fattura non è emettibile, quindi
+// il dato si raccoglie al checkout invece di rincorrerlo dopo l'incasso.
+//   A CHI SI CHIEDE: partita IVA con prefisso IT, oppure paese Italia con
+//   partita IVA compilata senza prefisso — che Stripe rifiuterebbe comunque
+//   come formato, ma che non deve far sparire un campo obbligatorio a chi ha
+//   solo dimenticato due lettere. Chi non compila la partita IVA non lo vede:
+//   per un consumatore il Codice Destinatario non esiste.
+//   VALIDAZIONE ANCHE QUI, non solo in checkout.html: la funzione è un endpoint
+//   pubblico (--no-verify-jwt), e vale la stessa ragione della v8 sui posti. Il
+//   controllo sta PRIMA di qualunque scrittura su Stripe, perché è validazione
+//   di input pura e non ha bisogno di un Customer per essere fatta.
+//   DOVE FINISCE: (a) customer.metadata.sdiCode, da cui il webhook lo porta in
+//   billing_profile e sulla riga invoice; (b) customer.invoice_settings.
+//   custom_fields, che è ciò che lo fa comparire sul PDF Stripe.
+//   L'etichetta resta "Codice Destinatario" in tutte le lingue: è un termine
+//   fiscale italiano su un documento destinato allo SDI, e il campo compare
+//   solo su fatture verso aziende italiane. Le quattro traduzioni riguardano il
+//   form, non la fattura.
+//   RIASSERITO IN FASE 2 insieme al default_payment_method, nella stessa
+//   chiamata: la fase 2 riscrive invoice_settings per la carta, e affidarsi al
+//   merge di Stripe per non perdere i custom_fields sarebbe una scommessa su un
+//   comportamento che non controlliamo. Il codice viaggia nei metadata del
+//   SetupIntent come tutto il resto del contesto d'ordine.
+//   LIMITE NOTO: un Customer che passa da azienda italiana a estera conserva il
+//   custom field. encodeForm scarta le stringhe vuote, quindi da qui non c'è
+//   modo di azzerarlo; va rimosso a mano sul Customer. Preferito a un ramo di
+//   cancellazione che nessuno eserciterebbe mai e che marcirebbe.
 //
 // PATCH v2: aggiunge `supabaseUserId` (e `orgName`) ai metadata del
 // Customer, così la Edge Function `stripe-webhook` può collegare il
@@ -379,6 +410,24 @@ const EU_COUNTRIES: ReadonlySet<string> = new Set(
     .filter(([, type]) => type === "eu_vat")
     .map(([country]) => country),
 );
+
+// ── v13 — Codice Destinatario SDI ───────────────────────────────────────────
+// Sette caratteri alfanumerici. 0000000 è un valore legittimo e passa: significa
+// recapito nel cassetto fiscale dell'Agenzia delle Entrate.
+const SDI_RE = /^[A-Z0-9]{7}$/;
+
+// Etichetta del custom field sulla fattura Stripe. Non tradotta: vedi header.
+const SDI_FIELD_NAME = "Codice Destinatario";
+
+// Azienda italiana: prefisso IT sulla partita IVA, oppure paese Italia con la
+// partita IVA compilata. Stesso predicato di isItalianBusiness() in
+// checkout.html — se cambia uno deve cambiare l'altro, altrimenti il form
+// chiede un campo che il server non pretende, o viceversa.
+function isItalianBusinessOrder(country: unknown, vatId: unknown): boolean {
+  const vat = String(vatId ?? "").replace(/\s/g, "").toUpperCase();
+  if (!vat) return false;
+  return vat.startsWith("IT") || String(country ?? "").trim().toUpperCase() === "IT";
+}
 
 // Consumatore UE fuori dall'Italia: niente partita IVA, paese UE diverso da IT.
 // È l'unico caso in cui Stripe Tax da solo sbaglierebbe (0% invece di 22%).
@@ -672,9 +721,21 @@ async function activateSubscription(
 
   // La carta diventa anche il default del Customer, così il Portal la mostra
   // come metodo corrente. Best-effort: la subscription la riceve comunque.
+  //   v13: nella STESSA chiamata si riasserisce il custom field col Codice
+  //   Destinatario. Questa update riscrive invoice_settings, e affidarsi al
+  //   merge di Stripe perché non porti via i custom_fields scritti in fase 1
+  //   sarebbe una scommessa su un comportamento che non controlliamo. Un
+  //   SetupIntent della fase 1 precedente non ha la chiave: niente custom
+  //   field, cioè esattamente il comportamento di prima.
+  const sdiFromOrder = md.sdiCode ?? "";
   try {
     await stripe(`/customers/${customerId}`, {
-      invoice_settings: { default_payment_method: pm },
+      invoice_settings: {
+        default_payment_method: pm,
+        ...(sdiFromOrder
+          ? { custom_fields: [{ name: SDI_FIELD_NAME, value: sdiFromOrder }] }
+          : {}),
+      },
     }, secret);
   } catch (e) {
     console.warn(`[activate] default pm su ${customerId} non impostato: ${(e as Error).message}`);
@@ -775,7 +836,7 @@ Deno.serve(async (req) => {
 
     // PATCH v2: supabaseUserId e orgName per il linking lato webhook
     const { planId, interval, quantity, email, name, phone, address, vatId,
-            supabaseUserId, orgName, consumerImmediatePerformance } = body;
+            supabaseUserId, orgName, consumerImmediatePerformance, sdiCode } = body;
 
     if (!planId || !interval || !email) {
       throw new Error("Missing required fields (planId, interval, email).");
@@ -842,6 +903,23 @@ Deno.serve(async (req) => {
       );
     }
 
+    // ── v13: Codice Destinatario ───────────────────────────────────────────
+    // Validazione di input pura: non serve un Customer, quindi sta qui e non
+    // dopo, come il rifiuto posti della v8. Normalizzato a maiuscolo perché è
+    // così che va allo SDI e in fattura, e perché "abc1234" è lo stesso codice
+    // di "ABC1234" scritto di fretta.
+    const sdi = String(sdiCode ?? "").trim().toUpperCase();
+    if (isItalianBusinessOrder(address?.country, vatId) && !SDI_RE.test(sdi)) {
+      console.error(`[sdi] codice ${JSON.stringify(sdiCode)} non valido per un ordine con partita IVA italiana`);
+      return new Response(
+        JSON.stringify({
+          error: "Enter a valid Recipient Code (seven letters or digits), or 0000000 if you do not have one.",
+          code: "sdi_code_invalid",
+        }),
+        { status: 400, headers: { ...CORS, "Content-Type": "application/json" } },
+      );
+    }
+
     const map = priceMap();
     const priceId = map[planId]?.[billingInterval as "annual" | "monthly"];
     if (!priceId || priceId.includes("REPLACE")) {
@@ -887,10 +965,19 @@ Deno.serve(async (req) => {
             country: address.country,
           }
         : undefined,
+      // v13: il custom field è ciò che fa comparire il Codice Destinatario sul
+      // PDF della fattura. Assente quando non c'è codice: encodeForm scarta
+      // undefined, quindi un ordine non italiano non tocca invoice_settings.
+      invoice_settings: sdi
+        ? { custom_fields: [{ name: SDI_FIELD_NAME, value: sdi }] }
+        : undefined,
       metadata: {
         // v6: planId RIMOSSO — resolveOrg legge solo supabaseUserId, vatId e
         // locale. Dopo un cambio piano dal Portal restava indietro in silenzio.
         vatId: vatId || "",
+        // v13: da qui il webhook lo porta in billing_profile e sulla riga
+        // invoice. È un attributo del cliente, stabile come la partita IVA.
+        sdiCode: sdi,
         supabaseUserId,                 // ← serve al webhook per creare/risolvere l'organization
         orgName: orgName || "",
       },
@@ -999,6 +1086,9 @@ Deno.serve(async (req) => {
         // vatId non c'è più. Stringa vuota quando non serve: encodeForm la
         // scarta, e la fase 2 legge "chiave assente" come automatic_tax.
         manualItVat: manualItVat ? "true" : "",
+        // v13: la fase 2 riscrive invoice_settings per la carta e deve poter
+        // riasserire il custom field nella stessa chiamata.
+        sdiCode: sdi,
       },
     }, secret);
 
