@@ -122,7 +122,7 @@ const SEVENDA_I18N = {
     'nav.account':'Account','nav.logout':'Logout',
 
     /* ── HERO (index) ── */
-    'hero.pill':'Now powered by Claude Sonnet 5 →',
+    'hero.pill':'Now powered by Anthropic\'s Claude models →',
     'hero.watch':'Watch the demo',
     'hero.h1':'Every click tells a story.<br><span class="dim">Sevenda reads it.</span>',
     'hero.sub':'Sevenda records your browser session and instantly generates <span class="hs-mono">BPMN&nbsp;2.0</span> <span class="hs-em">process diagrams</span> <span class="hs-and">AND</span> <span class="hs-em">actionable insights</span> — helping developers, business analysts and marketing teams understand what really happens inside their digital processes.',
@@ -132,7 +132,7 @@ const SEVENDA_I18N = {
     'how.title':'Three steps to a<br>BPMN diagram',
     'how.sub':'From raw browser events to structured process models — without lifting a pen.',
     'step1.h':'Record','step1.p':'Click start in DevTools. Sevenda captures clicks, form submissions, navigation events, network calls, and DOM mutations — everything that matters.',
-    'step2.h':'AI generates','step2.p':'Claude Sonnet reads the event stream, identifies the process flow, and produces validated BPMN 2.0 XML with correct pools, lanes, gateways, and sequence flows.',
+    'step2.h':'AI generates','step2.p':'Anthropic\'s Claude models read the event stream, identify the process flow, and produce validated BPMN 2.0 XML with correct pools, lanes, gateways, and sequence flows.',
     'step3.h':'Export','step3.p':'Download .bpmn for Camunda, Signavio or Bizagi. Export .svg or .png for presentations. Generate a full process report in .docx format — ready to share with stakeholders, no technical skills required. Refine with natural language chat.',
 
     /* ── INSIGHTS (index) ── */
@@ -158,7 +158,7 @@ const SEVENDA_I18N = {
     /* ── FEATURES (index) ── */
     'feat.label':'Features','feat.title':'Built for process professionals',
     'f1.h':'Real-time event capture','f1.p':'Captures clicks, form submissions, API calls, navigation events, and DOM mutations with zero configuration — works on any website.',
-    'f2.h':'Claude Sonnet AI','f2.p':'Anthropic\'s most capable model understands context, identifies decision points, and produces accurate process models — not just a sequence of steps.',
+    'f2.h':'Anthropic\'s Claude models','f2.p':'Generation runs on the Claude model you choose, with your own API key: it understands context, identifies decision points, and produces accurate process models — not just a sequence of steps.',
     'f3.h':'BPMN 2.0 standard','f3.p':'Output is fully compliant BPMN 2.0 XML. Open directly in Camunda Modeler, Signavio, Bizagi, or any standards-compliant tool.',
     'f4.h':'Iterative refinement','f4.p':'Chat with the diagram. "Add an error path after the API call" and Sevenda updates the BPMN while preserving the rest of the model exactly.',
     'f5.h':'Marketing & Funnel Mapping','f5.p':'Visualize customer journeys, campaign flows, and conversion funnels automatically — no diagramming tools, no manual work, no technical skills required.',
@@ -468,19 +468,19 @@ const SEVENDA_I18N = {
     'tm.s14.p1':'Sevenda — <a href="mailto:hello@sevenda.dev">hello@sevenda.dev</a> — <a href="https://sevenda.dev">https://sevenda.dev</a>',
 
     /* ── FOOTER comune ── */
-    'foot.copy':'© 2025 Sevenda · Built with Claude',
+    'foot.copy':'© {year} Sevenda · Built with Claude',
     'foot.features':'Features','foot.insights':'Insights','foot.pricing':'Pricing',
     'foot.github':'GitHub','foot.privacy':'Privacy Policy','foot.terms':'Terms','foot.docs':'Docs','foot.faq':'FAQ',
 
     /* ── FAQ page Q&A ── */
     'faq.g1.q':'What is Sevenda and what does it do?',
-    'faq.g1.a':'Sevenda is a Chrome Extension (MV3) that records your browser sessions and automatically generates <strong>BPMN 2.0 process diagrams</strong> and <strong>GTM/GA4 analytics insights</strong> — powered by Claude Sonnet AI.<br><br>It works in two modes: <strong>🧩 BPMN mode</strong> maps user flows and processes from real browser interactions; <strong>📊 Insights mode</strong> analyzes your tracking setup, identifies missing GTM events, and generates a ready-to-use Tag Plan. No code changes, no SDK, no setup required on the target site.',
+    'faq.g1.a':'Sevenda is a Chrome Extension (MV3) that records your browser sessions and automatically generates <strong>BPMN 2.0 process diagrams</strong> and <strong>GTM/GA4 analytics insights</strong> — powered by Anthropic\'s Claude models (your own API key).<br><br>It works in two modes: <strong>🧩 BPMN mode</strong> maps user flows and processes from real browser interactions; <strong>📊 Insights mode</strong> analyzes your tracking setup, identifies missing GTM events, and generates a ready-to-use Tag Plan. No code changes, no SDK on the target site.',
     'faq.g2.q':'Who is Sevenda for?',
     'faq.g2.a':'Sevenda is built for three main audiences:<br><br><strong>Developers &amp; Business Analysts</strong> — document AS-IS processes, user flows, and API interactions directly from the browser, without manual diagramming.<br><br><strong>Marketing &amp; Data teams</strong> — audit GTM/GA4 tracking coverage, identify funnel gaps, and generate Tag Plans without manual inspection.<br><br><strong>Consultants &amp; Project Managers</strong> — produce BPMN diagrams and .docx reports for clients in minutes, and push directly to Jira.',
     'faq.g3.q':'What browsers does Sevenda support?',
     'faq.g3.a':'Sevenda is a <strong>Chrome Extension Manifest V3</strong> and works on <strong>Google Chrome</strong> and any Chromium-based browser (Brave, Edge, Arc). It requires access to Chrome DevTools, so it runs on desktop only — not on mobile browsers.',
     'faq.g4.q':'How long does it take to generate the first diagram?',
-    'faq.g4.a':'From installation to your first BPMN diagram: <strong>under 60 seconds</strong>.<br><br>The generation itself (Claude Sonnet processing the event stream) typically takes <strong>15–30 seconds</strong> depending on session length and API response time. The Analytics Report in Insights mode is <strong>instantaneous</strong> — generated from cached data without an additional API call.',
+    'faq.g4.a':'From installation to your first BPMN diagram: <strong>under 60 seconds</strong>.<br><br>The generation itself (Anthropic\'s Claude models processing the event stream) typically takes <strong>15–30 seconds</strong> depending on session length and API response time. The Analytics Report in Insights mode is <strong>instantaneous</strong> — generated from cached data without an additional API call.',
     'faq.g5.q':'Can I use Sevenda on any website?',
     'faq.g5.a':'Yes. Sevenda uses <code>&lt;all_urls&gt;</code> host permissions because the target site is not known in advance — you can record any website you navigate to. It does not inject any visible code or modify the target site in any way.<br><br>Some sites with very aggressive Content Security Policies (CSP) may limit which events Sevenda can capture. The BPMN and Insights output will still be generated from the events that were successfully captured.',
     'faq.g6.q':'Does Sevenda work on localhost and internal tools?',
@@ -488,19 +488,19 @@ const SEVENDA_I18N = {
     'faq.s1.q':'How do I install Sevenda?',
     'faq.s1.a':'1. Install the extension from the <strong>Chrome Web Store</strong> (search for "Sevenda").<br>2. Click the Sevenda icon in the Chrome toolbar — a popup appears.<br>3. Go to <strong>Settings → AI Models</strong> and enter your <a href="https://console.anthropic.com" target="_blank">Anthropic API key</a>.<br>4. Open Chrome DevTools (<code>F12</code>) on any page — you\'ll find the Sevenda panel in the tabs.<br>5. Press <strong>Start Recording</strong> and start navigating.',
     'faq.s2.q':'Where do I get an Anthropic API key?',
-    'faq.s2.a':'1. Create an account at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>.<br>2. Go to <strong>API Keys</strong> and click <strong>Create Key</strong>.<br>3. Copy the key (starts with <code>sk-ant-</code>) — you\'ll only see it once.<br>4. Paste it in Sevenda → Settings → AI Models → API Key field and save.<br><br>Anthropic offers a free credit tier to get started. The key is stored locally in <code>chrome.storage.sync</code> — it never leaves your device unless you explicitly click Generate.',
+    'faq.s2.a':'1. Create an account at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>.<br>2. Go to <strong>API Keys</strong> and click <strong>Create Key</strong>.<br>3. Copy the key (starts with <code>sk-ant-</code>) — you\'ll only see it once.<br>4. Paste it in Sevenda → Settings → AI Models → API Key field and save.<br><br>Add an initial credit in <strong>Plans &amp; Billing</strong> — 5–10 $ is enough to get started — and set a monthly spend limit in the console to keep costs under control. Your key is stored in <code>chrome.storage.sync</code> (synced by Google across your Chrome devices) and is sent only to Anthropic when you generate. Sevenda never sees it.',
     'faq.s3.q':'I see "Idle" in the panel but nothing happens when I record. What\'s wrong?',
     'faq.s3.a':'A few things to check:<br><br>• Make sure you\'re on an <strong>http:// or https:// page</strong> — Sevenda doesn\'t work on Chrome internal pages (<code>chrome://</code>) or the New Tab page.<br>• Check that the <strong>Sevenda panel is the active tab</strong> in DevTools when you press start.<br>• If the connection indicator shows a warning, try <strong>closing and reopening DevTools</strong> — the Service Worker keepalive ping reconnects automatically.<br>• Verify your API key is saved in Settings → AI Models.',
     'faq.s4.q':'How do I switch between BPMN mode and Insights mode?',
     'faq.s4.a':'Click the <strong>Sevenda icon</strong> in the Chrome toolbar — the popup shows a toggle between <strong>🧩 BPMN</strong> and <strong>📊 Insights</strong>. Your selection is saved in <code>chrome.storage.sync</code> and persists across sessions.<br><br>Switching modes also changes the event capture filters automatically — Insights mode enables DOM observation and network tracking optimized for tag detection, while BPMN mode prioritizes navigation and interaction events.',
     'faq.s5.q':'Can multiple team members use Sevenda simultaneously?',
-    'faq.s5.a':'Yes. Each team member installs Sevenda on their own Chrome and configures their own API key. Sessions are stored locally per device — there is no shared session storage in the Free and Solo plans.<br><br>The <strong>Team plan</strong> adds a shared session library and team analytics dashboard, allowing up to 20 team members to access and replay each other\'s sessions.',
+    'faq.s5.a':'Yes. Each team member installs Sevenda on their own Chrome and configures their own API key. Sessions are stored locally per device — there is no shared session storage on the single-seat plans (Analyst, Auditor, Suite Solo).<br><br>The multi-seat plans (<strong>Studio</strong>, <strong>Agency</strong>, <strong>Suite Team</strong>) add a shared session library and a team analytics dashboard, allowing up to 20 members to access and replay each other\'s sessions.',
     'faq.b1.q':'Is the generated BPMN compliant with the BPMN 2.0 standard?',
     'faq.b1.a':'Yes. Sevenda generates <strong>BPMN 2.0 XML</strong> that is standards-compliant and compatible with the major BPMN tools:<br><br>• <strong>Camunda Modeler &amp; Camunda Platform</strong> (native .bpmn export with <code>adaptForCamunda()</code>)<br>• <strong>Signavio</strong><br>• <strong>Bizagi</strong><br>• <strong>bpmn.io</strong><br><br>Sevenda includes automatic XML repair for truncated or malformed output, and validates the structure before rendering with bpmn-js.',
     'faq.b2.q':'How accurate is the generated BPMN? Can I use it directly with clients?',
     'faq.b2.a':'Accuracy depends on the quality of the recorded session. A well-structured session — with clear navigation, meaningful interactions, and a short context description — typically produces a BPMN that can be delivered with minimal edits.<br><br>Sevenda is designed as a <strong>starting point accelerator</strong>, not a replacement for expert review. The iterative feedback feature is specifically built to let you tune the diagram in seconds — add gateways, rename tasks, restructure flows — without leaving the panel.',
     'faq.b3.q':'What formats can I export the BPMN in?',
-    'faq.b3.a':'From the BPMN panel toolbar you can export:<br><br>• <strong>.bpmn</strong> — BPMN 2.0 XML, ready for Camunda Modeler, Signavio or Bizagi<br>• <strong>.svg</strong> — vector image, scalable for presentations and documentation<br>• <strong>.png</strong> — raster image for slides, emails, reports<br>• <strong>.docx</strong> — full Technical-Functional Analysis (6-section enterprise report) generated via Claude<br>• <strong>Jira issue</strong> — creates a Jira issue with XML + SVG attachments and session metadata<br>• <strong>Camunda .bpmn</strong> — adapted export with <code>isExecutable="true"</code> and Camunda namespace',
+    'faq.b3.a':'From the BPMN panel toolbar you can export:<br><br>• <strong>.bpmn</strong> — BPMN 2.0 XML, ready for Camunda Modeler, Signavio or Bizagi<br>• <strong>.svg</strong> — vector image, scalable for presentations and documentation<br>• <strong>.png</strong> — raster image for slides, emails, reports<br>• <strong>.docx</strong> — full Technical-Functional Analysis report (6-section enterprise format) generated via Claude<br>• <strong>Jira issue</strong> — creates a Jira issue with XML + SVG attachments and session metadata<br>• <strong>Camunda .bpmn</strong> — adapted export with <code>isExecutable="true"</code> and Camunda namespace',
     'faq.b4.q':'Can I refine the BPMN after it\'s generated?',
     'faq.b4.a':'Yes — this is one of Sevenda\'s core features. The <strong>Iterative Feedback</strong> section in the panel lets you type natural language instructions to modify the diagram:<br><br><em>"Add an exclusive gateway after the login task with two paths: registered user and guest."</em><br><em>"Rename \'Click Submit\' to \'Form Submission — Newsletter\'"</em><br><em>"Add an error boundary event on the checkout task"</em><br><br>Sevenda maintains a conversation history of up to <strong>6 turns</strong>, so Claude has full context of the previous modifications when applying new ones.',
     'faq.b5.q':'What events does Sevenda capture to build the BPMN?',
@@ -514,9 +514,11 @@ const SEVENDA_I18N = {
     'faq.i3.q':'How does Sevenda identify tracking gaps?',
     'faq.i3.a':'During the session, Sevenda captures every user interaction (clicks, form fills, navigation, CTA interactions) and compares them against the GTM events actually fired in the dataLayer. Interactions that happened but weren\'t tracked become <strong>tracking gaps</strong>.<br><br>Each gap is reported with the specific <strong>CSS selector</strong> and <strong>XPath</strong> of the untriggered element, so developers can implement the fix precisely. Claude then generates the corresponding <code>dataLayer.push()</code> snippet ready to paste into GTM.',
     'faq.i4.q':'Why is the Analytics Report generated instantly while BPMN takes longer?',
-    'faq.i4.a':'The Analytics Report (.docx) is built directly from the <strong>cached Insights data</strong> already generated in the current session — it doesn\'t require a new API call to Claude. It renders instantly from the structured JSON that Claude produced during the Insights analysis.<br><br>The BPMN and Insights generation (the initial AI call) take 15–30 seconds because Claude Sonnet is processing the full event stream. Once that\'s done, all derivative outputs (report, Tag Plan) are immediate.',
+    'faq.i4.a':'The Analytics Report (.docx) is built directly from the <strong>cached Insights data</strong> already generated in the current session — it doesn\'t require a new API call to Claude. It renders instantly from the structured JSON that Claude produced during the Insights analysis.<br><br>The BPMN and Insights generation (the initial AI call) take 15–30 seconds because Anthropic\'s Claude models process the full event stream. Once that\'s done, all derivative outputs (report, Tag Plan) are immediate.',
     'faq.i5.q':'Can I run both BPMN and Insights analysis on the same session?',
     'faq.i5.a':'Yes. From the session replay view (Sessions tab), you can run both BPMN and Insights generation on any saved session — regardless of which mode was active when it was recorded. Switch to the session, then use the <strong>BPMN</strong> and <strong>Insights</strong> buttons independently to generate both outputs from the same event data.',
+    'faq.i6.q':'Can Sevenda push the tag plan directly to Google Tag Manager?',
+    'faq.i6.a':'Yes. Once you connect your Google account — an OAuth flow verified by Google — Sevenda can write the suggested tags, triggers and variables straight into a workspace of your GTM container.<br><br>Nothing goes live on its own: the changes stay in that workspace, so you review them in GTM and publish them yourself.',
     'faq.p1.q':'Where is my session data stored?',
     'faq.p1.a':'All session data is stored <strong>locally on your device</strong> using the browser\'s <code>IndexedDB</code> API (database name: <code>flowlens</code>). Your settings and API key are stored in <code>chrome.storage.sync</code>, which is synced across your Chrome devices by Google — not by Sevenda.<br><br><strong>Sevenda is local-first: your sessions stay on your device by default.</strong> They are transmitted to the Sevenda Lab backend (a Supabase-hosted PostgreSQL database in the European Union, protected by row-level security) only when you explicitly share a session with a team workspace. You can delete all sessions at any time from the Sessions tab → Delete, or by uninstalling the extension.',
     'faq.p2.q':'Does Sevenda capture passwords or sensitive form data?',
@@ -524,7 +526,7 @@ const SEVENDA_I18N = {
     'faq.p3.q':'What data is sent to the Anthropic Claude API?',
     'faq.p3.a':'When you click <strong>Generate</strong>, Sevenda sends the recorded event stream (a structured list of events with timestamps, types, and element identifiers) to the Anthropic Claude API using <strong>your own API key</strong>.<br><br>Anthropic\'s handling of this data is governed by their <a href="https://www.anthropic.com/privacy" target="_blank">Privacy Policy</a>. Sevenda does not see, log, or store the API request or response — the transmission happens directly from your browser to Anthropic\'s servers.',
     'faq.p4.q':'Is Sevenda GDPR compliant?',
-    'faq.p4.a':'Yes. Sevenda is designed with a <strong>local-first, privacy-by-design</strong> architecture:<br><br>• Local-first by default — sessions stay on your device and are transmitted to the Sevenda Lab backend (Supabase, EU, with row-level security) only when you explicitly share them with a team workspace<br>• Explicit user consent required before any AI generation (you must click Generate)<br>• Full user control over stored data — delete sessions at any time<br>• No collection of personally identifiable information (PII)<br><br>Our full Privacy Policy is available at <a href="privacy.html">sevenda.dev/privacy.html</a>. For GDPR-related requests, contact <a href="mailto:hello@sevenda.dev">hello@sevenda.dev</a>.',
+    'faq.p4.a':'Yes. Sevenda is designed with a <strong>local-first, privacy-by-design</strong> architecture:<br><br>• Local-first by default — sessions stay on your device and are transmitted to the Sevenda Lab backend (Supabase, EU, with row-level security) only when you explicitly share them with a team workspace<br>• Explicit user consent required before any AI generation (you must click Generate)<br>• Full user control over stored data — delete sessions at any time<br>• No personal data collected beyond your account email and workspace membership<br><br>Our full Privacy Policy is available at <a href="privacy.html">sevenda.dev/privacy.html</a>. For GDPR-related requests, contact <a href="mailto:hello@sevenda.dev">hello@sevenda.dev</a>.',
     'faq.p5.q':'Can I use Sevenda to record sessions on client websites?',
     'faq.p5.a':'Technically yes — Sevenda works on any website. However, we recommend <strong>informing your client</strong> that you are conducting a session observation for process documentation purposes, consistent with how you would handle any usability observation or screen-sharing session.<br><br>Sevenda does not capture passwords, payment data, or full form content. That said, always check your client\'s internal data policies before recording.',
     'faq.pr1.q':'Is there a free trial?',
@@ -532,16 +534,16 @@ const SEVENDA_I18N = {
     'faq.pr2.q':'What are the Anthropic API costs and how do I estimate them?',
     'faq.pr2.a':'Sevenda uses a <strong>BYOK (Bring Your Own Key)</strong> model — AI usage is billed to your own Claude account, so costs are transparent and under your control. A Claude account with active credit is required to generate.<br><br>Typical cost: <strong>~€0.06–0.85 per generation</strong> depending on model. The Analytics Report (.docx) is generated without an API call, so it doesn\'t add to your costs.<br><br>You can monitor your exact usage in the <a href="https://console.anthropic.com" target="_blank">Anthropic Console</a>.',
     'faq.pr3.q':'Can I cancel my subscription at any time?',
-    'faq.pr3.a':'Yes. There are no long-term commitments. You can cancel your Solo or Team subscription at any time — your access continues until the end of the current billing period, then simply ends. No cancellation fees, no data loss.',
+    'faq.pr3.a':'Yes. There are no long-term commitments. You can cancel your subscription at any time — your access continues until the end of the current billing period, then simply ends. No cancellation fees.<br><br>Local sessions remain on the device; content subject to retention follows the plan\'s retention period — we recommend exporting anything you wish to keep beforehand.',
     'faq.pr4.q':'Do you offer a trial or a partnership program for consultancies?',
-    'faq.pr4.a':'Yes — we offer a <strong>Beta Partnership Program</strong> for consulting firms and agencies. Qualified partners receive free access to the Team plan for 60 working days, dedicated onboarding, and direct support from the founder in exchange for structured feedback and a case study.<br><br>If you\'re interested, write to <a href="mailto:hello@sevenda.dev">hello@sevenda.dev</a> with a brief description of your firm and use case.',
+    'faq.pr4.a':'Yes — we offer a <strong>Beta Partnership Program</strong> for consulting firms and agencies. Qualified partners receive free access to the Suite Team plan for 60 working days, dedicated onboarding, and direct support from the founder in exchange for structured feedback and a case study.<br><br>If you\'re interested, write to <a href="mailto:hello@sevenda.dev">hello@sevenda.dev</a> with a brief description of your firm and use case.',
 
     /* ── Pricing bottom FAQ ── */
     'pfaq.eyebrow':'FAQ','pfaq.title':'Frequently asked questions',
     'pfaq.1.q':'Are there limits on sessions and audits?',
     'pfaq.1.a':'No. Sessions and audits are unlimited on every plan — there is nothing to run out of and no counter to watch. We only ask for fair use: automated, resold or abusive usage that degrades the service for others falls under the acceptable use rules of our <a href="/terms.html">Terms of Service</a>. We get in touch before taking any action — there are no automatic blocks without prior notice.',
     'pfaq.2.q':'How does volume pricing work?',
-    'pfaq.2.a':'The more users on your workspace, the less you pay per seat. With 2–5 users you pay €13/user/mo (annual); with 6–20 users the price drops to €10/user/mo. Volume discounts apply automatically when you add members.',
+    'pfaq.2.a':'The more users on your workspace, the less you pay per seat. Volume discounts apply automatically when you add members.',
     'pfaq.3.q':'Is my Claude account separate from Sevenda?',
     'pfaq.3.a':'Yes. Your Sevenda plan covers the software: unlimited sessions and audits, exports, collaboration and retention. AI generation (BPMN, Insights analysis) runs on your own Claude account (BYOK) and is billed to you by Anthropic — a Claude account with active credit is required to generate. Typical cost: ~€0.06–0.85 per generation depending on the model.',
     'pfaq.4.q':'Can I switch between Process and Analytics mode?',
@@ -566,7 +568,7 @@ const SEVENDA_I18N = {
     'ds.06.eye':'06 — The DevTools Panel','ds.06.h2':'The heart of Sevenda','ds.06.p':'The panel lives inside Chrome\'s DevTools. Open with F12 → Sevenda tab.',
     'ds.07.eye':'07 — Recording','ds.07.h2':'Capture a session','ds.07.p':'Sevenda automatically captures all events without any changes to the target application.',
     'ds.08.eye':'08 — Event Stream','ds.08.h2':'The real-time event log','ds.08.p':'Filter, search and inspect every event with a click to view complete details.',
-    'ds.09.eye':'09 — BPMN Generation','ds.09.h2':'From log to diagram','ds.09.p':'Claude Sonnet transforms the event sequence into a BPMN 2.0 standard-compliant diagram.',
+    'ds.09.eye':'09 — BPMN Generation','ds.09.h2':'From log to diagram','ds.09.p':'Anthropic\'s Claude models transform the event sequence into a BPMN 2.0 standard-compliant diagram.',
     'ds.10.eye':'10 — BPMN Panel','ds.10.h2':'Views and available tools','ds.10.p':'The BPMN panel offers three tabs with contextual tools for each view.',
     'ds.11.eye':'11 — Iterative Feedback','ds.11.h2':'Refine the BPMN in natural language','ds.11.p':'Modify the diagram without regenerating from scratch. The conversation keeps the last 6 interactions.',
     'ds.12.eye':'12 — Insights Generation','ds.12.h2':'Automatic GTM/GA4 analysis','ds.12.p':'Identifies tracking gaps, missing events and produces an implementation-ready tag plan.',
@@ -787,7 +789,7 @@ const SEVENDA_I18N = {
     'nav.how':'Come funziona','nav.pricing':'Prezzi','nav.docs':'Docs','nav.faq':'FAQ','nav.privacy':'Privacy Policy',
     'nav.account':'Account','nav.logout':'Esci',
 
-    'hero.pill':'Ora con Claude Sonnet 5 →',
+    'hero.pill':'Ora con i modelli Claude di Anthropic →',
     'hero.watch':'Guarda la demo',
     'hero.h1':'Ogni click racconta una storia.<br><span class="dim">Sevenda la legge.</span>',
     'hero.sub':'Sevenda registra la tua sessione browser e genera istantaneamente <span class="hs-em">diagrammi di processo</span> <span class="hs-mono">BPMN&nbsp;2.0</span> e <span class="hs-em">insight operativi</span> — aiutando developer, business analyst e team marketing a capire cosa succede davvero nei loro processi digitali.',
@@ -796,7 +798,7 @@ const SEVENDA_I18N = {
     'how.title':'Tre passi verso il<br>diagramma BPMN',
     'how.sub':'Da eventi browser grezzi a modelli di processo strutturati — senza alzare una penna.',
     'step1.h':'Registra','step1.p':'Clicca start nei DevTools. Sevenda cattura click, invii di form, eventi di navigazione, chiamate di rete e mutazioni DOM — tutto ciò che conta.',
-    'step2.h':'L\'AI genera','step2.p':'Claude Sonnet legge il flusso di eventi, identifica il processo e produce BPMN 2.0 XML validato con pool, corsie, gateway e flussi di sequenza corretti.',
+    'step2.h':'L\'AI genera','step2.p':'I modelli Claude di Anthropic leggono il flusso di eventi, identificano il processo e producono BPMN 2.0 XML validato con pool, corsie, gateway e flussi di sequenza corretti.',
     'step3.h':'Esporta','step3.p':'Scarica .bpmn per Camunda, Signavio o Bizagi. Esporta .svg o .png per le presentazioni. Genera un report di processo completo in formato .docx — pronto da condividere con gli stakeholder, senza competenze tecniche. Affina con chat in linguaggio naturale.',
 
     'insights.label':'Insights',
@@ -819,7 +821,7 @@ const SEVENDA_I18N = {
 
     'feat.label':'Funzionalità','feat.title':'Fatto per i professionisti del processo',
     'f1.h':'Cattura eventi in tempo reale','f1.p':'Cattura click, invii di form, chiamate API, eventi di navigazione e mutazioni DOM senza configurazione — funziona su qualsiasi sito.',
-    'f2.h':'Claude Sonnet AI','f2.p':'Il modello più capace di Anthropic comprende il contesto, identifica i punti di decisione e produce modelli di processo accurati — non solo una sequenza di passi.',
+    'f2.h':'Modelli Claude di Anthropic','f2.p':'La generazione gira sul modello Claude che scegli, con la tua API key: comprende il contesto, identifica i punti di decisione e produce modelli di processo accurati — non solo una sequenza di passi.',
     'f3.h':'Standard BPMN 2.0','f3.p':'L\'output è BPMN 2.0 XML completamente conforme. Apribile direttamente in Camunda Modeler, Signavio, Bizagi o qualsiasi tool conforme agli standard.',
     'f4.h':'Raffinamento iterativo','f4.p':'Chatta con il diagramma. "Aggiungi un percorso di errore dopo la chiamata API" e Sevenda aggiorna il BPMN preservando esattamente il resto del modello.',
     'f5.h':'Mapping Marketing & Funnel','f5.p':'Visualizza automaticamente customer journey, flussi di campagna e funnel di conversione — nessuno strumento di diagrammazione, nessun lavoro manuale, nessuna competenza tecnica richiesta.',
@@ -1120,19 +1122,19 @@ const SEVENDA_I18N = {
     'tm.s14.t':'Contatti',
     'tm.s14.p1':'Sevenda — <a href="mailto:hello@sevenda.dev">hello@sevenda.dev</a> — <a href="https://sevenda.dev">https://sevenda.dev</a>',
 
-    'foot.copy':'© 2025 Sevenda · Realizzato con Claude',
+    'foot.copy':'© {year} Sevenda · Realizzato con Claude',
     'foot.features':'Funzionalità','foot.insights':'Insights','foot.pricing':'Prezzi',
     'foot.github':'GitHub','foot.privacy':'Privacy Policy','foot.terms':'Termini','foot.docs':'Docs','foot.faq':'FAQ',
 
     /* ── FAQ Q&A IT ── */
     'faq.g1.q':'Cos\'è Sevenda e cosa fa?',
-    'faq.g1.a':'Sevenda è una Chrome Extension (MV3) che registra le sessioni browser e genera automaticamente <strong>diagrammi di processo BPMN 2.0</strong> e <strong>insight analytics GTM/GA4</strong> — alimentato da Claude Sonnet AI.<br><br>Funziona in due modalità: <strong>🧩 BPMN mode</strong> mappa flussi utente e processi dalle interazioni browser reali; <strong>📊 Insights mode</strong> analizza il setup di tracking, identifica eventi GTM mancanti e genera un Tag Plan pronto all\'uso. Nessuna modifica al codice, nessun SDK, nessuna configurazione sul sito target.',
+    'faq.g1.a':'Sevenda è una Chrome Extension (MV3) che registra le sessioni browser e genera automaticamente <strong>diagrammi di processo BPMN 2.0</strong> e <strong>insight analytics GTM/GA4</strong> — con i modelli Claude di Anthropic (con la tua API key).<br><br>Funziona in due modalità: <strong>🧩 BPMN mode</strong> mappa flussi utente e processi dalle interazioni browser reali; <strong>📊 Insights mode</strong> analizza il setup di tracking, identifica eventi GTM mancanti e genera un Tag Plan pronto all\'uso. Nessuna modifica al codice, nessun SDK sul sito target.',
     'faq.g2.q':'A chi è rivolto Sevenda?',
     'faq.g2.a':'Sevenda è pensato per tre pubblici principali:<br><br><strong>Developer e Business Analyst</strong> — documentano processi AS-IS, flussi utente e interazioni API direttamente dal browser, senza diagrammazione manuale.<br><br><strong>Team Marketing e Data</strong> — verificano la copertura di tracking GTM/GA4, identificano i gap nel funnel e generano Tag Plan senza ispezione manuale.<br><br><strong>Consulenti e Project Manager</strong> — producono diagrammi BPMN e report .docx per i clienti in minuti, e li inviano direttamente a Jira.',
     'faq.g3.q':'Quali browser supporta Sevenda?',
     'faq.g3.a':'Sevenda è una <strong>Chrome Extension Manifest V3</strong> e funziona su <strong>Google Chrome</strong> e qualsiasi browser basato su Chromium (Brave, Edge, Arc). Richiede l\'accesso a Chrome DevTools, quindi funziona solo su desktop — non su browser mobile.',
     'faq.g4.q':'Quanto tempo ci vuole per generare il primo diagramma?',
-    'faq.g4.a':'Dall\'installazione al primo diagramma BPMN: <strong>meno di 60 secondi</strong>.<br><br>La generazione stessa (Claude Sonnet che elabora l\'event stream) richiede tipicamente <strong>15–30 secondi</strong> in base alla lunghezza della sessione e al tempo di risposta API. L\'Analytics Report in modalità Insights è <strong>istantaneo</strong> — generato dai dati in cache senza una chiamata API aggiuntiva.',
+    'faq.g4.a':'Dall\'installazione al primo diagramma BPMN: <strong>meno di 60 secondi</strong>.<br><br>La generazione stessa (i modelli Claude di Anthropic che elaborano l\'event stream) richiede tipicamente <strong>15–30 secondi</strong> in base alla lunghezza della sessione e al tempo di risposta API. L\'Analytics Report in modalità Insights è <strong>istantaneo</strong> — generato dai dati in cache senza una chiamata API aggiuntiva.',
     'faq.g5.q':'Posso usare Sevenda su qualsiasi sito web?',
     'faq.g5.a':'Sì. Sevenda usa permessi host <code>&lt;all_urls&gt;</code> perché il sito target non è noto in anticipo — puoi registrare qualsiasi sito che visiti. Non inietta codice visibile né modifica il sito target in alcun modo.<br><br>Alcuni siti con Content Security Policy (CSP) molto restrittive potrebbero limitare gli eventi catturabili. Il BPMN e gli Insights saranno comunque generati dagli eventi catturati con successo.',
     'faq.g6.q':'Sevenda funziona su localhost e strumenti interni?',
@@ -1140,13 +1142,13 @@ const SEVENDA_I18N = {
     'faq.s1.q':'Come installo Sevenda?',
     'faq.s1.a':'1. Installa l\'estensione dal <strong>Chrome Web Store</strong> (cerca "Sevenda").<br>2. Clicca l\'icona Sevenda nella toolbar di Chrome — appare un popup.<br>3. Vai in <strong>Impostazioni → AI Models</strong> e inserisci la tua <a href="https://console.anthropic.com" target="_blank">Anthropic API key</a>.<br>4. Apri Chrome DevTools (<code>F12</code>) su qualsiasi pagina — troverai il pannello Sevenda tra le tab.<br>5. Premi <strong>Avvia Registrazione</strong> e inizia a navigare.',
     'faq.s2.q':'Dove ottengo una Anthropic API key?',
-    'faq.s2.a':'1. Crea un account su <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>.<br>2. Vai in <strong>API Keys</strong> e clicca <strong>Create Key</strong>.<br>3. Copia la chiave (inizia con <code>sk-ant-</code>) — la vedrai solo una volta.<br>4. Incollala in Sevenda → Impostazioni → AI Models → campo API Key e salva.<br><br>Anthropic offre un tier gratuito per iniziare. La chiave è salvata localmente in <code>chrome.storage.sync</code> — non lascia mai il tuo dispositivo, a meno che tu non clicchi Genera.',
+    'faq.s2.a':'1. Crea un account su <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>.<br>2. Vai in <strong>API Keys</strong> e clicca <strong>Create Key</strong>.<br>3. Copia la chiave (inizia con <code>sk-ant-</code>) — la vedrai solo una volta.<br>4. Incollala in Sevenda → Impostazioni → AI Models → campo API Key e salva.<br><br>Carica un credito iniziale in <strong>Plans &amp; Billing</strong> — bastano 5–10 $ per iniziare — e imposta un limite di spesa mensile nella console per tenere i costi sotto controllo. La tua chiave è salvata in <code>chrome.storage.sync</code> (sincronizzato da Google sui tuoi dispositivi Chrome) e viene inviata solo ad Anthropic quando generi. Sevenda non la vede mai.',
     'faq.s3.q':'Vedo "Idle" nel pannello ma non succede nulla quando registro. Cosa c\'è che non va?',
     'faq.s3.a':'Alcune cose da verificare:<br><br>• Assicurati di essere su una pagina <strong>http:// o https://</strong> — Sevenda non funziona su pagine interne di Chrome (<code>chrome://</code>) o sulla New Tab page.<br>• Verifica che il <strong>pannello Sevenda sia la tab attiva</strong> nei DevTools quando premi start.<br>• Se l\'indicatore di connessione mostra un avviso, prova a <strong>chiudere e riaprire DevTools</strong>.<br>• Verifica che la tua API key sia salvata in Impostazioni → AI Models.',
     'faq.s4.q':'Come passo dalla modalità BPMN alla modalità Insights?',
     'faq.s4.a':'Clicca l\'<strong>icona Sevenda</strong> nella toolbar di Chrome — il popup mostra un toggle tra <strong>🧩 BPMN</strong> e <strong>📊 Insights</strong>. La selezione è salvata in <code>chrome.storage.sync</code> e persiste tra le sessioni.<br><br>Il cambio di modalità aggiorna automaticamente anche i filtri di cattura degli eventi — la modalità Insights abilita l\'osservazione DOM ottimizzata per la rilevazione dei tag, mentre la modalità BPMN priorizza gli eventi di navigazione e interazione.',
     'faq.s5.q':'Più membri del team possono usare Sevenda contemporaneamente?',
-    'faq.s5.a':'Sì. Ogni membro del team installa Sevenda sul proprio Chrome e configura la propria API key. Le sessioni sono salvate localmente su ogni dispositivo — non c\'è storage condiviso nei piani Free e Solo.<br><br>Il <strong>piano Team</strong> aggiunge una libreria di sessioni condivisa e una dashboard analytics team, permettendo fino a 20 membri di accedere e riprodurre le sessioni degli altri.',
+    'faq.s5.a':'Sì. Ogni membro del team installa Sevenda sul proprio Chrome e configura la propria API key. Le sessioni sono salvate localmente su ogni dispositivo — non c\'è storage condiviso nei piani a singolo posto (Analyst, Auditor, Suite Solo).<br><br>I piani multi-posto (<strong>Studio</strong>, <strong>Agency</strong>, <strong>Suite Team</strong>) aggiungono una libreria di sessioni condivisa e una dashboard analytics di team, permettendo fino a 20 membri di accedere e riprodurre le sessioni degli altri.',
     'faq.b1.q':'Il BPMN generato è conforme allo standard BPMN 2.0?',
     'faq.b1.a':'Sì. Sevenda genera <strong>BPMN 2.0 XML</strong> conforme agli standard e compatibile con i principali tool BPMN:<br><br>• <strong>Camunda Modeler e Camunda Platform</strong> (esportazione nativa .bpmn con <code>adaptForCamunda()</code>)<br>• <strong>Signavio</strong><br>• <strong>Bizagi</strong><br>• <strong>bpmn.io</strong><br><br>Sevenda include riparazione automatica dell\'XML per output troncati o malformati, e valida la struttura prima del rendering con bpmn-js.',
     'faq.b2.q':'Quanto è accurato il BPMN generato? Posso usarlo direttamente con i clienti?',
@@ -1166,9 +1168,11 @@ const SEVENDA_I18N = {
     'faq.i3.q':'Come identifica Sevenda i gap di tracking?',
     'faq.i3.a':'Durante la sessione, Sevenda cattura ogni interazione utente e la confronta con gli eventi GTM effettivamente sparati nel dataLayer. Le interazioni avvenute ma non tracciate diventano <strong>tracking gap</strong>.<br><br>Ogni gap è riportato con il <strong>selettore CSS</strong> e lo <strong>XPath</strong> specifici dell\'elemento non triggerato. Claude genera poi il corrispondente snippet <code>dataLayer.push()</code> pronto da incollare in GTM.',
     'faq.i4.q':'Perché il report Analytics si genera istantaneamente mentre il BPMN richiede più tempo?',
-    'faq.i4.a':'Il report Analytics (.docx) è costruito direttamente dai <strong>dati Insights in cache</strong> già generati nella sessione corrente — non richiede una nuova chiamata API a Claude. Si renderizza istantaneamente dal JSON strutturato che Claude ha prodotto durante l\'analisi Insights.<br><br>La generazione BPMN e Insights (la chiamata AI iniziale) richiede 15–30 secondi perché Claude Sonnet sta elaborando l\'intero event stream. Una volta completata, tutti gli output derivati sono immediati.',
+    'faq.i4.a':'Il report Analytics (.docx) è costruito direttamente dai <strong>dati Insights in cache</strong> già generati nella sessione corrente — non richiede una nuova chiamata API a Claude. Si renderizza istantaneamente dal JSON strutturato che Claude ha prodotto durante l\'analisi Insights.<br><br>La generazione BPMN e Insights (la chiamata AI iniziale) richiede 15–30 secondi perché i modelli Claude di Anthropic elaborano l\'intero event stream. Una volta completata, tutti gli output derivati sono immediati.',
     'faq.i5.q':'Posso eseguire l\'analisi BPMN e Insights sulla stessa sessione?',
     'faq.i5.a':'Sì. Dalla vista di replay della sessione (tab Sessioni), puoi eseguire sia la generazione BPMN che quella Insights su qualsiasi sessione salvata — indipendentemente dalla modalità attiva quando è stata registrata. Usa i pulsanti <strong>BPMN</strong> e <strong>Insights</strong> indipendentemente per generare entrambi gli output dagli stessi dati eventi.',
+    'faq.i6.q':'Sevenda può inviare il tag plan direttamente a Google Tag Manager?',
+    'faq.i6.a':'Sì. Dopo aver collegato il tuo account Google — un flusso OAuth verificato da Google — Sevenda può scrivere i tag, i trigger e le variabili suggeriti direttamente in un workspace del tuo container GTM.<br><br>Nulla va in produzione da solo: le modifiche restano in quel workspace, quindi le rivedi in GTM e le pubblichi tu.',
     'faq.p1.q':'Dove vengono salvati i dati della sessione?',
     'faq.p1.a':'Tutti i dati di sessione sono salvati <strong>localmente sul tuo dispositivo</strong> usando l\'API <code>IndexedDB</code> del browser (nome database: <code>flowlens</code>). Le impostazioni e la API key sono salvate in <code>chrome.storage.sync</code>.<br><br><strong>Sevenda è local-first: le tue sessioni restano sul tuo dispositivo per impostazione predefinita.</strong> Vengono trasmesse al backend di Sevenda Lab (un database PostgreSQL ospitato su Supabase nell\'Unione Europea, protetto da row-level security) solo quando condividi esplicitamente una sessione con un team workspace. Puoi eliminare tutte le sessioni in qualsiasi momento dalla tab Sessioni, o disinstallando l\'estensione.',
     'faq.p2.q':'Sevenda cattura password o dati sensibili dei form?',
@@ -1176,7 +1180,7 @@ const SEVENDA_I18N = {
     'faq.p3.q':'Quali dati vengono inviati all\'API Anthropic Claude?',
     'faq.p3.a':'Quando clicchi <strong>Genera</strong>, Sevenda invia l\'event stream registrato all\'API Anthropic Claude usando <strong>la tua API key personale</strong>.<br><br>La gestione di questi dati da parte di Anthropic è regolata dalla loro <a href="https://www.anthropic.com/privacy" target="_blank">Privacy Policy</a>. Sevenda non vede, non registra né salva la richiesta o la risposta API — la trasmissione avviene direttamente dal tuo browser ai server di Anthropic.',
     'faq.p4.q':'Sevenda è conforme al GDPR?',
-    'faq.p4.a':'Sì. Sevenda è progettato con un\'architettura <strong>local-first, privacy-by-design</strong>:<br><br>• Local-first per impostazione predefinita — le sessioni restano sul tuo dispositivo e vengono trasmesse al backend di Sevenda Lab (Supabase, UE, con row-level security) solo quando le condividi esplicitamente con un team workspace<br>• Consenso esplicito dell\'utente richiesto prima di qualsiasi generazione AI (devi cliccare Genera)<br>• Controllo completo dell\'utente sui dati salvati — elimina le sessioni in qualsiasi momento<br>• Nessuna raccolta di informazioni personali identificabili (PII)<br><br>La nostra Privacy Policy completa è disponibile su <a href="privacy.html">sevenda.dev/privacy.html</a>. Per richieste relative al GDPR: <a href="mailto:hello@sevenda.dev">hello@sevenda.dev</a>.',
+    'faq.p4.a':'Sì. Sevenda è progettato con un\'architettura <strong>local-first, privacy-by-design</strong>:<br><br>• Local-first per impostazione predefinita — le sessioni restano sul tuo dispositivo e vengono trasmesse al backend di Sevenda Lab (Supabase, UE, con row-level security) solo quando le condividi esplicitamente con un team workspace<br>• Consenso esplicito dell\'utente richiesto prima di qualsiasi generazione AI (devi cliccare Genera)<br>• Controllo completo dell\'utente sui dati salvati — elimina le sessioni in qualsiasi momento<br>• Nessun dato personale raccolto oltre all\'email del tuo account e all\'appartenenza al workspace<br><br>La nostra Privacy Policy completa è disponibile su <a href="privacy.html">sevenda.dev/privacy.html</a>. Per richieste relative al GDPR: <a href="mailto:hello@sevenda.dev">hello@sevenda.dev</a>.',
     'faq.p5.q':'Posso usare Sevenda per registrare sessioni su siti dei clienti?',
     'faq.p5.a':'Tecnicamente sì — Sevenda funziona su qualsiasi sito web. Tuttavia, raccomandiamo di <strong>informare il cliente</strong> che stai conducendo un\'osservazione della sessione per scopi di documentazione del processo.<br><br>Sevenda non cattura password, dati di pagamento o contenuto completo dei form. Detto questo, verifica sempre le policy interne sui dati del cliente prima di registrare.',
     'faq.pr1.q':'C\'è una prova gratuita?',
@@ -1184,16 +1188,16 @@ const SEVENDA_I18N = {
     'faq.pr2.q':'Quali sono i costi API Anthropic e come posso stimarli?',
     'faq.pr2.a':'Sevenda usa un modello <strong>BYOK (Bring Your Own Key)</strong> — l\'utilizzo AI è addebitato sul tuo account Claude, quindi i costi sono trasparenti e sotto il tuo controllo. Per generare è richiesto un account Claude con credito attivo.<br><br>Costo tipico: <strong>~€0,06–0,85 per generazione</strong> a seconda del modello. Il report Analytics (.docx) viene generato senza chiamata API, quindi non aggiunge costi.<br><br>Puoi monitorare il tuo utilizzo esatto nella <a href="https://console.anthropic.com" target="_blank">Anthropic Console</a>.',
     'faq.pr3.q':'Posso cancellare l\'abbonamento in qualsiasi momento?',
-    'faq.pr3.a':'Sì. Non ci sono impegni a lungo termine. Puoi cancellare il tuo abbonamento Solo o Team in qualsiasi momento — l\'accesso continua fino alla fine del periodo di fatturazione corrente, poi termina semplicemente. Nessuna penale di cancellazione, nessuna perdita di dati.',
+    'faq.pr3.a':'Sì. Non ci sono impegni a lungo termine. Puoi cancellare il tuo abbonamento in qualsiasi momento — l\'accesso continua fino alla fine del periodo di fatturazione corrente, poi termina semplicemente. Nessuna penale di cancellazione.<br><br>Le sessioni locali restano sul dispositivo; i contenuti soggetti a retention seguono il periodo di conservazione del piano — ti consigliamo di esportare in anticipo tutto ciò che vuoi conservare.',
     'faq.pr4.q':'Offrite una prova o un programma di partnership per le società di consulenza?',
-    'faq.pr4.a':'Sì — offriamo un <strong>Beta Partnership Program</strong> per società di consulenza e agenzie. I partner qualificati ricevono accesso gratuito al piano Team per 60 giorni lavorativi, onboarding dedicato e supporto diretto dal fondatore in cambio di feedback strutturato e un case study.<br><br>Se sei interessato, scrivi a <a href="mailto:hello@sevenda.dev">hello@sevenda.dev</a>.',
+    'faq.pr4.a':'Sì — offriamo un <strong>Beta Partnership Program</strong> per società di consulenza e agenzie. I partner qualificati ricevono accesso gratuito al piano Suite Team per 60 giorni lavorativi, onboarding dedicato e supporto diretto dal fondatore in cambio di feedback strutturato e un case study.<br><br>Se sei interessato, scrivi a <a href="mailto:hello@sevenda.dev">hello@sevenda.dev</a>.',
 
     /* ── Pricing bottom FAQ IT ── */
     'pfaq.eyebrow':'FAQ','pfaq.title':'Domande frequenti',
     'pfaq.1.q':'Ci sono limiti su sessioni e audit?',
     'pfaq.1.a':'No. Sessioni e audit sono illimitati su tutti i piani — non c\'è niente che si esaurisce e nessun contatore da tenere d\'occhio. Chiediamo solo un uso corretto: l\'uso automatizzato, la rivendita o l\'abuso che degrada il servizio per gli altri ricadono nelle norme di utilizzo accettabile dei nostri <a href="/terms.html">Termini di servizio</a>. Ti contattiamo prima di qualsiasi intervento: non ci sono blocchi automatici senza preavviso.',
     'pfaq.2.q':'Come funziona il prezzo a volume?',
-    'pfaq.2.a':'Più utenti ci sono nel tuo workspace, meno paghi per posto. Con 2–5 utenti paghi €13/utente/mese (annuale); con 6–20 utenti il prezzo scende a €10/utente/mese. Gli sconti a volume si applicano automaticamente quando aggiungi membri.',
+    'pfaq.2.a':'Più utenti ci sono nel tuo workspace, meno paghi per posto. Gli sconti a volume si applicano automaticamente quando aggiungi membri.',
     'pfaq.3.q':'Il mio account Claude è separato da Sevenda?',
     'pfaq.3.a':'Sì. Il piano Sevenda copre il software: sessioni e audit illimitati, esportazioni, collaborazione e retention. La generazione AI (BPMN, analisi Insights) gira sul tuo account Claude (BYOK) e te la fattura Anthropic — per generare serve un account Claude con credito attivo. Costo tipico: ~€0,06–0,85 per generazione a seconda del modello.',
     'pfaq.4.q':'Posso passare dalla modalità Process ad Analytics?',
@@ -1218,7 +1222,7 @@ const SEVENDA_I18N = {
     'ds.06.eye':'06 — Il Pannello DevTools','ds.06.h2':'Il cuore di Sevenda','ds.06.p':'Il pannello vive all\'interno dei Chrome DevTools. Aprilo con F12 → tab Sevenda.',
     'ds.07.eye':'07 — Registrazione','ds.07.h2':'Registrare una sessione','ds.07.p':'Sevenda cattura automaticamente tutti gli eventi senza alcuna modifica all\'applicazione target.',
     'ds.08.eye':'08 — Event Stream','ds.08.h2':'Il log degli eventi in tempo reale','ds.08.p':'Filtra, cerca e ispeziona ogni evento con un click per visualizzare i dettagli completi.',
-    'ds.09.eye':'09 — Generazione BPMN','ds.09.h2':'Dal log al diagramma','ds.09.p':'Claude Sonnet trasforma la sequenza di eventi in un diagramma conforme allo standard BPMN 2.0.',
+    'ds.09.eye':'09 — Generazione BPMN','ds.09.h2':'Dal log al diagramma','ds.09.p':'I modelli Claude di Anthropic trasformano la sequenza di eventi in un diagramma conforme allo standard BPMN 2.0.',
     'ds.10.eye':'10 — Pannello BPMN','ds.10.h2':'Viste e strumenti disponibili','ds.10.p':'Il pannello BPMN offre tre tab con strumenti contestuali per ogni vista.',
     'ds.11.eye':'11 — Feedback Iterativo','ds.11.h2':'Raffina il BPMN in linguaggio naturale','ds.11.p':'Modifica il diagramma senza rigenerarlo da zero. La conversazione mantiene le ultime 6 interazioni.',
     'ds.12.eye':'12 — Generazione Insights','ds.12.h2':'Analisi GTM/GA4 automatica','ds.12.p':'Identifica gap di tracking, eventi mancanti e produce un tag plan pronto per l\'implementazione.',
@@ -1439,7 +1443,7 @@ const SEVENDA_I18N = {
     'nav.how':'Cómo funciona','nav.pricing':'Precios','nav.docs':'Docs','nav.faq':'FAQ','nav.privacy':'Política de Privacidad',
     'nav.account':'Cuenta','nav.logout':'Salir',
 
-    'hero.pill':'Ahora con Claude Sonnet 5 →',
+    'hero.pill':'Ahora con los modelos Claude de Anthropic →',
     'hero.watch':'Ver la demo',
     'hero.h1':'Cada clic cuenta una historia.<br><span class="dim">Sevenda la lee.</span>',
     'hero.sub':'Sevenda graba tu sesión de navegador y genera instantáneamente <span class="hs-em">diagramas de proceso</span> <span class="hs-mono">BPMN&nbsp;2.0</span> e <span class="hs-em">insights accionables</span> — ayudando a desarrolladores, analistas de negocio y equipos de marketing a entender qué ocurre realmente en sus procesos digitales.',
@@ -1448,7 +1452,7 @@ const SEVENDA_I18N = {
     'how.title':'Tres pasos hacia un<br>diagrama BPMN',
     'how.sub':'De eventos brutos del navegador a modelos de proceso estructurados — sin levantar un lápiz.',
     'step1.h':'Grabar','step1.p':'Haz clic en inicio en DevTools. Sevenda captura clics, envíos de formularios, eventos de navegación, llamadas de red y mutaciones del DOM — todo lo que importa.',
-    'step2.h':'La IA genera','step2.p':'Claude Sonnet lee el flujo de eventos, identifica el flujo del proceso y produce XML BPMN 2.0 validado con pools, carriles, gateways y flujos de secuencia correctos.',
+    'step2.h':'La IA genera','step2.p':'Los modelos Claude de Anthropic leen el flujo de eventos, identifican el flujo del proceso y producen XML BPMN 2.0 validado con pools, carriles, gateways y flujos de secuencia correctos.',
     'step3.h':'Exportar','step3.p':'Descarga .bpmn para Camunda, Signavio o Bizagi. Exporta .svg o .png para presentaciones. Genera un informe de proceso completo en formato .docx — listo para compartir con los interesados, sin habilidades técnicas. Refina con chat en lenguaje natural.',
 
     'insights.label':'Insights',
@@ -1471,7 +1475,7 @@ const SEVENDA_I18N = {
 
     'feat.label':'Funciones','feat.title':'Hecho para profesionales del proceso',
     'f1.h':'Captura de eventos en tiempo real','f1.p':'Captura clics, envíos de formularios, llamadas API, eventos de navegación y mutaciones del DOM sin configuración — funciona en cualquier sitio web.',
-    'f2.h':'Claude Sonnet AI','f2.p':'El modelo más capaz de Anthropic entiende el contexto, identifica los puntos de decisión y produce modelos de proceso precisos — no solo una secuencia de pasos.',
+    'f2.h':'Modelos Claude de Anthropic','f2.p':'La generación se ejecuta en el modelo Claude que elijas, con tu propia clave API: entiende el contexto, identifica los puntos de decisión y produce modelos de proceso precisos — no solo una secuencia de pasos.',
     'f3.h':'Estándar BPMN 2.0','f3.p':'El output es XML BPMN 2.0 completamente conforme. Ábrelo directamente en Camunda Modeler, Signavio, Bizagi o cualquier herramienta compatible.',
     'f4.h':'Refinamiento iterativo','f4.p':'Chatea con el diagrama. "Añade un camino de error después de la llamada API" y Sevenda actualiza el BPMN preservando exactamente el resto del modelo.',
     'f5.h':'Mapping de Marketing & Embudo','f5.p':'Visualiza automáticamente los recorridos de clientes, flujos de campaña y embudos de conversión — sin herramientas de diagramación, sin trabajo manual, sin habilidades técnicas.',
@@ -1772,19 +1776,19 @@ const SEVENDA_I18N = {
     'tm.s14.t':'Contacto',
     'tm.s14.p1':'Sevenda — <a href="mailto:hello@sevenda.dev">hello@sevenda.dev</a> — <a href="https://sevenda.dev">https://sevenda.dev</a>',
 
-    'foot.copy':'© 2025 Sevenda · Hecho con Claude',
+    'foot.copy':'© {year} Sevenda · Hecho con Claude',
     'foot.features':'Funciones','foot.insights':'Insights','foot.pricing':'Precios',
     'foot.github':'GitHub','foot.privacy':'Política de privacidad','foot.terms':'Términos','foot.docs':'Docs','foot.faq':'FAQ',
 
     /* ── FAQ Q&A ES ── */
     'faq.g1.q':'¿Qué es Sevenda y qué hace?',
-    'faq.g1.a':'Sevenda es una Chrome Extension (MV3) que graba tus sesiones de navegador y genera automáticamente <strong>diagramas de proceso BPMN 2.0</strong> e <strong>insights analytics GTM/GA4</strong> — impulsado por Claude Sonnet AI.<br><br>Funciona en dos modos: <strong>🧩 BPMN mode</strong> mapea flujos de usuario y procesos desde interacciones reales del navegador; <strong>📊 Insights mode</strong> analiza tu configuración de tracking, identifica eventos GTM faltantes y genera un Tag Plan listo para usar. Sin cambios de código, sin SDK, sin configuración en el sitio objetivo.',
+    'faq.g1.a':'Sevenda es una Chrome Extension (MV3) que graba tus sesiones de navegador y genera automáticamente <strong>diagramas de proceso BPMN 2.0</strong> e <strong>insights analytics GTM/GA4</strong> — impulsado por los modelos Claude de Anthropic (con tu propia clave API).<br><br>Funciona en dos modos: <strong>🧩 BPMN mode</strong> mapea flujos de usuario y procesos desde interacciones reales del navegador; <strong>📊 Insights mode</strong> analiza tu configuración de tracking, identifica eventos GTM faltantes y genera un Tag Plan listo para usar. Sin cambios de código, sin SDK en el sitio objetivo.',
     'faq.g2.q':'¿Para quién es Sevenda?',
     'faq.g2.a':'Sevenda está diseñado para tres públicos principales:<br><br><strong>Desarrolladores y Analistas de Negocio</strong> — documentan procesos AS-IS, flujos de usuario e interacciones API directamente desde el navegador, sin diagramación manual.<br><br><strong>Equipos de Marketing y Datos</strong> — auditan la cobertura de tracking GTM/GA4, identifican brechas en el embudo y generan Tag Plans sin inspección manual.<br><br><strong>Consultores y Gestores de Proyectos</strong> — producen diagramas BPMN e informes .docx para clientes en minutos, y los envían directamente a Jira.',
     'faq.g3.q':'¿Qué navegadores admite Sevenda?',
     'faq.g3.a':'Sevenda es una <strong>Chrome Extension Manifest V3</strong> y funciona en <strong>Google Chrome</strong> y cualquier navegador basado en Chromium (Brave, Edge, Arc). Requiere acceso a Chrome DevTools, por lo que funciona solo en escritorio — no en navegadores móviles.',
     'faq.g4.q':'¿Cuánto tiempo se tarda en generar el primer diagrama?',
-    'faq.g4.a':'Desde la instalación hasta tu primer diagrama BPMN: <strong>menos de 60 segundos</strong>.<br><br>La generación en sí (Claude Sonnet procesando el flujo de eventos) típicamente tarda <strong>15–30 segundos</strong> según la longitud de la sesión. El Analytics Report en modo Insights es <strong>instantáneo</strong> — generado desde datos en caché sin una llamada API adicional.',
+    'faq.g4.a':'Desde la instalación hasta tu primer diagrama BPMN: <strong>menos de 60 segundos</strong>.<br><br>La generación en sí (los modelos Claude de Anthropic procesando el flujo de eventos) típicamente tarda <strong>15–30 segundos</strong> según la longitud de la sesión. El Analytics Report en modo Insights es <strong>instantáneo</strong> — generado desde datos en caché sin una llamada API adicional.',
     'faq.g5.q':'¿Puedo usar Sevenda en cualquier sitio web?',
     'faq.g5.a':'Sí. Sevenda usa permisos host <code>&lt;all_urls&gt;</code> porque el sitio objetivo no se conoce de antemano — puedes grabar cualquier sitio que visites. No inyecta código visible ni modifica el sitio objetivo de ninguna manera.<br><br>Algunos sitios con Content Security Policies (CSP) muy restrictivas pueden limitar los eventos capturables. El BPMN y los Insights se generarán igualmente desde los eventos capturados con éxito.',
     'faq.g6.q':'¿Funciona Sevenda en localhost y herramientas internas?',
@@ -1792,13 +1796,13 @@ const SEVENDA_I18N = {
     'faq.s1.q':'¿Cómo instalo Sevenda?',
     'faq.s1.a':'1. Instala la extensión desde la <strong>Chrome Web Store</strong> (busca "Sevenda").<br>2. Haz clic en el icono Sevenda en la barra de herramientas de Chrome — aparece un popup.<br>3. Ve a <strong>Configuración → AI Models</strong> e introduce tu <a href="https://console.anthropic.com" target="_blank">clave API de Anthropic</a>.<br>4. Abre Chrome DevTools (<code>F12</code>) en cualquier página — encontrarás el panel Sevenda en las pestañas.<br>5. Pulsa <strong>Iniciar Grabación</strong> y empieza a navegar.',
     'faq.s2.q':'¿Dónde obtengo una clave API de Anthropic?',
-    'faq.s2.a':'1. Crea una cuenta en <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>.<br>2. Ve a <strong>API Keys</strong> y haz clic en <strong>Create Key</strong>.<br>3. Copia la clave (empieza con <code>sk-ant-</code>) — solo la verás una vez.<br>4. Pégala en Sevenda → Configuración → AI Models → campo API Key y guarda.<br><br>Anthropic ofrece un nivel de créditos gratuitos para empezar. La clave se guarda localmente en <code>chrome.storage.sync</code> — nunca abandona tu dispositivo a menos que hagas clic en Generar.',
+    'faq.s2.a':'1. Crea una cuenta en <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>.<br>2. Ve a <strong>API Keys</strong> y haz clic en <strong>Create Key</strong>.<br>3. Copia la clave (empieza con <code>sk-ant-</code>) — solo la verás una vez.<br>4. Pégala en Sevenda → Configuración → AI Models → campo API Key y guarda.<br><br>Carga un crédito inicial en <strong>Plans &amp; Billing</strong> — con 5–10 $ basta para empezar — y define un límite de gasto mensual en la consola para mantener los costes bajo control. Tu clave se guarda en <code>chrome.storage.sync</code> (sincronizado por Google entre tus dispositivos Chrome) y solo se envía a Anthropic cuando generas. Sevenda nunca la ve.',
     'faq.s3.q':'Veo "Idle" en el panel pero nada sucede cuando grabo. ¿Qué está mal?',
     'faq.s3.a':'Algunas cosas a verificar:<br><br>• Asegúrate de estar en una página <strong>http:// o https://</strong> — Sevenda no funciona en páginas internas de Chrome (<code>chrome://</code>) ni en la Nueva Pestaña.<br>• Comprueba que el <strong>panel Sevenda sea la pestaña activa</strong> en DevTools cuando pulses iniciar.<br>• Si el indicador de conexión muestra una advertencia, prueba a <strong>cerrar y reabrir DevTools</strong>.<br>• Verifica que tu clave API esté guardada en Configuración → AI Models.',
     'faq.s4.q':'¿Cómo cambio entre el modo BPMN y el modo Insights?',
     'faq.s4.a':'Haz clic en el <strong>icono Sevenda</strong> en la barra de herramientas de Chrome — el popup muestra un toggle entre <strong>🧩 BPMN</strong> y <strong>📊 Insights</strong>. Tu selección se guarda en <code>chrome.storage.sync</code> y persiste entre sesiones.',
     'faq.s5.q':'¿Pueden varios miembros del equipo usar Sevenda simultáneamente?',
-    'faq.s5.a':'Sí. Cada miembro del equipo instala Sevenda en su propio Chrome y configura su propia clave API. Las sesiones se guardan localmente por dispositivo.<br><br>El <strong>plan Team</strong> añade una biblioteca de sesiones compartida y un dashboard de analytics de equipo, permitiendo hasta 20 miembros acceder y reproducir las sesiones de los demás.',
+    'faq.s5.a':'Sí. Cada miembro del equipo instala Sevenda en su propio Chrome y configura su propia clave API. Las sesiones se guardan localmente por dispositivo — no hay almacenamiento compartido en los planes de un solo puesto (Analyst, Auditor, Suite Solo).<br><br>Los planes multipuesto (<strong>Studio</strong>, <strong>Agency</strong>, <strong>Suite Team</strong>) añaden una biblioteca de sesiones compartida y un dashboard de analytics de equipo, permitiendo hasta 20 miembros acceder y reproducir las sesiones de los demás.',
     'faq.b1.q':'¿El BPMN generado es compatible con el estándar BPMN 2.0?',
     'faq.b1.a':'Sí. Sevenda genera <strong>XML BPMN 2.0</strong> compatible con los estándares y con las principales herramientas BPMN: Camunda Modeler, Signavio, Bizagi y bpmn.io.<br><br>Sevenda incluye reparación automática de XML para outputs truncados o malformados, y valida la estructura antes del renderizado con bpmn-js.',
     'faq.b2.q':'¿Qué tan preciso es el BPMN generado? ¿Puedo usarlo directamente con clientes?',
@@ -1818,9 +1822,11 @@ const SEVENDA_I18N = {
     'faq.i3.q':'¿Cómo identifica Sevenda las brechas de seguimiento?',
     'faq.i3.a':'Durante la sesión, Sevenda captura cada interacción de usuario y la compara con los eventos GTM realmente disparados en el dataLayer. Las interacciones que ocurrieron pero no fueron rastreadas se convierten en <strong>brechas de tracking</strong>.<br><br>Cada brecha se reporta con el <strong>selector CSS</strong> y <strong>XPath</strong> específicos del elemento no disparado. Claude genera el snippet <code>dataLayer.push()</code> correspondiente listo para pegar en GTM.',
     'faq.i4.q':'¿Por qué el Informe de Analytics se genera instantáneamente mientras que el BPMN tarda más?',
-    'faq.i4.a':'El Analytics Report (.docx) se construye directamente desde los <strong>datos Insights en caché</strong> — no requiere una nueva llamada a la API de Claude. Se renderiza instantáneamente desde el JSON estructurado producido durante el análisis Insights.<br><br>La generación BPMN e Insights (la llamada AI inicial) tarda 15–30 segundos porque Claude Sonnet procesa el flujo completo de eventos.',
+    'faq.i4.a':'El Analytics Report (.docx) se construye directamente desde los <strong>datos Insights en caché</strong> — no requiere una nueva llamada a la API de Claude. Se renderiza instantáneamente desde el JSON estructurado producido durante el análisis Insights.<br><br>La generación BPMN e Insights (la llamada AI inicial) tarda 15–30 segundos porque los modelos Claude de Anthropic procesan el flujo completo de eventos.',
     'faq.i5.q':'¿Puedo ejecutar el análisis BPMN e Insights en la misma sesión?',
     'faq.i5.a':'Sí. Desde la vista de reproducción de sesión (pestaña Sesiones), puedes ejecutar tanto la generación BPMN como la de Insights en cualquier sesión guardada, independientemente del modo activo cuando fue grabada.',
+    'faq.i6.q':'¿Puede Sevenda enviar el tag plan directamente a Google Tag Manager?',
+    'faq.i6.a':'Sí. Tras conectar tu cuenta de Google — un flujo OAuth verificado por Google — Sevenda puede escribir las etiquetas, activadores y variables sugeridos directamente en un workspace de tu contenedor de GTM.<br><br>Nada se publica por sí solo: los cambios permanecen en ese workspace, así que los revisas en GTM y los publicas tú.',
     'faq.p1.q':'¿Dónde se almacenan los datos de mi sesión?',
     'faq.p1.a':'Todos los datos de sesión se almacenan <strong>localmente en tu dispositivo</strong> usando la API <code>IndexedDB</code> del navegador. <strong>Sevenda es local-first: tus sesiones permanecen en tu dispositivo de forma predeterminada.</strong> Se transmiten al backend de Sevenda Lab (una base de datos PostgreSQL alojada en Supabase en la Unión Europea, protegida con row-level security) solo cuando compartes explícitamente una sesión con un workspace de equipo.',
     'faq.p2.q':'¿Captura Sevenda contraseñas o datos de formularios sensibles?',
@@ -1828,7 +1834,7 @@ const SEVENDA_I18N = {
     'faq.p3.q':'¿Qué datos se envían a la API de Anthropic Claude?',
     'faq.p3.a':'Cuando haces clic en <strong>Generar</strong>, Sevenda envía el flujo de eventos grabado a la API de Anthropic Claude usando <strong>tu propia clave API</strong>.<br><br>El manejo de estos datos por parte de Anthropic se rige por su <a href="https://www.anthropic.com/privacy" target="_blank">Política de Privacidad</a>. Sevenda no ve, registra ni almacena la solicitud o respuesta de la API.',
     'faq.p4.q':'¿Cumple Sevenda con el RGPD?',
-    'faq.p4.a':'Sí. Sevenda está diseñado con una arquitectura <strong>local-first, privacy-by-design</strong>: local-first de forma predeterminada — las sesiones permanecen en tu dispositivo y se transmiten al backend de Sevenda Lab (Supabase, UE, con row-level security) solo cuando las compartes explícitamente con un workspace de equipo, consentimiento explícito antes de cualquier generación AI, control total del usuario sobre los datos almacenados y sin recopilación de información de identificación personal (PII).',
+    'faq.p4.a':'Sí. Sevenda está diseñado con una arquitectura <strong>local-first, privacy-by-design</strong>: local-first de forma predeterminada — las sesiones permanecen en tu dispositivo y se transmiten al backend de Sevenda Lab (Supabase, UE, con row-level security) solo cuando las compartes explícitamente con un workspace de equipo, consentimiento explícito antes de cualquier generación AI, control total del usuario sobre los datos almacenados y sin recopilación de datos personales más allá del email de tu cuenta y tu pertenencia al workspace.',
     'faq.p5.q':'¿Puedo usar Sevenda para grabar sesiones en sitios web de clientes?',
     'faq.p5.a':'Técnicamente sí. Sin embargo, recomendamos <strong>informar al cliente</strong> de que estás realizando una observación de sesión con fines de documentación de procesos.<br><br>Sevenda no captura contraseñas, datos de pago ni contenido completo de formularios. Dicho esto, verifica siempre las políticas internas de datos del cliente antes de grabar.',
     'faq.pr1.q':'¿Hay una prueba gratuita?',
@@ -1836,16 +1842,16 @@ const SEVENDA_I18N = {
     'faq.pr2.q':'¿Cuáles son los costes de la API de Anthropic y cómo estimarlos?',
     'faq.pr2.a':'Sevenda usa un modelo <strong>BYOK (Bring Your Own Key)</strong> — el uso de IA se factura a tu propia cuenta de Claude. Se requiere una cuenta de Claude con crédito activo para generar. Coste típico: <strong>~0,06–0,85 € por generación</strong> según el modelo. El Analytics Report no añade costes.',
     'faq.pr3.q':'¿Puedo cancelar mi suscripción en cualquier momento?',
-    'faq.pr3.a':'Sí. No hay compromisos a largo plazo. Puedes cancelar tu suscripción Solo o Team en cualquier momento — el acceso continúa hasta el final del período de facturación actual, luego simplemente finaliza.',
+    'faq.pr3.a':'Sí. No hay compromisos a largo plazo. Puedes cancelar tu suscripción en cualquier momento — el acceso continúa hasta el final del período de facturación actual, luego simplemente finaliza. Sin penalizaciones por cancelación.<br><br>Las sesiones locales permanecen en el dispositivo; el contenido sujeto a retención sigue el período de conservación del plan — recomendamos exportar de antemano todo lo que quieras conservar.',
     'faq.pr4.q':'¿Ofrecen una prueba o un programa de asociación para consultoras?',
-    'faq.pr4.a':'Sí — ofrecemos un <strong>Programa Beta Partnership</strong> para firmas consultoras y agencias. Los socios cualificados reciben acceso gratuito al plan Team durante 60 días laborables.<br><br>Si estás interesado, escribe a <a href="mailto:hello@sevenda.dev">hello@sevenda.dev</a>.',
+    'faq.pr4.a':'Sí — ofrecemos un <strong>Programa Beta Partnership</strong> para firmas consultoras y agencias. Los socios cualificados reciben acceso gratuito al plan Suite Team durante 60 días laborables.<br><br>Si estás interesado, escribe a <a href="mailto:hello@sevenda.dev">hello@sevenda.dev</a>.',
 
     /* ── Pricing bottom FAQ ES ── */
     'pfaq.eyebrow':'FAQ','pfaq.title':'Preguntas frecuentes',
     'pfaq.1.q':'¿Hay límites en sesiones y auditorías?',
     'pfaq.1.a':'No. Las sesiones y auditorías son ilimitadas en todos los planes — no hay nada que se agote ni un contador que vigilar. Solo pedimos un uso razonable: el uso automatizado, la reventa o el abuso que degrade el servicio para los demás se rigen por las normas de uso aceptable de nuestros <a href="/terms.html">Términos de servicio</a>. Te contactamos antes de cualquier medida: no hay bloqueos automáticos sin previo aviso.',
     'pfaq.2.q':'¿Cómo funciona el precio por volumen?',
-    'pfaq.2.a':'Cuantos más usuarios haya en tu workspace, menos pagas por puesto. Con 2–5 usuarios pagas 13 €/usuario/mes (anual); con 6–20 usuarios el precio baja a 10 €/usuario/mes. Los descuentos por volumen se aplican automáticamente al añadir miembros.',
+    'pfaq.2.a':'Cuantos más usuarios haya en tu workspace, menos pagas por puesto. Los descuentos por volumen se aplican automáticamente al añadir miembros.',
     'pfaq.3.q':'¿Mi cuenta de Claude es independiente de Sevenda?',
     'pfaq.3.a':'Sí. Tu plan de Sevenda cubre el software: sesiones y auditorías ilimitadas, exportaciones, colaboración y retención. La generación con IA (BPMN, análisis Insights) se ejecuta en tu propia cuenta de Claude (BYOK) y te la factura Anthropic — para generar necesitas una cuenta de Claude con crédito activo. Coste típico: ~0,06–0,85 € por generación según el modelo.',
     'pfaq.4.q':'¿Puedo cambiar entre el modo Process y Analytics?',
@@ -1870,7 +1876,7 @@ const SEVENDA_I18N = {
     'ds.06.eye':'06 — El panel DevTools','ds.06.h2':'El corazón de Sevenda','ds.06.p':'El panel vive dentro de Chrome DevTools. Ábrelo con F12 → pestaña Sevenda.',
     'ds.07.eye':'07 — Grabación','ds.07.h2':'Capturar una sesión','ds.07.p':'Sevenda captura automáticamente todos los eventos sin ningún cambio en la aplicación objetivo.',
     'ds.08.eye':'08 — Flujo de eventos','ds.08.h2':'El registro de eventos en tiempo real','ds.08.p':'Filtra, busca e inspecciona cada evento con un clic para ver los detalles completos.',
-    'ds.09.eye':'09 — Generación BPMN','ds.09.h2':'Del registro al diagrama','ds.09.p':'Claude Sonnet transforma la secuencia de eventos en un diagrama conforme al estándar BPMN 2.0.',
+    'ds.09.eye':'09 — Generación BPMN','ds.09.h2':'Del registro al diagrama','ds.09.p':'Los modelos Claude de Anthropic transforman la secuencia de eventos en un diagrama conforme al estándar BPMN 2.0.',
     'ds.10.eye':'10 — Panel BPMN','ds.10.h2':'Vistas y herramientas disponibles','ds.10.p':'El panel BPMN ofrece tres pestañas con herramientas contextuales para cada vista.',
     'ds.11.eye':'11 — Retroalimentación iterativa','ds.11.h2':'Refina el BPMN en lenguaje natural','ds.11.p':'Modifica el diagrama sin regenerarlo desde cero.',
     'ds.12.eye':'12 — Generación de Insights','ds.12.h2':'Análisis GTM/GA4 automático','ds.12.p':'Identifica brechas de tracking, eventos faltantes y produce un plan de etiquetas listo para implementar.',
@@ -2091,7 +2097,7 @@ const SEVENDA_I18N = {
     'nav.how':'Comment ça marche','nav.pricing':'Tarifs','nav.docs':'Docs','nav.faq':'FAQ','nav.privacy':'Politique de Confidentialité',
     'nav.account':'Compte','nav.logout':'Déconnexion',
 
-    'hero.pill':'Maintenant avec Claude Sonnet 5 →',
+    'hero.pill':'Maintenant avec les modèles Claude d\'Anthropic →',
     'hero.watch':'Voir la démo',
     'hero.h1':'Chaque clic raconte une histoire.<br><span class="dim">Sevenda la lit.</span>',
     'hero.sub':'Sevenda enregistre votre session de navigation et génère instantanément des <span class="hs-em">diagrammes de processus</span> <span class="hs-mono">BPMN&nbsp;2.0</span> et des <span class="hs-em">insights actionnables</span> — aidant les développeurs, analystes métier et équipes marketing à comprendre ce qui se passe vraiment dans leurs processus digitaux.',
@@ -2100,7 +2106,7 @@ const SEVENDA_I18N = {
     'how.title':'Trois étapes vers un<br>diagramme BPMN',
     'how.sub':'Des événements bruts du navigateur aux modèles de processus structurés — sans lever le stylo.',
     'step1.h':'Enregistrer','step1.p':'Cliquez sur démarrer dans DevTools. Sevenda capture les clics, soumissions de formulaires, événements de navigation, appels réseau et mutations DOM — tout ce qui compte.',
-    'step2.h':'L\'IA génère','step2.p':'Claude Sonnet lit le flux d\'événements, identifie le flux de processus et produit un XML BPMN 2.0 validé avec des pools, couloirs, passerelles et flux de séquence corrects.',
+    'step2.h':'L\'IA génère','step2.p':'Les modèles Claude d\'Anthropic lisent le flux d\'événements, identifient le flux de processus et produisent un XML BPMN 2.0 validé avec des pools, couloirs, passerelles et flux de séquence corrects.',
     'step3.h':'Exporter','step3.p':'Téléchargez .bpmn pour Camunda, Signavio ou Bizagi. Exportez .svg ou .png pour les présentations. Générez un rapport de processus complet au format .docx — prêt à partager avec les parties prenantes, sans compétences techniques. Affinez avec un chat en langage naturel.',
 
     'insights.label':'Insights',
@@ -2123,7 +2129,7 @@ const SEVENDA_I18N = {
 
     'feat.label':'Fonctionnalités','feat.title':'Fait pour les professionnels du processus',
     'f1.h':'Capture d\'événements en temps réel','f1.p':'Capture les clics, soumissions de formulaires, appels API, événements de navigation et mutations DOM sans configuration — fonctionne sur n\'importe quel site.',
-    'f2.h':'Claude Sonnet AI','f2.p':'Le modèle le plus capable d\'Anthropic comprend le contexte, identifie les points de décision et produit des modèles de processus précis — pas seulement une séquence d\'étapes.',
+    'f2.h':'Modèles Claude d\'Anthropic','f2.p':'La génération s\'exécute sur le modèle Claude que vous choisissez, avec votre propre clé API : il comprend le contexte, identifie les points de décision et produit des modèles de processus précis — pas seulement une séquence d\'étapes.',
     'f3.h':'Standard BPMN 2.0','f3.p':'La sortie est un XML BPMN 2.0 entièrement conforme. Ouvrez-le directement dans Camunda Modeler, Signavio, Bizagi ou tout outil conforme aux standards.',
     'f4.h':'Raffinement itératif','f4.p':'Discutez avec le diagramme. "Ajoutez un chemin d\'erreur après l\'appel API" et Sevenda met à jour le BPMN en préservant exactement le reste du modèle.',
     'f5.h':'Mapping Marketing & Entonnoir','f5.p':'Visualisez automatiquement les parcours clients, flux de campagne et entonnoirs de conversion — sans outils de diagramme, sans travail manuel, sans compétences techniques.',
@@ -2424,19 +2430,19 @@ const SEVENDA_I18N = {
     'tm.s14.t':'Contact',
     'tm.s14.p1':'Sevenda — <a href="mailto:hello@sevenda.dev">hello@sevenda.dev</a> — <a href="https://sevenda.dev">https://sevenda.dev</a>',
 
-    'foot.copy':'© 2025 Sevenda · Réalisé avec Claude',
+    'foot.copy':'© {year} Sevenda · Réalisé avec Claude',
     'foot.features':'Fonctionnalités','foot.insights':'Insights','foot.pricing':'Tarifs',
     'foot.github':'GitHub','foot.privacy':'Politique de confidentialité','foot.terms':'Conditions','foot.docs':'Docs','foot.faq':'FAQ',
 
     /* ── FAQ Q&A FR ── */
     'faq.g1.q':'Qu\'est-ce que Sevenda et que fait-il ?',
-    'faq.g1.a':'Sevenda est une Chrome Extension (MV3) qui enregistre vos sessions de navigation et génère automatiquement des <strong>diagrammes de processus BPMN 2.0</strong> et des <strong>insights analytics GTM/GA4</strong> — propulsé par Claude Sonnet AI.<br><br>Il fonctionne en deux modes : <strong>🧩 BPMN mode</strong> cartographie les flux utilisateurs et processus depuis les interactions réelles du navigateur ; <strong>📊 Insights mode</strong> analyse votre configuration de tracking, identifie les événements GTM manquants et génère un Tag Plan prêt à l\'emploi. Aucune modification de code, aucun SDK, aucune configuration sur le site cible.',
+    'faq.g1.a':'Sevenda est une Chrome Extension (MV3) qui enregistre vos sessions de navigation et génère automatiquement des <strong>diagrammes de processus BPMN 2.0</strong> et des <strong>insights analytics GTM/GA4</strong> — propulsé par les modèles Claude d\'Anthropic (avec votre propre clé API).<br><br>Il fonctionne en deux modes : <strong>🧩 BPMN mode</strong> cartographie les flux utilisateurs et processus depuis les interactions réelles du navigateur ; <strong>📊 Insights mode</strong> analyse votre configuration de tracking, identifie les événements GTM manquants et génère un Tag Plan prêt à l\'emploi. Aucune modification de code, aucun SDK sur le site cible.',
     'faq.g2.q':'À qui s\'adresse Sevenda ?',
     'faq.g2.a':'Sevenda est conçu pour trois publics principaux :<br><br><strong>Développeurs et Analystes Métier</strong> — documentent les processus AS-IS, flux utilisateurs et interactions API directement depuis le navigateur, sans diagrammation manuelle.<br><br><strong>Équipes Marketing et Data</strong> — auditent la couverture de tracking GTM/GA4, identifient les lacunes dans l\'entonnoir et génèrent des Tag Plans sans inspection manuelle.<br><br><strong>Consultants et Chefs de projet</strong> — produisent des diagrammes BPMN et rapports .docx pour les clients en quelques minutes, et les envoient directement vers Jira.',
     'faq.g3.q':'Quels navigateurs Sevenda prend-il en charge ?',
     'faq.g3.a':'Sevenda est une <strong>Chrome Extension Manifest V3</strong> et fonctionne sur <strong>Google Chrome</strong> et tout navigateur basé sur Chromium (Brave, Edge, Arc). Il nécessite l\'accès à Chrome DevTools, donc fonctionne uniquement sur desktop — pas sur les navigateurs mobiles.',
     'faq.g4.q':'Combien de temps faut-il pour générer le premier diagramme ?',
-    'faq.g4.a':'De l\'installation à votre premier diagramme BPMN : <strong>moins de 60 secondes</strong>.<br><br>La génération elle-même (Claude Sonnet traitant le flux d\'événements) prend typiquement <strong>15–30 secondes</strong> selon la longueur de la session. Le rapport Analytics en mode Insights est <strong>instantané</strong> — généré depuis des données en cache sans appel API supplémentaire.',
+    'faq.g4.a':'De l\'installation à votre premier diagramme BPMN : <strong>moins de 60 secondes</strong>.<br><br>La génération elle-même (les modèles Claude d\'Anthropic traitant le flux d\'événements) prend typiquement <strong>15–30 secondes</strong> selon la longueur de la session. Le rapport Analytics en mode Insights est <strong>instantané</strong> — généré depuis des données en cache sans appel API supplémentaire.',
     'faq.g5.q':'Puis-je utiliser Sevenda sur n\'importe quel site web ?',
     'faq.g5.a':'Oui. Sevenda utilise des permissions host <code>&lt;all_urls&gt;</code> car le site cible n\'est pas connu à l\'avance — vous pouvez enregistrer n\'importe quel site visité. Il n\'injecte aucun code visible et ne modifie pas le site cible.<br><br>Certains sites avec des Content Security Policies très restrictives peuvent limiter les événements capturables. Le BPMN et les Insights seront quand même générés depuis les événements capturés avec succès.',
     'faq.g6.q':'Sevenda fonctionne-t-il sur localhost et les outils internes ?',
@@ -2444,13 +2450,13 @@ const SEVENDA_I18N = {
     'faq.s1.q':'Comment installer Sevenda ?',
     'faq.s1.a':'1. Installez l\'extension depuis le <strong>Chrome Web Store</strong> (recherchez "Sevenda").<br>2. Cliquez sur l\'icône Sevenda dans la barre d\'outils Chrome — un popup apparaît.<br>3. Allez dans <strong>Paramètres → AI Models</strong> et entrez votre <a href="https://console.anthropic.com" target="_blank">clé API Anthropic</a>.<br>4. Ouvrez Chrome DevTools (<code>F12</code>) sur n\'importe quelle page — vous trouverez le panneau Sevenda dans les onglets.<br>5. Appuyez sur <strong>Démarrer l\'enregistrement</strong> et commencez à naviguer.',
     'faq.s2.q':'Où obtenir une clé API Anthropic ?',
-    'faq.s2.a':'1. Créez un compte sur <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>.<br>2. Allez dans <strong>API Keys</strong> et cliquez sur <strong>Create Key</strong>.<br>3. Copiez la clé (commence par <code>sk-ant-</code>) — vous ne la verrez qu\'une fois.<br>4. Collez-la dans Sevenda → Paramètres → AI Models → champ API Key et sauvegardez.<br><br>Anthropic offre un niveau de crédits gratuits pour démarrer.',
+    'faq.s2.a':'1. Créez un compte sur <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>.<br>2. Allez dans <strong>API Keys</strong> et cliquez sur <strong>Create Key</strong>.<br>3. Copiez la clé (commence par <code>sk-ant-</code>) — vous ne la verrez qu\'une fois.<br>4. Collez-la dans Sevenda → Paramètres → AI Models → champ API Key et sauvegardez.<br><br>Chargez un crédit initial dans <strong>Plans &amp; Billing</strong> — 5–10 $ suffisent pour démarrer — et définissez une limite de dépense mensuelle dans la console pour garder le contrôle des coûts. Votre clé est stockée dans <code>chrome.storage.sync</code> (synchronisé par Google entre vos appareils Chrome) et n\'est envoyée qu\'à Anthropic lorsque vous générez. Sevenda ne la voit jamais.',
     'faq.s3.q':'Je vois "Idle" dans le panneau mais rien ne se passe quand j\'enregistre. Que se passe-t-il ?',
     'faq.s3.a':'Quelques points à vérifier :<br><br>• Assurez-vous d\'être sur une page <strong>http:// ou https://</strong> — Sevenda ne fonctionne pas sur les pages internes de Chrome (<code>chrome://</code>) ni sur la Nouvelle Onglet.<br>• Vérifiez que le <strong>panneau Sevenda est l\'onglet actif</strong> dans DevTools quand vous appuyez sur démarrer.<br>• Essayez de <strong>fermer et rouvrir DevTools</strong> en cas de problème de connexion.<br>• Vérifiez que votre clé API est sauvegardée dans Paramètres → AI Models.',
     'faq.s4.q':'Comment passer du mode BPMN au mode Insights ?',
     'faq.s4.a':'Cliquez sur l\'<strong>icône Sevenda</strong> dans la barre d\'outils Chrome — le popup affiche un toggle entre <strong>🧩 BPMN</strong> et <strong>📊 Insights</strong>. Votre sélection est sauvegardée dans <code>chrome.storage.sync</code> et persiste entre les sessions.',
     'faq.s5.q':'Plusieurs membres de l\'équipe peuvent-ils utiliser Sevenda simultanément ?',
-    'faq.s5.a':'Oui. Chaque membre de l\'équipe installe Sevenda sur son propre Chrome et configure sa propre clé API. Les sessions sont stockées localement par appareil.<br><br>Le <strong>plan Team</strong> ajoute une bibliothèque de sessions partagée et un tableau de bord analytics d\'équipe, permettant à jusqu\'à 20 membres d\'accéder et relire les sessions des autres.',
+    'faq.s5.a':'Oui. Chaque membre de l\'équipe installe Sevenda sur son propre Chrome et configure sa propre clé API. Les sessions sont stockées localement par appareil — il n\'y a pas de stockage partagé sur les plans mono-utilisateur (Analyst, Auditor, Suite Solo).<br><br>Les plans multi-utilisateurs (<strong>Studio</strong>, <strong>Agency</strong>, <strong>Suite Team</strong>) ajoutent une bibliothèque de sessions partagée et un tableau de bord analytics d\'équipe, permettant à jusqu\'à 20 membres d\'accéder et relire les sessions des autres.',
     'faq.b1.q':'Le BPMN généré est-il conforme au standard BPMN 2.0 ?',
     'faq.b1.a':'Oui. Sevenda génère du <strong>XML BPMN 2.0</strong> conforme aux standards et compatible avec les principaux outils BPMN : Camunda Modeler, Signavio, Bizagi et bpmn.io.<br><br>Sevenda inclut la réparation automatique du XML pour les sorties tronquées ou malformées, et valide la structure avant le rendu avec bpmn-js.',
     'faq.b2.q':'Quelle est la précision du BPMN généré ? Puis-je l\'utiliser directement avec des clients ?',
@@ -2470,9 +2476,11 @@ const SEVENDA_I18N = {
     'faq.i3.q':'Comment Sevenda identifie-t-il les lacunes de tracking ?',
     'faq.i3.a':'Pendant la session, Sevenda capture chaque interaction utilisateur et la compare aux événements GTM réellement déclenchés dans le dataLayer. Les interactions qui ont eu lieu mais n\'ont pas été suivies deviennent des <strong>lacunes de tracking</strong>.<br><br>Chaque lacune est signalée avec le <strong>sélecteur CSS</strong> et le <strong>XPath</strong> spécifiques de l\'élément non déclenché. Claude génère ensuite le snippet <code>dataLayer.push()</code> correspondant prêt à coller dans GTM.',
     'faq.i4.q':'Pourquoi le rapport Analytics est-il généré instantanément alors que le BPMN prend plus de temps ?',
-    'faq.i4.a':'Le rapport Analytics (.docx) est construit directement depuis les <strong>données Insights en cache</strong> — il ne nécessite pas de nouvel appel API à Claude. Il se rend instantanément depuis le JSON structuré produit pendant l\'analyse Insights.<br><br>La génération BPMN et Insights (l\'appel AI initial) prend 15–30 secondes car Claude Sonnet traite l\'intégralité du flux d\'événements.',
+    'faq.i4.a':'Le rapport Analytics (.docx) est construit directement depuis les <strong>données Insights en cache</strong> — il ne nécessite pas de nouvel appel API à Claude. Il se rend instantanément depuis le JSON structuré produit pendant l\'analyse Insights.<br><br>La génération BPMN et Insights (l\'appel AI initial) prend 15–30 secondes car les modèles Claude d\'Anthropic traitent l\'intégralité du flux d\'événements.',
     'faq.i5.q':'Puis-je exécuter les analyses BPMN et Insights sur la même session ?',
     'faq.i5.a':'Oui. Depuis la vue de relecture de session (onglet Sessions), vous pouvez exécuter la génération BPMN et Insights sur n\'importe quelle session sauvegardée, indépendamment du mode actif lors de son enregistrement.',
+    'faq.i6.q':'Sevenda peut-il envoyer le tag plan directement vers Google Tag Manager ?',
+    'faq.i6.a':'Oui. Une fois votre compte Google connecté — un flux OAuth vérifié par Google — Sevenda peut écrire les balises, déclencheurs et variables suggérés directement dans un espace de travail de votre conteneur GTM.<br><br>Rien n\'est publié tout seul : les modifications restent dans cet espace de travail, vous les relisez dans GTM et les publiez vous-même.',
     'faq.p1.q':'Où sont stockées les données de ma session ?',
     'faq.p1.a':'Toutes les données de session sont stockées <strong>localement sur votre appareil</strong> via l\'API <code>IndexedDB</code> du navigateur. <strong>Sevenda est local-first : vos sessions restent sur votre appareil par défaut.</strong> Elles sont transmises au backend de Sevenda Lab (une base de données PostgreSQL hébergée sur Supabase dans l\'Union européenne, protégée par row-level security) uniquement lorsque vous partagez explicitement une session avec un workspace d\'équipe.',
     'faq.p2.q':'Sevenda capture-t-il les mots de passe ou les données de formulaires sensibles ?',
@@ -2480,7 +2488,7 @@ const SEVENDA_I18N = {
     'faq.p3.q':'Quelles données sont envoyées à l\'API Anthropic Claude ?',
     'faq.p3.a':'Lorsque vous cliquez sur <strong>Générer</strong>, Sevenda envoie le flux d\'événements enregistré à l\'API Anthropic Claude en utilisant <strong>votre propre clé API</strong>.<br><br>Le traitement de ces données par Anthropic est régi par leur <a href="https://www.anthropic.com/privacy" target="_blank">Politique de Confidentialité</a>. Sevenda ne voit, ne consigne ni ne stocke la requête ou la réponse API.',
     'faq.p4.q':'Sevenda est-il conforme au RGPD ?',
-    'faq.p4.a':'Oui. Sevenda est conçu avec une architecture <strong>local-first, privacy-by-design</strong> : local-first par défaut — les sessions restent sur votre appareil et ne sont transmises au backend de Sevenda Lab (Supabase, UE, avec row-level security) que lorsque vous les partagez explicitement avec un workspace d\'équipe, consentement explicite avant toute génération AI, contrôle total de l\'utilisateur sur les données stockées et aucune collecte d\'informations personnellement identifiables (PII).',
+    'faq.p4.a':'Oui. Sevenda est conçu avec une architecture <strong>local-first, privacy-by-design</strong> : local-first par défaut — les sessions restent sur votre appareil et ne sont transmises au backend de Sevenda Lab (Supabase, UE, avec row-level security) que lorsque vous les partagez explicitement avec un workspace d\'équipe, consentement explicite avant toute génération AI, contrôle total de l\'utilisateur sur les données stockées et aucune collecte de données personnelles au-delà de l\'e-mail de votre compte et de votre appartenance au workspace.',
     'faq.p5.q':'Puis-je utiliser Sevenda pour enregistrer des sessions sur les sites clients ?',
     'faq.p5.a':'Techniquement oui. Cependant, nous recommandons d\'<strong>informer votre client</strong> que vous effectuez une observation de session à des fins de documentation de processus.<br><br>Sevenda ne capture pas les mots de passe, données de paiement ni contenu complet des formulaires. Vérifiez toujours les politiques internes de données du client avant d\'enregistrer.',
     'faq.pr1.q':'Existe-t-il un essai gratuit ?',
@@ -2488,16 +2496,16 @@ const SEVENDA_I18N = {
     'faq.pr2.q':'Quels sont les coûts de l\'API Anthropic et comment les estimer ?',
     'faq.pr2.a':'Sevenda utilise un modèle <strong>BYOK (Bring Your Own Key)</strong> — l\'utilisation de l\'IA est facturée sur votre propre compte Claude. Un compte Claude avec du crédit actif est requis pour générer. Coût typique : <strong>~0,06–0,85 € par génération</strong> selon le modèle. Le rapport Analytics ne génère pas de coûts supplémentaires.',
     'faq.pr3.q':'Puis-je annuler mon abonnement à tout moment ?',
-    'faq.pr3.a':'Oui. Il n\'y a pas d\'engagement à long terme. Vous pouvez annuler votre abonnement Solo ou Team à tout moment — votre accès continue jusqu\'à la fin de la période de facturation en cours, puis prend simplement fin.',
+    'faq.pr3.a':'Oui. Il n\'y a pas d\'engagement à long terme. Vous pouvez annuler votre abonnement à tout moment — votre accès continue jusqu\'à la fin de la période de facturation en cours, puis prend simplement fin. Aucuns frais d\'annulation.<br><br>Les sessions locales restent sur l\'appareil ; les contenus soumis à rétention suivent la durée de conservation du plan — nous vous recommandons d\'exporter au préalable tout ce que vous souhaitez conserver.',
     'faq.pr4.q':'Proposez-vous un essai ou un programme de partenariat pour les cabinets de conseil ?',
-    'faq.pr4.a':'Oui — nous proposons un <strong>Programme Beta Partnership</strong> pour les cabinets de conseil et agences. Les partenaires qualifiés reçoivent un accès gratuit au plan Team pendant 60 jours ouvrables.<br><br>Si vous êtes intéressé, écrivez à <a href="mailto:hello@sevenda.dev">hello@sevenda.dev</a>.',
+    'faq.pr4.a':'Oui — nous proposons un <strong>Programme Beta Partnership</strong> pour les cabinets de conseil et agences. Les partenaires qualifiés reçoivent un accès gratuit au plan Suite Team pendant 60 jours ouvrables.<br><br>Si vous êtes intéressé, écrivez à <a href="mailto:hello@sevenda.dev">hello@sevenda.dev</a>.',
 
     /* ── Pricing bottom FAQ FR ── */
     'pfaq.eyebrow':'FAQ','pfaq.title':'Questions fréquentes',
     'pfaq.1.q':'Y a-t-il des limites sur les sessions et les audits ?',
     'pfaq.1.a':'Non. Les sessions et les audits sont illimités sur tous les plans — rien ne s\'épuise et aucun compteur n\'est à surveiller. Nous demandons simplement un usage raisonnable : l\'usage automatisé, la revente ou l\'abus qui dégrade le service pour les autres relèvent des règles d\'utilisation acceptable de nos <a href="/terms.html">Conditions d\'utilisation</a>. Nous vous contactons avant toute mesure : il n\'y a pas de blocage automatique sans préavis.',
     'pfaq.2.q':'Comment fonctionne la tarification par volume ?',
-    'pfaq.2.a':'Plus votre espace de travail compte d\'utilisateurs, moins vous payez par siège. Avec 2–5 utilisateurs, vous payez 13 €/utilisateur/mois (annuel) ; avec 6–20 utilisateurs, le tarif descend à 10 €/utilisateur/mois. Les remises de volume s\'appliquent automatiquement lorsque vous ajoutez des membres.',
+    'pfaq.2.a':'Plus votre espace de travail compte d\'utilisateurs, moins vous payez par siège. Les remises de volume s\'appliquent automatiquement lorsque vous ajoutez des membres.',
     'pfaq.3.q':'Mon compte Claude est-il séparé de Sevenda ?',
     'pfaq.3.a':'Oui. Votre plan Sevenda couvre le logiciel : sessions et audits illimités, exports, collaboration et rétention. La génération IA (BPMN, analyse Insights) s\'exécute sur votre propre compte Claude (BYOK) et vous est facturée par Anthropic — un compte Claude avec du crédit actif est nécessaire pour générer. Coût typique : ~0,06–0,85 € par génération selon le modèle.',
     'pfaq.4.q':'Puis-je basculer entre le mode Process et Analytics ?',
@@ -2522,7 +2530,7 @@ const SEVENDA_I18N = {
     'ds.06.eye':'06 — Le panneau DevTools','ds.06.h2':'Le cœur de Sevenda','ds.06.p':'Le panneau vit dans Chrome DevTools. Ouvrez-le avec F12 → onglet Sevenda.',
     'ds.07.eye':'07 — Enregistrement','ds.07.h2':'Capturer une session','ds.07.p':'Sevenda capture automatiquement tous les événements sans aucune modification de l\'application cible.',
     'ds.08.eye':'08 — Flux d\'événements','ds.08.h2':'Le journal d\'événements en temps réel','ds.08.p':'Filtrez, recherchez et inspectez chaque événement d\'un clic pour voir les détails complets.',
-    'ds.09.eye':'09 — Génération BPMN','ds.09.h2':'Du journal au diagramme','ds.09.p':'Claude Sonnet transforme la séquence d\'événements en un diagramme conforme au standard BPMN 2.0.',
+    'ds.09.eye':'09 — Génération BPMN','ds.09.h2':'Du journal au diagramme','ds.09.p':'Les modèles Claude d\'Anthropic transforment la séquence d\'événements en un diagramme conforme au standard BPMN 2.0.',
     'ds.10.eye':'10 — Panneau BPMN','ds.10.h2':'Vues et outils disponibles','ds.10.p':'Le panneau BPMN offre trois onglets avec des outils contextuels pour chaque vue.',
     'ds.11.eye':'11 — Retour itératif','ds.11.h2':'Affiner le BPMN en langage naturel','ds.11.p':'Modifiez le diagramme sans le régénérer depuis zéro.',
     'ds.12.eye':'12 — Génération d\'Insights','ds.12.h2':'Analyse GTM/GA4 automatique','ds.12.p':'Identifie les lacunes de tracking, les événements manquants et produit un plan de tags prêt à implémenter.',
@@ -2673,6 +2681,13 @@ const SEVENDA_I18N = {
 (function() {
   'use strict';
 
+  /* Anno corrente: le stringhe usano il segnaposto {year} (es. il copyright
+     in footer) così non resta mai un anno hardcoded da aggiornare a mano. */
+  const CURRENT_YEAR = String(new Date().getFullYear());
+  function interp(v) {
+    return typeof v === 'string' ? v.replace(/\{year\}/g, CURRENT_YEAR) : v;
+  }
+
   function applyLang(lang) {
     const t = SEVENDA_I18N[lang];
     if (!t) return;
@@ -2680,20 +2695,25 @@ const SEVENDA_I18N = {
     document.documentElement.lang = lang;
 
     document.querySelectorAll('[data-i18n]').forEach(el => {
-      const v = t[el.dataset.i18n];
+      const v = interp(t[el.dataset.i18n]);
       if (v !== undefined) el.textContent = v;
     });
     document.querySelectorAll('[data-i18n-html]').forEach(el => {
-      const v = t[el.dataset.i18nHtml];
+      const v = interp(t[el.dataset.i18nHtml]);
       if (v !== undefined) el.innerHTML = v;
     });
     document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-      const v = t[el.dataset.i18nPlaceholder];
+      const v = interp(t[el.dataset.i18nPlaceholder]);
       if (v !== undefined) el.placeholder = v;
     });
     document.querySelectorAll('[data-i18n-aria-label]').forEach(el => {
-      const v = t[el.dataset.i18nAriaLabel];
+      const v = interp(t[el.dataset.i18nAriaLabel]);
       if (v !== undefined) el.setAttribute('aria-label', v);
+    });
+
+    /* Fallback inline senza chiave i18n: <span data-year>2025</span> */
+    document.querySelectorAll('[data-year]').forEach(el => {
+      el.textContent = CURRENT_YEAR;
     });
     document.querySelectorAll('.lang-btn').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.lang === lang);
@@ -2755,8 +2775,8 @@ const SEVENDA_I18N = {
   window.t = function(key) {
     const lang = window.getLang();
     const table = SEVENDA_I18N[lang] || SEVENDA_I18N.en;
-    if (table && table[key] !== undefined) return table[key];
-    if (SEVENDA_I18N.en[key] !== undefined) return SEVENDA_I18N.en[key];
+    if (table && table[key] !== undefined) return interp(table[key]);
+    if (SEVENDA_I18N.en[key] !== undefined) return interp(SEVENDA_I18N.en[key]);
     return key;
   };
 

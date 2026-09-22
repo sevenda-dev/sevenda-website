@@ -450,8 +450,8 @@ footer {
       </button>
       <div class="faq-a">
         <div class="faq-a-inner" data-i18n-html="faq.g1.a">
-          Sevenda is a Chrome Extension (MV3) that records your browser sessions and automatically generates <strong>BPMN 2.0 process diagrams</strong> and <strong>GTM/GA4 analytics insights</strong> — powered by Claude Sonnet AI.<br><br>
-          It works in two modes: <strong>🧩 BPMN mode</strong> maps user flows and processes from real browser interactions; <strong>📊 Insights mode</strong> analyzes your tracking setup, identifies missing GTM events, and generates a ready-to-use Tag Plan. No code changes, no SDK, no setup required on the target site.
+          Sevenda is a Chrome Extension (MV3) that records your browser sessions and automatically generates <strong>BPMN 2.0 process diagrams</strong> and <strong>GTM/GA4 analytics insights</strong> — powered by Anthropic's Claude models (your own API key).<br><br>
+          It works in two modes: <strong>🧩 BPMN mode</strong> maps user flows and processes from real browser interactions; <strong>📊 Insights mode</strong> analyzes your tracking setup, identifies missing GTM events, and generates a ready-to-use Tag Plan. No code changes, no SDK on the target site.
         </div>
       </div>
     </div>
@@ -491,7 +491,7 @@ footer {
       <div class="faq-a">
         <div class="faq-a-inner" data-i18n-html="faq.g4.a">
           From installation to your first BPMN diagram: <strong>under 60 seconds</strong>.<br><br>
-          The generation itself (Claude Sonnet processing the event stream) typically takes <strong>15–30 seconds</strong> depending on session length and API response time. The Analytics Report in Insights mode is <strong>instantaneous</strong> — it's generated from cached data without an additional API call.
+          The generation itself (Anthropic's Claude models processing the event stream) typically takes <strong>15–30 seconds</strong> depending on session length and API response time. The Analytics Report in Insights mode is <strong>instantaneous</strong> — it's generated from cached data without an additional API call.
         </div>
       </div>
     </div>
@@ -541,7 +541,7 @@ footer {
           2. Click the Sevenda icon in the Chrome toolbar — a popup appears.<br>
           3. Go to <strong>Settings → AI Models</strong> and enter your <a href="https://console.anthropic.com" target="_blank">Anthropic API key</a>.<br>
           4. Open Chrome DevTools (<code>F12</code>) on any page — you'll find the Sevenda panel in the tabs.<br>
-          5. Press <strong>Avvia Registrazione</strong> and start navigating.
+          5. Press <strong>Start Recording</strong> and start navigating.
         </div>
       </div>
     </div>
@@ -557,7 +557,7 @@ footer {
           2. Go to <strong>API Keys</strong> and click <strong>Create Key</strong>.<br>
           3. Copy the key (starts with <code>sk-ant-</code>) — you'll only see it once.<br>
           4. Paste it in Sevenda → Settings → AI Models → API Key field and save.<br><br>
-          Anthropic offers a free credit tier to get started. The key is stored locally in <code>chrome.storage.sync</code> — it never leaves your device unless you explicitly click Generate.
+          Add an initial credit in <strong>Plans &amp; Billing</strong> — 5–10 $ is enough to get started — and set a monthly spend limit in the console to keep costs under control. Your key is stored in <code>chrome.storage.sync</code> (synced by Google across your Chrome devices) and is sent only to Anthropic when you generate. Sevenda never sees it.
         </div>
       </div>
     </div>
@@ -598,8 +598,8 @@ footer {
       </button>
       <div class="faq-a">
         <div class="faq-a-inner" data-i18n-html="faq.s5.a">
-          Yes. Each team member installs Sevenda on their own Chrome and configures their own API key. Sessions are stored locally per device — there is no shared session storage on solo plans.<br><br>
-          The <strong>Team plan</strong> (from €13/user/month) adds a shared session library and team analytics dashboard, allowing up to 10 team members to access and replay each other's sessions.
+          Yes. Each team member installs Sevenda on their own Chrome and configures their own API key. Sessions are stored locally per device — there is no shared session storage on the single-seat plans (Analyst, Auditor, Suite Solo).<br><br>
+          The multi-seat plans (<strong>Studio</strong>, <strong>Agency</strong>, <strong>Suite Team</strong>) add a shared session library and a team analytics dashboard, allowing up to 20 members to access and replay each other's sessions.
         </div>
       </div>
     </div>
@@ -654,7 +654,7 @@ footer {
           • <strong>.bpmn</strong> — BPMN 2.0 XML, ready for Camunda Modeler, Signavio or Bizagi<br>
           • <strong>.svg</strong> — vector image, scalable for presentations and documentation<br>
           • <strong>.png</strong> — raster image for slides, emails, reports<br>
-          • <strong>.docx</strong> — full Analisi Tecnico-Funzionale (6-section enterprise report) generated via Claude<br>
+          • <strong>.docx</strong> — full Technical-Functional Analysis report (6-section enterprise format) generated via Claude<br>
           • <strong>Jira issue</strong> — creates a Jira issue with XML + SVG attachments and session metadata<br>
           • <strong>Camunda .bpmn</strong> — adapted export with <code>isExecutable="true"</code> and Camunda namespace
         </div>
@@ -702,7 +702,7 @@ footer {
       </button>
       <div class="faq-a">
         <div class="faq-a-inner" data-i18n-html="faq.b6.a">
-          Yes. In the BPMN panel, click <strong>Incolla XML</strong> to paste any valid BPMN 2.0 XML and render it in the viewer. You can then use the Iterative Feedback feature to ask Claude to modify it — effectively using Sevenda as an AI-powered BPMN editor even without recording a new session.
+          Yes. In the BPMN panel, click <strong>Paste XML</strong> to paste any valid BPMN 2.0 XML and render it in the viewer. You can then use the Iterative Feedback feature to ask Claude to modify it — effectively using Sevenda as an AI-powered BPMN editor even without recording a new session.
         </div>
       </div>
     </div>
@@ -713,7 +713,7 @@ footer {
     <div class="faq-group-label">
       <div class="faq-group-dot" style="background:#dc5858;"></div>
       <span class="faq-group-name">Insights &amp; GTM</span>
-      <span class="faq-group-count">5 questions</span>
+      <span class="faq-group-count">6 questions</span>
     </div>
 
     <div class="faq-item" data-category="insights">
@@ -771,7 +771,7 @@ footer {
       <div class="faq-a">
         <div class="faq-a-inner" data-i18n-html="faq.i4.a">
           The Analytics Report (.docx) is built directly from the <strong>cached Insights data</strong> already generated in the current session — it doesn't require a new API call to Claude. It renders instantly from the structured JSON that Claude produced during the Insights analysis.<br><br>
-          The BPMN and Insights generation (the initial AI call) take 15–30 seconds because Claude Sonnet is processing the full event stream. Once that's done, all derivative outputs (report, Tag Plan) are immediate.
+          The BPMN and Insights generation (the initial AI call) take 15–30 seconds because Anthropic's Claude models process the full event stream. Once that's done, all derivative outputs (report, Tag Plan) are immediate.
         </div>
       </div>
     </div>
@@ -784,6 +784,19 @@ footer {
       <div class="faq-a">
         <div class="faq-a-inner" data-i18n-html="faq.i5.a">
           Yes. From the session replay view (Sessions tab), you can run both BPMN and Insights generation on any saved session — regardless of which mode was active when it was recorded. Switch to the session, then use the <strong>BPMN</strong> and <strong>Insights</strong> buttons independently to generate both outputs from the same event data.
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item" data-category="insights">
+      <button class="faq-q" onclick="toggleFAQ(this)">
+        <span class="faq-q-text" data-i18n="faq.i6.q">Can Sevenda push the tag plan directly to Google Tag Manager?</span>
+        <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a">
+        <div class="faq-a-inner" data-i18n-html="faq.i6.a">
+          Yes. Once you connect your Google account — an OAuth flow verified by Google — Sevenda can write the suggested tags, triggers and variables straight into a workspace of your GTM container.<br><br>
+          Nothing goes live on its own: the changes stay in that workspace, so you review them in GTM and publish them yourself.
         </div>
       </div>
     </div>
@@ -852,7 +865,7 @@ footer {
           • Local-first by default — sessions stay on your device and are transmitted to the Sevenda Lab backend (Supabase, EU, with row-level security) only when you explicitly share them with a team workspace<br>
           • Explicit user consent required before any AI generation (you must click Generate)<br>
           • Full user control over stored data — delete sessions at any time<br>
-          • No collection of personally identifiable information (PII)<br><br>
+          • No personal data collected beyond your account email and workspace membership<br><br>
           Our full Privacy Policy is available at <a href="privacy.html">sevenda.dev/privacy.html</a>. For GDPR-related requests, contact <a href="mailto:hello@sevenda.dev">hello@sevenda.dev</a>.
         </div>
       </div>
@@ -887,8 +900,7 @@ footer {
       </button>
       <div class="faq-a">
         <div class="faq-a-inner" data-i18n-html="faq.pr1.a">
-          Every paid plan starts with a <strong>14-day free trial</strong>, BPMN 2.0 generation, export in .bpmn and .svg formats, and full access to the Chrome DevTools panel.<br><br>
-          Features exclusive to Team plans: Insights &amp; GTM analysis, .docx report export, .png export, Jira and Camunda integration, and team collaboration tools.
+          Every paid plan starts with a <strong>14-day free trial</strong> — no credit card required. You get full access to your plan's features (BPMN 2.0 generation, exports, integrations) during the trial, and you're only billed if you continue.
         </div>
       </div>
     </div>
@@ -914,7 +926,8 @@ footer {
       </button>
       <div class="faq-a">
         <div class="faq-a-inner" data-i18n-html="faq.pr3.a">
-          Yes. There are no long-term commitments. You can cancel your Pro or Team subscription at any time — your access continues until the end of the current billing period, then simply ends. No cancellation fees, no data loss.
+          Yes. There are no long-term commitments. You can cancel your subscription at any time — your access continues until the end of the current billing period, then simply ends. No cancellation fees.<br><br>
+          Local sessions remain on the device; content subject to retention follows the plan's retention period — we recommend exporting anything you wish to keep beforehand.
         </div>
       </div>
     </div>
@@ -926,7 +939,7 @@ footer {
       </button>
       <div class="faq-a">
         <div class="faq-a-inner" data-i18n-html="faq.pr4.a">
-          Yes — we offer a <strong>Beta Partnership Program</strong> for consulting firms and agencies. Qualified partners receive free access to the Team plan for 60 working days, dedicated onboarding, and direct support from the founder in exchange for structured feedback and a case study.<br><br>
+          Yes — we offer a <strong>Beta Partnership Program</strong> for consulting firms and agencies. Qualified partners receive free access to the Suite Team plan for 60 working days, dedicated onboarding, and direct support from the founder in exchange for structured feedback and a case study.<br><br>
           If you're interested, write to <a href="mailto:hello@sevenda.dev">hello@sevenda.dev</a> with a brief description of your firm and use case.
         </div>
       </div>
@@ -964,7 +977,7 @@ footer {
     <a href="privacy.html" data-i18n="foot.privacy">Privacy Policy</a>
     <a href="terms.html" data-i18n="foot.terms">Terms</a>
   </div>
-  <span class="footer-copy" data-i18n="foot.copy">© 2025 Sevenda · Built with Claude</span>
+  <span class="footer-copy" data-i18n="foot.copy">© <span data-year>2025</span> Sevenda · Built with Claude</span>
 </footer>
 
 <script>
