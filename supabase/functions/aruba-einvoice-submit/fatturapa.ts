@@ -2,9 +2,16 @@
 // Sevenda — Builder FatturaPA (fattura elettronica ordinaria, formato FPR12)
 // ════════════════════════════════════════════════════════════════════════════
 // Modulo puro: nessuna chiamata di rete, nessun accesso a Deno.env qui dentro.
-// Condiviso fra stripe-webhook (non lo usa direttamente, ma la struttura dei
-// dati che gli passa deve combaciare) e aruba-einvoice-submit, che lo importa
-// con `import { buildFatturaPA } from "../_shared/fatturapa.ts"`.
+// Vive dentro aruba-einvoice-submit (che lo importa con
+// `import { buildFatturaPA } from "./fatturapa.ts"`), NON in una cartella
+// condivisa fra funzioni: è l'unica funzione che lo usa oggi, e una cartella
+// _shared/ fuori dalla directory della funzione si è rivelata fragile al
+// deploy — il bundler Deno non l'ha risolta in un tentativo reale (Module not
+// found), a seconda di come/da dove si lancia `supabase functions deploy`. Se
+// domani un'altra funzione avrà bisogno di questo builder, si reintroduce
+// _shared/ allora, non prima: la struttura dei dati che stripe-webhook scrive
+// (invoice.sdi_code, .fiscal_code, .vat_cents) deve comunque combaciare con
+// quello che questo modulo si aspetta, anche senza un import diretto.
 //
 // SCOPO RISTRETTO PER COSTRUZIONE. Questo builder genera SOLO fatture verso
 // controparti italiane: un job in einvoice_job esiste unicamente quando

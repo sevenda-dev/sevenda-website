@@ -3,7 +3,8 @@
 // ════════════════════════════════════════════════════════════════════════════
 // Worker della outbox einvoice_job (vedi db/migrations/2026-09-23-einvoice.sql):
 // legge i job 'pending', costruisce l'XML FatturaPA (supabase/functions/
-// _shared/fatturapa.ts), lo carica su Aruba e aggiorna lo stato del job.
+// fatturapa.ts, in questa stessa cartella), lo carica su Aruba e aggiorna lo
+// stato del job.
 //
 // NON è agganciata a stripe-webhook. handleInvoice si limita a SCRIVERE il job
 // a invoice.paid; questa funzione lo esegue in un secondo momento, invocata da
@@ -43,7 +44,7 @@
 // ════════════════════════════════════════════════════════════════════════════
 
 import { createClient } from "npm:@supabase/supabase-js@^2";
-import { buildFatturaPA, type Cessionario, type FatturaInput } from "../_shared/fatturapa.ts";
+import { buildFatturaPA, type Cessionario, type FatturaInput } from "./fatturapa.ts";
 
 const ARUBA_AUTH_BASE = "https://auth.fatturazioneelettronica.aruba.it";
 const ARUBA_WS_BASE = "https://ws.fatturazioneelettronica.aruba.it";
