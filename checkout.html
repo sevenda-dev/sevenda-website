@@ -352,6 +352,20 @@
           <p class="co-field-hint" data-i18n="co.vat.hint">This will appear on future invoices.</p>
           <div class="co-error" id="coVatError" style="display:none;"></div>
         </div>
+
+        <div class="co-field" id="coSdiField" style="display:none;">
+          <label class="co-label" for="coSdi"><span data-i18n="co.label.sdi">Recipient Code (Codice Destinatario)</span> <span class="req" data-i18n="co.required">(required)</span></label>
+          <input class="co-input" type="text" id="coSdi" placeholder="ABC1234" data-i18n-placeholder="co.sdi.ph" maxlength="7" autocomplete="off" spellcheck="false">
+          <p class="co-field-hint" data-i18n="co.sdi.hint">Seven letters or digits, required for Italian electronic invoicing. If you don't have one, enter 0000000: your invoice will be available in your Agenzia delle Entrate tax drawer.</p>
+          <div class="co-error" id="coSdiError" style="display:none;"></div>
+        </div>
+
+        <div class="co-field" id="coCfField" style="display:none;">
+          <label class="co-label" for="coCf"><span data-i18n="co.label.cf">Italian Tax Code (Codice Fiscale)</span> <span class="req" data-i18n="co.required">(required)</span></label>
+          <input class="co-input" type="text" id="coCf" placeholder="RSSMRA80A01H501U" data-i18n-placeholder="co.cf.ph" maxlength="16" autocomplete="off" spellcheck="false">
+          <p class="co-field-hint" data-i18n="co.cf.hint">Sixteen characters, required by law for Italian electronic invoicing to private individuals. Your invoice will also be delivered to your Agenzia delle Entrate tax drawer.</p>
+          <div class="co-error" id="coCfError" style="display:none;"></div>
+        </div>
       </div>
     </div>
 
@@ -723,6 +737,12 @@
     // La riga del consenso art. 59 dipende dalla partita IVA
     syncImmediateConsent();
 
+    // Codice Destinatario e Codice Fiscale dipendono da partita IVA e paese
+    syncSdiField();
+    syncCfField();
+    if ($('coSdiError').style.display !== 'none') showSdiError(true);
+    if ($('coCfError').style.display !== 'none') showCfError(true);
+
     // Label del bottone dipende dal trial → tienila sincronizzata
     updateActionButton();
   }
@@ -769,6 +789,82 @@
     if (!show) $('coTermImmediate').checked = false;
   }
 
+  /* ── Codice Destinatario (fatturazione elettronica italiana) ──────────
+     Lo SDI recapita la fattura elettronica a un'azienda italiana solo se sa
+     dove mandarla: o un codice di sette caratteri, o 0000000, che significa
+     "mettila nel cassetto fiscale". Senza nessuno dei due la fattura non è
+     emettibile, quindi il dato si raccoglie al checkout invece di rincorrerlo
+     dopo.
+     A CHI SI CHIEDE: il discriminante è il prefisso IT della partita IVA. Si
+     accetta anche "paese Italia + partita IVA compilata senza prefisso", che
+     Stripe rifiuterebbe comunque come formato: nasconderlo li' significherebbe
+     togliere un campo obbligatorio a un'azienda italiana che ha solo
+     dimenticato due lettere. Chi non compila la partita IVA non vede nulla —
+     per un consumatore il codice non esiste. */
+  const SDI_RE = /^[A-Za-z0-9]{7}$/;
+
+  function isItalianBusiness() {
+    const vat = $('coVat').value.replace(/\s/g, '').toUpperCase();
+    if (!vat) return false;
+    return vat.indexOf('IT') === 0 || $('coCountry').value === 'IT';
+  }
+
+  function syncSdiField() {
+    const show = isItalianBusiness();
+    // Stringa vuota e non 'block': ripristina il display del foglio di stile
+    // invece di imporne uno, che è ciò che rompe i layout quando cambiano.
+    $('coSdiField').style.display = show ? '' : 'none';
+    // Uscendo dal caso italiano il valore non resta in un campo invisibile:
+    // finirebbe su una fattura a cui non appartiene.
+    if (!show) {
+      $('coSdi').value = '';
+      $('coSdi').classList.remove('err');
+      showSdiError(false);
+    }
+  }
+
+  // Come showVatError: il testo non può stare su data-i18n, perché applyLang()
+  // lo sovrascriverebbe al cambio lingua. Lo riscrive render().
+  function showSdiError(on) {
+    const box = $('coSdiError');
+    box.style.display = on ? 'block' : 'none';
+    box.textContent = on ? tt('co.err.sdiInvalid',
+      'Enter seven letters or digits, or 0000000 if you do not have a Recipient Code.') : '';
+  }
+
+  /* ── Codice Fiscale (privati italiani) ────────────────────────────────
+     Il ramo opposto del Codice Destinatario: la fatturazione elettronica è
+     obbligatoria anche verso i privati residenti in Italia, e per un privato
+     lo SDI vuole il codice fiscale (il recapito è il cassetto fiscale,
+     CodiceDestinatario 0000000, che non si chiede: è implicito). Si mostra
+     quindi a paese Italia CON partita IVA vuota — l'esatto complemento di
+     isItalianBusiness(), mai visibili insieme. Sedici caratteri alfanumerici:
+     il formato strutturale completo (con omocodia e carattere di controllo)
+     resta fuori per scelta, l'Agenzia lo verifica comunque allo scarto. */
+  const CF_RE = /^[A-Za-z0-9]{16}$/;
+
+  function isItalianConsumer() {
+    return $('coCountry').value === 'IT' && !$('coVat').value.trim();
+  }
+
+  function syncCfField() {
+    const show = isItalianConsumer();
+    $('coCfField').style.display = show ? '' : 'none';
+    // Come per il Codice Destinatario: niente valori residui in campi invisibili.
+    if (!show) {
+      $('coCf').value = '';
+      $('coCf').classList.remove('err');
+      showCfError(false);
+    }
+  }
+
+  function showCfError(on) {
+    const box = $('coCfError');
+    box.style.display = on ? 'block' : 'none';
+    box.textContent = on ? tt('co.err.cfInvalid',
+      'Enter your sixteen-character Italian tax code (Codice Fiscale).') : '';
+  }
+
   function termsOk() {
     if (S.step < 2) return true;
     if (!$('coTermPrivacy').checked || !$('coTermCharge').checked) return false;
@@ -800,6 +896,22 @@
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       $('coEmail').classList.add('err'); ok = false;
     }
+    // Codice Destinatario: obbligatorio se il campo è a schermo, cioè solo per
+    // le aziende italiane. 0000000 è un valore legittimo e passa il regex.
+    if (isItalianBusiness()) {
+      const bad = !SDI_RE.test($('coSdi').value.trim());
+      $('coSdi').classList.toggle('err', bad);
+      showSdiError(bad);
+      if (bad) ok = false;
+    }
+    // Codice Fiscale: obbligatorio per i privati italiani, mai insieme al
+    // Codice Destinatario — i due predicati sono complementari su paese IT.
+    if (isItalianConsumer()) {
+      const bad = !CF_RE.test($('coCf').value.trim());
+      $('coCf').classList.toggle('err', bad);
+      showCfError(bad);
+      if (bad) ok = false;
+    }
     return ok;
   }
 
@@ -828,9 +940,14 @@
       },
       phone: $('coPhone').value.trim(),
       vatId: $('coVat').value.trim(),
+      // Codice Destinatario SDI: solo per le aziende italiane, maiuscolo perché
+      // è così che viaggia verso lo SDI e che va stampato in fattura.
+      sdiCode: isItalianBusiness() ? $('coSdi').value.trim().toUpperCase() : '',
+      // Codice Fiscale: solo per i privati italiani, stesso trattamento.
+      fiscalCode: isItalianConsumer() ? $('coCf').value.trim().toUpperCase() : '',
       // Consenso art. 59 Codice del Consumo (solo acquisti da consumatore).
-      // NB: la Edge Function create-subscription al momento IGNORA questo campo
-      // — per conservarne la prova va scritto nei metadata del customer Stripe.
+      // La Edge Function lo registra nei metadata del SetupIntent e lo ricopia
+      // sulla subscription (create-subscription v11).
       consumerImmediatePerformance: isConsumerPurchase() && $('coTermImmediate').checked,
     };
   }
@@ -900,6 +1017,8 @@
           phone: billing.phone,
           address: billing.address,
           vatId: billing.vatId,
+          sdiCode: billing.sdiCode,
+          fiscalCode: billing.fiscalCode,
           consumerImmediatePerformance: billing.consumerImmediatePerformance,
           supabaseUserId: user.id, // collega il pagamento all'utente/organization (webhook)
           orgName: billing.name,   // nome organizzazione = ragione sociale (Company name)
@@ -925,6 +1044,31 @@
       // della partita IVA creando il Tax ID. È un errore di compilazione del
       // form, non un guasto del pagamento: si torna allo step 2 col campo
       // evidenziato, senza il prefisso "Payment setup failed.".
+      // fiscal_code_invalid (create-subscription v13): come sdi_code_invalid,
+      // sul ramo dei privati italiani.
+      if (res.status === 400 && data.code === 'fiscal_code_invalid') {
+        load.style.display = 'none';
+        subscriptionReady = false;
+        goToStep(2);
+        $('coCf').classList.add('err');
+        showCfError(true);
+        $('coCf').focus();
+        return false;
+      }
+
+      // sdi_code_invalid (create-subscription v13): il codice non rispetta il
+      // formato. Come per la partita IVA è un errore di compilazione, non un
+      // guasto del pagamento: si torna allo step 2 col campo evidenziato.
+      if (res.status === 400 && data.code === 'sdi_code_invalid') {
+        load.style.display = 'none';
+        subscriptionReady = false;
+        goToStep(2);
+        $('coSdi').classList.add('err');
+        showSdiError(true);
+        $('coSdi').focus();
+        return false;
+      }
+
       if (res.status === 400 && data.code === 'vat_id_invalid') {
         load.style.display = 'none';
         subscriptionReady = false;
@@ -1179,6 +1323,8 @@
   document.querySelectorAll('.co-input, .co-select').forEach(el =>
     el.addEventListener('input', () => el.classList.remove('err')));
   $('coVat').addEventListener('input', () => showVatError(false));
+  $('coSdi').addEventListener('input', () => showSdiError(false));
+  $('coCf').addEventListener('input', () => showCfError(false));
 
   // Paese e partita IVA determinano l'aliquota stimata → ridisegna il riepilogo
   $('coCountry').addEventListener('change', render);

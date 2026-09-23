@@ -1,11 +1,59 @@
 // ════════════════════════════════════════════════════════════════════════════
-// Sevenda — Edge Function: stripe-webhook   (PATCH v15 — IVA da tax rate manuali)
+// Sevenda — Edge Function: stripe-webhook   (PATCH v17 — outbox emissione Aruba)
 // ════════════════════════════════════════════════════════════════════════════
 // Chiude il giro Stripe → Supabase. Riceve gli eventi Stripe, verifica la firma,
 // garantisce l'idempotenza (tabella stripe_event) e fa upsert di organization,
 // subscription e invoice. Usa la service-role key (bypassa la RLS).
 //
-// ── PATCH v15 (questa versione) ────────────────────────────────────────────
+// ── PATCH v17 (questa versione) ────────────────────────────────────────────
+// OUTBOX VERSO L'EMISSIONE ELETTRONICA. Chiude il TODO che la v13 aveva
+// lasciato in handleInvoice ("se provider='aruba' e status='paid', enqueue
+// verso l'API Aruba"). handleInvoice ora INSERISCE una riga in einvoice_job
+// quando una fattura italiana risulta pagata; non chiama Aruba direttamente,
+// e non ne conosce l'esistenza — l'esecuzione è demandata alla nuova Edge
+// Function aruba-einvoice-submit (vedi supabase/functions/aruba-einvoice-submit
+// e supabase/functions/_shared/fatturapa.ts), invocata da un trigger periodico
+// ancora da configurare.
+//   PERCHÉ QUI SOLO L'INSERT: un errore di rete verso Aruba non deve poter
+//   diventare un 500 su QUESTO webhook — esattamente la ragione per cui la v9
+//   di create-subscription ha separato la creazione del SetupIntent dalla
+//   subscription, e per cui sendEmail() qui sotto è best-effort. L'insert
+//   stesso resta però nel percorso principale (non nel blocco comunicazioni
+//   sotto, che already-swallows tutto): un job mai scritto è un'omissione
+//   fiscale silenziosa, quindi il suo fallimento è loggato con un prefisso
+//   dedicato e greppabile invece di sparire nello stesso catch delle email.
+//   IDEMPOTENZA: UNIQUE su einvoice_job.invoice_id (migrazione
+//   2026-09-23-einvoice.sql). Un retry di questo stesso evento, o un secondo
+//   invoice.paid rigiocato, incontra 23505 e non accoda un secondo job — non
+//   è un errore da segnalare, è l'esito atteso.
+//   Prerequisito: migrazione 2026-09-23-einvoice.sql applicata (sequence
+//   einvoice_number_seq, tabella einvoice_job) — senza, l'insert fallisce con
+//   "relation does not exist" e viene loggato come tale.
+//
+// ── PATCH v16 ──────────────────────────────────────────────────────────────
+// CODICE DESTINATARIO E CODICE FISCALE PERSISTITI. create-subscription v13
+// raccoglie al checkout il Codice Destinatario dalle aziende italiane e il
+// Codice Fiscale dai privati italiani (rami complementari: mai entrambi), e li
+// scrive su customer.metadata (sdiCode / fiscalCode) e nei custom_fields della
+// fattura. Qui arrivano a destinazione:
+//   - billing_profile.sdi_code / .fiscal_code — l'anagrafica del cliente,
+//     accanto a vat_id. Scritti sia alla creazione dell'org (resolveOrg) sia su
+//     customer.updated (handleCustomer), come già avviene per la partita IVA.
+//   - invoice.sdi_code / .fiscal_code — lo SNAPSHOT al momento dell'emissione,
+//     che per un documento fiscale è il dato che conta. La fonte primaria è
+//     invoice.custom_fields, perché Stripe li congela sulla fattura alla
+//     finalizzazione: è il valore che sta stampato su QUEL PDF, non quello che
+//     il cliente ha in anagrafica oggi. Il metadata del Customer resta come
+//     ripiego per le fatture emesse prima della v13.
+//   PERCHÉ SERVE: l'emissione verso SDI non esiste ancora (vedi il TODO in
+//   handleInvoice, provider 'aruba'). Senza questo campo, il giorno in cui
+//   verrà costruita si scoprirà che il dato non è mai stato conservato e andrà
+//   chiesto a ritroso a ogni cliente italiano. Raccoglierlo ora costa due
+//   colonne; recuperarlo dopo costa una campagna di email.
+//   PREREQUISITO: migrazione 2026-09-22-sdi-fiscal-code.sql (colonne sdi_code
+//   e fiscal_code su billing_profile e invoice, tutte nullable).
+//
+// ── PATCH v15 ──────────────────────────────────────────────────────────────
 // "AUTOMATIC_TAX DISABILITATO" NON SIGNIFICA PIÙ "NESSUNA IMPOSTA".
 // create-subscription v12 applica l'IVA italiana ai consumatori UE fuori
 // dall'Italia con default_tax_rates e automatic_tax spento: sotto la soglia dei
@@ -1030,7 +1078,7 @@ async function previewNextAmount(
 // delle comunicazioni, senza una seconda retrieve.
 async function resolveOrg(
   customerId: string,
-): Promise<{ orgId: string; country: string; email: string | null; name: string | null; locale: Locale }> {
+): Promise<{ orgId: string; country: string; email: string | null; name: string | null; locale: Locale; sdiCode: string | null; fiscalCode: string | null }> {
   // 1) già mappata?
   const { data: existing } = await supabase
     .from("organization").select("id, locale").eq("stripe_customer_id", customerId).maybeSingle();
@@ -1045,11 +1093,15 @@ async function resolveOrg(
   const country = c.address?.country || "IT";
   const email = c.email ?? null;
   const name = c.name ?? null;
+  // v16: scritti da create-subscription v13 — sdiCode per le aziende italiane,
+  // fiscalCode per i privati italiani. Al più uno dei due è valorizzato.
+  const sdiCode = String(c.metadata?.sdiCode ?? "").trim().toUpperCase() || null;
+  const fiscalCode = String(c.metadata?.fiscalCode ?? "").trim().toUpperCase() || null;
 
   // v5: la lingua registrata sull'org vince sempre. È l'unico valore che
   // l'utente può aver scelto deliberatamente; i campi Stripe sono ripieghi.
   if (existing) {
-    return { orgId: existing.id, country, email, name, locale: pickLocale(existing.locale, c) };
+    return { orgId: existing.id, country, email, name, locale: pickLocale(existing.locale, c), sdiCode, fiscalCode };
   }
 
   // Org non ancora esistente: la lingua si fissa ora, dai metadata del checkout.
@@ -1107,9 +1159,11 @@ async function resolveOrg(
   await supabase.from("billing_profile").upsert({
     org_id: org.id, legal_name: c.name, vat_id: c.metadata?.vatId || null,
     country, is_business: !!c.metadata?.vatId,
+    sdi_code: sdiCode,                  // v16
+    fiscal_code: fiscalCode,            // v16
   }, { onConflict: "org_id" });
 
-  return { orgId: org.id, country, email, name, locale };
+  return { orgId: org.id, country, email, name, locale, sdiCode, fiscalCode };
 }
 
 // Risolve plan_id dal price Stripe via catalogo plan_price. I piani a
@@ -1566,6 +1620,34 @@ interface InvoiceTax {
   detail: string;
 }
 
+// ── v16 — Codice Destinatario / Codice Fiscale sulla fattura ───────────────
+// Le etichette devono coincidere con quelle di create-subscription v13: sono la
+// chiave con cui il custom field si riconosce fra gli altri.
+const SDI_FIELD_NAME = "Codice Destinatario";
+const CF_FIELD_NAME = "Codice Fiscale";
+
+// Fonte primaria: i custom_fields della fattura, che Stripe congela alla
+// finalizzazione. È il valore stampato su QUEL PDF, che per un documento
+// fiscale è l'unico che conti — l'anagrafica del cliente può essere cambiata
+// dopo. `fallback` è il metadata del Customer, e copre le fatture emesse prima
+// della v13, che i custom_fields non ce l'hanno.
+function invoiceCustomField(
+  inv: Stripe.Invoice,
+  name: string,
+  fallback: string | null,
+): string | null {
+  const cf = (inv as unknown as Record<string, unknown>).custom_fields;
+  if (Array.isArray(cf)) {
+    for (const f of cf) {
+      const o = f as Record<string, unknown>;
+      if (o.name === name && typeof o.value === "string" && o.value.trim()) {
+        return o.value.trim().toUpperCase();
+      }
+    }
+  }
+  return fallback;
+}
+
 // ── v15 — la fattura porta tax rate manuali? ───────────────────────────────
 // Serve solo al ramo total_taxes VUOTO di invoiceTax(): là, senza questo
 // controllo, l'assenza di automatic_tax verrebbe letta come assenza di imposta.
@@ -1672,7 +1754,7 @@ function invoiceSubscriptionId(inv: Stripe.Invoice): string | null {
 }
 
 async function handleInvoice(inv: Stripe.Invoice, eventType: string) {
-  const { orgId, country, email, locale } = await resolveOrg(inv.customer as string);
+  const { orgId, country, email, locale, sdiCode, fiscalCode } = await resolveOrg(inv.customer as string);
 
   // collega alla subscription locale, se presente
   // v11: l'id non sta più su inv.subscription — vedi invoiceSubscriptionId().
@@ -1732,6 +1814,9 @@ async function handleInvoice(inv: Stripe.Invoice, eventType: string) {
     vat_reason: tax.reason,
     vat_country: tax.country,
     vat_rate_id: tax.rateId,
+    // v16: snapshot al momento dell'emissione — vedi invoiceCustomField().
+    sdi_code: invoiceCustomField(inv, SDI_FIELD_NAME, sdiCode),
+    fiscal_code: invoiceCustomField(inv, CF_FIELD_NAME, fiscalCode),
     total_cents: inv.total ?? 0,
     stripe_invoice_id: inv.id,
     provider,
@@ -1742,12 +1827,36 @@ async function handleInvoice(inv: Stripe.Invoice, eventType: string) {
     paid_at: tsToIso(inv.status_transitions?.paid_at),
   };
 
-  const { error } = await supabase
-    .from("invoice").upsert(row, { onConflict: "stripe_invoice_id" });
+  const { data: savedInvoice, error } = await supabase
+    .from("invoice").upsert(row, { onConflict: "stripe_invoice_id" })
+    .select("id").single();
   if (error) dbFail(error, "invoice upsert");   // v7 — B.1
 
-  // TODO emissione IT: se provider='aruba' e status='paid', enqueue verso l'API Aruba
-  // (SDI) per generare la fattura elettronica e scrivere external_doc_ref.
+  // ── v17 — outbox verso l'emissione elettronica (Aruba/SDI) ────────────────
+  // Scrive l'INTENZIONE, non esegue l'invio: aruba-einvoice-submit legge questa
+  // tabella ed esegue, con la propria autenticazione e i propri retry. Un
+  // errore di rete verso Aruba non deve mai diventare un 500 su questo
+  // webhook — vedi il commento in testa alla migrazione 2026-09-23-einvoice.sql.
+  //   Trigger: provider è 'aruba' solo per country='IT' (riga sopra), e qui si
+  //   aggiunge il vincolo che la fattura risulti PAGATA — row.status è lo
+  //   stato GIÀ mappato (mapInvoiceStatus), non l'eventType: un invoice.finalized
+  //   o un secondo invoice.paid rigiocato non devono accodare un secondo job.
+  //   UNIQUE su einvoice_job.invoice_id rende comunque l'insert idempotente:
+  //   il 23505 di un duplicato è atteso, non un errore da segnalare.
+  if (provider === "aruba" && row.status === "paid") {
+    const { error: jobErr } = await supabase
+      .from("einvoice_job").insert({ invoice_id: savedInvoice.id });
+    if (jobErr && jobErr.code !== "23505") {
+      // Best-effort come le comunicazioni sotto: l'emissione elettronica ha
+      // un termine di 24h (SLA Aruba) più ampio della finestra di retry di
+      // Stripe su questo webhook, quindi un tentativo mancato qui viene
+      // recuperato dal prossimo giro di aruba-einvoice-submit se il job è
+      // comunque stato scritto — se invece è l'INSERT stesso a fallire (come
+      // in questo ramo), il job va aggiunto a mano: per questo l'errore è
+      // loggato in modo distinto e greppabile, non silenzioso.
+      console.error(`[einvoice] job non accodato per invoice ${inv.id}: ${jobErr.message}`);
+    }
+  }
 
   // ── v4: comunicazioni ────────────────────────────────────────────────────
   try {
@@ -1874,6 +1983,10 @@ async function handleCustomer(c: Stripe.Customer) {
     org_id: org.id,
     legal_name: c.name,
     vat_id: c.metadata?.vatId || null,
+    // v16: stesso trattamento della partita IVA — un valore vuoto nei metadata
+    // azzera la colonna, perché è il Customer Stripe a essere autorevole.
+    sdi_code: String(c.metadata?.sdiCode ?? "").trim().toUpperCase() || null,
+    fiscal_code: String(c.metadata?.fiscalCode ?? "").trim().toUpperCase() || null,
     country: c.address?.country || "IT",
     address_line1: c.address?.line1 ?? null,
     address_line2: c.address?.line2 ?? null,
