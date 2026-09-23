@@ -11,9 +11,10 @@
 // verso l'API Aruba"). handleInvoice ora INSERISCE una riga in einvoice_job
 // quando una fattura italiana risulta pagata; non chiama Aruba direttamente,
 // e non ne conosce l'esistenza — l'esecuzione è demandata alla nuova Edge
-// Function aruba-einvoice-submit (vedi supabase/functions/aruba-einvoice-submit
-// e supabase/functions/_shared/fatturapa.ts), invocata da un trigger periodico
-// ancora da configurare.
+// Function aruba-einvoice-submit (vedi supabase/functions/aruba-einvoice-submit,
+// builder XML incluso: fatturapa.ts vive dentro quella cartella, non in una
+// _shared/ fra funzioni — si è rivelata fragile al deploy), invocata da un
+// trigger periodico ancora da configurare.
 //   PERCHÉ QUI SOLO L'INSERT: un errore di rete verso Aruba non deve poter
 //   diventare un 500 su QUESTO webhook — esattamente la ragione per cui la v9
 //   di create-subscription ha separato la creazione del SetupIntent dalla
