@@ -180,8 +180,30 @@ interface FatturaInput {
   sede: CessionarioSede;
 }
 
-function esc(s: string): string {
+// Molti campi testo di FatturaPA sono String...LatinType: limitati a Basic
+// Latin + Latin-1 Supplement (U+0000–U+00FF). Verificato in produzione il
+// 23/09/2026: un em dash (—, U+2014) nella descrizione ha fatto scartare la
+// fattura in validazione XSD (codice 0092, "not facet-valid ... for type
+// String1000LatinType"). Non è solo un problema della nostra descrizione —
+// denominazione, indirizzo e comune vengono da testo digitato dal cliente
+// (virgolette curve, un cognome con un carattere fuori Latin-1, un'emoji
+// incollata per errore), quindi il filtro va sull'escaping stesso, applicato
+// a OGNI stringa che finisce nell'XML, non aggiustato campo per campo mentre
+// SDI li scarta uno alla volta.
+function sanitizeLatin1(s: string): string {
   return s
+    .replace(/[–—]/g, "-")   // en dash, em dash → trattino ASCII
+    .replace(/[‘’]/g, "'")   // apici tipografici → apice dritto
+    .replace(/[“”]/g, '"')   // virgolette tipografiche → dritte
+    .replace(/…/g, "...")         // ellissi → tre punti
+    // Tutto il resto fuori Basic Latin/Latin-1 Supplement: rimosso in
+    // silenzio. Un carattere perso in un campo descrittivo è un dettaglio
+    // estetico; un secondo scarto XSD per un carattere non previsto no.
+    .replace(/[^\u0000-ÿ]/g, "");
+}
+
+function esc(s: string): string {
+  return sanitizeLatin1(s)
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
@@ -460,7 +482,7 @@ async function loadJobContext(job: { id: number; invoice_id: string; sdi_number:
         progressivoInvio: String(job.sdi_number),
         numero: String(job.sdi_number),
         data,
-        descrizione: `${planName} — fattura ${data}`,
+        descrizione: `${planName} - fattura ${data}`,
         imponibileCents: inv.subtotal_cents ?? 0,
         impostaCents: inv.vat_cents,
         totaleCents: inv.total_cents ?? 0,
