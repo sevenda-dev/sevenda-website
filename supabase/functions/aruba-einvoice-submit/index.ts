@@ -46,6 +46,24 @@
 // token viene richiesto e riusato per tutti gli upload di quel batch (limite
 // separato: 30 upload/minuto).
 //
+// PREREQUISITO ACCOUNT: PIANO PREMIUM, NON BASE. I Web Services di
+// Fatturazione Elettronica (questo endpoint /services/invoice/upload
+// incluso) sono accessibili solo a account Premium, oppure ad account Base
+// collegati in delega a un account Premium (doc v2.2.0, cap. 1
+// "Introduzione", e §7.3.5 "Logica di conteggio" — quest'ultima elenca solo
+// scenari con un Premium coinvolto: "Invio Diretto (Premium)", "Invio
+// tramite Delega (Base su Premium)", "Sub-delega tra Premium"; un Base che
+// invia da solo non è un caso contemplato). Un account Base isolato, senza
+// alcuna delega attiva, riceve dal controllo sincrono l'errore 0093
+// ("Errore deleghe non valide — Utente con deleghe non valide") su OGNI
+// upload — confermato il 2026-09-23 con l'account ARUBA18605811001, Base,
+// nessuna delega configurata in Collaborazioni. Non è un bug del builder né
+// dei dati della fattura (verificato: CEDENTE.partitaIva combacia con la
+// P.IVA dell'account via /auth/userInfo). Prima di rimettere mano a questo
+// errore, verificare che il piano Aruba sia stato fatto upgrade a Premium
+// (o collegato in delega a un account Premium) — altrimenti qualunque fix
+// al codice non risolverà nulla.
+//
 // Deploy: incollare questo file nell'editor della funzione aruba-einvoice-submit
 // sul pannello Supabase (nessun secondo file da creare).
 // Secrets:
@@ -402,6 +420,9 @@ async function arubaUpload(token: string, xmlBase64: string, dryRun: boolean): P
   // errorCode "0000" = operazione effettuata. Qualunque altro codice, o una
   // risposta HTTP non-2xx, è un rifiuto ai controlli sincroni (v. Controlli
   // Sincroni nella documentazione Aruba v2.2.0) — mai un successo silenzioso.
+  // errorCode "0093" ("Errore deleghe non valide") non è recuperabile da
+  // qui: è il piano dell'account (Base vs Premium), non l'XML — v. nota in
+  // testa al file.
   const ok = res.ok && (data.errorCode === "0000" || data.errorCode === "" || data.errorCode == null);
   return {
     ok,
