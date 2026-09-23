@@ -1156,12 +1156,26 @@ async function resolveOrg(
   await supabase.from("organization_member")
     .insert({ org_id: org.id, user_id: ownerId, role: "owner", status: "active" });
 
-  // profilo fiscale di base (P.IVA dai metadata della create-subscription)
+  // profilo fiscale di base (P.IVA dai metadata della create-subscription).
+  // Indirizzo incluso QUI e non lasciato al solo customer.updated
+  // (handleCustomer, più sotto): per un customer NUOVO create-subscription fa
+  // una POST /customers (create), che emette customer.created — evento che
+  // questo webhook non ascolta affatto. L'unico evento che aggiorna
+  // billing_profile con l'indirizzo sarebbe stato un customer.updated futuro
+  // (un secondo acquisto, un cambio piano), lasciando address_line1/city/
+  // postal_code NULL sul primissimo invoice — proprio quello con cui si
+  // costruisce la prima fattura elettronica. c.address è già disponibile qui
+  // (stesso customer appena recuperato sopra), quindi non serve aspettare.
   await supabase.from("billing_profile").upsert({
     org_id: org.id, legal_name: c.name, vat_id: c.metadata?.vatId || null,
     country, is_business: !!c.metadata?.vatId,
     sdi_code: sdiCode,                  // v16
     fiscal_code: fiscalCode,            // v16
+    address_line1: c.address?.line1 ?? null,
+    address_line2: c.address?.line2 ?? null,
+    city: c.address?.city ?? null,
+    state: c.address?.state ?? null,
+    postal_code: c.address?.postal_code ?? null,
   }, { onConflict: "org_id" });
 
   return { orgId: org.id, country, email, name, locale, sdiCode, fiscalCode };
