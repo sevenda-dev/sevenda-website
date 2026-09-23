@@ -1,11 +1,36 @@
 // ════════════════════════════════════════════════════════════════════════════
-// Sevenda — Edge Function: stripe-webhook   (PATCH v16 — Codice Destinatario e Codice Fiscale)
+// Sevenda — Edge Function: stripe-webhook   (PATCH v17 — outbox emissione Aruba)
 // ════════════════════════════════════════════════════════════════════════════
 // Chiude il giro Stripe → Supabase. Riceve gli eventi Stripe, verifica la firma,
 // garantisce l'idempotenza (tabella stripe_event) e fa upsert di organization,
 // subscription e invoice. Usa la service-role key (bypassa la RLS).
 //
-// ── PATCH v16 (questa versione) ────────────────────────────────────────────
+// ── PATCH v17 (questa versione) ────────────────────────────────────────────
+// OUTBOX VERSO L'EMISSIONE ELETTRONICA. Chiude il TODO che la v13 aveva
+// lasciato in handleInvoice ("se provider='aruba' e status='paid', enqueue
+// verso l'API Aruba"). handleInvoice ora INSERISCE una riga in einvoice_job
+// quando una fattura italiana risulta pagata; non chiama Aruba direttamente,
+// e non ne conosce l'esistenza — l'esecuzione è demandata alla nuova Edge
+// Function aruba-einvoice-submit (vedi supabase/functions/aruba-einvoice-submit
+// e supabase/functions/_shared/fatturapa.ts), invocata da un trigger periodico
+// ancora da configurare.
+//   PERCHÉ QUI SOLO L'INSERT: un errore di rete verso Aruba non deve poter
+//   diventare un 500 su QUESTO webhook — esattamente la ragione per cui la v9
+//   di create-subscription ha separato la creazione del SetupIntent dalla
+//   subscription, e per cui sendEmail() qui sotto è best-effort. L'insert
+//   stesso resta però nel percorso principale (non nel blocco comunicazioni
+//   sotto, che already-swallows tutto): un job mai scritto è un'omissione
+//   fiscale silenziosa, quindi il suo fallimento è loggato con un prefisso
+//   dedicato e greppabile invece di sparire nello stesso catch delle email.
+//   IDEMPOTENZA: UNIQUE su einvoice_job.invoice_id (migrazione
+//   2026-09-23-einvoice.sql). Un retry di questo stesso evento, o un secondo
+//   invoice.paid rigiocato, incontra 23505 e non accoda un secondo job — non
+//   è un errore da segnalare, è l'esito atteso.
+//   Prerequisito: migrazione 2026-09-23-einvoice.sql applicata (sequence
+//   einvoice_number_seq, tabella einvoice_job) — senza, l'insert fallisce con
+//   "relation does not exist" e viene loggato come tale.
+//
+// ── PATCH v16 ──────────────────────────────────────────────────────────────
 // CODICE DESTINATARIO E CODICE FISCALE PERSISTITI. create-subscription v13
 // raccoglie al checkout il Codice Destinatario dalle aziende italiane e il
 // Codice Fiscale dai privati italiani (rami complementari: mai entrambi), e li
@@ -1802,12 +1827,36 @@ async function handleInvoice(inv: Stripe.Invoice, eventType: string) {
     paid_at: tsToIso(inv.status_transitions?.paid_at),
   };
 
-  const { error } = await supabase
-    .from("invoice").upsert(row, { onConflict: "stripe_invoice_id" });
+  const { data: savedInvoice, error } = await supabase
+    .from("invoice").upsert(row, { onConflict: "stripe_invoice_id" })
+    .select("id").single();
   if (error) dbFail(error, "invoice upsert");   // v7 — B.1
 
-  // TODO emissione IT: se provider='aruba' e status='paid', enqueue verso l'API Aruba
-  // (SDI) per generare la fattura elettronica e scrivere external_doc_ref.
+  // ── v17 — outbox verso l'emissione elettronica (Aruba/SDI) ────────────────
+  // Scrive l'INTENZIONE, non esegue l'invio: aruba-einvoice-submit legge questa
+  // tabella ed esegue, con la propria autenticazione e i propri retry. Un
+  // errore di rete verso Aruba non deve mai diventare un 500 su questo
+  // webhook — vedi il commento in testa alla migrazione 2026-09-23-einvoice.sql.
+  //   Trigger: provider è 'aruba' solo per country='IT' (riga sopra), e qui si
+  //   aggiunge il vincolo che la fattura risulti PAGATA — row.status è lo
+  //   stato GIÀ mappato (mapInvoiceStatus), non l'eventType: un invoice.finalized
+  //   o un secondo invoice.paid rigiocato non devono accodare un secondo job.
+  //   UNIQUE su einvoice_job.invoice_id rende comunque l'insert idempotente:
+  //   il 23505 di un duplicato è atteso, non un errore da segnalare.
+  if (provider === "aruba" && row.status === "paid") {
+    const { error: jobErr } = await supabase
+      .from("einvoice_job").insert({ invoice_id: savedInvoice.id });
+    if (jobErr && jobErr.code !== "23505") {
+      // Best-effort come le comunicazioni sotto: l'emissione elettronica ha
+      // un termine di 24h (SLA Aruba) più ampio della finestra di retry di
+      // Stripe su questo webhook, quindi un tentativo mancato qui viene
+      // recuperato dal prossimo giro di aruba-einvoice-submit se il job è
+      // comunque stato scritto — se invece è l'INSERT stesso a fallire (come
+      // in questo ramo), il job va aggiunto a mano: per questo l'errore è
+      // loggato in modo distinto e greppabile, non silenzioso.
+      console.error(`[einvoice] job non accodato per invoice ${inv.id}: ${jobErr.message}`);
+    }
+  }
 
   // ── v4: comunicazioni ────────────────────────────────────────────────────
   try {
