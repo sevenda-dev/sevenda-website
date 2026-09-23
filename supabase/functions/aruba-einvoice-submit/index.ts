@@ -46,6 +46,24 @@
 // token viene richiesto e riusato per tutti gli upload di quel batch (limite
 // separato: 30 upload/minuto).
 //
+// PREREQUISITO ACCOUNT: PIANO PREMIUM, NON BASE. I Web Services di
+// Fatturazione Elettronica (questo endpoint /services/invoice/upload
+// incluso) sono accessibili solo a account Premium, oppure ad account Base
+// collegati in delega a un account Premium (doc v2.2.0, cap. 1
+// "Introduzione", e §7.3.5 "Logica di conteggio" — quest'ultima elenca solo
+// scenari con un Premium coinvolto: "Invio Diretto (Premium)", "Invio
+// tramite Delega (Base su Premium)", "Sub-delega tra Premium"; un Base che
+// invia da solo non è un caso contemplato). Un account Base isolato, senza
+// alcuna delega attiva, riceve dal controllo sincrono l'errore 0093
+// ("Errore deleghe non valide — Utente con deleghe non valide") su OGNI
+// upload — confermato il 2026-09-23 con l'account ARUBA18605811001, Base,
+// nessuna delega configurata in Collaborazioni. Non è un bug del builder né
+// dei dati della fattura (verificato: CEDENTE.partitaIva combacia con la
+// P.IVA dell'account via /auth/userInfo). Prima di rimettere mano a questo
+// errore, verificare che il piano Aruba sia stato fatto upgrade a Premium
+// (o collegato in delega a un account Premium) — altrimenti qualunque fix
+// al codice non risolverà nulla.
+//
 // Deploy: incollare questo file nell'editor della funzione aruba-einvoice-submit
 // sul pannello Supabase (nessun secondo file da creare).
 // Secrets:
@@ -180,8 +198,30 @@ interface FatturaInput {
   sede: CessionarioSede;
 }
 
-function esc(s: string): string {
+// Molti campi testo di FatturaPA sono String...LatinType: limitati a Basic
+// Latin + Latin-1 Supplement (U+0000–U+00FF). Verificato in produzione il
+// 23/09/2026: un em dash (—, U+2014) nella descrizione ha fatto scartare la
+// fattura in validazione XSD (codice 0092, "not facet-valid ... for type
+// String1000LatinType"). Non è solo un problema della nostra descrizione —
+// denominazione, indirizzo e comune vengono da testo digitato dal cliente
+// (virgolette curve, un cognome con un carattere fuori Latin-1, un'emoji
+// incollata per errore), quindi il filtro va sull'escaping stesso, applicato
+// a OGNI stringa che finisce nell'XML, non aggiustato campo per campo mentre
+// SDI li scarta uno alla volta.
+function sanitizeLatin1(s: string): string {
   return s
+    .replace(/[–—]/g, "-")   // en dash, em dash → trattino ASCII
+    .replace(/[‘’]/g, "'")   // apici tipografici → apice dritto
+    .replace(/[“”]/g, '"')   // virgolette tipografiche → dritte
+    .replace(/…/g, "...")         // ellissi → tre punti
+    // Tutto il resto fuori Basic Latin/Latin-1 Supplement: rimosso in
+    // silenzio. Un carattere perso in un campo descrittivo è un dettaglio
+    // estetico; un secondo scarto XSD per un carattere non previsto no.
+    .replace(/[^\u0000-ÿ]/g, "");
+}
+
+function esc(s: string): string {
+  return sanitizeLatin1(s)
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
@@ -380,6 +420,9 @@ async function arubaUpload(token: string, xmlBase64: string, dryRun: boolean): P
   // errorCode "0000" = operazione effettuata. Qualunque altro codice, o una
   // risposta HTTP non-2xx, è un rifiuto ai controlli sincroni (v. Controlli
   // Sincroni nella documentazione Aruba v2.2.0) — mai un successo silenzioso.
+  // errorCode "0093" ("Errore deleghe non valide") non è recuperabile da
+  // qui: è il piano dell'account (Base vs Premium), non l'XML — v. nota in
+  // testa al file.
   const ok = res.ok && (data.errorCode === "0000" || data.errorCode === "" || data.errorCode == null);
   return {
     ok,
@@ -460,7 +503,7 @@ async function loadJobContext(job: { id: number; invoice_id: string; sdi_number:
         progressivoInvio: String(job.sdi_number),
         numero: String(job.sdi_number),
         data,
-        descrizione: `${planName} — fattura ${data}`,
+        descrizione: `${planName} - fattura ${data}`,
         imponibileCents: inv.subtotal_cents ?? 0,
         impostaCents: inv.vat_cents,
         totaleCents: inv.total_cents ?? 0,
