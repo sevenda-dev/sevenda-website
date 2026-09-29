@@ -155,8 +155,13 @@ campo "Codice sconto" in `checkout.html` (anteprima via `validate-promo-code`)
 
 ### Setup una tantum (per ambiente: staging e prod)
 1. Esegui `db/migrations/2026-09-29-newsletter-subscriber.sql` (tre sezioni separate)
-2. Stripe → Product catalog → Coupons → crea un coupon **30% off** e scegli la
-   durata (`once` = solo primo pagamento, `repeating` N mesi, `forever`)
+2. Stripe → Product catalog → Coupons → crea un coupon **30% off** con
+   **Duration = Once**. `once` è la strategia decisa: lo sconto si applica solo
+   al **primo acquisto**, cioè al primo pagamento dopo il trial, identico per
+   mensile e annuale, e non ai rinnovi. Con il trial la fattura di creazione è
+   a €0 e non consuma lo sconto: `once` cade sul primo addebito reale. Non usare
+   `repeating`/`forever` (`create-subscription` logga un warning se il coupon
+   non è `once`).
 3. Secrets: `supabase secrets set STRIPE_NEWSLETTER_COUPON_ID=<id coupon>`
    (facoltativi: `NEWSLETTER_CODE_DAYS=30`, `NEWSLETTER_FROM`, `RESEND_API_KEY` già presente)
 4. Deploy: `supabase functions deploy newsletter-subscribe --no-verify-jwt`,
@@ -182,6 +187,7 @@ campo "Codice sconto" in `checkout.html` (anteprima via `validate-promo-code`)
 - [ ] "Rimuovi" → riepilogo a prezzo pieno; codice inventato → "non valido o scaduto"
 - [ ] `?promo=CODICE` nell'URL precompila e verifica il campo; il codice sopravvive al giro di login
 - [ ] Completa il checkout con carta test → su Stripe la subscription ha il discount e `metadata.promoCode`
+- [ ] **Sconto solo sul primo acquisto**: sulla subscription in trial apri l'Upcoming/Preview invoice (o avanza un test clock a fine trial) → la prima fattura reale mostra −30%; il ciclo successivo torna a prezzo pieno. Verifica sia per un piano **mensile** sia per uno **annuale**.
 - [ ] Riusa lo stesso codice con un altro account → "già stato utilizzato" (monouso)
 
 ## 📋 Checklist Finale
