@@ -179,6 +179,8 @@ campo "Codice sconto" in `checkout.html` (anteprima via `validate-promo-code`)
 - [ ] Ricarica: la modale NON ricompare; chiudi senza iscriverti → non ricompare per 7 giorni
 - [ ] Stessa email una seconda volta → stesso codice ("Bentornato!"), nessun secondo Promotion Code su Stripe
 - [ ] Cambia lingua (EN/IT/ES/FR) con la modale aperta → tutti i testi si aggiornano
+- [ ] **Email con il codice**: arriva nella lingua dell'interfaccia (EN/IT/ES/FR) con sfondo nero, card a due colonne, logo a sinistra, titoletto "Unisciti al team" / "Join the team" / "Únete al equipo" / "Rejoignez l'équipe", codice e pulsante verso `/pricing`. Il logo è `/logo-email.png`: verifica che `https://sevenda.dev/logo-email.png` risponda 200 dopo il deploy del sito, altrimenti l'immagine appare rotta
+- [ ] Apri la stessa email in Gmail (web e app), Apple Mail e Outlook: su schermo stretto le colonne si impilano; dove le media query non sono supportate le colonne restano affiancate ma il testo resta leggibile
 
 ### Test 2: Codice al checkout
 - [ ] Apri `/checkout.html?plan=analyst`: il campo "Codice sconto" è precompilato dal localStorage e verificato
