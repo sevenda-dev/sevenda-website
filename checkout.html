@@ -125,6 +125,27 @@
     .co-qty-val { min-width:46px; text-align:center; font-size:15px; font-weight:500; }
     .co-qty-hint { font-size:12px; color:var(--text-3); margin-top:8px; }
 
+    /* Codice sconto (create-subscription v14) */
+    .co-promo-row { display:flex; gap:8px; }
+    .co-promo-row .co-input { flex:1; font-family:var(--mono); letter-spacing:.04em; text-transform:uppercase; }
+    .co-promo-row .co-input::placeholder { font-family:var(--font); letter-spacing:0; text-transform:none; }
+    .co-promo-btn {
+      padding:0 16px; border-radius:var(--r-sm); border:1px solid var(--border-2);
+      background:var(--surface-2); color:var(--text); font-size:13px; font-weight:500;
+      white-space:nowrap; transition:border-color .15s;
+    }
+    .co-promo-btn:hover:not(:disabled) { border-color:rgba(255,255,255,.3); }
+    .co-promo-btn:disabled { opacity:.4; cursor:not-allowed; }
+    .co-promo-ok {
+      display:none; align-items:center; justify-content:space-between; gap:10px;
+      padding:10px 13px; border-radius:var(--r-sm); font-size:13px; color:var(--text);
+      background:var(--green-dim); border:1px solid var(--green-border);
+    }
+    .co-promo-ok code { font-family:var(--mono); color:var(--green); }
+    .co-promo-ok button { color:var(--text-2); font-size:12px; text-decoration:underline; white-space:nowrap; }
+    .co-promo-ok button:hover { color:var(--text); }
+    .co-sum-row.co-sum-discount { color:var(--green); }
+
     /* ── Forms ── */
     .co-radio-list { display:flex; flex-direction:column; gap:12px; margin-bottom:26px; }
     .co-radio { display:flex; align-items:center; gap:10px; font-size:14px; cursor:pointer; }
@@ -266,6 +287,22 @@
           <button id="coQtyPlus">+</button>
         </div>
         <p class="co-qty-hint" id="coQtyHint"></p>
+      </div>
+
+      <!-- Codice sconto: verificato via validate-promo-code per il riepilogo,
+           applicato davvero da create-subscription (v14) alla subscription. -->
+      <div class="co-field-group" id="coPromoGroup">
+        <label class="co-label" for="coPromo"><span data-i18n="co.label.promo">Discount code</span> <span class="req" data-i18n="co.optional">(optional)</span></label>
+        <div class="co-promo-row" id="coPromoRow">
+          <input class="co-input" type="text" id="coPromo" placeholder="SEVENDA-XXXXXX" data-i18n-placeholder="co.promo.ph" maxlength="40" autocomplete="off" spellcheck="false" autocapitalize="characters">
+          <button type="button" class="co-promo-btn" id="coPromoApply">Apply</button>
+        </div>
+        <div class="co-promo-ok" id="coPromoOk">
+          <span id="coPromoOkText"></span>
+          <button type="button" id="coPromoRemove" data-i18n="co.promo.remove">Remove</button>
+        </div>
+        <p class="co-field-hint" data-i18n="co.promo.hint">Got a code from the newsletter? Enter it here: the discount is applied to your subscription.</p>
+        <div class="co-error" id="coPromoError" style="display:none;"></div>
       </div>
     </div>
 
@@ -413,9 +450,11 @@
 
       <div class="co-sum-div"></div>
       <div class="co-sum-row"><span data-i18n="co.summary.subtotal">Subtotal</span><span id="coSumSubtotal">€0</span></div>
+      <div class="co-sum-row co-sum-discount" id="coSumDiscountRow" style="display:none;"><span id="coSumDiscountLabel">Discount</span><span id="coSumDiscountAmt">−€0</span></div>
       <div class="co-sum-row" id="coSumVatRow" style="display:none;"><span id="coSumVatLabel">VAT</span><span id="coSumVatAmt">€0</span></div>
       <div class="co-sum-total"><span data-i18n="co.summary.total">Total</span><span id="coSumTotal">€0</span></div>
       <p class="co-sum-note" id="coSumNote" data-i18n="co.summary.taxNote">VAT is an estimate based on your billing country. The final amount is calculated by Stripe when the invoice is issued, based on your billing details.</p>
+      <p class="co-sum-note" id="coPromoNote" style="display:none;"></p>
 
       <!-- Avviso trial (mostrato solo se trialDays > 0) -->
       <div class="co-notice" id="coTrialNotice" style="display:none; margin-top:16px;"></div>
@@ -485,7 +524,31 @@
     interval: parseInterval(qs.get('interval')),
     qty: clampQty(parseInt(qs.get('qty') || qs.get('seats'), 10) || LIMITS.min),
     name: nameOver || plan.name,
+    // Codice sconto verificato (validate-promo-code): null se nessuno.
+    // { code, id, percentOff, amountOff, currency, duration, durationInMonths }
+    promo: null,
   };
+
+  /* ── Codice sconto: da dove arriva ──
+     1) ?promo= nella query: sopravvive al giro di login come interval e qty;
+     2) localStorage 'sevenda-promo', scritto dalla modale newsletter di
+        index.html appena il codice viene emesso, così chi si iscrive e poi
+        arriva al checkout se lo trova già compilato senza ricopiarlo
+        dall'email. Scaduto → ignorato.
+     Il valore è solo un PREFILL: viene verificato con validate-promo-code
+     all'avvio, e applicato solo se Stripe lo conferma. */
+  const PROMO_STORAGE_KEY = 'sevenda-promo';
+  function storedPromoCode() {
+    try {
+      const raw = localStorage.getItem(PROMO_STORAGE_KEY);
+      if (!raw) return '';
+      const p = JSON.parse(raw);
+      if (!p || !p.code) return '';
+      if (p.expiresAt && Date.parse(p.expiresAt) <= Date.now()) return '';
+      return String(p.code);
+    } catch (e) { return ''; }
+  }
+  const PROMO_INITIAL = String(qs.get('promo') || storedPromoCode() || '').trim();
 
   function clampQty(n) {
     const { min, max } = LIMITS;
@@ -524,6 +587,9 @@
       // La fascia sopravvive nell'URL solo se è stata riconosciuta: un ?band=
       // spurio non deve tornare in circolo dopo il giro di login.
       if (BAND) p.set('band', BAND.key.replace(/_/g, '-')); else p.delete('band');
+      // Il codice sconto segue lo stato per la stessa ragione di interval/qty:
+      // dopo il giro di login social la query è l'unico posto in cui sopravvive.
+      if (S.promo) p.set('promo', S.promo.code); else p.delete('promo');
       ['code', 'token_hash', 'type', 'error', 'error_code', 'error_description']
         .forEach(k => p.delete(k));   // residui del giro di auth, già consumati
       history.replaceState(null, '', location.pathname + '?' + p.toString());
@@ -576,6 +642,33 @@
                              ? unitPrice() * 12 * S.qty
                              : unitPrice() * S.qty; }
   function fmt(n)        { return SYM + (Number.isInteger(n) ? n : n.toFixed(2)); }
+
+  /* ── Sconto (solo display) ───────────────────────────────
+     Rispecchia ciò che Stripe farà con il promotion code sulla subscription:
+     percentuale sul subtotale, oppure importo fisso (amount_off in centesimi,
+     solo se nella valuta del checkout). L'IVA si stima sul netto scontato,
+     perché è così che Stripe la calcola in fattura. */
+  function discountAmount(subtotal) {
+    const p = S.promo;
+    if (!p) return 0;
+    if (typeof p.percentOff === 'number') return Math.round(subtotal * p.percentOff) / 100;
+    if (typeof p.amountOff === 'number'
+        && (!p.currency || String(p.currency).toUpperCase() === String(CFG.currency || 'EUR').toUpperCase())) {
+      return Math.min(subtotal, Math.round(p.amountOff) / 100);
+    }
+    return 0;
+  }
+  // "30%" oppure "€5": l'entità dello sconto in forma leggibile.
+  function promoLabel() {
+    const p = S.promo;
+    if (!p) return '';
+    if (typeof p.percentOff === 'number') return (Number.isInteger(p.percentOff) ? p.percentOff : p.percentOff.toFixed(2)) + '%';
+    if (typeof p.amountOff === 'number') return fmt(Math.round(p.amountOff) / 100);
+    return '';
+  }
+  function escHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+  }
 
   /* ── Stima IVA (solo display) ────────────────────────────
      Non è un calcolo fiscale — l'imposta vera la determina Stripe Tax in
@@ -673,10 +766,21 @@
     const seatWord = tt(S.qty > 1 ? 'co.seats' : 'co.seat', S.qty > 1 ? 'seats' : 'seat');
     const perSeatSuffix = tt(S.interval === 'annual' ? 'co.perSeat.annual' : 'co.perSeat.monthly', S.interval === 'annual' ? '/mo × 12' : '/mo');
     $('coSumSeats').textContent = S.qty + ' ' + seatWord + ' × ' + fmt(unitPrice()) + ' ' + perSeatSuffix;
+    // Sconto (v14): si sottrae dal subtotale PRIMA dell'IVA, come fa Stripe.
+    const discount      = discountAmount(total);
+    const afterDiscount = Math.round((total - discount) * 100) / 100;
+    if (S.promo && discount > 0) {
+      $('coSumDiscountRow').style.display = 'flex';
+      $('coSumDiscountLabel').textContent = fill(tt('co.summary.discount', 'Discount ({code})'), { code: S.promo.code });
+      $('coSumDiscountAmt').textContent   = '−' + fmt(discount);
+    } else {
+      $('coSumDiscountRow').style.display = 'none';
+    }
+
     // I Price sono tax_behavior "exclusive": il subtotale non è la cifra
     // addebitata. La stima si ricalcola qui, quindi a ogni cambio di paese/IVA.
-    const vat      = vatEstimate(total);
-    const grandTot = vat ? Math.round((total + vat.amount) * 100) / 100 : total;
+    const vat      = vatEstimate(afterDiscount);
+    const grandTot = vat ? Math.round((afterDiscount + vat.amount) * 100) / 100 : afterDiscount;
     if (vat) {
       $('coSumVatRow').style.display = 'flex';
       if (vat.reverseCharge) {
@@ -726,10 +830,33 @@
       }
     }
 
-    // Renew note
+    // Renew note. Con uno sconto "once" o "repeating" i rinnovi successivi
+    // tornano a prezzo pieno: la cifra del rinnovo è quella senza sconto, e la
+    // nota sotto il riepilogo dice a quali pagamenti si applica lo sconto.
     const periodLoc = tt(S.interval === 'annual' ? 'co.period.year' : 'co.period.month', S.interval === 'annual' ? 'year' : 'month');
+    let renewTot = grandTot;
+    if (S.promo && discount > 0 && S.promo.duration !== 'forever') {
+      const vatFull = vatEstimate(total);
+      renewTot = vatFull ? Math.round((total + vatFull.amount) * 100) / 100 : total;
+    }
     $('coRenewText').textContent = fill(tt('co.renew.text', 'Auto-renews {cadence} · {total} per {period}'),
-      { cadence: cadenceLoc, total: fmt(grandTot), period: periodLoc });
+      { cadence: cadenceLoc, total: fmt(renewTot), period: periodLoc });
+
+    const promoNote = $('coPromoNote');
+    if (S.promo && discount > 0) {
+      const d = S.promo.duration;
+      promoNote.textContent = d === 'forever'
+        ? tt('co.promo.note.forever', 'The discount applies to every renewal.')
+        : d === 'repeating'
+          ? fill(tt('co.promo.note.repeating', 'The discount applies to the first {months} months of billing.'), { months: S.promo.durationInMonths || '' })
+          : tt('co.promo.note.once', 'The discount applies to your first payment only.');
+      promoNote.style.display = 'block';
+    } else {
+      promoNote.style.display = 'none';
+    }
+
+    // Campo codice sconto (testi dipendono dalla lingua e dallo stato)
+    renderPromoUi();
 
     // Errore IVA: se è a schermo va riscritto nella lingua corrente
     if ($('coVatError').style.display !== 'none') showVatError(true);
@@ -745,6 +872,106 @@
 
     // Label del bottone dipende dal trial → tienila sincronizzata
     updateActionButton();
+  }
+
+  /* ─────────────────────────────────────────────────────────────
+     CODICE SCONTO (create-subscription v14)
+     La verifica passa da validate-promo-code, che legge il promotion code
+     su Stripe senza scrivere nulla: serve a mostrare il totale scontato nel
+     riepilogo. L'applicazione vera avviene in create-subscription, che rifà
+     il controllo: se lì il codice viene rifiutato si torna allo step 1.
+     ───────────────────────────────────────────────────────────── */
+  let promoBusy = false;
+  let promoErrorKey = null;   // chiave i18n dell'errore a schermo, per ritradurlo
+
+  function showPromoError(on, key) {
+    const el = $('coPromoError');
+    promoErrorKey = on ? (key || promoErrorKey || 'co.err.promoInvalid') : null;
+    el.style.display = on ? 'block' : 'none';
+    if (on) el.textContent = tt(promoErrorKey, 'This discount code is not valid or has expired.');
+  }
+
+  function renderPromoUi() {
+    const row = $('coPromoRow'), ok = $('coPromoOk'), btn = $('coPromoApply');
+    if (S.promo) {
+      row.style.display = 'none';
+      ok.style.display  = 'flex';
+      $('coPromoOkText').innerHTML = fill(
+        escHtml(tt('co.promo.applied', 'Code {code} applied: {discount} off.')),
+        { code: '<code>' + escHtml(S.promo.code) + '</code>', discount: escHtml(promoLabel()) });
+    } else {
+      row.style.display = 'flex';
+      ok.style.display  = 'none';
+    }
+    btn.disabled    = promoBusy;
+    btn.textContent = promoBusy ? tt('co.promo.checking', 'Checking…') : tt('co.promo.apply', 'Apply');
+    if (promoErrorKey) showPromoError(true);
+  }
+
+  // fromUser: false all'avvio (prefill da URL/localStorage), quando la query
+  // può ancora contenere il callback di auth e syncUrl non va chiamata.
+  async function applyPromo(codeRaw, fromUser) {
+    const code = String(codeRaw || $('coPromo').value || '').trim().toUpperCase();
+    if (!code) { $('coPromo').classList.add('err'); return false; }
+    if (!elementsConfigured || !CFG.edgeFunctionBase) {
+      // Demo mode: senza Edge Function non c'è modo di verificare il codice.
+      $('coPromo').classList.add('err');
+      showPromoError(true, 'co.err.promoUnavailable');
+      return false;
+    }
+    promoBusy = true;
+    showPromoError(false);
+    renderPromoUi();
+    try {
+      const res = await fetch(CFG.edgeFunctionBase + '/validate-promo-code', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': (window.SUPABASE_CONFIG && window.SUPABASE_CONFIG.anonKey) || '',
+          'Authorization': 'Bearer ' + ((window.SUPABASE_CONFIG && window.SUPABASE_CONFIG.anonKey) || ''),
+        },
+        body: JSON.stringify({ code }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'check_failed');
+      promoBusy = false;
+      if (!data.valid) {
+        S.promo = null;
+        $('coPromo').classList.add('err');
+        showPromoError(true, data.reason === 'exhausted' ? 'co.err.promoUsed'
+          : data.reason === 'expired' ? 'co.err.promoExpired' : 'co.err.promoInvalid');
+        render();
+        return false;
+      }
+      S.promo = {
+        code: String(data.code || code),
+        id: data.promotionCodeId,
+        percentOff: data.percentOff,
+        amountOff: data.amountOff,
+        currency: data.currency,
+        duration: data.duration,
+        durationInMonths: data.durationInMonths,
+      };
+      subscriptionReady = false;   // il SetupIntent deve portare il nuovo contesto d'ordine
+      if (fromUser) syncUrl();
+      render();
+      return true;
+    } catch (e) {
+      promoBusy = false;
+      showPromoError(true, 'co.err.promoCheckFailed');
+      render();
+      return false;
+    }
+  }
+
+  function removePromo() {
+    S.promo = null;
+    subscriptionReady = false;
+    $('coPromo').value = '';
+    $('coPromo').classList.remove('err');
+    showPromoError(false);
+    syncUrl();
+    render();
   }
 
   /* ─────────────────────────────────────────────────────────────
@@ -1022,9 +1249,26 @@
           consumerImmediatePerformance: billing.consumerImmediatePerformance,
           supabaseUserId: user.id, // collega il pagamento all'utente/organization (webhook)
           orgName: billing.name,   // nome organizzazione = ragione sociale (Company name)
+          promoCode: S.promo ? S.promo.code : '',   // v14: riverificato server-side
         }),
       });
       const data = await res.json();
+
+      // promo_code_invalid (create-subscription v14): il codice era valido
+      // all'anteprima ma non lo è più (consumato altrove, scaduto nel
+      // frattempo). Errore di compilazione, non di pagamento: si torna allo
+      // step 1 col campo evidenziato e il riepilogo senza sconto.
+      if (res.status === 400 && data.code === 'promo_code_invalid') {
+        load.style.display = 'none';
+        subscriptionReady = false;
+        S.promo = null;
+        goToStep(1);
+        $('coPromo').classList.add('err');
+        showPromoError(true, 'co.err.promoInvalid');
+        render();
+        $('coPromo').focus();
+        return false;
+      }
 
       // Guard BR-001 (create-subscription): l'utente ha già un abbonamento attivo.
       // Non è un errore di pagamento ma un blocco previsto: messaggio dedicato e
@@ -1326,6 +1570,14 @@
   $('coSdi').addEventListener('input', () => showSdiError(false));
   $('coCf').addEventListener('input', () => showCfError(false));
 
+  // Codice sconto
+  $('coPromoApply').addEventListener('click', () => applyPromo(null, true));
+  $('coPromo').addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); applyPromo(null, true); }
+  });
+  $('coPromo').addEventListener('input', () => showPromoError(false));
+  $('coPromoRemove').addEventListener('click', removePromo);
+
   // Paese e partita IVA determinano l'aliquota stimata → ridisegna il riepilogo
   $('coCountry').addEventListener('change', render);
   $('coVat')    .addEventListener('input',  render);
@@ -1369,6 +1621,14 @@
 
   render();
   goToStep(1);
+
+  // Codice sconto arrivato da ?promo= o dalla modale newsletter: si mostra nel
+  // campo e si verifica subito, così il riepilogo parte già scontato. Se non
+  // è più valido resta nel campo con l'errore, e l'utente decide.
+  if (PROMO_INITIAL) {
+    $('coPromo').value = PROMO_INITIAL;
+    applyPromo(PROMO_INITIAL, false);
+  }
 })();
 </script>
 </body>

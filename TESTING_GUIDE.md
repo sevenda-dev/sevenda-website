@@ -146,6 +146,44 @@ isStripeLinksConfigured('analyst', 'annual');  // Verifica se il link è configu
 S;  // Mostra tutto lo stato (track, seats, billing, bulkQty, cart)
 ```
 
+## 🎟️ Newsletter e codice sconto 30%
+
+Flusso: modale su `index.html` → Edge Function `newsletter-subscribe` (riga in
+`newsletter_subscriber` + Promotion Code Stripe monouso, email via Resend) →
+campo "Codice sconto" in `checkout.html` (anteprima via `validate-promo-code`)
+→ `create-subscription` v14 applica lo sconto alla subscription.
+
+### Setup una tantum (per ambiente: staging e prod)
+1. Esegui `db/migrations/2026-09-29-newsletter-subscriber.sql` (tre sezioni separate)
+2. Stripe → Product catalog → Coupons → crea un coupon **30% off** e scegli la
+   durata (`once` = solo primo pagamento, `repeating` N mesi, `forever`)
+3. Secrets: `supabase secrets set STRIPE_NEWSLETTER_COUPON_ID=<id coupon>`
+   (facoltativi: `NEWSLETTER_CODE_DAYS=30`, `NEWSLETTER_FROM`, `RESEND_API_KEY` già presente)
+4. Deploy: `supabase functions deploy newsletter-subscribe --no-verify-jwt`,
+   `supabase functions deploy validate-promo-code --no-verify-jwt`,
+   `supabase functions deploy create-subscription --no-verify-jwt`
+
+### Test 1: Modale sulla landing
+- [ ] Apri `/` in una finestra in incognito: dopo ~6 s (o al 30% di scroll) compare la modale
+- [ ] `/?nl=1` la forza subito, `/?nl=0` la disattiva; il link "Newsletter −30%" in footer la riapre
+- [ ] Sul lato sinistro c'è il logo (stesso `/logo.svg` della sezione in fondo alla pagina)
+- [ ] Invia il form vuoto → errore "Compila nome, cognome ed email"
+- [ ] Telefono vuoto → accettato; telefono "abc" → errore; "333 1234567" → accettato
+- [ ] Iscrizione valida → schermata con codice `SEVENDA-XXXXXX`, bottone "Copia", data di scadenza
+- [ ] Verifica in localStorage: `sevenda-nl-state` (status `subscribed`) e `sevenda-promo` (code, expiresAt)
+- [ ] Ricarica: la modale NON ricompare; chiudi senza iscriverti → non ricompare per 7 giorni
+- [ ] Stessa email una seconda volta → stesso codice ("Bentornato!"), nessun secondo Promotion Code su Stripe
+- [ ] Cambia lingua (EN/IT/ES/FR) con la modale aperta → tutti i testi si aggiornano
+
+### Test 2: Codice al checkout
+- [ ] Apri `/checkout.html?plan=analyst`: il campo "Codice sconto" è precompilato dal localStorage e verificato
+- [ ] Riepilogo: riga "Sconto (CODICE) −€X", IVA calcolata sul netto scontato, totale scontato
+- [ ] Nota sotto il riepilogo coerente con la durata del coupon (primo pagamento / N mesi / ogni rinnovo)
+- [ ] "Rimuovi" → riepilogo a prezzo pieno; codice inventato → "non valido o scaduto"
+- [ ] `?promo=CODICE` nell'URL precompila e verifica il campo; il codice sopravvive al giro di login
+- [ ] Completa il checkout con carta test → su Stripe la subscription ha il discount e `metadata.promoCode`
+- [ ] Riusa lo stesso codice con un altro account → "già stato utilizzato" (monouso)
+
 ## 📋 Checklist Finale
 
 Prima di andare in production:

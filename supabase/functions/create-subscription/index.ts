@@ -1,5 +1,5 @@
 // ════════════════════════════════════════════════════════════════
-// Sevenda — Edge Function: create-subscription   (PATCH v13)
+// Sevenda — Edge Function: create-subscription   (PATCH v14)
 // ════════════════════════════════════════════════════════════════
 // Flusso in DUE FASI (v9):
 //   fase 1 — crea/riusa il Customer e un SetupIntent; restituisce il
@@ -184,6 +184,34 @@
 //   custom field. encodeForm scarta le stringhe vuote, quindi da qui non c'è
 //   modo di azzerarlo; va rimosso a mano sul Customer. Preferito a un ramo di
 //   cancellazione che nessuno eserciterebbe mai e che marcirebbe.
+//
+// PATCH v14 (codice sconto — newsletter 30%).
+// L'iscrizione alla newsletter (modale di index.html → newsletter-subscribe)
+// consegna un Promotion Code Stripe monouso; il cliente lo digita al checkout
+// e lo sconto deve finire sulla subscription che viene creata qui.
+//   FASE 1: il body porta `promoCode` (facoltativo). Se presente si verifica
+//   su Stripe (resolvePromotionCode: attivo, non scaduto, redemption
+//   disponibili, coupon valido) PRIMA di toccare il Customer: un codice
+//   sbagliato è un errore di compilazione (400 promo_code_invalid), da dire
+//   prima della carta come per la partita IVA della v10. checkout.html ha già
+//   fatto la stessa verifica via validate-promo-code, ma quella è un'anteprima
+//   per il riepilogo: l'endpoint è pubblico e la decisione è di qui.
+//   L'id del promotion code (promo_…) viaggia nei metadata del SetupIntent
+//   insieme al resto del contesto d'ordine — il codice non si cerca due volte.
+//   FASE 2: `discounts[0][promotion_code]` sulla subscription. È il parametro
+//   delle versioni API attuali (l'account è su 2026-04-22.dahlia, vedi
+//   set-locale e stripe-webhook); `coupon` e `promotion_code` al primo livello
+//   non esistono più. Con il trial la prima fattura è a zero: lo sconto si
+//   applica alle fatture successive secondo la durata del coupon (once,
+//   repeating, forever), che è una scelta della dashboard, non di questo
+//   codice.
+//   SE LO SCONTO NON PASSA IN FASE 2 (codice consumato in un'altra scheda fra
+//   le due fasi, coupon disattivato nel frattempo): la carta è già salvata e
+//   l'unico esito che non lascia l'utente senza piano è attivare comunque.
+//   Si ritenta SENZA sconto, con idempotency key diversa, e la risposta porta
+//   discountApplied: false con log esplicito: un ordine a prezzo pieno con 14
+//   giorni di trial per ripensarci è meno grave di un ordine perso. Stesso
+//   principio della v12 sull'IVA mancante.
 //
 // PATCH v2: aggiunge `supabaseUserId` (e `orgName`) ai metadata del
 // Customer, così la Edge Function `stripe-webhook` può collegare il
@@ -384,6 +412,32 @@ async function stripeGet(path: string, key: string) {
     throw new Error(data?.error?.message || `Stripe error (${res.status})`);
   }
   return data;
+}
+
+// ── v14 — codice sconto ─────────────────────────────────────────────────────
+// Stessa verifica di validate-promo-code (duplicata: le Edge Function non
+// condividono moduli nel repo). La ricerca per `code` su Stripe non distingue
+// maiuscole e minuscole. Ritorna l'id del promotion code se applicabile, null
+// se non lo è per una ragione "di merito" (inesistente, scaduto, esaurito);
+// solleva solo se Stripe non risponde, perché "non ho potuto verificare" non
+// è "non valido" e il chiamante deve poterli distinguere.
+const PROMO_CODE_RE = /^[A-Za-z0-9_-]{1,40}$/;
+
+async function resolvePromotionCode(
+  code: string,
+  secret: string,
+): Promise<{ id: string; code: string } | null> {
+  if (!PROMO_CODE_RE.test(code)) return null;
+  const qs = `code=${encodeURIComponent(code)}&limit=1&expand[]=data.coupon`;
+  const data = await stripeGet(`/promotion_codes?${qs}`, secret);
+  const pc = Array.isArray(data?.data) ? data.data[0] : null;
+  if (!pc || !pc.active) return null;
+  const nowSec = Math.floor(Date.now() / 1000);
+  if (typeof pc.expires_at === "number" && pc.expires_at <= nowSec) return null;
+  if (typeof pc.max_redemptions === "number" && pc.times_redeemed >= pc.max_redemptions) return null;
+  const coupon = pc.coupon && typeof pc.coupon === "object" ? pc.coupon : null;
+  if (!coupon || coupon.valid === false) return null;
+  return { id: String(pc.id), code: String(pc.code) };
 }
 
 // ── v10 — DELETE su Stripe ──────────────────────────────────────────────────
@@ -795,30 +849,63 @@ async function activateSubscription(
     `[tax] ${setupIntentId}: regime ${manualItVat ? `manuale IT 22% (${itVatRateId})` : "automatic_tax"}`,
   );
 
+  // ── v14: codice sconto, deciso e verificato in fase 1 ─────────────────────
+  // Un SetupIntent della fase 1 precedente non ha la chiave: nessuno sconto,
+  // cioè il comportamento di prima.
+  const promotionCodeId = md.promotionCodeId ?? "";
+  const subscriptionParams = {
+    customer: customerId,
+    items: [{ price: priceId, quantity: qty }],
+    default_payment_method: pm,
+    ...taxParams,
+    // Con il trial la prima fattura è zero e nulla viene addebitato ora. Senza
+    // trial (futuro) la fattura iniziale viene pagata off-session con la carta
+    // salvata: se fallisse, meglio un errore esplicito che una 'incomplete'.
+    payment_behavior: "error_if_incomplete",
+    payment_settings: { save_default_payment_method: "on_subscription" },
+    trial_period_days: TRIAL_DAYS,
+    trial_settings: { end_behavior: { missing_payment_method: "cancel" } },
+    metadata: {
+      supabaseUserId: callerUserId,
+      // v11: il consenso passa dal SetupIntent al contratto. Un SetupIntent
+      // creato dalla fase 1 precedente non ha queste chiavi: restano stringhe
+      // vuote, encodeForm le scarta e la subscription nasce senza — che è
+      // esattamente il comportamento di prima, non un errore.
+      immediatePerformanceConsent: md.immediatePerformanceConsent ?? "",
+      immediatePerformanceConsentAt: md.immediatePerformanceConsentAt ?? "",
+      // v14: il codice digitato resta leggibile sulla subscription (il
+      // promotion code è già nel discount, ma l'id promo_… non dice nulla a
+      // chi guarda la dashboard).
+      promoCode: md.promoCode ?? "",
+    },
+  };
+
   let subscription: Record<string, unknown>;
+  let discountApplied = false;
   try {
-    subscription = await stripe("/subscriptions", {
-      customer: customerId,
-      items: [{ price: priceId, quantity: qty }],
-      default_payment_method: pm,
-      ...taxParams,
-      // Con il trial la prima fattura è zero e nulla viene addebitato ora. Senza
-      // trial (futuro) la fattura iniziale viene pagata off-session con la carta
-      // salvata: se fallisse, meglio un errore esplicito che una 'incomplete'.
-      payment_behavior: "error_if_incomplete",
-      payment_settings: { save_default_payment_method: "on_subscription" },
-      trial_period_days: TRIAL_DAYS,
-      trial_settings: { end_behavior: { missing_payment_method: "cancel" } },
-      metadata: {
-        supabaseUserId: callerUserId,
-        // v11: il consenso passa dal SetupIntent al contratto. Un SetupIntent
-        // creato dalla fase 1 precedente non ha queste chiavi: restano stringhe
-        // vuote, encodeForm le scarta e la subscription nasce senza — che è
-        // esattamente il comportamento di prima, non un errore.
-        immediatePerformanceConsent: md.immediatePerformanceConsent ?? "",
-        immediatePerformanceConsentAt: md.immediatePerformanceConsentAt ?? "",
-      },
-    }, secret, { "Idempotency-Key": `sevenda-activate-${setupIntentId}` });
+    if (promotionCodeId) {
+      try {
+        subscription = await stripe("/subscriptions", {
+          ...subscriptionParams,
+          discounts: [{ promotion_code: promotionCodeId }],
+        }, secret, { "Idempotency-Key": `sevenda-activate-${setupIntentId}` });
+        discountApplied = true;
+      } catch (e) {
+        // Lo sconto non è più applicabile (consumato altrove, coupon spento):
+        // si attiva a prezzo pieno piuttosto che lasciare la carta salvata e
+        // nessun piano. Idempotency key diversa: la prima richiesta è fallita
+        // con altri parametri e Stripe la rifiuterebbe come riuso incoerente.
+        console.error(
+          `[activate] ${setupIntentId}: sconto ${promotionCodeId} NON applicato — `
+          + `${(e as Error).message} — attivazione ritentata a prezzo pieno`,
+        );
+        subscription = await stripe("/subscriptions", subscriptionParams, secret,
+          { "Idempotency-Key": `sevenda-activate-${setupIntentId}-nodiscount` });
+      }
+    } else {
+      subscription = await stripe("/subscriptions", subscriptionParams, secret,
+        { "Idempotency-Key": `sevenda-activate-${setupIntentId}` });
+    }
   } catch (e) {
     // Gli ID Stripe restano nei log; al client un testo generico e ritentabile.
     console.error(`[activate] ${setupIntentId}: creazione subscription fallita — ${(e as Error).message}`);
@@ -828,7 +915,10 @@ async function activateSubscription(
     }, 502);
   }
 
-  console.log(`[activate] ${setupIntentId} → subscription ${subscription.id} (${subscription.status})`);
+  console.log(
+    `[activate] ${setupIntentId} → subscription ${subscription.id} (${subscription.status})`
+    + (promotionCodeId ? ` sconto ${promotionCodeId}: ${discountApplied ? "applicato" : "NON applicato"}` : ""),
+  );
   return jsonResp({
     status: "activated",
     subscriptionId: subscription.id,
@@ -836,6 +926,8 @@ async function activateSubscription(
     mode: "setup",
     trialEnd: (subscription.trial_end as number | null) ?? null,
     trialDays: TRIAL_DAYS,
+    // v14: false solo se era stato richiesto uno sconto e non è passato.
+    discountApplied: promotionCodeId ? discountApplied : null,
   });
 }
 
@@ -863,7 +955,7 @@ Deno.serve(async (req) => {
     // PATCH v2: supabaseUserId e orgName per il linking lato webhook
     const { planId, interval, quantity, email, name, phone, address, vatId,
             supabaseUserId, orgName, consumerImmediatePerformance, sdiCode,
-            fiscalCode } = body;
+            fiscalCode, promoCode } = body;
 
     if (!planId || !interval || !email) {
       throw new Error("Missing required fields (planId, interval, email).");
@@ -964,6 +1056,39 @@ Deno.serve(async (req) => {
     const invoiceCustomField = sdi ? { name: SDI_FIELD_NAME, value: sdi }
       : cf ? { name: CF_FIELD_NAME, value: cf }
       : null;
+
+    // ── v14: codice sconto ─────────────────────────────────────────────────
+    // Facoltativo. Se c'è, deve essere applicabile ADESSO: si rifiuta prima di
+    // creare o aggiornare il Customer, come le altre validazioni di input.
+    // Un errore di rete verso Stripe qui non è "codice non valido": si rimanda
+    // un errore ritentabile invece di far perdere lo sconto in silenzio.
+    const promoInput = String(promoCode ?? "").trim();
+    let promo: { id: string; code: string } | null = null;
+    if (promoInput) {
+      try {
+        promo = await resolvePromotionCode(promoInput, secret);
+      } catch (e) {
+        console.error(`[promo] verifica di ${JSON.stringify(promoInput)} fallita — ${(e as Error).message}`);
+        return new Response(
+          JSON.stringify({
+            error: "We could not verify your discount code right now. Please try again.",
+            code: "promo_check_failed",
+          }),
+          { status: 502, headers: { ...CORS, "Content-Type": "application/json" } },
+        );
+      }
+      if (!promo) {
+        console.error(`[promo] codice ${JSON.stringify(promoInput)} non applicabile — rifiutato`);
+        return new Response(
+          JSON.stringify({
+            error: "This discount code is not valid or has expired.",
+            code: "promo_code_invalid",
+          }),
+          { status: 400, headers: { ...CORS, "Content-Type": "application/json" } },
+        );
+      }
+      console.log(`[promo] codice ${promo.code} → ${promo.id}`);
+    }
 
     const map = priceMap();
     const priceId = map[planId]?.[billingInterval as "annual" | "monthly"];
@@ -1138,6 +1263,10 @@ Deno.serve(async (req) => {
         // riasserire il custom field nella stessa chiamata.
         sdiCode: sdi,
         fiscalCode: cf,
+        // v14: lo sconto appartiene all'ordine e si applica in fase 2. Stringhe
+        // vuote senza codice: encodeForm le scarta, la fase 2 legge "assente".
+        promotionCodeId: promo ? promo.id : "",
+        promoCode: promo ? promo.code : "",
       },
     }, secret);
 
