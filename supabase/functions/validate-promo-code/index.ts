@@ -31,6 +31,8 @@
 // ════════════════════════════════════════════════════════════════
 
 const STRIPE_API = "https://api.stripe.com/v1";
+// Pinned: dalla 2025-09-30.clover il coupon sta in `promotion.coupon`, non in `coupon`.
+const STRIPE_VERSION = "2026-04-22.dahlia";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -54,9 +56,9 @@ type PromoCheck =
   | { valid: false; reason: string };
 
 async function lookupPromotionCode(code: string, secret: string): Promise<PromoCheck> {
-  const qs = `code=${encodeURIComponent(code)}&limit=1&expand[]=data.coupon`;
+  const qs = `code=${encodeURIComponent(code)}&limit=1&expand[]=data.promotion.coupon`;
   const res = await fetch(`${STRIPE_API}/promotion_codes?${qs}`, {
-    headers: { "Authorization": `Bearer ${secret}` },
+    headers: { "Authorization": `Bearer ${secret}`, "Stripe-Version": STRIPE_VERSION },
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data?.error?.message || `Stripe error (${res.status})`);
@@ -69,7 +71,8 @@ async function lookupPromotionCode(code: string, secret: string): Promise<PromoC
   if (typeof pc.max_redemptions === "number" && pc.times_redeemed >= pc.max_redemptions) {
     return { valid: false, reason: "exhausted" };
   }
-  const coupon = pc.coupon && typeof pc.coupon === "object" ? pc.coupon : null;
+  const rawCoupon = pc.promotion?.coupon ?? pc.coupon;
+  const coupon = rawCoupon && typeof rawCoupon === "object" ? rawCoupon : null;
   if (!coupon || coupon.valid === false) return { valid: false, reason: "coupon_invalid" };
 
   return {

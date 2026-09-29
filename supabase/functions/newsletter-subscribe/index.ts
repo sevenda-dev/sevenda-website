@@ -61,6 +61,11 @@
 // ════════════════════════════════════════════════════════════════
 
 const STRIPE_API     = "https://api.stripe.com/v1";
+// Versione pinned come in set-locale / stripe-webhook / create-portal-session: dalla
+// 2025-09-30.clover il Promotion Code non ha più `coupon` al primo livello ma
+// `promotion: { type: "coupon", coupon }`. Senza pin si dipende dalla versione
+// di default dell'account e la richiesta può essere rifiutata (promo_failed).
+const STRIPE_VERSION = "2026-04-22.dahlia";
 const SUPABASE_URL   = Deno.env.get("SUPABASE_URL") ?? "";
 const SERVICE_ROLE   = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 const STRIPE_KEY     = Deno.env.get("STRIPE_SECRET_KEY") ?? "";
@@ -210,12 +215,14 @@ async function createPromotionCode(code: string, email: string, expiresAt: Date)
     headers: {
       "Authorization": `Bearer ${STRIPE_KEY}`,
       "Content-Type":  "application/x-www-form-urlencoded",
+      "Stripe-Version": STRIPE_VERSION,
       // Un retry con lo stesso codice (PATCH DB fallita) riottiene lo stesso
       // oggetto invece di un errore "code already exists".
       "Idempotency-Key": `sevenda-newsletter-${code}`,
     },
     body: formEncode({
-      "coupon":            COUPON_ID,
+      "promotion[type]":   "coupon",
+      "promotion[coupon]": COUPON_ID,
       "code":              code,
       "max_redemptions":   "1",
       "expires_at":        String(Math.floor(expiresAt.getTime() / 1000)),
