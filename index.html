@@ -1973,6 +1973,250 @@
 /* Il canvas viene iniettato da pattern.js come position:fixed z-index:0 */
 /* I contenuti della pagina devono avere z-index >= 1 per stare sopra   */
   </style>
+
+  <!-- ── NEWSLETTER MODAL CSS (sconto 30% all'iscrizione) ──────────────────── -->
+  <style>
+/* Overlay: stessa resa del demo-overlay, z-index appena sotto per non
+   coprire la demo o il video se l'utente li ha già aperti. */
+.nl-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  background: rgba(0,0,0,0.82);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: demoFadeIn 0.2s ease;
+}
+.nl-overlay.active { display: flex; }
+
+.nl-modal {
+  position: relative;
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  width: 100%;
+  max-width: 780px;
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+  background: var(--surface);
+  border: 1px solid var(--border-hi);
+  border-radius: 14px;
+  box-shadow: 0 40px 120px rgba(0,0,0,0.8);
+  animation: demoSlideUp 0.3s cubic-bezier(0.16,1,0.3,1);
+}
+
+/* Lato sinistro: il logo, sulla stessa griglia del body */
+.nl-side {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 40px 28px;
+  background:
+    linear-gradient(rgba(255,255,255,0.024) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.024) 1px, transparent 1px),
+    var(--bg);
+  background-size: 44px 44px, 44px 44px, auto;
+  border-right: 1px solid var(--border);
+}
+/* Stesso asset e stessa resa di .logo-full in fondo alla pagina (object-fit,
+   opacità .82 → 1 al passaggio): cambia solo la dimensione, vincolata dalla modale. */
+.nl-logo {
+  width: 220px;
+  height: 220px;
+  object-fit: contain;
+  opacity: 0.82;
+  transition: opacity .4s;
+}
+.nl-logo:hover { opacity: 1; }
+.nl-side-tag {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.nl-body { padding: 36px 36px 28px; }
+
+.nl-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-family: var(--sans);
+  transition: all .15s;
+  z-index: 1;
+}
+.nl-close:hover { background: var(--surface-up); color: var(--text); }
+
+.nl-kicker {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--green);
+  margin-bottom: 10px;
+}
+.nl-title {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -.03em;
+  line-height: 1.15;
+  margin-bottom: 10px;
+  color: var(--text);
+}
+.nl-sub {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.6;
+  margin-bottom: 22px;
+}
+.nl-sub strong { color: var(--text); font-weight: 600; }
+
+.nl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.nl-field { margin-bottom: 10px; }
+.nl-input, .nl-select {
+  width: 100%;
+  height: 44px;
+  padding: 0 13px;
+  background: var(--surface-up);
+  border: 1px solid var(--border-hi);
+  border-radius: var(--r);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 14px;
+  outline: none;
+  transition: border-color .15s;
+}
+.nl-input::placeholder { color: var(--muted); }
+.nl-input:focus, .nl-select:focus { border-color: rgba(255,255,255,.45); }
+.nl-input.err { border-color: var(--red); }
+.nl-phone { display: grid; grid-template-columns: 112px 1fr; gap: 10px; }
+.nl-select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 28px;
+  font-family: var(--mono);
+  font-size: 13px;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='6' viewBox='0 0 8 6'%3E%3Cpath fill='%236e6e6a' d='M0 0l4 6 4-6z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+}
+.nl-select option { background: var(--surface-up); color: var(--text); }
+/* Honeypot: invisibile agli umani, compilato dai bot */
+.nl-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; opacity: 0; }
+
+.nl-submit {
+  width: 100%;
+  height: 46px;
+  margin-top: 6px;
+  border: none;
+  border-radius: var(--r);
+  background: var(--text);
+  color: var(--bg);
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: opacity .15s;
+}
+.nl-submit:hover:not(:disabled) { opacity: .88; }
+.nl-submit:disabled { opacity: .5; cursor: not-allowed; }
+.nl-legal {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.55;
+  margin-top: 14px;
+}
+.nl-legal a { color: var(--text); text-decoration: underline; }
+.nl-error {
+  display: none;
+  font-size: 13px;
+  color: var(--red);
+  margin: 2px 0 10px;
+}
+.nl-error.on { display: block; }
+
+/* Esito: il codice */
+.nl-success { display: none; }
+.nl-success.on { display: block; }
+.nl-code-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 18px;
+  margin: 8px 0 14px;
+  background: var(--bg);
+  border: 1px dashed var(--border-hi);
+  border-radius: var(--r);
+}
+.nl-code {
+  font-family: var(--mono);
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: .08em;
+  color: var(--text);
+  word-break: break-all;
+}
+.nl-copy {
+  border: 1px solid var(--border-hi);
+  background: transparent;
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: var(--r);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .15s;
+}
+.nl-copy:hover { background: var(--surface-up); }
+.nl-ok-body {
+  font-size: 13.5px;
+  color: var(--muted);
+  line-height: 1.6;
+  margin-bottom: 18px;
+}
+
+@media (max-width: 720px) {
+  .nl-modal { grid-template-columns: 1fr; max-width: 440px; }
+  .nl-side {
+    flex-direction: row;
+    gap: 14px;
+    padding: 18px 20px;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+  .nl-logo { width: 64px; height: 64px; }
+  .nl-body { padding: 26px 22px 22px; }
+  .nl-grid { grid-template-columns: 1fr; }
+  .nl-title { font-size: 22px; }
+}
+  </style>
 </head>
 <body>
 
@@ -2698,6 +2942,7 @@
       <li><a href="/terms.html" data-i18n="foot.terms">Terms</a></li>
       <li><a href="/docs.html" data-i18n="foot.docs">Docs</a></li>
       <li><a href="/faq.html" data-i18n="foot.faq">FAQ</a></li>
+      <li><a href="#newsletter" data-i18n="foot.newsletter" onclick="openNewsletter(event)">Newsletter −30%</a></li>
     </ul>
 
     <span class="foot-copy" data-i18n="foot.copy">© <span data-year>2025</span> Sevenda · Built with Claude</span>
@@ -3392,6 +3637,324 @@
 
 </div><!-- /demo-modal -->
 </div><!-- /demo-overlay -->
+
+<!-- ── NEWSLETTER MODAL (iscrizione → codice sconto 30%) ─────────────────────
+     Compare una volta per visitatore (dopo qualche secondo o al 30% di
+     scroll), non mentre demo o video sono aperti. Chi chiude senza iscriversi
+     non la rivede per 7 giorni; chi si iscrive non la rivede più, ma può
+     riaprirla dal link "Newsletter" in footer per rileggere il codice.
+     Il codice arriva dalla Edge Function newsletter-subscribe e viene salvato
+     in localStorage 'sevenda-promo', da cui checkout.html lo precompila. ── -->
+<div class="nl-overlay" id="nlOverlay" role="dialog" aria-modal="true" aria-labelledby="nlTitle">
+  <div class="nl-modal">
+    <button type="button" class="nl-close" id="nlClose" aria-label="Close" data-i18n-aria-label="nl.close">✕</button>
+
+    <!-- Lato sinistro: lo stesso /logo.svg della sezione "logo full" in fondo alla pagina -->
+    <div class="nl-side" aria-hidden="true">
+      <img src="/logo.svg" class="nl-logo" alt="">
+      <div class="nl-side-tag">sevenda.dev</div>
+    </div>
+
+    <div class="nl-body">
+      <form id="nlForm" novalidate>
+        <p class="nl-kicker" data-i18n="nl.kicker">Members only</p>
+        <h2 class="nl-title" id="nlTitle" data-i18n="nl.title">Get 30% off your plan</h2>
+        <p class="nl-sub" data-i18n-html="nl.sub">Subscribe to the Sevenda newsletter and get a <strong>30% discount code</strong>, exclusive offers and early access to new releases.</p>
+
+        <div class="nl-grid">
+          <div class="nl-field">
+            <input class="nl-input" type="text" id="nlFirst" name="firstName" placeholder="First name" aria-label="First name" data-i18n-placeholder="nl.first.ph" data-i18n-aria-label="nl.first.ph" autocomplete="given-name" maxlength="80" required>
+          </div>
+          <div class="nl-field">
+            <input class="nl-input" type="text" id="nlLast" name="lastName" placeholder="Last name" aria-label="Last name" data-i18n-placeholder="nl.last.ph" data-i18n-aria-label="nl.last.ph" autocomplete="family-name" maxlength="80" required>
+          </div>
+        </div>
+        <div class="nl-field">
+          <input class="nl-input" type="email" id="nlEmail" name="email" placeholder="Email" aria-label="Email" data-i18n-placeholder="nl.email.ph" data-i18n-aria-label="nl.email.ph" autocomplete="email" maxlength="254" required>
+        </div>
+        <!-- Telefono facoltativo: prefisso + numero -->
+        <div class="nl-field nl-phone">
+          <select class="nl-select" id="nlPrefix" aria-label="Country code" data-i18n-aria-label="nl.prefix.aria" autocomplete="tel-country-code">
+            <option value="+39" selected>🇮🇹 +39</option>
+            <option value="+44">🇬🇧 +44</option>
+            <option value="+1">🇺🇸 +1</option>
+            <option value="+33">🇫🇷 +33</option>
+            <option value="+34">🇪🇸 +34</option>
+            <option value="+49">🇩🇪 +49</option>
+            <option value="+41">🇨🇭 +41</option>
+            <option value="+43">🇦🇹 +43</option>
+            <option value="+31">🇳🇱 +31</option>
+            <option value="+32">🇧🇪 +32</option>
+            <option value="+351">🇵🇹 +351</option>
+            <option value="+353">🇮🇪 +353</option>
+          </select>
+          <input class="nl-input" type="tel" id="nlPhone" name="phone" placeholder="Phone (optional)" aria-label="Phone (optional)" data-i18n-placeholder="nl.phone.ph" data-i18n-aria-label="nl.phone.ph" autocomplete="tel-national" maxlength="20" inputmode="tel">
+        </div>
+        <!-- Honeypot anti-bot: gli umani non lo vedono, la function ignora l'invio se è compilato -->
+        <div class="nl-hp" aria-hidden="true">
+          <label>Website <input type="text" id="nlWebsite" name="website" tabindex="-1" autocomplete="off"></label>
+        </div>
+
+        <p class="nl-error" id="nlError" role="alert"></p>
+        <button type="submit" class="nl-submit" id="nlSubmit" data-i18n="nl.btn">Get my discount code</button>
+        <p class="nl-legal" data-i18n-html="nl.legal">By subscribing you agree to receive exclusive offers and product news by email. You can unsubscribe at any time. See our <a href="/privacy.html" target="_blank">Privacy Policy</a> and <a href="/terms.html" target="_blank">Terms of Service</a>.</p>
+      </form>
+
+      <div class="nl-success" id="nlSuccess">
+        <p class="nl-kicker" data-i18n="nl.ok.kicker">You’re in</p>
+        <h2 class="nl-title" data-i18n="nl.ok.title">Your 30% discount code</h2>
+        <div class="nl-code-box">
+          <span class="nl-code" id="nlCode">—</span>
+          <button type="button" class="nl-copy" id="nlCopy">Copy</button>
+        </div>
+        <p class="nl-ok-body" id="nlOkBody"></p>
+        <a href="/pricing.html" class="nl-submit" data-i18n="nl.ok.cta">Choose your plan</a>
+      </div>
+    </div>
+  </div>
+</div><!-- /nl-overlay -->
+
+<script>
+  // ── NEWSLETTER MODAL ──────────────────────────────────────────────────────
+  (function () {
+    'use strict';
+
+    const STATE_KEY     = 'sevenda-nl-state';   // { status:'dismissed'|'subscribed', at, code?, expiresAt?, email?, emailSent? }
+    const PROMO_KEY     = 'sevenda-promo';      // { code, expiresAt } — letto da checkout.html per il prefill
+    const DISMISS_DAYS  = 7;                    // chi chiude senza iscriversi non la rivede per una settimana
+    const SHOW_DELAY_MS = 6000;                 // oppure al 30% di scroll, il primo dei due
+    const SCROLL_SHARE  = 0.3;
+
+    const $ = id => document.getElementById(id);
+    const overlay = $('nlOverlay'), form = $('nlForm'), success = $('nlSuccess');
+    const first = $('nlFirst'), last = $('nlLast'), emailEl = $('nlEmail');
+    const prefix = $('nlPrefix'), phone = $('nlPhone'), hp = $('nlWebsite');
+    const submit = $('nlSubmit'), errorEl = $('nlError');
+    const codeEl = $('nlCode'), copyBtn = $('nlCopy'), okBody = $('nlOkBody');
+
+    function readState()  { try { return JSON.parse(localStorage.getItem(STATE_KEY) || 'null'); } catch (e) { return null; } }
+    function writeState(s) { try { localStorage.setItem(STATE_KEY, JSON.stringify(s)); } catch (e) {} }
+
+    // i18n: window.t / window.getLang di i18n.js, con fallback EN inline.
+    function tt(key, fallback) {
+      const s = (typeof window.t === 'function') ? window.t(key) : null;
+      return (s && s !== key) ? s : fallback;
+    }
+    function fill(str, map) {
+      return String(str).replace(/\{(\w+)\}/g, (_, k) => (map[k] != null ? map[k] : ''));
+    }
+    function lang() { return (typeof window.getLang === 'function') ? window.getLang() : 'en'; }
+
+    // stripe.config.js non è caricato qui: la base delle Edge Function si
+    // deriva da supabase.config.js come fa STRIPE_CONFIG.edgeFunctionBase.
+    function fnBase() {
+      const url = window.SUPABASE_CONFIG && window.SUPABASE_CONFIG.url;
+      return url ? url.replace(/\/+$/, '') + '/functions/v1' : null;
+    }
+    function anonKey() { return (window.SUPABASE_CONFIG && window.SUPABASE_CONFIG.anonKey) || ''; }
+    function anotherOverlayOpen() { return !!document.querySelector('.demo-overlay.active'); }
+
+    /* ── Errori e busy ── */
+    let errorKey = null;
+    function showError(key) {
+      errorKey = key;
+      errorEl.textContent = tt(key, 'Something went wrong. Please try again in a moment.');
+      errorEl.classList.add('on');
+    }
+    function hideError() { errorKey = null; errorEl.classList.remove('on'); errorEl.textContent = ''; }
+    function setBusy(on) {
+      submit.disabled = on;
+      submit.textContent = on ? tt('nl.btn.loading', 'Sending…') : tt('nl.btn', 'Get my discount code');
+    }
+
+    /* ── Esito ── */
+    let lastSuccess = null;   // per ritradurre il testo al cambio lingua
+    function renderSuccess() {
+      if (!lastSuccess) return;
+      const s = lastSuccess;
+      codeEl.textContent = s.code;
+      let date = '';
+      if (s.expiresAt) {
+        try { date = new Date(s.expiresAt).toLocaleDateString(lang(), { year: 'numeric', month: 'long', day: 'numeric' }); }
+        catch (e) { date = String(s.expiresAt).slice(0, 10); }
+      }
+      const body = s.emailSent
+        ? fill(tt('nl.ok.body', 'Valid until {date}, one use only. Enter it in the “Discount code” field at checkout. We also sent it to {email}.'), { date, email: s.email })
+        : fill(tt('nl.ok.body.noemail', 'Valid until {date}, one use only. Enter it in the “Discount code” field at checkout.'), { date });
+      okBody.textContent = (s.again ? tt('nl.ok.again', 'Welcome back! Here is your discount code again.') + ' ' : '') + body;
+      copyBtn.textContent = tt('nl.ok.copy', 'Copy');
+    }
+    function showSuccess(s) {
+      lastSuccess = s;
+      form.style.display = 'none';
+      success.classList.add('on');
+      renderSuccess();
+    }
+
+    /* ── Apertura / chiusura ── */
+    let lastFocus = null;
+    function open() {
+      if (overlay.classList.contains('active')) return;
+      lastFocus = document.activeElement;
+      overlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+      const st = readState();
+      const valid = st && st.status === 'subscribed' && st.code
+        && !(st.expiresAt && Date.parse(st.expiresAt) <= Date.now());
+      if (valid) {
+        // Riapertura dal footer: si rilegge il codice, senza rifare il form.
+        showSuccess({ code: st.code, expiresAt: st.expiresAt, email: st.email, emailSent: !!st.emailSent, again: true });
+      } else {
+        // Prefisso coerente con la lingua scelta, se l'utente non l'ha già toccato.
+        const byLang = { it: '+39', fr: '+33', es: '+34', en: '+44' }[lang()];
+        if (byLang && !phone.value) prefix.value = byLang;
+        setTimeout(() => first.focus(), 60);
+      }
+    }
+    function close() {
+      overlay.classList.remove('active');
+      document.body.style.overflow = '';
+      const st = readState();
+      if (!(st && st.status === 'subscribed')) writeState({ status: 'dismissed', at: Date.now() });
+      if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
+    }
+    // Usato dal link "Newsletter" in footer (e utile per i test: openNewsletter()).
+    window.openNewsletter = function (e) { if (e && e.preventDefault) e.preventDefault(); open(); };
+
+    $('nlClose').addEventListener('click', close);
+    overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && overlay.classList.contains('active')) close();
+    });
+
+    /* ── Apertura automatica ── */
+    function shouldAutoShow() {
+      const q = new URLSearchParams(location.search);
+      if (q.get('nl') === '0') return false;                                  // ?nl=0 la disattiva (screenshot, demo)
+      if (q.get('nl') === '1' || location.hash === '#newsletter') return true; // forzata, anche se già chiusa
+      const st = readState();
+      if (!st) return true;
+      if (st.status === 'subscribed') return false;
+      if (st.status === 'dismissed' && (Date.now() - (st.at || 0)) < DISMISS_DAYS * 864e5) return false;
+      return true;
+    }
+    function armAutoShow() {
+      if (!shouldAutoShow()) return;
+      let fired = false;
+      const fire = () => {
+        if (fired) return;
+        if (anotherOverlayOpen()) { setTimeout(fire, 3000); return; }   // demo o video aperti: si riprova dopo
+        fired = true;
+        window.removeEventListener('scroll', onScroll);
+        open();
+      };
+      const onScroll = () => {
+        const max = document.documentElement.scrollHeight - window.innerHeight;
+        if (max > 0 && window.scrollY / max >= SCROLL_SHARE) fire();
+      };
+      window.addEventListener('scroll', onScroll, { passive: true });
+      setTimeout(fire, SHOW_DELAY_MS);
+    }
+
+    /* ── Invio ── */
+    const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+    [first, last, emailEl, phone].forEach(el => el.addEventListener('input', () => { el.classList.remove('err'); hideError(); }));
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const firstName = first.value.trim(), lastName = last.value.trim(), email = emailEl.value.trim();
+      [first, last, emailEl, phone].forEach(el => el.classList.remove('err'));
+      hideError();
+
+      if (!firstName || !lastName || !email) {
+        if (!firstName) first.classList.add('err');
+        if (!lastName)  last.classList.add('err');
+        if (!email)     emailEl.classList.add('err');
+        showError('nl.err.required');
+        (!firstName ? first : !lastName ? last : emailEl).focus();
+        return;
+      }
+      if (!EMAIL_RE.test(email)) { emailEl.classList.add('err'); showError('nl.err.email'); emailEl.focus(); return; }
+
+      // Telefono facoltativo: vuoto va bene; se c'è, 6–15 cifre più il prefisso.
+      let phoneFull = null;
+      const digits = phone.value.replace(/[\s().-]/g, '');
+      if (digits) {
+        if (!/^\d{6,15}$/.test(digits)) { phone.classList.add('err'); showError('nl.err.phone'); phone.focus(); return; }
+        phoneFull = prefix.value + digits;
+      }
+
+      const base = fnBase();
+      if (!base) { showError('nl.err.unavailable'); return; }
+
+      setBusy(true);
+      try {
+        const res = await fetch(base + '/newsletter-subscribe', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': anonKey(),
+            'Authorization': 'Bearer ' + anonKey(),
+          },
+          body: JSON.stringify({
+            firstName, lastName, email,
+            phone: phoneFull,
+            locale: lang(),
+            source: 'landing-modal',
+            website: hp.value,   // honeypot
+          }),
+        });
+        const data = await res.json().catch(() => ({}));
+
+        if (res.ok && data.ok && data.code) {
+          writeState({ status: 'subscribed', at: Date.now(), code: data.code, expiresAt: data.expiresAt, email, emailSent: !!data.emailSent });
+          try { localStorage.setItem(PROMO_KEY, JSON.stringify({ code: data.code, expiresAt: data.expiresAt })); } catch (err) {}
+          showSuccess({ code: data.code, expiresAt: data.expiresAt, email, emailSent: !!data.emailSent, again: !!data.alreadySubscribed });
+          return;
+        }
+        if (res.ok && data.ok) { close(); return; }   // honeypot: risposta "ok" senza codice
+
+        const byCode = {
+          invalid_email:     'nl.err.email',
+          invalid_phone:     'nl.err.phone',
+          missing_fields:    'nl.err.required',
+          code_expired:      'nl.err.expired',
+          promo_unavailable: 'nl.err.unavailable',
+          misconfigured:     'nl.err.unavailable',
+        };
+        showError(byCode[data.code] || 'nl.err.generic');
+      } catch (err) {
+        showError('nl.err.generic');
+      } finally {
+        setBusy(false);
+      }
+    });
+
+    /* ── Copia del codice ── */
+    copyBtn.addEventListener('click', async () => {
+      const code = codeEl.textContent;
+      try {
+        await navigator.clipboard.writeText(code);
+      } catch (e) {
+        // Clipboard API non disponibile (http, permessi): selezione manuale.
+        const range = document.createRange(); range.selectNodeContents(codeEl);
+        const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
+        return;
+      }
+      copyBtn.textContent = tt('nl.ok.copied', 'Copied!');
+      setTimeout(() => { copyBtn.textContent = tt('nl.ok.copy', 'Copy'); }, 1500);
+    });
+
+    /* ── Cambio lingua: i testi generati via JS vanno ritradotti ── */
+    document.addEventListener('sevenda:langchange', () => {
+      if (!submit.disabled) submit.textContent = tt('nl.btn', 'Get my discount code');
+      if (errorKey) showError(errorKey);
+      renderSuccess();
+    });
+
+    armAutoShow();
+  })();
+</script>
 
 </body>
 </html>
