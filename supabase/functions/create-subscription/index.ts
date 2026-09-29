@@ -410,9 +410,9 @@ async function stripe(
 // stripe() qui sopra fa solo POST con corpo form-encoded. Leggere un price è
 // una GET con query string: una funzione a parte costa meno che aggiungere un
 // parametro di metodo a una funzione già usata su tre percorsi di scrittura.
-async function stripeGet(path: string, key: string) {
+async function stripeGet(path: string, key: string, extraHeaders: Record<string, string> = {}) {
   const res = await fetch(`${STRIPE_API}${path}`, {
-    headers: { "Authorization": `Bearer ${key}` },
+    headers: { "Authorization": `Bearer ${key}`, ...extraHeaders },
   });
   const data = await res.json();
   if (!res.ok) {
@@ -435,14 +435,16 @@ async function resolvePromotionCode(
   secret: string,
 ): Promise<{ id: string; code: string } | null> {
   if (!PROMO_CODE_RE.test(code)) return null;
-  const qs = `code=${encodeURIComponent(code)}&limit=1&expand[]=data.coupon`;
-  const data = await stripeGet(`/promotion_codes?${qs}`, secret);
+  const qs = `code=${encodeURIComponent(code)}&limit=1&expand[]=data.promotion.coupon`;
+  // Versione pinned: dalla 2025-09-30.clover il coupon sta in `promotion.coupon`.
+  const data = await stripeGet(`/promotion_codes?${qs}`, secret, { "Stripe-Version": "2026-04-22.dahlia" });
   const pc = Array.isArray(data?.data) ? data.data[0] : null;
   if (!pc || !pc.active) return null;
   const nowSec = Math.floor(Date.now() / 1000);
   if (typeof pc.expires_at === "number" && pc.expires_at <= nowSec) return null;
   if (typeof pc.max_redemptions === "number" && pc.times_redeemed >= pc.max_redemptions) return null;
-  const coupon = pc.coupon && typeof pc.coupon === "object" ? pc.coupon : null;
+  const rawCoupon = pc.promotion?.coupon ?? pc.coupon;
+  const coupon = rawCoupon && typeof rawCoupon === "object" ? rawCoupon : null;
   if (!coupon || coupon.valid === false) return null;
   // Strategia sconto: SOLO primo acquisto → il coupon dev'essere `once`, così
   // Stripe lo applica al primo addebito reale (primo pagamento dopo il trial),
