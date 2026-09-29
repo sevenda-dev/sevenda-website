@@ -242,43 +242,136 @@ function esc(s: unknown): string {
   return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-const MAIL_COPY: Record<Locale, { subject: string; hi: string; body: string; valid: string; cta: string; footer: string }> = {
+// Copy per lingua. `kicker` è il titoletto arancione sopra il titolo (reso in
+// maiuscolo via CSS), `hi` il saluto, `valid` scadenza e istruzione d'uso.
+type MailCopy = {
+  subject: string; kicker: string; title: string; hi: string; valid: string;
+  cta: string; footer: string; support: string; preheader: string;
+};
+const MAIL_COPY: Record<Locale, MailCopy> = {
   it: {
-    subject: "Il tuo codice sconto del 30% — Sevenda",
-    hi:      "Ciao {name},",
-    body:    "grazie per esserti iscritto alla newsletter di Sevenda. Ecco il tuo codice sconto del {pct}%:",
-    valid:   "Valido fino al {date}, una sola volta. Inseriscilo nel campo “Codice sconto” al checkout.",
-    cta:     "Scegli il tuo piano",
-    footer:  "Ricevi questa email perché ti sei iscritto alla newsletter su sevenda.dev. Puoi annullare l'iscrizione in qualsiasi momento scrivendo a hello@sevenda.dev.",
+    subject:   "Il tuo codice sconto del 30% — Sevenda",
+    kicker:    "Unisciti al team",
+    title:     "Il tuo codice sconto del {pct}%",
+    hi:        "Ciao {name},",
+    valid:     "Valido fino al {date}, una sola volta. Inseriscilo nel campo “Codice sconto” al checkout.",
+    cta:       "Scegli il tuo piano",
+    footer:    "Ricevi questa email perché ti sei iscritto alla newsletter su sevenda.dev. Puoi annullare l'iscrizione in qualsiasi momento scrivendo a hello@sevenda.dev.",
+    support:   "Supporto",
+    preheader: "{code}: usalo al checkout entro il {date}.",
   },
   en: {
-    subject: "Your 30% discount code — Sevenda",
-    hi:      "Hi {name},",
-    body:    "thanks for subscribing to the Sevenda newsletter. Here is your {pct}% discount code:",
-    valid:   "Valid until {date}, one use only. Enter it in the “Discount code” field at checkout.",
-    cta:     "Choose your plan",
-    footer:  "You receive this email because you subscribed to the newsletter on sevenda.dev. You can unsubscribe at any time by writing to hello@sevenda.dev.",
+    subject:   "Your 30% discount code — Sevenda",
+    kicker:    "Join the team",
+    title:     "Your {pct}% discount code",
+    hi:        "Hi {name},",
+    valid:     "Valid until {date}, one use only. Enter it in the “Discount code” field at checkout.",
+    cta:       "Choose your plan",
+    footer:    "You receive this email because you subscribed to the newsletter on sevenda.dev. You can unsubscribe at any time by writing to hello@sevenda.dev.",
+    support:   "Support",
+    preheader: "{code}: use it at checkout by {date}.",
   },
   es: {
-    subject: "Tu código de descuento del 30 % — Sevenda",
-    hi:      "Hola {name},",
-    body:    "gracias por suscribirte a la newsletter de Sevenda. Este es tu código de descuento del {pct} %:",
-    valid:   "Válido hasta el {date}, un solo uso. Introdúcelo en el campo “Código de descuento” al pagar.",
-    cta:     "Elige tu plan",
-    footer:  "Recibes este correo porque te suscribiste a la newsletter en sevenda.dev. Puedes darte de baja en cualquier momento escribiendo a hello@sevenda.dev.",
+    subject:   "Tu código de descuento del 30 % — Sevenda",
+    kicker:    "Únete al equipo",
+    title:     "Tu código de descuento del {pct} %",
+    hi:        "Hola {name},",
+    valid:     "Válido hasta el {date}, un solo uso. Introdúcelo en el campo “Código de descuento” al pagar.",
+    cta:       "Elige tu plan",
+    footer:    "Recibes este correo porque te suscribiste a la newsletter en sevenda.dev. Puedes darte de baja en cualquier momento escribiendo a hello@sevenda.dev.",
+    support:   "Soporte",
+    preheader: "{code}: úsalo al pagar antes del {date}.",
   },
   fr: {
-    subject: "Votre code de réduction de 30 % — Sevenda",
-    hi:      "Bonjour {name},",
-    body:    "merci de vous être abonné à la newsletter Sevenda. Voici votre code de réduction de {pct} % :",
-    valid:   "Valable jusqu'au {date}, utilisable une seule fois. Saisissez-le dans le champ « Code de réduction » lors du paiement.",
-    cta:     "Choisir votre offre",
-    footer:  "Vous recevez cet e-mail parce que vous vous êtes abonné à la newsletter sur sevenda.dev. Vous pouvez vous désabonner à tout moment en écrivant à hello@sevenda.dev.",
+    subject:   "Votre code de réduction de 30 % — Sevenda",
+    kicker:    "Rejoignez l'équipe",
+    title:     "Votre code de réduction de {pct} %",
+    hi:        "Bonjour {name},",
+    valid:     "Valable jusqu'au {date}, utilisable une seule fois. Saisissez-le dans le champ « Code de réduction » lors du paiement.",
+    cta:       "Choisir votre offre",
+    footer:    "Vous recevez cet e-mail parce que vous vous êtes abonné à la newsletter sur sevenda.dev. Vous pouvez vous désabonner à tout moment en écrivant à hello@sevenda.dev.",
+    support:   "Support",
+    preheader: "{code} : à utiliser lors du paiement avant le {date}.",
   },
 };
 
 function fill(s: string, map: Record<string, string>): string {
   return s.replace(/\{(\w+)\}/g, (_, k) => map[k] ?? "");
+}
+
+// Il logo è un PNG (radice del sito) e non logo.svg: Gmail e molti client non
+// mostrano le immagini SVG. È la stessa grafica di logo.svg, rasterizzata.
+const SITE      = "https://sevenda.dev";
+const MAIL_LOGO = `${SITE}/logo-email.png`;
+
+// HTML dell'email: stesso layout della modale di index.html (logo a sinistra,
+// contenuto a destra; su schermi stretti le colonne si impilano). Tabelle e stili
+// inline perché i client di posta non sono browser; sfondi anche come attributo
+// bgcolor perché Gmail e Outlook scartano molti stili sul body.
+// `m` contiene valori GIÀ escapati: `name`, `date`, `code`, `pct`.
+function buildEmailHtml(c: MailCopy, locale: Locale, m: Record<string, string>): string {
+  const title = fill(c.title, m);
+  const MONO = "'Geist Mono',Menlo,Consolas,monospace";
+  return `<!DOCTYPE html>
+<html lang="${locale}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="dark">
+  <meta name="supported-color-schemes" content="dark">
+  <title>${esc(c.subject)}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    @media only screen and (max-width:560px) {
+      .sv-col  { display:block !important; width:100% !important; box-sizing:border-box !important; }
+      .sv-side { padding:20px !important; border-right:0 !important; border-bottom:1px solid #1e1e1e !important; }
+      .sv-logo { width:72px !important; }
+      .sv-tag  { display:none !important; }
+      .sv-body { padding:28px 22px !important; }
+      .sv-code { font-size:19px !important; }
+    }
+  </style>
+</head>
+<body style="margin:0; padding:0; background:#000001; font-family:'Geist',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif; color:#e8e8e6;" bgcolor="#000001">
+  <div style="display:none; max-height:0; overflow:hidden; opacity:0; color:#000001;">${fill(c.preheader, m)}</div>
+  <table role="presentation" cellpadding="0" cellspacing="0" width="100%" bgcolor="#000001" style="background:#000001;">
+    <tr>
+      <td align="center" style="padding:40px 16px;">
+
+        <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="max-width:640px; border:1px solid #2a2a2a; border-radius:14px; border-collapse:separate; overflow:hidden;">
+          <tr>
+            <td class="sv-col sv-side" width="220" align="center" valign="middle" bgcolor="#0d0d0d" style="width:220px; padding:36px 20px; background:#0d0d0d; border-right:1px solid #1e1e1e; text-align:center;">
+              <img class="sv-logo" src="${MAIL_LOGO}" alt="Sevenda" width="170" style="display:block; width:170px; height:auto; margin:0 auto;">
+              <div class="sv-tag" style="margin-top:20px; font-family:${MONO}; font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:#6e6e6a;">sevenda.dev</div>
+            </td>
+
+            <td class="sv-col sv-body" valign="top" bgcolor="#131313" style="padding:36px 32px; background:#131313; text-align:left;">
+              <div style="font-family:${MONO}; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:#E8733A; margin:0 0 10px;">${esc(c.kicker)}</div>
+              <h1 style="margin:0 0 14px; font-size:26px; font-weight:700; color:#e8e8e6; letter-spacing:-.03em; line-height:1.15;">${title}</h1>
+              <p style="margin:0 0 6px; font-size:14px; color:#8a8a8a; line-height:1.6;">${fill(c.hi, m)}</p>
+
+              <div style="margin:10px 0 16px; padding:16px 18px; background:#0d0d0d; border:1px dashed #2a2a2a; border-radius:8px;">
+                <span class="sv-code" style="font-family:${MONO}; font-size:22px; font-weight:500; letter-spacing:.08em; color:#e8e8e6; word-break:break-all;">${m.code}</span>
+              </div>
+
+              <p style="margin:0 0 22px; font-size:13.5px; color:#8a8a8a; line-height:1.6;">${fill(c.valid, m)}</p>
+
+              <a href="${SITE}/pricing.html" style="display:block; padding:14px 20px; background:#e8e8e6; color:#0c0c0c; font-size:13px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; text-decoration:none; text-align:center; border-radius:6px;">${esc(c.cta)}</a>
+            </td>
+          </tr>
+        </table>
+
+        <p style="margin:24px auto 0; max-width:520px; font-size:12px; color:#6e6e6a; line-height:1.6; text-align:center;">${esc(c.footer)}</p>
+        <p style="margin:16px 0 0; font-size:12px; color:#4a4a4a; text-align:center;">
+          <a href="${SITE}" style="color:#8a8a8a; text-decoration:none;">sevenda.dev</a> &bull;
+          <a href="${SITE}/docs" style="color:#8a8a8a; text-decoration:none;">Docs</a> &bull;
+          <a href="mailto:hello@sevenda.dev" style="color:#8a8a8a; text-decoration:none;">${esc(c.support)}</a>
+        </p>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
 }
 
 async function sendCodeEmail(
@@ -292,16 +385,11 @@ async function sendCodeEmail(
   } catch {
     date = expiresAt.toISOString().slice(0, 10);
   }
-  const map = { name: esc(firstName), pct: String(DISCOUNT_PERCENT), date: esc(date) };
-  const html = `
-    <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:15px;line-height:1.55;color:#1a1a1a;max-width:520px">
-      <p>${fill(c.hi, map)}</p>
-      <p>${fill(c.body, map)}</p>
-      <p style="font-family:'Courier New',monospace;font-size:26px;font-weight:700;letter-spacing:.08em;background:#191919;color:#ffffff;padding:16px 20px;border-radius:8px;text-align:center">${esc(code)}</p>
-      <p>${fill(c.valid, map)}</p>
-      <p><a href="https://sevenda.dev/pricing.html" style="display:inline-block;background:#191919;color:#ffffff;text-decoration:none;padding:12px 22px;border-radius:6px;font-weight:600">${esc(c.cta)}</a></p>
-      <p style="font-size:12px;color:#6e6e6a;margin-top:32px">${esc(c.footer)}</p>
-    </div>`;
+  // Tutto ciò che entra nell'HTML e non è copy fissa passa da esc(): il nome lo
+  // scrive l'utente.
+  const html = buildEmailHtml(c, locale, {
+    name: esc(firstName), pct: String(DISCOUNT_PERCENT), date: esc(date), code: esc(code),
+  });
   try {
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
