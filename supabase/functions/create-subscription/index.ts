@@ -201,10 +201,17 @@
 //   FASE 2: `discounts[0][promotion_code]` sulla subscription. È il parametro
 //   delle versioni API attuali (l'account è su 2026-04-22.dahlia, vedi
 //   set-locale e stripe-webhook); `coupon` e `promotion_code` al primo livello
-//   non esistono più. Con il trial la prima fattura è a zero: lo sconto si
-//   applica alle fatture successive secondo la durata del coupon (once,
-//   repeating, forever), che è una scelta della dashboard, non di questo
-//   codice.
+//   non esistono più.
+//   STRATEGIA: sconto SOLO sul PRIMO ACQUISTO. Il coupon è `once` (percent_off
+//   30). Con il trial la prima fattura — quella di `subscription_create` — è a
+//   €0; un coupon `once` vale sul primo ADDEBITO reale, quindi cade sulla prima
+//   fattura a fine trial (il primo pagamento), identico per il piano mensile e
+//   per l'annuale, e non tocca i rinnovi successivi, che tornano a prezzo pieno.
+//   La €0 di creazione non "consuma" lo sconto: `once` è legato all'addebito,
+//   non alla fattura a zero — è la stessa fattura di fine trial che il webhook
+//   legge via create_preview "sconti inclusi". La durata NON la decide questo
+//   codice (è impostata sul coupon in dashboard), ma la strategia è fissata a
+//   `once`: resolvePromotionCode logga un warning se il coupon non lo è.
 //   SE LO SCONTO NON PASSA IN FASE 2 (codice consumato in un'altra scheda fra
 //   le due fasi, coupon disattivato nel frattempo): la carta è già salvata e
 //   l'unico esito che non lascia l'utente senza piano è attivare comunque.
@@ -437,6 +444,14 @@ async function resolvePromotionCode(
   if (typeof pc.max_redemptions === "number" && pc.times_redeemed >= pc.max_redemptions) return null;
   const coupon = pc.coupon && typeof pc.coupon === "object" ? pc.coupon : null;
   if (!coupon || coupon.valid === false) return null;
+  // Strategia sconto: SOLO primo acquisto → il coupon dev'essere `once`, così
+  // Stripe lo applica al primo addebito reale (primo pagamento dopo il trial),
+  // uguale per mensile e annuale, e non ai rinnovi. Un `repeating`/`forever`
+  // sconterebbe anche i rinnovi: non è la strategia decisa. Non blocca la
+  // vendita (lo sconto va comunque dato), ma va segnalato a chi gestisce i coupon.
+  if (coupon.duration !== "once") {
+    console.warn(`[promo] coupon ${coupon.id} duration='${coupon.duration}' — atteso 'once' (solo primo acquisto). Sconto applicato comunque.`);
+  }
   return { id: String(pc.id), code: String(pc.code) };
 }
 
@@ -885,6 +900,10 @@ async function activateSubscription(
   try {
     if (promotionCodeId) {
       try {
+        // Coupon `once`: Stripe lo applica al primo addebito reale, cioè alla
+        // prima fattura a fine trial (la €0 di creazione non lo consuma).
+        // Primo pagamento scontato del 30%, mensile o annuale che sia; rinnovi
+        // a prezzo pieno.
         subscription = await stripe("/subscriptions", {
           ...subscriptionParams,
           discounts: [{ promotion_code: promotionCodeId }],

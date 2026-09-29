@@ -39,10 +39,15 @@
 //   STRIPE_SECRET_KEY              già presente (create-subscription)
 //   STRIPE_NEWSLETTER_COUPON_ID    id del coupon "30% off" (es. NEWSLETTER30):
 //                                  Stripe → Product catalog → Coupons → Create,
-//                                  Percentage 30, Duration a scelta (once =
-//                                  solo primo pagamento, repeating N mesi,
-//                                  forever). Non lo crea la function: la durata
-//                                  è una scelta commerciale, non tecnica.
+//                                  Percentage 30, Duration = ONCE. La durata
+//                                  DEV'ESSERE `once`: è la strategia decisa —
+//                                  lo sconto vale solo sul primo acquisto (il
+//                                  primo pagamento dopo il trial), identico per
+//                                  mensile e annuale, e non sui rinnovi. Un
+//                                  coupon `repeating`/`forever` sconterebbe
+//                                  anche i rinnovi: create-subscription logga un
+//                                  warning se il coupon non è `once`. Non è la
+//                                  function a crearlo.
 //   NEWSLETTER_CODE_DAYS           validità del codice in giorni (default 30)
 //   RESEND_API_KEY                 già presente (contact-sales), facoltativa
 //   NEWSLETTER_FROM                mittente (default "Sevenda <noreply@sevenda.dev>")
