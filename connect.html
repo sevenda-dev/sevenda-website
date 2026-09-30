@@ -246,6 +246,51 @@
     /* Fallback mobile: chip in griglia al posto degli schemi */
     .hub-mobile { display: none; }
 
+    /* ── VIDEO: Sevenda in azione ───────────────────────────────────── */
+    #cn-video { padding: 56px 0 24px; position: relative; z-index: 1; }
+    #cn-video .head { text-align: center; margin-bottom: 40px; }
+    #cn-video .ssub { max-width: 520px; margin: 0 auto; }
+
+    /* Cornice in stile mockup di index.html: bordo, topbar brand, ombra */
+    .vid-frame {
+      max-width: 1000px; margin: 0 auto;
+      background: #111; border: 1px solid var(--border-hi); border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 0 0 1px rgba(255,255,255,.04), 0 32px 80px rgba(0,0,0,.7), 0 0 100px rgba(232,115,58,.035);
+    }
+    .vid-bar {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 14px; background: #161616; border-bottom: 1px solid var(--border);
+      font-family: var(--mono); font-size: 11px; color: var(--muted);
+    }
+    .vid-bar .logo-svg { width: 16px; height: 16px; }
+    .vid-bar-name { color: var(--text); font-family: var(--sans); font-weight: 600; font-size: 12px; letter-spacing: -.01em; }
+    .vid-bar-tag { margin-left: auto; color: var(--dim); }
+
+    /* Il video ha un formato molto largo (1224×412 ≈ 3:1) */
+    .vid-box { position: relative; background: #000; aspect-ratio: 1224 / 412; }
+    .vid-box video { position: absolute; inset: 0; width: 100%; height: 100%; display: block; object-fit: cover; }
+
+    /* Overlay play: il video parte solo al click dell'utente */
+    .vid-play {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center; gap: 12px;
+      background: linear-gradient(to top, rgba(13,13,13,.55), rgba(13,13,13,.15));
+      border: none; cursor: pointer; color: var(--text);
+      font-family: var(--sans); font-size: 14px; font-weight: 500;
+      transition: background .2s;
+    }
+    .vid-play:hover { background: linear-gradient(to top, rgba(13,13,13,.45), rgba(13,13,13,.05)); }
+    .vid-play .hw-play {
+      display: flex; align-items: center; justify-content: center;
+      width: 52px; height: 52px; border-radius: 50%;
+      background: #fff; color: #0d0d0d; flex-shrink: 0;
+      box-shadow: 0 8px 30px rgba(0,0,0,.5);
+      transition: transform .15s;
+    }
+    .vid-play:hover .hw-play { transform: scale(1.06); }
+    .vid-frame.playing .vid-play { display: none; }
+
     /* ── CONNETTORI ─────────────────────────────────────────────────── */
     #connectors { padding: 96px 0 40px; position: relative; z-index: 1; }
     #connectors .head { text-align: center; margin-bottom: 40px; }
@@ -386,6 +431,9 @@
       #cn-hero { padding: 72px 20px 32px; }
       h1 { font-size: clamp(2.4rem, 9vw, 4.5rem); letter-spacing: -.03em; }
       .hero-sub { max-width: 100%; }
+      #cn-video { padding: 40px 0 16px; }
+      .vid-play span:not(.hw-play) { display: none; }
+      .vid-play .hw-play { width: 44px; height: 44px; }
       #connectors { padding: 72px 0 24px; }
       .cn-grid { grid-template-columns: 1fr; }
       .cn-card { min-height: 0; }
@@ -600,6 +648,37 @@
     <span class="hub-chip soon">Mermaid</span>
     <span class="hub-chip soon">Notion</span>
     <span class="hub-chip soon">Bizagi</span>
+  </div>
+</section>
+
+<!-- ── VIDEO ───────────────────────────────────────────────────────── -->
+<section id="cn-video">
+  <div class="wrap">
+    <div class="head reveal">
+      <p class="slabel" data-i18n="cn.vid.label">See it in action</p>
+      <h2 class="stitle" data-i18n="cn.vid.title">From clicks to your stack, in seconds.</h2>
+      <p class="ssub" data-i18n="cn.vid.sub">Watch how a recorded session becomes a BPMN 2.0 diagram and lands in the tools your team already uses.</p>
+    </div>
+
+    <div class="vid-frame reveal" id="vidFrame">
+      <div class="vid-bar">
+        <img src="/logo.svg" class="logo-svg" alt="">
+        <span class="vid-bar-name">Sevenda</span>
+        <span class="vid-bar-tag">connect · 0:11</span>
+      </div>
+      <div class="vid-box">
+        <!-- preload=metadata: il browser mostra il primo fotogramma senza scaricare tutto -->
+        <video id="cnVideo" src="/video/sevenda-connect.mp4" preload="metadata" playsinline aria-label="Sevenda in action"></video>
+        <button type="button" class="vid-play" id="vidPlay" onclick="playConnectVideo()" data-i18n-aria-label="cn.vid.play" aria-label="Play the video">
+          <span class="hw-play" aria-hidden="true">
+            <svg width="16" height="18" viewBox="0 0 11 13" fill="none">
+              <path d="M1 1.2v10.6a.8.8 0 0 0 1.22.68l8.4-5.3a.8.8 0 0 0 0-1.36L2.22.52A.8.8 0 0 0 1 1.2Z" fill="currentColor"/>
+            </svg>
+          </span>
+          <span data-i18n="cn.vid.btn">Watch Sevenda in action</span>
+        </button>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -819,6 +898,22 @@
     });
   }, { threshold: 0.1 });
   document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  // ── Video: parte solo al click; a fine riproduzione torna l'overlay ──
+  function playConnectVideo() {
+    const frame = document.getElementById('vidFrame');
+    const video = document.getElementById('cnVideo');
+    frame.classList.add('playing');
+    video.controls = true;
+    video.play().catch(() => {});
+  }
+  document.getElementById('cnVideo').addEventListener('ended', () => {
+    const frame = document.getElementById('vidFrame');
+    const video = document.getElementById('cnVideo');
+    frame.classList.remove('playing');
+    video.controls = false;
+    video.currentTime = 0;
+  });
 
   // ── Filtro connettori per categoria ──
   // La card "richiedi integrazione" ha data-cat="all" e resta sempre visibile.
