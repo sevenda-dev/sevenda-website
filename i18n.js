@@ -610,7 +610,7 @@ const SEVENDA_I18N = {
     'cn.s3.h':'Push','cn.s3.p':'Send the result to the connector you choose — a Jira issue, a Camunda-ready .bpmn file, a Confluence page or a GA4 tracking plan — in one click.',
     'cn.ctaf.h':'Your stack,<br>documented.','cn.ctaf.sub':'Start recording today and push your first diagram where your team already works.',
     'cn.ctaf.btn1':'See plans','cn.ctaf.btn2':'Read the docs',
-    'cn.vid.label':'See it in action','cn.vid.title':'From clicks to your stack, in seconds.','cn.vid.sub':'Watch how a recorded session becomes a BPMN 2.0 diagram and lands in the tools your team already uses.','cn.vid.btn':'Watch Sevenda in action','cn.vid.play':'Play the video',
+    'cn.feat.label':'Featured integrations','cn.feat.title':'Integrations are available.','cn.feat.sub':'Jira, Camunda, Google Analytics 4, Confluence and more. Your diagrams and insights land in the tools your team already uses.','cn.fv.w1':'Every','cn.fv.w2':'click','cn.fv.w3':'in all your tools','cn.fv.pause':'Pause the animation','cn.fv.play':'Play the animation','cn.fv.aria':'Animation: every click, Sevenda, in all your tools — Jira, Confluence, Camunda, Google Analytics 4, Mermaid, SAP Signavio, Notion, Bizagi',
     /* ── ACCOUNT (/account) — RF-CAN Fase 2 ── */
     'acct.loading':'Loading your account…',
     'acct.auth.title':'Sign in required',
@@ -1329,7 +1329,7 @@ const SEVENDA_I18N = {
     'cn.s3.h':'Invia','cn.s3.p':'Manda il risultato al connettore che scegli — una issue Jira, un file .bpmn pronto per Camunda, una pagina Confluence o un tracking plan GA4 — con un click.',
     'cn.ctaf.h':'Il tuo stack,<br>documentato.','cn.ctaf.sub':'Inizia a registrare oggi e porta il tuo primo diagramma dove il tuo team lavora già.',
     'cn.ctaf.btn1':'Vedi i piani','cn.ctaf.btn2':'Leggi la documentazione',
-    'cn.vid.label':'Guardalo in azione','cn.vid.title':'Dai click al tuo stack, in pochi secondi.','cn.vid.sub':'Guarda come una sessione registrata diventa un diagramma BPMN 2.0 e arriva negli strumenti che il tuo team usa già.','cn.vid.btn':'Guarda Sevenda in azione','cn.vid.play':'Riproduci il video',
+    'cn.feat.label':'Integrazioni in evidenza','cn.feat.title':'Le integrazioni sono disponibili.','cn.feat.sub':'Jira, Camunda, Google Analytics 4, Confluence e molto altro. I tuoi diagrammi e insight arrivano negli strumenti che il tuo team usa già.','cn.fv.w1':'Ogni','cn.fv.w2':'click','cn.fv.w3':'in tutti i tuoi strumenti','cn.fv.pause':'Metti in pausa l\'animazione','cn.fv.play':'Riproduci l\'animazione','cn.fv.aria':'Animazione: ogni click, Sevenda, in tutti i tuoi strumenti — Jira, Confluence, Camunda, Google Analytics 4, Mermaid, SAP Signavio, Notion, Bizagi',
     /* ── ACCOUNT (/account) — RF-CAN Fase 2 ── */
     'acct.loading':'Caricamento del tuo account…',
     'acct.auth.title':'Accesso richiesto',
@@ -2048,7 +2048,7 @@ const SEVENDA_I18N = {
     'cn.s3.h':'Envía','cn.s3.p':'Manda el resultado al conector que elijas — una issue de Jira, un archivo .bpmn listo para Camunda, una página de Confluence o un plan de seguimiento GA4 — con un clic.',
     'cn.ctaf.h':'Tu stack,<br>documentado.','cn.ctaf.sub':'Empieza a grabar hoy y lleva tu primer diagrama a donde tu equipo ya trabaja.',
     'cn.ctaf.btn1':'Ver planes','cn.ctaf.btn2':'Leer la documentación',
-    'cn.vid.label':'Míralo en acción','cn.vid.title':'De los clics a tu stack, en segundos.','cn.vid.sub':'Mira cómo una sesión grabada se convierte en un diagrama BPMN 2.0 y llega a las herramientas que tu equipo ya usa.','cn.vid.btn':'Ver Sevenda en acción','cn.vid.play':'Reproducir el vídeo',
+    'cn.feat.label':'Integraciones destacadas','cn.feat.title':'Las integraciones están disponibles.','cn.feat.sub':'Jira, Camunda, Google Analytics 4, Confluence y mucho más. Tus diagramas e insights llegan a las herramientas que tu equipo ya usa.','cn.fv.w1':'Cada','cn.fv.w2':'clic','cn.fv.w3':'en todas tus herramientas','cn.fv.pause':'Pausar la animación','cn.fv.play':'Reproducir la animación','cn.fv.aria':'Animación: cada clic, Sevenda, en todas tus herramientas — Jira, Confluence, Camunda, Google Analytics 4, Mermaid, SAP Signavio, Notion, Bizagi',
     /* ── ACCOUNT (/account) — RF-CAN Fase 2 ── */
     'acct.loading':'Cargando tu cuenta…',
     'acct.auth.title':'Inicio de sesión requerido',
@@ -2767,7 +2767,7 @@ const SEVENDA_I18N = {
     'cn.s3.h':'Envoyez','cn.s3.p':'Envoyez le résultat vers le connecteur de votre choix — un ticket Jira, un fichier .bpmn prêt pour Camunda, une page Confluence ou un plan de suivi GA4 — en un clic.',
     'cn.ctaf.h':'Votre stack,<br>documentée.','cn.ctaf.sub':'Commencez à enregistrer aujourd\'hui et envoyez votre premier diagramme là où votre équipe travaille déjà.',
     'cn.ctaf.btn1':'Voir les offres','cn.ctaf.btn2':'Lire la documentation',
-    'cn.vid.label':'Voir en action','cn.vid.title':'Du clic à votre stack, en quelques secondes.','cn.vid.sub':'Regardez comment une session enregistrée devient un diagramme BPMN 2.0 et arrive dans les outils que votre équipe utilise déjà.','cn.vid.btn':'Voir Sevenda en action','cn.vid.play':'Lire la vidéo',
+    'cn.feat.label':'Intégrations à la une','cn.feat.title':'Les intégrations sont disponibles.','cn.feat.sub':'Jira, Camunda, Google Analytics 4, Confluence et bien plus. Vos diagrammes et insights arrivent dans les outils que votre équipe utilise déjà.','cn.fv.w1':'Chaque','cn.fv.w2':'clic','cn.fv.w3':'dans tous vos outils','cn.fv.pause':'Mettre l\'animation en pause','cn.fv.play':'Lire l\'animation','cn.fv.aria':'Animation : chaque clic, Sevenda, dans tous vos outils — Jira, Confluence, Camunda, Google Analytics 4, Mermaid, SAP Signavio, Notion, Bizagi',
     /* ── ACCOUNT (/account) — RF-CAN Fase 2 ── */
     'acct.loading':'Chargement de votre compte…',
     'acct.auth.title':'Connexion requise',
