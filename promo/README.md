@@ -12,7 +12,7 @@ Geist reale caricato in locale e **due run producono frame byte-identici**.
 | --- | --- |
 | `promo.html` | La scena: HTML + CSS autosufficienti, nessuna risorsa remota. Espone `window.__seek(tMs)` e `window.__ready`. |
 | `fonts/Geist-Variable.woff2`, `fonts/GeistMono-Variable.woff2` | Geist e Geist Mono (SIL OFL), dal pacchetto npm [`geist`](https://www.npmjs.com/package/geist) 1.7.2, caricati via `@font-face`. |
-| `logomark.png` | Logo doppio-diamante arancione (copia di `../logo-mark.png`). |
+| `logo.svg` | Logo Sevenda (copia di `../logo.svg`, lo stesso usato dal sito). |
 | `render.mjs` | Node + Playwright: apre la scena, esegue il seek fotogramma per fotogramma e salva `frames/frame-00000.png …` (3840×2160). |
 | `encode.sh` | ffmpeg: `frames/*.png` → `sevenda-promo.mp4` 1920×1080, h264/yuv420p, crf 16, preset slow, faststart. |
 | `package.json` | Script `render`, `encode`, `build` e la dipendenza `playwright-core`. |

@@ -450,11 +450,11 @@ h('<div class="bg"><div class="blob bA a" style="animation-name:bgA"></div><div 
 
 # card
 h('<div class="card a" style="animation-name:card">')
-h('<div class="brand"><img src="logomark.png" alt="">Sevenda</div>')
+h('<div class="brand"><img src="logo.svg" alt="">Sevenda</div>')
 
 # S1
 h('<div class="scene s1 a" style="animation-name:s1">'
-  '<img src="logomark.png" alt="" class="a" style="animation-name:s1logo">'
+  '<img src="logo.svg" alt="" class="a" style="animation-name:s1logo">'
   '<h1 class="a" style="animation-name:s1h">Turn any browser session<br>into a clear process.</h1>'
   '<span class="chip a" style="animation-name:s1chip">Powered by Claude · BYOK</span></div>')
 
@@ -473,7 +473,7 @@ h(f'''<div class="scene a" style="animation-name:s2">
     <div class="toast a" style="animation-name:toast"><i></i>Order confirmed · #A1042</div>
   </div>
   <div class="pnl">
-    <div class="pnl-hd"><img src="logomark.png" alt=""><span class="nm">Sevenda</span><span>checkout-flow</span><span class="rec a" style="animation-name:rec"></span><span class="rec-l">REC</span></div>
+    <div class="pnl-hd"><img src="logo.svg" alt=""><span class="nm">Sevenda</span><span>checkout-flow</span><span class="rec a" style="animation-name:rec"></span><span class="rec-l">REC</span></div>
     <div class="rows">{rows_html}</div>
     <div class="pnl-ft"><span class="on">Events</span><span>BPMN</span><span>Insights</span><span>Narrative</span></div>
   </div>
@@ -586,7 +586,7 @@ lines6 = ['The user browses the catalogue and adds <b>Trail Runner X</b> to the 
           'One retry on <b>/api/payments/confirm</b> (503) — worth a look.']
 nar = ''.join(f'<div class="line a" style="animation-name:line{i}">{txt}</div>' for i, txt in enumerate(lines6))
 h(f'''<div class="scene a" style="animation-name:s6">
-  <div class="dna"><svg viewBox="0 0 560 560" width="560" height="560">{''.join(arcs)}</svg><img class="core a" style="animation-name:dnaCore" src="logomark.png" alt=""></div>
+  <div class="dna"><svg viewBox="0 0 560 560" width="560" height="560">{''.join(arcs)}</svg><img class="core a" style="animation-name:dnaCore" src="logo.svg" alt=""></div>
   <div class="s6lbl a" style="animation-name:s6lbl">DNA NARRATIVE · CHECKOUT-FLOW</div>
   <div class="nar">{nar}</div>
   <span class="chip sharechip a" style="animation-name:sharechip">Share narrative →</span>
@@ -617,7 +617,7 @@ h(f'<div class="cursor a" style="animation-name:cur2"><div class="clk a" style="
 h(f'<div class="cursor a" style="animation-name:cur7"><div class="clk a" style="animation-name:clk7">{hand_svg()}</div></div>')
 
 # outro
-h('<div class="outro a" style="animation-name:s8"><img src="logomark.png" alt="" class="a" style="animation-name:s8logo">'
+h('<div class="outro a" style="animation-name:s8"><img src="logo.svg" alt="" class="a" style="animation-name:s8logo">'
   '<div class="word a" style="animation-name:s8word">Sevenda</div><div class="url a" style="animation-name:s8url">sevenda.dev</div></div>')
 
 h('</div>')   # /stage
