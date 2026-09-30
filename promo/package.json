@@ -1,0 +1,14 @@
+{
+  "name": "sevenda-promo",
+  "private": true,
+  "type": "module",
+  "description": "Sevenda promo video — deterministic frame-by-frame render of promo.html",
+  "scripts": {
+    "render": "node render.mjs",
+    "encode": "bash encode.sh",
+    "build": "node render.mjs && bash encode.sh"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.52.0"
+  }
+}
