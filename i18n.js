@@ -126,6 +126,7 @@ const SEVENDA_I18N = {
     'nav.features':'Features','nav.insights':'Insights','nav.usecases':'Use Cases',
     'nav.how':'How it works','nav.pricing':'Pricing','nav.docs':'Docs','nav.faq':'FAQ','nav.privacy':'Privacy Policy',
     'nav.account':'Account','nav.logout':'Logout',
+    'nav.connect':'Connect',
 
     /* ── HERO (index) ── */
     'hero.pill':'Now powered by Anthropic\'s Claude models →',
@@ -477,6 +478,7 @@ const SEVENDA_I18N = {
     'foot.copy':'© {year} Sevenda · Built with Claude',
     'foot.features':'Features','foot.insights':'Insights','foot.pricing':'Pricing',
     'foot.github':'GitHub','foot.privacy':'Privacy Policy','foot.terms':'Terms','foot.docs':'Docs','foot.faq':'FAQ',
+    'foot.connect':'Connect',
 
     /* ── FAQ page Q&A ── */
     'faq.g1.q':'What is Sevenda and what does it do?',
@@ -584,6 +586,30 @@ const SEVENDA_I18N = {
     'ds.17.eye':'17 — Settings','ds.17.h2':'Settings page','ds.17.p':'Accessible from popup → Settings & AI Models or from the ⚙ modal in the panel.',
     'ds.18.eye':'18 — FAQ','ds.18.h2':'Frequently asked questions',
 
+    /* ── CONNECT.HTML ── */
+    'cn.pill':'// connect · integrates with your stack',
+    'cn.h1':'Build on the tools<br><span class="dim">you already use.</span>',
+    'cn.sub':'Connect your stack once. Sevenda speaks its language, pushes every <span class="hs-em">diagram</span> and <span class="hs-em">insight</span> where your team already works, and carries the full context of each process you record.',
+    'cn.cta1':'Get started','cn.cta2':'Explore connectors',
+    'cn.label':'Connectors','cn.title':'One recording. Every destination.',
+    'cn.sub2':'Export the BPMN 2.0 diagram and the insights Sevenda generates to the tools your team already lives in — no copy-paste, no manual re-drawing.',
+    'cn.f.all':'All','cn.f.modeling':'Modeling','cn.f.ticketing':'Ticketing','cn.f.docs':'Documentation','cn.f.analytics':'Analytics',
+    'cn.st.live':'Available','cn.st.soon':'Coming soon','cn.card.link':'Read the guide →','cn.empty':'No connectors in this category yet.',
+    'cn.jira.desc':'Turn every step of the generated process into Jira issues — stories, tasks and acceptance criteria — ready for your backlog.',
+    'cn.camunda.desc':'Export standards-compliant BPMN 2.0 XML that opens in Camunda Modeler and deploys to the Camunda platform without rework.',
+    'cn.ga4.desc':'Turn captured events into a GA4 tracking plan and push tags, triggers and variables to Google Tag Manager as drafts — you publish when ready.',
+    'cn.confluence.desc':'Publish the diagram together with its narrative documentation to a Confluence page your team can review and comment on.',
+    'cn.signavio.desc':'Import Sevenda\'s BPMN 2.0 output into Signavio Process Manager and enrich your enterprise process repository with what really happens.',
+    'cn.mermaid.desc':'Export the flow as Mermaid syntax to embed in Markdown, READMEs, GitHub wikis and any tool that renders text-based diagrams.',
+    'cn.notion.desc':'Send process documentation and insights to a Notion database, keeping each page linked to the recording it came from.',
+    'cn.bizagi.desc':'Open Sevenda\'s BPMN 2.0 diagrams in Bizagi Modeler to simulate, optimise and automate the process you just recorded.',
+    'cn.req.title':'Missing a connector?','cn.req.desc':'Tell us which tool your team uses. Requests from customers drive our integration roadmap.','cn.req.link':'Request an integration →',
+    'cn.how.label':'How it works','cn.how.title':'Three steps from click to connector.',
+    'cn.s1.h':'Record','cn.s1.p':'Start Sevenda and run the process in your browser as you normally would. Navigation, UI, network and error events are captured automatically.',
+    'cn.s2.h':'Generate','cn.s2.p':'Claude turns the session into a BPMN 2.0 diagram and a set of insights, refined in natural language until it matches reality.',
+    'cn.s3.h':'Push','cn.s3.p':'Send the result to the connector you choose — a Jira issue, a Camunda-ready .bpmn file, a Confluence page or a GA4 tracking plan — in one click.',
+    'cn.ctaf.h':'Your stack,<br>documented.','cn.ctaf.sub':'Start recording today and push your first diagram where your team already works.',
+    'cn.ctaf.btn1':'See plans','cn.ctaf.btn2':'Read the docs',
     /* ── ACCOUNT (/account) — RF-CAN Fase 2 ── */
     'acct.loading':'Loading your account…',
     'acct.auth.title':'Sign in required',
@@ -832,6 +858,7 @@ const SEVENDA_I18N = {
     'nav.features':'Funzionalità','nav.insights':'Insights','nav.usecases':'Casi d\'uso',
     'nav.how':'Come funziona','nav.pricing':'Prezzi','nav.docs':'Docs','nav.faq':'FAQ','nav.privacy':'Privacy Policy',
     'nav.account':'Account','nav.logout':'Esci',
+    'nav.connect':'Connect',
 
     'hero.pill':'Ora con i modelli Claude di Anthropic →',
     'hero.watch':'Guarda la demo',
@@ -1169,6 +1196,7 @@ const SEVENDA_I18N = {
     'foot.copy':'© {year} Sevenda · Realizzato con Claude',
     'foot.features':'Funzionalità','foot.insights':'Insights','foot.pricing':'Prezzi',
     'foot.github':'GitHub','foot.privacy':'Privacy Policy','foot.terms':'Termini','foot.docs':'Docs','foot.faq':'FAQ',
+    'foot.connect':'Connect',
 
     /* ── FAQ Q&A IT ── */
     'faq.g1.q':'Cos\'è Sevenda e cosa fa?',
@@ -1276,6 +1304,30 @@ const SEVENDA_I18N = {
     'ds.17.eye':'17 — Impostazioni','ds.17.h2':'Pagina delle impostazioni','ds.17.p':'Accessibile da popup → Impostazioni e AI Models o dal modale ⚙ nel pannello.',
     'ds.18.eye':'18 — FAQ','ds.18.h2':'Domande frequenti',
 
+    /* ── CONNECT.HTML ── */
+    'cn.pill':'// connect · si integra con il tuo stack',
+    'cn.h1':'Crea partendo da ciò<br><span class="dim">che usi già.</span>',
+    'cn.sub':'Collega i tuoi strumenti una volta sola. Sevenda parla la loro lingua, porta ogni <span class="hs-em">diagramma</span> e ogni <span class="hs-em">insight</span> dove il tuo team lavora già e conserva il contesto completo di ogni processo che registri.',
+    'cn.cta1':'Inizia','cn.cta2':'Scopri i connettori',
+    'cn.label':'Connettori','cn.title':'Una registrazione. Ogni destinazione.',
+    'cn.sub2':'Esporta il diagramma BPMN 2.0 e gli insight generati da Sevenda negli strumenti in cui il tuo team vive già — niente copia-incolla, niente ridisegno manuale.',
+    'cn.f.all':'Tutti','cn.f.modeling':'Modellazione','cn.f.ticketing':'Ticketing','cn.f.docs':'Documentazione','cn.f.analytics':'Analytics',
+    'cn.st.live':'Disponibile','cn.st.soon':'In arrivo','cn.card.link':'Leggi la guida →','cn.empty':'Nessun connettore in questa categoria, per ora.',
+    'cn.jira.desc':'Trasforma ogni passo del processo generato in issue Jira — storie, task e criteri di accettazione — pronte per il tuo backlog.',
+    'cn.camunda.desc':'Esporta XML BPMN 2.0 conforme allo standard che si apre in Camunda Modeler e si distribuisce sulla piattaforma Camunda senza rilavorazioni.',
+    'cn.ga4.desc':'Trasforma gli eventi catturati in un tracking plan GA4 e invia tag, trigger e variabili a Google Tag Manager come bozze — pubblichi tu quando sei pronto.',
+    'cn.confluence.desc':'Pubblica il diagramma insieme alla sua documentazione narrativa in una pagina Confluence che il tuo team può rivedere e commentare.',
+    'cn.signavio.desc':'Importa l\'output BPMN 2.0 di Sevenda in Signavio Process Manager e arricchisci il repository dei processi aziendali con ciò che accade davvero.',
+    'cn.mermaid.desc':'Esporta il flusso in sintassi Mermaid da incorporare in Markdown, README, wiki GitHub e in qualsiasi strumento che renderizza diagrammi testuali.',
+    'cn.notion.desc':'Invia documentazione di processo e insight a un database Notion, mantenendo ogni pagina collegata alla registrazione da cui proviene.',
+    'cn.bizagi.desc':'Apri i diagrammi BPMN 2.0 di Sevenda in Bizagi Modeler per simulare, ottimizzare e automatizzare il processo appena registrato.',
+    'cn.req.title':'Manca un connettore?','cn.req.desc':'Dicci quale strumento usa il tuo team. Le richieste dei clienti guidano la nostra roadmap di integrazioni.','cn.req.link':'Richiedi un\'integrazione →',
+    'cn.how.label':'Come funziona','cn.how.title':'Tre passi dal click al connettore.',
+    'cn.s1.h':'Registra','cn.s1.p':'Avvia Sevenda ed esegui il processo nel browser come fai di solito. Eventi di navigazione, UI, rete ed errori vengono catturati automaticamente.',
+    'cn.s2.h':'Genera','cn.s2.p':'Claude trasforma la sessione in un diagramma BPMN 2.0 e in una serie di insight, rifiniti in linguaggio naturale finché non rispecchiano la realtà.',
+    'cn.s3.h':'Invia','cn.s3.p':'Manda il risultato al connettore che scegli — una issue Jira, un file .bpmn pronto per Camunda, una pagina Confluence o un tracking plan GA4 — con un click.',
+    'cn.ctaf.h':'Il tuo stack,<br>documentato.','cn.ctaf.sub':'Inizia a registrare oggi e porta il tuo primo diagramma dove il tuo team lavora già.',
+    'cn.ctaf.btn1':'Vedi i piani','cn.ctaf.btn2':'Leggi la documentazione',
     /* ── ACCOUNT (/account) — RF-CAN Fase 2 ── */
     'acct.loading':'Caricamento del tuo account…',
     'acct.auth.title':'Accesso richiesto',
@@ -1524,6 +1576,7 @@ const SEVENDA_I18N = {
     'nav.features':'Funciones','nav.insights':'Insights','nav.usecases':'Casos de uso',
     'nav.how':'Cómo funciona','nav.pricing':'Precios','nav.docs':'Docs','nav.faq':'FAQ','nav.privacy':'Política de Privacidad',
     'nav.account':'Cuenta','nav.logout':'Salir',
+    'nav.connect':'Connect',
 
     'hero.pill':'Ahora con los modelos Claude de Anthropic →',
     'hero.watch':'Ver la demo',
@@ -1861,6 +1914,7 @@ const SEVENDA_I18N = {
     'foot.copy':'© {year} Sevenda · Hecho con Claude',
     'foot.features':'Funciones','foot.insights':'Insights','foot.pricing':'Precios',
     'foot.github':'GitHub','foot.privacy':'Política de privacidad','foot.terms':'Términos','foot.docs':'Docs','foot.faq':'FAQ',
+    'foot.connect':'Connect',
 
     /* ── FAQ Q&A ES ── */
     'faq.g1.q':'¿Qué es Sevenda y qué hace?',
@@ -1968,6 +2022,30 @@ const SEVENDA_I18N = {
     'ds.17.eye':'17 — Configuración','ds.17.h2':'Página de configuración','ds.17.p':'Accesible desde popup → Configuración y AI Models o desde el modal ⚙ en el panel.',
     'ds.18.eye':'18 — FAQ','ds.18.h2':'Preguntas frecuentes',
 
+    /* ── CONNECT.HTML ── */
+    'cn.pill':'// connect · se integra con tu stack',
+    'cn.h1':'Crea a partir de lo<br><span class="dim">que ya usas.</span>',
+    'cn.sub':'Conecta tus herramientas una sola vez. Sevenda habla su idioma, lleva cada <span class="hs-em">diagrama</span> e <span class="hs-em">insight</span> a donde tu equipo ya trabaja y conserva el contexto completo de cada proceso que grabas.',
+    'cn.cta1':'Empezar','cn.cta2':'Explorar conectores',
+    'cn.label':'Conectores','cn.title':'Una grabación. Todos los destinos.',
+    'cn.sub2':'Exporta el diagrama BPMN 2.0 y los insights que genera Sevenda a las herramientas en las que tu equipo ya vive — sin copiar y pegar, sin redibujar a mano.',
+    'cn.f.all':'Todos','cn.f.modeling':'Modelado','cn.f.ticketing':'Ticketing','cn.f.docs':'Documentación','cn.f.analytics':'Analítica',
+    'cn.st.live':'Disponible','cn.st.soon':'Próximamente','cn.card.link':'Leer la guía →','cn.empty':'Aún no hay conectores en esta categoría.',
+    'cn.jira.desc':'Convierte cada paso del proceso generado en issues de Jira — historias, tareas y criterios de aceptación — listas para tu backlog.',
+    'cn.camunda.desc':'Exporta XML BPMN 2.0 conforme al estándar que se abre en Camunda Modeler y se despliega en la plataforma Camunda sin retrabajo.',
+    'cn.ga4.desc':'Convierte los eventos capturados en un plan de seguimiento GA4 y envía etiquetas, activadores y variables a Google Tag Manager como borradores — tú publicas cuando quieras.',
+    'cn.confluence.desc':'Publica el diagrama junto con su documentación narrativa en una página de Confluence que tu equipo puede revisar y comentar.',
+    'cn.signavio.desc':'Importa la salida BPMN 2.0 de Sevenda en Signavio Process Manager y enriquece tu repositorio de procesos con lo que realmente ocurre.',
+    'cn.mermaid.desc':'Exporta el flujo en sintaxis Mermaid para incrustarlo en Markdown, READMEs, wikis de GitHub y cualquier herramienta que renderice diagramas de texto.',
+    'cn.notion.desc':'Envía la documentación del proceso y los insights a una base de datos de Notion, manteniendo cada página vinculada a la grabación de origen.',
+    'cn.bizagi.desc':'Abre los diagramas BPMN 2.0 de Sevenda en Bizagi Modeler para simular, optimizar y automatizar el proceso que acabas de grabar.',
+    'cn.req.title':'¿Falta un conector?','cn.req.desc':'Cuéntanos qué herramienta usa tu equipo. Las peticiones de los clientes marcan nuestra hoja de ruta de integraciones.','cn.req.link':'Solicitar una integración →',
+    'cn.how.label':'Cómo funciona','cn.how.title':'Tres pasos del clic al conector.',
+    'cn.s1.h':'Graba','cn.s1.p':'Inicia Sevenda y ejecuta el proceso en tu navegador como siempre. Los eventos de navegación, UI, red y errores se capturan automáticamente.',
+    'cn.s2.h':'Genera','cn.s2.p':'Claude convierte la sesión en un diagrama BPMN 2.0 y un conjunto de insights, refinados en lenguaje natural hasta que reflejan la realidad.',
+    'cn.s3.h':'Envía','cn.s3.p':'Manda el resultado al conector que elijas — una issue de Jira, un archivo .bpmn listo para Camunda, una página de Confluence o un plan de seguimiento GA4 — con un clic.',
+    'cn.ctaf.h':'Tu stack,<br>documentado.','cn.ctaf.sub':'Empieza a grabar hoy y lleva tu primer diagrama a donde tu equipo ya trabaja.',
+    'cn.ctaf.btn1':'Ver planes','cn.ctaf.btn2':'Leer la documentación',
     /* ── ACCOUNT (/account) — RF-CAN Fase 2 ── */
     'acct.loading':'Cargando tu cuenta…',
     'acct.auth.title':'Inicio de sesión requerido',
@@ -2216,6 +2294,7 @@ const SEVENDA_I18N = {
     'nav.features':'Fonctionnalités','nav.insights':'Insights','nav.usecases':'Cas d\'usage',
     'nav.how':'Comment ça marche','nav.pricing':'Tarifs','nav.docs':'Docs','nav.faq':'FAQ','nav.privacy':'Politique de Confidentialité',
     'nav.account':'Compte','nav.logout':'Déconnexion',
+    'nav.connect':'Connect',
 
     'hero.pill':'Maintenant avec les modèles Claude d\'Anthropic →',
     'hero.watch':'Voir la démo',
@@ -2553,6 +2632,7 @@ const SEVENDA_I18N = {
     'foot.copy':'© {year} Sevenda · Réalisé avec Claude',
     'foot.features':'Fonctionnalités','foot.insights':'Insights','foot.pricing':'Tarifs',
     'foot.github':'GitHub','foot.privacy':'Politique de confidentialité','foot.terms':'Conditions','foot.docs':'Docs','foot.faq':'FAQ',
+    'foot.connect':'Connect',
 
     /* ── FAQ Q&A FR ── */
     'faq.g1.q':'Qu\'est-ce que Sevenda et que fait-il ?',
@@ -2660,6 +2740,30 @@ const SEVENDA_I18N = {
     'ds.17.eye':'17 — Paramètres','ds.17.h2':'Page des paramètres','ds.17.p':'Accessible depuis popup → Paramètres et AI Models ou depuis le modal ⚙ dans le panneau.',
     'ds.18.eye':'18 — FAQ','ds.18.h2':'Questions fréquentes',
 
+    /* ── CONNECT.HTML ── */
+    'cn.pill':'// connect · s\'intègre à votre stack',
+    'cn.h1':'Créez à partir de ce que<br><span class="dim">vous utilisez déjà.</span>',
+    'cn.sub':'Connectez vos outils une seule fois. Sevenda parle leur langue, envoie chaque <span class="hs-em">diagramme</span> et chaque <span class="hs-em">insight</span> là où votre équipe travaille déjà, et conserve tout le contexte de chaque processus enregistré.',
+    'cn.cta1':'Commencer','cn.cta2':'Découvrir les connecteurs',
+    'cn.label':'Connecteurs','cn.title':'Un enregistrement. Toutes les destinations.',
+    'cn.sub2':'Exportez le diagramme BPMN 2.0 et les insights générés par Sevenda vers les outils où votre équipe vit déjà — sans copier-coller, sans redessiner à la main.',
+    'cn.f.all':'Tous','cn.f.modeling':'Modélisation','cn.f.ticketing':'Ticketing','cn.f.docs':'Documentation','cn.f.analytics':'Analytique',
+    'cn.st.live':'Disponible','cn.st.soon':'Bientôt','cn.card.link':'Lire le guide →','cn.empty':'Aucun connecteur dans cette catégorie pour le moment.',
+    'cn.jira.desc':'Transformez chaque étape du processus généré en tickets Jira — stories, tâches et critères d\'acceptation — prêts pour votre backlog.',
+    'cn.camunda.desc':'Exportez du XML BPMN 2.0 conforme au standard, qui s\'ouvre dans Camunda Modeler et se déploie sur la plateforme Camunda sans retouche.',
+    'cn.ga4.desc':'Transformez les événements capturés en plan de suivi GA4 et envoyez balises, déclencheurs et variables vers Google Tag Manager en brouillon — vous publiez quand vous êtes prêt.',
+    'cn.confluence.desc':'Publiez le diagramme avec sa documentation narrative sur une page Confluence que votre équipe peut relire et commenter.',
+    'cn.signavio.desc':'Importez la sortie BPMN 2.0 de Sevenda dans Signavio Process Manager et enrichissez votre référentiel de processus avec ce qui se passe vraiment.',
+    'cn.mermaid.desc':'Exportez le flux en syntaxe Mermaid pour l\'intégrer dans Markdown, README, wikis GitHub et tout outil qui rend des diagrammes textuels.',
+    'cn.notion.desc':'Envoyez la documentation de processus et les insights vers une base Notion, chaque page restant liée à l\'enregistrement d\'origine.',
+    'cn.bizagi.desc':'Ouvrez les diagrammes BPMN 2.0 de Sevenda dans Bizagi Modeler pour simuler, optimiser et automatiser le processus que vous venez d\'enregistrer.',
+    'cn.req.title':'Un connecteur manque ?','cn.req.desc':'Dites-nous quel outil votre équipe utilise. Les demandes des clients guident notre feuille de route d\'intégrations.','cn.req.link':'Demander une intégration →',
+    'cn.how.label':'Comment ça marche','cn.how.title':'Trois étapes du clic au connecteur.',
+    'cn.s1.h':'Enregistrez','cn.s1.p':'Lancez Sevenda et exécutez le processus dans votre navigateur comme d\'habitude. Les événements de navigation, UI, réseau et erreurs sont capturés automatiquement.',
+    'cn.s2.h':'Générez','cn.s2.p':'Claude transforme la session en diagramme BPMN 2.0 et en insights, affinés en langage naturel jusqu\'à refléter la réalité.',
+    'cn.s3.h':'Envoyez','cn.s3.p':'Envoyez le résultat vers le connecteur de votre choix — un ticket Jira, un fichier .bpmn prêt pour Camunda, une page Confluence ou un plan de suivi GA4 — en un clic.',
+    'cn.ctaf.h':'Votre stack,<br>documentée.','cn.ctaf.sub':'Commencez à enregistrer aujourd\'hui et envoyez votre premier diagramme là où votre équipe travaille déjà.',
+    'cn.ctaf.btn1':'Voir les offres','cn.ctaf.btn2':'Lire la documentation',
     /* ── ACCOUNT (/account) — RF-CAN Fase 2 ── */
     'acct.loading':'Chargement de votre compte…',
     'acct.auth.title':'Connexion requise',
