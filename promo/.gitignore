@@ -1,4 +1,4 @@
 node_modules/
-frames/
-preview/
+frames*/
+preview*/
 *.mp4

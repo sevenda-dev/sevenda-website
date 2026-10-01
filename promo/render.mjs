@@ -8,6 +8,7 @@
 // encode.sh riscala a 1920×1080, così il testo resta nitido (supersampling).
 //
 // Uso:  node render.mjs [--fps 30] [--duration 45] [--out frames] [--only 0,150,900]
+//       [--page promo-vertical.html --width 1080 --height 1920]   (variante 9:16)
 //       CHROME_PATH=/percorso/chrome  (facoltativo, se non è installato `playwright`)
 
 import { mkdirSync, rmSync, existsSync, createReadStream } from 'node:fs';
@@ -21,6 +22,8 @@ const FPS = parseInt(arg('--fps', '30'), 10);
 const DURATION = parseFloat(arg('--duration', '45'));
 const OUT = resolve(here, arg('--out', 'frames'));
 const ONLY = arg('--only', null)?.split(',').map(Number) ?? null;
+const PAGE = arg('--page', 'promo.html');                 // es. promo-vertical.html
+const W = parseInt(arg('--width', '1920'), 10), H = parseInt(arg('--height', '1080'), 10);
 
 // Playwright completo se installato, altrimenti playwright-core + CHROME_PATH
 let chromium, launchOpts = { args: ['--no-sandbox', '--font-render-hinting=none', '--disable-lcd-text', '--hide-scrollbars'] };
@@ -45,8 +48,8 @@ await new Promise(r => server.listen(0, '127.0.0.1', r));
 const base = `http://127.0.0.1:${server.address().port}`;
 
 const browser = await chromium.launch(launchOpts);
-const page = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 2, reducedMotion: 'no-preference' });
-await page.goto(`${base}/promo.html`, { waitUntil: 'load' });
+const page = await browser.newPage({ viewport: { width: W, height: H }, deviceScaleFactor: 2, reducedMotion: 'no-preference' });
+await page.goto(`${base}/${PAGE}`, { waitUntil: 'load' });
 
 // Pronto solo dopo document.fonts.ready + primo paint
 await page.waitForFunction(() => window.__ready === true, null, { timeout: 30000 });
@@ -56,7 +59,7 @@ const check = await page.evaluate(() => ({
   allPaused: document.getAnimations().every(a => a.playState === 'paused'),
 }));
 if (!check.geist || !check.mono) { console.error('Geist non caricato:', check); process.exit(2); }
-console.log(`ready · Geist ok · ${check.animations} animations (all paused: ${check.allPaused}) · ${frames.length} frames @ ${FPS}fps`);
+console.log(`${PAGE} ${W}x${H}@2 · ready · Geist ok · ${check.animations} animations (all paused: ${check.allPaused}) · ${frames.length} frames @ ${FPS}fps`);
 
 const t0 = Date.now();
 for (const i of frames) {

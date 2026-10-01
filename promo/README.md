@@ -16,10 +16,13 @@ Geist reale caricato in locale e **due run producono frame byte-identici**.
 | `render.mjs` | Node + Playwright: apre la scena, esegue il seek fotogramma per fotogramma e salva `frames/frame-00000.png …` (3840×2160). |
 | `encode.sh` | ffmpeg: `frames/*.png` → `sevenda-promo.mp4` 1920×1080, h264/yuv420p, crf 16, preset slow, faststart. |
 | `package.json` | Script `render`, `encode`, `build` e la dipendenza `playwright-core`. |
-| `build.py` | Generatore di `promo.html`: la timeline è scritta in secondi e convertita in percentuali dei 45 s (facoltativo, solo Python standard). |
+| `build.py` | Generatore di `promo.html` (e di `promo-vertical.html` con `--vertical`): la timeline è scritta in secondi e convertita in percentuali dei 45 s (solo Python standard). |
+| `promo-vertical.html` | Variante 9:16 (1080×1920) per i social: stessa timeline e stessi keyframe, layout portrait (browser e pannello impilati, pool BPMN affiancati, card in colonna). |
+| `VOICEOVER.md` | Testo della voce narrante sincronizzato con le scene (EN + versione IT) e note per il mix audio. |
 
-Output: `sevenda-promo.mp4` (1920×1080, 30 fps, 45 s, senza audio).
-`frames/`, `node_modules/` e i `.mp4` sono ignorati da git (`.gitignore`).
+Output: `sevenda-promo.mp4` (1920×1080, 30 fps, 45 s, senza audio) e
+`sevenda-promo-vertical.mp4` (1080×1920, 9:16).
+`frames*/`, `node_modules/` e i `.mp4` sono ignorati da git (`.gitignore`).
 
 ## Rigenerare tutto
 
@@ -40,6 +43,11 @@ node render.mjs                  # opzioni: --fps 30 --duration 45 --out frames
 
 # tutto insieme
 npm run build
+
+# variante verticale 9:16 (1080×1920)
+python3 build.py --vertical            # rigenera promo-vertical.html (facoltativo)
+node render.mjs --page promo-vertical.html --width 1080 --height 1920 --out frames-vertical
+./encode.sh 30 frames-vertical sevenda-promo-vertical.mp4 1080x1920
 ```
 
 Con `--only` si rende un sottoinsieme di fotogrammi in un'altra cartella, utile
