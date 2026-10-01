@@ -9,9 +9,11 @@ random. window.__seek(t) porta ogni animazione al tempo t.
 import os, sys
 
 V = '--vertical' in sys.argv   # variante 9:16 (1080×1920) per i social
+IT = '--it' in sys.argv        # testi on-screen in italiano (solo 16:9): promo-it.html
+assert not (V and IT), 'usa --vertical oppure --it, non entrambi'
 
 DUR = 45.0                     # durata totale (s)
-OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'promo-vertical.html' if V else 'promo.html')
+OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'promo-vertical.html' if V else ('promo-it.html' if IT else 'promo.html'))
 
 EASE_OUT = 'cubic-bezier(.16,1,.3,1)'
 EASE_IO  = 'cubic-bezier(.45,0,.2,1)'
@@ -745,8 +747,81 @@ h(f'''<script>
 </body>
 </html>''')
 
+
+# ── Traduzione italiana dei testi on-screen (--it) ──────────────────────────
+# Sostituzioni esatte sull'HTML generato: se una stringa non viene trovata lo
+# script si ferma, così non resta nulla in inglese per errore.
+IT_MAP = [
+    ('<html lang="en">', '<html lang="it">'),
+    ('<title>Sevenda — promo (45 s, single timeline)</title>', '<title>Sevenda — promo (45 s, timeline unica, IT)</title>'),
+    # intro
+    ('Turn any browser session<br>into a clear process.', 'Trasforma ogni sessione browser<br>in un processo chiaro.'),
+    # S2 · record
+    ('Lightweight · size 42 · in stock', 'Leggera · taglia 42 · disponibile'),
+    ('>Add to cart</span>', '>Al carrello</span>'),
+    ('Cart <span', 'Carrello <span'),
+    ('item · €129', 'articolo · €129'),
+    ('Pay €129', 'Paga €129'),
+    ('Order confirmed · #A1042', 'Ordine confermato · #A1042'),
+    ('<span class="on">Events</span>', '<span class="on">Eventi</span>'),
+    ('Record a <b>real</b> user session.', 'Registra una sessione utente <b>reale</b>.'),
+    # S3 · BPMN
+    ('>USER</text>', '>UTENTE</text>'), ('>SYSTEM</text>', '>SISTEMA</text>'),
+    ('>Browse products</text>', '>Sfoglia prodotti</text>'),
+    ('>Add to cart</text>', '>Aggiungi al carrello</text>'),
+    ('>Pay</text>', '>Paga</text>'),
+    ('>Validate cart</text>', '>Verifica carrello</text>'),
+    ('>yes</text>', '>sì</text>'),
+    ('>Reserve items</text>', '>Riserva articoli</text>'),
+    ('>Notify out of stock</text>', '>Notifica esaurito</text>'),
+    ('>Process payment</text>', '>Elabora pagamento</text>'),
+    ('checkout-flow.bpmn · 2 pools · 3 message flows', 'checkout-flow.bpmn · 2 pool · 3 message flow'),
+    ('AI-generated <b>BPMN 2.0</b> — with isolated pools &amp; message flows.', '<b>BPMN 2.0</b> generato dall\'AI, con pool isolati e message flow.'),
+    # S4 · insights
+    ('Checkout drop-off', 'Abbandono al checkout'),
+    ('of sessions leave at the payment step', 'delle sessioni si interrompe al pagamento'),
+    ('<span>cart</span>', '<span>carrello</span>'), ('<span>pay</span>', '<span>paga</span>'), ('<span>done</span>', '<span>fatto</span>'),
+    ('Add-to-cart rate', 'Tasso di aggiunta al carrello'),
+    ('12.4%', '12,4%'), ('+2.1% vs last week', '+2,1% vs settimana scorsa'),
+    ('product page → cart', 'pagina prodotto → carrello'),
+    ('Sessions recorded', 'Sessioni registrate'), ('1,284', '1.284'),
+    ('avg. 4m 12s from first click to purchase', 'media 4m 12s dal primo click all\'acquisto'),
+    ('Suggested GTM tags', 'Tag GTM suggeriti'),
+    ('<small>ready to push</small>', '<small>pronti da inviare</small>'),
+    ('GA4 event', 'evento GA4'),
+    ('Push to GTM →', 'Invia a GTM →'),
+    ('Instant <b>GA4 &amp; GTM</b> analytics insights.', 'Insight analytics <b>GA4 e GTM</b> istantanei.'),
+    # S5 · GTM push
+    ('>Suggested tags<', '>Tag suggeriti<'),
+    ('FROM THIS SESSION · 3', 'DA QUESTA SESSIONE · 3'),
+    ('trigger: page /order/complete', 'trigger: pagina /order/complete'),
+    ('>GTM container</div>', '>Container GTM</div>'),
+    ('3 tags pushed to your workspace', '3 tag inviati al tuo workspace'),
+    ('Push tags <b>live</b> to your GTM container.', 'Invia i tag <b>live</b> al tuo container GTM.'),
+    # S6 · DNA narrative
+    ('The user browses the catalogue and adds <b>Trail Runner X</b> to the cart.', 'L\'utente sfoglia il catalogo e aggiunge <b>Trail Runner X</b> al carrello.'),
+    ('The system validates stock and <b>reserves the items</b> before checkout.', 'Il sistema verifica la disponibilità e <b>riserva gli articoli</b> prima del checkout.'),
+    ('Payment is processed and the order is confirmed in <b>4.2 s</b>.', 'Il pagamento viene elaborato e l\'ordine è confermato in <b>4,2&nbsp;s</b>.'),
+    ('One retry on <b>/api/payments/confirm</b> (503) — worth a look.', 'Un nuovo tentativo su <b>/api/payments/confirm</b> (503): da verificare.'),
+    ('Share narrative →', 'Condividi narrazione →'),
+    ('Turn flows into a <b>shareable narrative</b>.', 'Trasforma i flussi in una <b>narrazione condivisibile</b>.'),
+    # S7 · team
+    ('>Shared library<', '>Libreria condivisa<'),
+    ('3 PROCESSES', '3 PROCESSI'),
+    ('>Invite</span>', '>Invita</span>'),
+    ('Checkout flow', 'Flusso di checkout'),
+    ('updated 2 days ago', 'aggiornato 2 giorni fa'), ('updated 5 days ago', 'aggiornato 5 giorni fa'),
+    ('Refund request', 'Richiesta di rimborso'), ('updated last week', 'aggiornato la settimana scorsa'),
+    ('Invitation sent to dario@acme.digital', 'Invito inviato a dario@acme.digital'),
+    ('Share with your <b>team</b>.', 'Condividi con il tuo <b>team</b>.'),
+]
+
 # ── scrittura: i keyframe vanno inseriti nello <style> (sono definiti tutti prima dell'HTML) ──
 out = '\n'.join(HTML)
+if IT:
+    for a, b in IT_MAP:
+        assert a in out, f'stringa non trovata: {a!r}'
+        out = out.replace(a, b)
 os.makedirs(os.path.dirname(OUT), exist_ok=True)
 with open(OUT, 'w', encoding='utf-8') as f:
     f.write(out)

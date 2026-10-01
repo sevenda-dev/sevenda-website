@@ -18,10 +18,12 @@ Geist reale caricato in locale e **due run producono frame byte-identici**.
 | `package.json` | Script `render`, `encode`, `build` e la dipendenza `playwright-core`. |
 | `build.py` | Generatore di `promo.html` (e di `promo-vertical.html` con `--vertical`): la timeline è scritta in secondi e convertita in percentuali dei 45 s (solo Python standard). |
 | `promo-vertical.html` | Variante 9:16 (1080×1920) per i social: stessa timeline e stessi keyframe, layout portrait (browser e pannello impilati, pool BPMN affiancati, card in colonna). |
+| `promo-it.html` | Variante con testi on-screen in italiano (16:9): generata da `build.py --it`, stessa timeline e stessi keyframe. |
+| `VOICEOVER-IT.md` | Testo della voce narrante in italiano, sincronizzato con le scene, con note di lettura e di mix. |
 | `VOICEOVER.md` | Testo della voce narrante sincronizzato con le scene (EN + versione IT) e note per il mix audio. |
 
 Output: `sevenda-promo.mp4` (1920×1080, 30 fps, 45 s, senza audio) e
-`sevenda-promo-vertical.mp4` (1080×1920, 9:16).
+`sevenda-promo-vertical.mp4` (1080×1920, 9:16) e `sevenda-promo-it.mp4` (testi in italiano).
 `frames*/`, `node_modules/` e i `.mp4` sono ignorati da git (`.gitignore`).
 
 ## Rigenerare tutto
@@ -43,6 +45,11 @@ node render.mjs                  # opzioni: --fps 30 --duration 45 --out frames
 
 # tutto insieme
 npm run build
+
+# versione con testi in italiano
+python3 build.py --it                  # rigenera promo-it.html (le traduzioni sono in IT_MAP)
+node render.mjs --page promo-it.html --out frames-it
+./encode.sh 30 frames-it sevenda-promo-it.mp4 1920x1080
 
 # variante verticale 9:16 (1080×1920)
 python3 build.py --vertical            # rigenera promo-vertical.html (facoltativo)
