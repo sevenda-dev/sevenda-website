@@ -20,7 +20,7 @@ Geist reale caricato in locale e **due run producono frame byte-identici**.
 | `promo-vertical.html` | Variante 9:16 (1080×1920) per i social: stessa timeline e stessi keyframe, layout portrait (browser e pannello impilati, pool BPMN affiancati, card in colonna). |
 | `promo-it.html` | Variante con testi on-screen in italiano (16:9): generata da `build.py --it`, stessa timeline e stessi keyframe. |
 | `VOICEOVER-IT.md` | Testo della voce narrante in italiano, sincronizzato con le scene, con note di lettura e di mix. |
-| `stills/` | Due immagini 9:16 (1080×1920) per apertura e chiusura del video verticale: sorgenti HTML/CSS e PNG. Si rigenerano con `node render-stills.mjs`. |
+| `stills/` | Due immagini 9:16 (1080×1920) per apertura e chiusura del video verticale: sorgenti HTML/CSS e PNG. Si rigenerano con `node render-stills.mjs`. Le varianti `*-it` sono minimal (sfondo piatto del sito, solo logo e slogan in italiano): `node render-stills.mjs opening-it closing-it`. |
 | `VOICEOVER.md` | Testo della voce narrante sincronizzato con le scene (EN + versione IT) e note per il mix audio. |
 
 Output: `sevenda-promo.mp4` (1920×1080, 30 fps, 45 s, senza audio) e
