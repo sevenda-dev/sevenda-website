@@ -3371,13 +3371,26 @@
   // L'iframe (youtube-nocookie) esiste solo mentre il modal è aperto:
   // zero richieste a YouTube e zero cookie finché l'utente non clicca.
   (function () {
-    var VIDEO_ID = 'WsyE96Obr_I';
+    // Video per lingua: IT ha un promo dedicato, le altre usano il default
+    var VIDEO_BY_LANG = { it: 'RSOxwjfgMYg' };
+    var VIDEO_DEFAULT = 'WsyE96Obr_I';
     var overlay = document.getElementById('videoOverlay');
     var frame   = document.getElementById('videoFrame');
 
+    // Lingua attiva: letta al click così segue eventuali cambi lingua
+    function currentLang() {
+      try {
+        return localStorage.getItem('sevenda-lang')
+            || document.documentElement.lang || 'en';
+      } catch (e) {
+        return document.documentElement.lang || 'en';
+      }
+    }
+
     window.openVideo = function () {
+      var videoId = VIDEO_BY_LANG[currentLang()] || VIDEO_DEFAULT;
       // autoplay=1 è lecito: è una scelta esplicita dell'utente (ha cliccato)
-      var src = 'https://www.youtube-nocookie.com/embed/' + VIDEO_ID +
+      var src = 'https://www.youtube-nocookie.com/embed/' + videoId +
                 '?autoplay=1&rel=0&modestbranding=1';
       frame.innerHTML =
         '<iframe src="' + src + '" title="Demo di Sevenda" ' +
