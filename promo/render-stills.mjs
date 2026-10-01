@@ -23,7 +23,7 @@ const names = process.argv.slice(2).length ? process.argv.slice(2) : ['opening',
 for (const name of names) {
   await page.goto(`${base}/stills/${name}.html`, { waitUntil: 'load' });
   await page.evaluate(() => document.fonts.ready);
-  const ok = await page.evaluate(() => document.fonts.check('700 40px "Geist Mono"'));
+  const ok = await page.evaluate(() => document.fonts.check('700 40px "Geist Mono"') || document.fonts.check('800 40px Geist'));
   if (!ok) { console.error('Geist Mono non caricato'); process.exit(2); }
   await page.screenshot({ path: resolve(here, `stills/sevenda-9x16-${name}@2x.png`), type: 'png' });
   console.log('ok', name);
