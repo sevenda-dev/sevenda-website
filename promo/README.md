@@ -21,7 +21,7 @@ Geist reale caricato in locale e **due run producono frame byte-identici**.
 | `promo-it.html` | Variante con testi on-screen in italiano (16:9): generata da `build.py --it`, stessa timeline e stessi keyframe. |
 | `VOICEOVER-IT.md` | Testo della voce narrante in italiano, sincronizzato con le scene, con note di lettura e di mix. |
 | `stills/` | Due immagini 9:16 (1080×1920) per apertura e chiusura del video verticale: sorgenti HTML/CSS e PNG. Si rigenerano con `node render-stills.mjs`. Le varianti `*-it` sono minimal (sfondo piatto del sito, solo logo e slogan in italiano): `node render-stills.mjs opening-it closing-it`. |
-| `render-linkedin.mjs` | Asset per la pagina aziendale LinkedIn: logo 300×300 e banner 1128×191 (PNG e JPG) in `stills/`. `node render-linkedin.mjs [logo] [banner]`. |
+| `render-linkedin.mjs` | Asset per la pagina aziendale LinkedIn: logo 300×300 e banner 1128×191 (PNG e JPG) in `stills/`, più le 5 copertine per il banner a rotazione Premium (2256×382, PNG). `node render-linkedin.mjs [logo] [banner] [cover01…cover05]`. |
 | `VOICEOVER.md` | Testo della voce narrante sincronizzato con le scene (EN + versione IT) e note per il mix audio. |
 
 Output: `sevenda-promo.mp4` (1920×1080, 30 fps, 45 s, senza audio) e
