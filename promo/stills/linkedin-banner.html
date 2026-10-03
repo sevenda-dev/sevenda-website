@@ -3,14 +3,8 @@
 <style>
 @font-face { font-family: 'Geist'; src: url('../fonts/Geist-Variable.woff2') format('woff2'); font-weight: 100 900; font-display: block; }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { width: 1128px; height: 191px; overflow: hidden; background: #0d0d0d; color: #fff; font-family: 'Geist', sans-serif; -webkit-font-smoothing: antialiased; }
-.stage { position: relative; width: 1128px; height: 191px; overflow: hidden; isolation: isolate; background: #0d0d0d; }
-/* griglia sottile e vignettatura come sul sito */
-.stage::before { content: ''; position: absolute; inset: 0;
-  background-image: linear-gradient(rgba(255,255,255,.028) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.028) 1px, transparent 1px);
-  background-size: 44px 44px; }
-.stage::after { content: ''; position: absolute; inset: 0; pointer-events: none;
-  background: radial-gradient(ellipse 80% 140% at 50% 50%, transparent 40%, rgba(13,13,13,.75) 100%); }
+html, body { width: 1128px; height: 191px; overflow: hidden; background: #000; color: #fff; font-family: 'Geist', sans-serif; -webkit-font-smoothing: antialiased; }
+.stage { position: relative; width: 1128px; height: 191px; overflow: hidden; isolation: isolate; background: #000; }
 /* gruppo centrato: lascia libera la zona sinistra dove LinkedIn sovrappone il logo aziendale */
 .row { position: absolute; inset: 0; z-index: 1; display: flex; align-items: center; justify-content: center; gap: 34px; padding-left: 20px; }
 .logo { display: block; width: 128px; height: 128px; flex: none; }
