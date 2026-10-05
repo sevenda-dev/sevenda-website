@@ -1,6 +1,13 @@
 // ════════════════════════════════════════════════════════════════════════════
-// Sevenda — Edge Function: aruba-einvoice-submit   (v1, file unico)
+// Sevenda — Edge Function: aruba-einvoice-submit   (v2, file unico)
 // ════════════════════════════════════════════════════════════════════════════
+// v2 (05/10/2026) — job di account eliminati. fn_account_db_purge ora conserva
+// le invoice con un einvoice_job (sganciate: org_id e subscription_id a null)
+// e copia in einvoice_job.billing_snapshot i dati di billing_profile e il nome
+// del piano prima di cancellarli. Se lo snapshot c'è, loadJobContext lo usa al
+// posto delle tabelle, che per quell'account non esistono più. Vedi
+// db/migrations/2026-10-05-account-purge-fiscal-retention.sql.
+//
 // Worker della outbox einvoice_job (vedi db/migrations/2026-09-23-einvoice.sql):
 // legge i job 'pending', costruisce l'XML FatturaPA, lo carica su Aruba e
 // aggiorna lo stato del job.
@@ -439,7 +446,23 @@ interface JobContext {
   fattura: FatturaInput;
 }
 
-async function loadJobContext(job: { id: number; invoice_id: string; sdi_number: number; attempt_count: number }): Promise<
+// type e non interface: extractVatNumber vuole un Record<string, unknown>,
+// a cui un'interface non è assegnabile.
+type BillingData = {
+  legal_name: string | null;
+  vat_id: string | null;
+  address_line1: string | null;
+  address_line2: string | null;
+  city: string | null;
+  state: string | null;
+  postal_code: string | null;
+  country: string | null;
+};
+
+// v2 — scritto da fn_account_db_purge: billing_profile + nome del piano.
+type BillingSnapshot = BillingData & { plan_name?: string | null };
+
+async function loadJobContext(job: { id: number; invoice_id: string; sdi_number: number; attempt_count: number; billing_snapshot: BillingSnapshot | null }): Promise<
   { ok: true; ctx: JobContext } | { ok: false; detail: string }
 > {
   const { data: inv, error: invErr } = await supabase
@@ -455,12 +478,20 @@ async function loadJobContext(job: { id: number; invoice_id: string; sdi_number:
     return { ok: false, detail: `invoice ${job.invoice_id}: vat_cents è null (imposta non determinata)` };
   }
 
-  const { data: bp, error: bpErr } = await supabase
-    .from("billing_profile")
-    .select("legal_name, vat_id, address_line1, address_line2, city, state, postal_code, country")
-    .eq("org_id", inv.org_id)
-    .maybeSingle();
-  if (bpErr || !bp) return { ok: false, detail: `billing_profile org ${inv.org_id} non leggibile: ${bpErr?.message ?? "riga assente"}` };
+  // v2 — account eliminato: billing_profile non esiste più, vale lo snapshot.
+  const snap = job.billing_snapshot;
+  let bp: BillingData;
+  if (snap) {
+    bp = snap;
+  } else {
+    const { data, error: bpErr } = await supabase
+      .from("billing_profile")
+      .select("legal_name, vat_id, address_line1, address_line2, city, state, postal_code, country")
+      .eq("org_id", inv.org_id)
+      .maybeSingle();
+    if (bpErr || !data) return { ok: false, detail: `billing_profile org ${inv.org_id} non leggibile: ${bpErr?.message ?? "riga assente"}` };
+    bp = data;
+  }
   if (bp.country !== "IT") {
     // Non dovrebbe accadere: il job esiste solo perché sdi_code o fiscal_code
     // sono valorizzati, e quei campi esistono solo per country='IT'. Se questo
@@ -469,8 +500,8 @@ async function loadJobContext(job: { id: number; invoice_id: string; sdi_number:
     return { ok: false, detail: `billing_profile org ${inv.org_id}: country '${bp.country}' non è IT` };
   }
 
-  let planName = "Abbonamento Sevenda";
-  if (inv.subscription_id) {
+  let planName = snap?.plan_name || "Abbonamento Sevenda";
+  if (!snap && inv.subscription_id) {
     const { data: sub } = await supabase
       .from("subscription").select("plan_id").eq("id", inv.subscription_id).maybeSingle();
     if (sub?.plan_id) {
@@ -548,7 +579,7 @@ Deno.serve(async (req) => {
 
   const { data: jobs, error: jobsErr } = await supabase
     .from("einvoice_job")
-    .select("id, invoice_id, sdi_number, attempt_count")
+    .select("id, invoice_id, sdi_number, attempt_count, billing_snapshot")
     .eq("status", "pending")
     .order("created_at", { ascending: true })
     .limit(BATCH_SIZE);
