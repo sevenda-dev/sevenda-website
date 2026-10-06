@@ -59,10 +59,15 @@
 // upload — confermato il 2026-09-23 con l'account ARUBA18605811001, Base,
 // nessuna delega configurata in Collaborazioni. Non è un bug del builder né
 // dei dati della fattura (verificato: CEDENTE.partitaIva combacia con la
-// P.IVA dell'account via /auth/userInfo). Prima di rimettere mano a questo
-// errore, verificare che il piano Aruba sia stato fatto upgrade a Premium
-// (o collegato in delega a un account Premium) — altrimenti qualunque fix
-// al codice non risolverà nulla.
+// P.IVA dell'account via /auth/userInfo).
+// Il Premium DA SOLO NON BASTA: un account Premium nuovo nasce senza
+// cedenti, e finché la P.IVA di CEDENTE non è registrata come cedente
+// (stato ACTIVE, v. "Stato dei multicedenti" nella doc) dentro quell'account,
+// l'upload risponde ancora 0093 pur con signin riuscito — osservato il
+// 2026-10-05 con le credenziali Premium nuove. Risolto il 2026-10-06
+// registrando il cedente dal pannello: stessi job passati a 'submitted'.
+// Se 0093 ricompare: controllare prima lo stato del cedente nel pannello
+// Premium, non il codice.
 //
 // Deploy: incollare questo file nell'editor della funzione aruba-einvoice-submit
 // sul pannello Supabase (nessun secondo file da creare).
@@ -635,13 +640,17 @@ Deno.serve(async (req) => {
 });
 
 // ════════════════════════════════════════════════════════════════════════════
-// TRIGGER PERIODICO — da configurare, non fa parte di questo file.
-// Due strade equivalenti:
-//   1) pg_cron + pg_net: una riga SQL che chiama questa funzione ogni N minuti
-//      via net.http_post, con l'header apikey/service-role già configurato.
-//   2) Supabase Scheduled Triggers (dashboard → Edge Functions → Cron), se
-//      disponibile sul piano del progetto.
-// In entrambi i casi la funzione è idempotente per costruzione: un'invocazione
+// TRIGGER PERIODICO — configurato il 2026-10-06 su prod (jqxx) con pg_cron +
+// pg_net: job 'aruba-einvoice-submit', schedule '*/10 * * * *',
+// net.http_post verso questa funzione con Authorization: Bearer
+// <service_role_key> e timeout_milliseconds := 60000 (il default di pg_net,
+// 5 s, è troppo corto per signin + upload Aruba). La chiave vive nella
+// definizione del job (cron.job), non in questo repo. Per ricrearlo, o su
+// staging, vedi cron.schedule(...) con lo stesso nome: è un upsert.
+// ORDINE OBBLIGATORIO in un nuovo ambiente: ARUBA_DRY_RUN=false PRIMA di
+// attivare il cron. Al contrario, un job reale processato in dry run finisce
+// 'submitted' e il worker non lo riprende mai più (legge solo 'pending').
+// La funzione è idempotente per costruzione: un'invocazione
 // che si sovrappone a una precedente trova solo job già 'submitted' o 'error'
 // (mai due volte 'pending' per lo stesso invoice_id, grazie allo UNIQUE su
 // einvoice_job.invoice_id) e semplicemente non trova nulla da fare.
