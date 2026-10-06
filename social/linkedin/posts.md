@@ -10,6 +10,25 @@ testimonianze inventate. Il link va nel **primo commento** (LinkedIn penalizza i
 post con link esterni nel testo).
 
 Calendario suggerito: 2 post a settimana (mar e gio, 8:30–9:30).
+Versione inglese: `posts.en.md` + grafiche in `out/en/`.
+
+## Come caricare il carosello
+
+LinkedIn mostra un PDF come carosello sfogliabile (le "frecce" laterali):
+
+1. Da desktop (consigliato), su linkedin.com clicca **Crea un post** (o, per la
+   pagina aziendale, entra come admin della pagina e clicca **Crea**).
+2. Nella finestra del post clicca **+** (oppure **…** / "Altro") → **Aggiungi un documento**.
+3. **Scegli file** → `out/post-02-carousel.pdf` (o `out/en/…` per l'inglese).
+4. Inserisci il **titolo del documento** (obbligatorio, è visibile sopra il
+   carosello), es. "Dal click al BPMN in 3 passi" → **Fine**.
+5. Incolla il testo del Post 2 qui sotto e pubblica. Il link a sevenda.dev va
+   nel primo commento.
+
+Note: limite 100 MB / 300 pagine (il nostro è ~0,7 MB, 5 pagine). Da app
+mobile l'opzione documento è nel menu **+** del post, ma non sempre è
+disponibile: se manca, usa il desktop. Caricare le 5 PNG come più immagini **non**
+dà lo stesso effetto (LinkedIn le mostra a griglia).
 
 ---
 

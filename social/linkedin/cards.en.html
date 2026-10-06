@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sevenda — LinkedIn cards (EN)</title>
+<style>
+  /* Font reali del sito, caricati in locale dal pacchetto promo */
+  @font-face { font-family: 'Geist'; src: url('../../promo/fonts/Geist-Variable.woff2') format('woff2'); font-weight: 100 900; }
+  @font-face { font-family: 'Geist Mono'; src: url('../../promo/fonts/GeistMono-Variable.woff2') format('woff2'); font-weight: 100 900; }
+
+  /* Stessi token di index.html */
+  :root {
+    --bg: #0d0d0d; --surface: #131313; --surface-up: #1a1a1a;
+    --border: rgba(255,255,255,0.07); --border-hi: rgba(255,255,255,0.13);
+    --text: #e8e8e6; --muted: #6e6e6a; --dim: #3a3a36;
+    --accent: #E8733A; --blue: #7aafd4; --amber: #c8a064; --red: #dc5858;
+    --sans: 'Geist', sans-serif; --mono: 'Geist Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #000; font-family: var(--sans); color: var(--text); display: flex; flex-direction: column; gap: 40px; padding: 40px; align-items: center; }
+
+  /* ── CARD 1080×1350 (formato 4:5, il più visibile nel feed LinkedIn) ── */
+  .card {
+    width: 1080px; height: 1350px; position: relative; overflow: hidden;
+    background-color: var(--bg);
+    background-image:
+      radial-gradient(ellipse 70% 45% at 50% 0%, rgba(232,115,58,0.10), transparent 70%),
+      linear-gradient(rgba(255,255,255,0.028) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.028) 1px, transparent 1px);
+    background-size: 100% 100%, 54px 54px, 54px 54px;
+    padding: 88px 84px; display: flex; flex-direction: column;
+  }
+  .card::after { /* vignetta: la griglia non compete col contenuto */
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(ellipse 85% 75% at 50% 50%, transparent 55%, rgba(0,0,0,.55));
+  }
+  .card > * { position: relative; z-index: 1; }
+
+  /* Header e footer comuni */
+  .top { display: flex; justify-content: space-between; align-items: center; }
+  .brand { display: flex; align-items: center; gap: 16px; font-weight: 600; font-size: 34px; letter-spacing: -0.02em; }
+  .brand img { width: 52px; height: 52px; }
+  .tag { font-family: var(--mono); font-size: 22px; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; }
+  .foot { margin-top: auto; display: flex; justify-content: space-between; align-items: flex-end; }
+  .url { font-family: var(--mono); font-size: 30px; color: var(--accent); }
+  .pager { font-family: var(--mono); font-size: 24px; color: var(--muted); }
+  .swipe { font-family: var(--mono); font-size: 24px; color: var(--muted); }
+
+  .label { font-family: var(--mono); font-size: 24px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); display: flex; align-items: center; gap: 14px; }
+  .label::before { content: ''; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+  h1 { font-size: 92px; line-height: 1.02; letter-spacing: -0.045em; font-weight: 700; }
+  h1 .dim, h2 .dim { color: var(--muted); }
+  h2 { font-size: 72px; line-height: 1.05; letter-spacing: -0.04em; font-weight: 700; }
+  .lead { font-size: 34px; line-height: 1.45; color: #a9a9a5; letter-spacing: -0.01em; }
+  .lead b { color: var(--text); font-weight: 500; }
+  .mono { font-family: var(--mono); }
+  .acc { color: var(--accent); }
+
+  .pill { display: inline-flex; align-items: center; gap: 14px; border: 1px solid var(--border-hi); background: rgba(255,255,255,.03); border-radius: 999px; padding: 14px 26px; font-family: var(--mono); font-size: 24px; color: #a9a9a5; }
+  .pill::before { content: ''; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+
+  /* Pannelli tipo "mockup" del sito */
+  .panel { background: var(--surface); border: 1px solid var(--border-hi); border-radius: 14px; box-shadow: 0 30px 80px rgba(0,0,0,.6); overflow: hidden; }
+  .panel-bar { display: flex; align-items: center; gap: 12px; padding: 18px 24px; border-bottom: 1px solid var(--border); font-family: var(--mono); font-size: 20px; color: var(--muted); }
+  .panel-bar .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--dim); }
+  .panel-bar .rec { margin-left: auto; color: var(--red); display: flex; align-items: center; gap: 10px; }
+  .panel-bar .rec::before { content: ''; width: 12px; height: 12px; border-radius: 50%; background: var(--red); }
+  .log { padding: 18px 24px; font-family: var(--mono); font-size: 21px; line-height: 1.9; }
+  .log div { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .log .t { color: var(--dim); margin-right: 14px; }
+  .k { display: inline-block; width: 62px; font-weight: 600; }
+  .k.nav { color: var(--blue); } .k.ui { color: var(--accent); } .k.net { color: var(--amber); }
+  .log .s { color: #a9a9a5; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 14px; }
+  .chip { font-family: var(--mono); font-size: 22px; border: 1px solid var(--border-hi); border-radius: 8px; padding: 10px 18px; color: #c9c9c5; background: rgba(255,255,255,.02); }
+  .chip.on { border-color: rgba(232,115,58,.5); color: var(--accent); background: rgba(232,115,58,.06); }
+
+  /* Metrica grande "prima → dopo" */
+  .metric { display: flex; align-items: baseline; gap: 34px; flex-wrap: wrap; }
+  .metric .from { font-size: 64px; font-weight: 600; color: var(--muted); text-decoration: line-through; text-decoration-color: rgba(220,88,88,.7); text-decoration-thickness: 4px; letter-spacing: -0.03em; }
+  .metric .arr { font-family: var(--mono); font-size: 56px; color: var(--dim); }
+  .metric .to { font-size: 150px; font-weight: 700; color: var(--accent); letter-spacing: -0.05em; line-height: .9; }
+
+  .checks { list-style: none; display: flex; flex-direction: column; gap: 18px; font-size: 30px; color: #c9c9c5; }
+  .checks li { display: flex; gap: 18px; align-items: baseline; }
+  .checks li::before { content: '✓'; font-family: var(--mono); color: var(--accent); }
+
+  .code { padding: 26px 30px; font-family: var(--mono); font-size: 23px; line-height: 1.65; color: #c9c9c5; white-space: pre; }
+  .code .c { color: var(--dim); } .code .s { color: var(--amber); } .code .p { color: var(--blue); } .code .a { color: var(--accent); }
+
+  .tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+  .tile { border: 1px solid var(--border-hi); background: var(--surface); border-radius: 12px; padding: 30px 20px; text-align: center; }
+  .tile .ext { font-family: var(--mono); font-size: 36px; color: var(--accent); font-weight: 600; }
+  .tile .for { margin-top: 10px; font-size: 21px; color: var(--muted); }
+
+  .logos { display: flex; gap: 22px; flex-wrap: wrap; }
+  .logos span { display: flex; align-items: center; gap: 14px; border: 1px solid var(--border); border-radius: 10px; padding: 14px 22px; font-size: 24px; color: #c9c9c5; background: rgba(255,255,255,.02); }
+  .logos img { height: 30px; width: 30px; object-fit: contain; }
+
+  .bubble { align-self: flex-end; max-width: 80%; background: rgba(232,115,58,.10); border: 1px solid rgba(232,115,58,.35); border-radius: 22px 22px 6px 22px; padding: 26px 32px; font-size: 32px; line-height: 1.4; }
+  .bubble.ai { align-self: flex-start; background: var(--surface-up); border-color: var(--border-hi); border-radius: 22px 22px 22px 6px; color: #c9c9c5; font-size: 28px; }
+  .who { font-family: var(--mono); font-size: 19px; color: var(--muted); margin-bottom: 10px; text-transform: uppercase; letter-spacing: .1em; }
+
+  .stats { display: grid; grid-template-columns: 1fr; gap: 0; border-top: 1px solid var(--border-hi); }
+  .stat { display: flex; justify-content: space-between; align-items: center; padding: 30px 0; border-bottom: 1px solid var(--border-hi); }
+  .stat .v { font-size: 88px; font-weight: 700; letter-spacing: -0.05em; }
+  .stat .l { font-family: var(--mono); font-size: 26px; color: var(--muted); text-align: right; }
+
+  .btn { display: inline-flex; align-items: center; gap: 16px; background: var(--text); color: #0d0d0d; font-weight: 600; font-size: 32px; padding: 26px 42px; border-radius: 10px; }
+  .big-step { font-family: var(--sans); font-size: 200px; font-weight: 700; color: transparent; -webkit-text-stroke: 2px rgba(232,115,58,.55); line-height: .85; letter-spacing: -0.04em; }
+
+  .bpmn svg { display: block; width: 100%; height: auto; }
+
+  .sp-16 { height: 16px; } .sp-24 { height: 24px; } .sp-32 { height: 32px; } .sp-48 { height: 48px; } .sp-64 { height: 64px; } .grow { flex: 1; }
+</style>
+</head>
+<body>
+
+<!-- ═════════════ POST 1 — Hero / lancio ═════════════ -->
+<section class="card" id="post-01-hero">
+  <div class="top"><div class="brand"><img src="../../logo.svg" alt="">Sevenda</div><div class="tag">Chrome Extension · MV3</div></div>
+  <div class="sp-64"></div>
+  <div><span class="pill">Now powered by Anthropic's Claude models</span></div>
+  <div class="sp-48"></div>
+  <h1 style="font-size:80px">Every click tells a story.<br><span class="dim">Sevenda reads it.</span></h1>
+  <div class="sp-32"></div>
+  <p class="lead">Records your browser session and generates <span class="mono acc">BPMN&nbsp;2.0</span> <b>process diagrams</b> and <b>actionable insights</b> — automatically.</p>
+  <div class="sp-48"></div>
+  <div class="panel">
+    <div class="panel-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span>&nbsp; DevTools › Sevenda <span class="rec">REC 00:23</span></div>
+    <div class="log">
+      <div><span class="t">10:24:01</span><span class="k nav">NAV</span><span class="s">pushState → /dashboard/login</span></div>
+      <div><span class="t">10:24:03</span><span class="k ui">UI</span><span class="s">click button#submit "Sign In"</span></div>
+      <div><span class="t">10:24:03</span><span class="k net">NET</span><span class="s">POST /api/auth/login → 200 (342ms)</span></div>
+    </div>
+    <div class="bpmn" data-bpmn="login" style="border-top:1px solid var(--border); padding: 18px 24px 22px;"></div>
+  </div>
+  <div class="foot"><div class="url">sevenda.dev</div><div class="swipe">14-day free trial →</div></div>
+</section>
+
+<!-- ═════════════ POST 2 — Carosello "Come funziona" (5 slide) ═════════════ -->
+<section class="card carousel" id="post-02-carousel-1">
+  <div class="top"><div class="brand"><img src="../../logo.svg" alt="">Sevenda</div><div class="pager">1 / 5</div></div>
+  <div class="grow"></div>
+  <div class="label">How it works</div>
+  <div class="sp-32"></div>
+  <h1 style="font-size:112px">From clicks<br>to BPMN<br><span class="dim">in 3 steps.</span></h1>
+  <div class="sp-48"></div>
+  <p class="lead">From raw browser events to structured process models — <b>without lifting a pen.</b></p>
+  <div class="grow"></div>
+  <div class="foot"><div class="url">sevenda.dev</div><div class="swipe">swipe →</div></div>
+</section>
+
+<section class="card carousel" id="post-02-carousel-2">
+  <div class="top"><div class="brand"><img src="../../logo.svg" alt="">Sevenda</div><div class="pager">2 / 5</div></div>
+  <div class="sp-64"></div>
+  <div class="big-step">01</div>
+  <div class="sp-24"></div>
+  <h2>Record</h2>
+  <div class="sp-24"></div>
+  <p class="lead">Click <b>start</b> in Chrome DevTools. Sevenda captures everything that matters — on any website, zero configuration.</p>
+  <div class="sp-48"></div>
+  <div class="chips"><span class="chip on">click</span><span class="chip on">navigation</span><span class="chip on">API calls</span><span class="chip">form submissions</span><span class="chip">DOM mutations</span></div>
+  <div class="sp-48"></div>
+  <div class="panel">
+    <div class="panel-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span>&nbsp; 47 events <span class="rec">REC</span></div>
+    <div class="log">
+      <div><span class="t">10:24:01</span><span class="k nav">NAV</span><span class="s">pushState → /dashboard/login</span></div>
+      <div><span class="t">10:24:02</span><span class="k ui">UI</span><span class="s">click input[type=email]</span></div>
+      <div><span class="t">10:24:03</span><span class="k ui">UI</span><span class="s">click button#submit "Sign In"</span></div>
+      <div><span class="t">10:24:03</span><span class="k net">NET</span><span class="s">POST /api/auth/login → 200 (342ms)</span></div>
+      <div><span class="t">10:24:04</span><span class="k nav">NAV</span><span class="s">pushState → /dashboard</span></div>
+      <div><span class="t">10:24:06</span><span class="k net">NET</span><span class="s">GET /api/reports → 200 (201ms)</span></div>
+    </div>
+  </div>
+  <div class="foot"><div class="url">sevenda.dev</div><div class="swipe">→</div></div>
+</section>
+
+<section class="card carousel" id="post-02-carousel-3">
+  <div class="top"><div class="brand"><img src="../../logo.svg" alt="">Sevenda</div><div class="pager">3 / 5</div></div>
+  <div class="sp-64"></div>
+  <div class="big-step">02</div>
+  <div class="sp-24"></div>
+  <h2>AI generates</h2>
+  <div class="sp-24"></div>
+  <p class="lead"><b>Anthropic's Claude</b> models read the event stream, identify the process flow and produce validated <span class="mono acc">BPMN&nbsp;2.0</span> XML.</p>
+  <div class="sp-48"></div>
+  <div class="panel">
+    <div class="panel-bar">Generated BPMN <span style="margin-left:auto">XML · Export</span></div>
+    <div class="bpmn" data-bpmn="gateway" style="padding: 26px 24px;"></div>
+  </div>
+  <div class="sp-32"></div>
+  <div class="chips"><span class="chip on">pools &amp; lanes</span><span class="chip on">gateways</span><span class="chip on">sequence flows</span></div>
+  <div class="foot"><div class="url">sevenda.dev</div><div class="swipe">→</div></div>
+</section>
+
+<section class="card carousel" id="post-02-carousel-4">
+  <div class="top"><div class="brand"><img src="../../logo.svg" alt="">Sevenda</div><div class="pager">4 / 5</div></div>
+  <div class="sp-64"></div>
+  <div class="big-step">03</div>
+  <div class="sp-24"></div>
+  <h2>Export</h2>
+  <div class="sp-24"></div>
+  <p class="lead">One session, every format you need. Then <b>refine the diagram by chatting</b> in natural language.</p>
+  <div class="sp-48"></div>
+  <div class="tiles">
+    <div class="tile"><div class="ext">.bpmn</div><div class="for">process engine</div></div>
+    <div class="tile"><div class="ext">.svg</div><div class="for">README, wiki</div></div>
+    <div class="tile"><div class="ext">.png</div><div class="for">presentations</div></div>
+    <div class="tile"><div class="ext">.docx</div><div class="for">stakeholder</div></div>
+  </div>
+  <div class="sp-48"></div>
+  <div class="tag" style="font-size:20px">// integrates with your stack</div>
+  <div class="sp-24"></div>
+  <div class="logos">
+    <span>Camunda</span>
+    <span>Signavio</span>
+    <span>Bizagi</span>
+    <span>Jira</span>
+    <span>Confluence</span>
+  </div>
+  <div class="foot"><div class="url">sevenda.dev</div><div class="swipe">→</div></div>
+</section>
+
+<section class="card carousel" id="post-02-carousel-5">
+  <div class="top"><div class="brand"><img src="../../logo.svg" alt="">Sevenda</div><div class="pager">5 / 5</div></div>
+  <div class="grow"></div>
+  <h1 style="font-size:104px">Start<br>documenting<br><span class="dim">in seconds.</span></h1>
+  <div class="sp-48"></div>
+  <p class="lead">Join developers, analysts and marketers who let Sevenda do the heavy lifting.</p>
+  <div class="sp-64"></div>
+  <div><span class="btn">Start your 14-day free trial →</span></div>
+  <div class="sp-24"></div>
+  <div class="tag" style="font-size:20px">From €8/month · Cancel anytime</div>
+  <div class="grow"></div>
+  <div class="foot"><div class="url">sevenda.dev</div><div class="swipe"></div></div>
+</section>
+
+<!-- ═════════════ POST 3 — Use case Business Analyst ═════════════ -->
+<section class="card" id="post-03-business-analyst">
+  <div class="top"><div class="brand"><img src="../../logo.svg" alt="">Sevenda</div><div class="tag">Use case · Business Analyst</div></div>
+  <div class="sp-64"></div>
+  <div class="label">AS-IS documentation. Day one.</div>
+  <div class="sp-32"></div>
+  <div class="metric"><span class="from">8 hours</span><span class="arr">→</span></div>
+  <div class="metric"><span class="to">90 seconds</span></div>
+  <div class="sp-48"></div>
+  <p class="lead">A new engagement starts Monday and no process documentation exists. The BA navigates the client's app for <b>90 seconds</b> and presses <b>Generate</b>.</p>
+  <div class="sp-48"></div>
+  <ul class="checks">
+    <li>BPMN 2.0 diagram ready for Camunda or Signavio</li>
+    <li>Functional analysis .docx for stakeholders</li>
+    <li>Jira issue created with diagram attached</li>
+  </ul>
+  <div class="foot"><div class="url">sevenda.dev</div><div class="swipe">14-day free trial →</div></div>
+</section>
+
+<!-- ═════════════ POST 4 — Use case Marketing & Data ═════════════ -->
+<section class="card" id="post-04-marketing">
+  <div class="top"><div class="brand"><img src="../../logo.svg" alt="">Sevenda</div><div class="tag">Use case · Marketing &amp; Data</div></div>
+  <div class="sp-64"></div>
+  <div class="label">GTM audit. One session.</div>
+  <div class="sp-32"></div>
+  <div class="metric"><span class="from">3-day audit</span><span class="arr">→</span></div>
+  <div class="metric"><span class="to">20 minutes</span></div>
+  <div class="sp-48"></div>
+  <p class="lead">GA4 is configured, but half the funnel <b>is missing conversion events</b>. In Insights mode, Sevenda flags every untracked interaction.</p>
+  <div class="sp-48"></div>
+  <div class="panel">
+    <div class="panel-bar">Tracking gap · button.add-to-cart <span style="margin-left:auto;color:var(--red)">● untracked</span></div>
+<div class="code"><span class="c">// suggested snippet, ready for GTM</span>
+<span class="p">dataLayer</span>.push({
+  <span class="a">event</span>: <span class="s">'add_to_cart'</span>,
+  <span class="a">ecommerce</span>: { <span class="a">currency</span>: <span class="s">'EUR'</span>, <span class="a">items</span>: [ … ] }
+});</div>
+  </div>
+  <div class="sp-32"></div>
+  <div class="chips"><span class="chip on">Gap analysis</span><span class="chip on">Tag Plan JSON</span><span class="chip">Analytics Report .docx</span></div>
+  <div class="foot"><div class="url">sevenda.dev</div><div class="swipe"></div></div>
+</section>
+
+<!-- ═════════════ POST 5 — Use case Developer / QA ═════════════ -->
+<section class="card" id="post-05-developer">
+  <div class="top"><div class="brand"><img src="../../logo.svg" alt="">Sevenda</div><div class="tag">Use case · Developer / QA</div></div>
+  <div class="sp-64"></div>
+  <div class="label">Release day</div>
+  <div class="sp-32"></div>
+  <h1>Documentation<br><span class="dim">that updates</span><br><span class="acc">itself.</span></h1>
+  <div class="sp-48"></div>
+  <p class="lead">Record the QA session. Every API call, navigation and form lands in the event stream. <b>One click</b> and the BPMN + report are ready to commit alongside the code.</p>
+  <div class="sp-48"></div>
+  <div class="panel">
+    <div class="panel-bar">API interaction log</div>
+    <div class="log">
+      <div><span class="k net">NET</span><span class="s">POST /api/auth/login</span> <span class="acc">→ 200</span> <span class="t">342ms</span></div>
+      <div><span class="k net">NET</span><span class="s">GET&nbsp; /api/user/me</span> <span class="acc">→ 200</span> <span class="t">89ms</span></div>
+      <div><span class="k net">NET</span><span class="s">POST /api/orders</span> <span style="color:var(--red)">→ 422</span> <span class="t">118ms</span></div>
+    </div>
+  </div>
+  <div class="sp-32"></div>
+  <div class="chips"><span class="chip on">.svg for README</span><span class="chip on">Confluence</span><span class="chip">always up to date</span></div>
+  <div class="foot"><div class="url">sevenda.dev</div><div class="swipe"></div></div>
+</section>
+
+<!-- ═════════════ POST 6 — Raffinamento in linguaggio naturale ═════════════ -->
+<section class="card" id="post-06-chat">
+  <div class="top"><div class="brand"><img src="../../logo.svg" alt="">Sevenda</div><div class="tag">Iterative refinement</div></div>
+  <div class="sp-64"></div>
+  <h1>Chat with<br><span class="dim">your diagram.</span></h1>
+  <div class="sp-48"></div>
+  <div style="display:flex;flex-direction:column;gap:22px">
+    <div class="bubble"><div class="who">You</div>Add an error path after the API call.</div>
+    <div class="bubble ai"><div class="who">Sevenda</div>Done: exclusive gateway after <span class="mono acc">POST /login</span> with an error branch. The rest of the model is unchanged.</div>
+  </div>
+  <div class="sp-48"></div>
+  <div class="panel"><div class="bpmn" data-bpmn="error" style="padding: 26px 24px;"></div></div>
+  <div class="foot"><div class="url">sevenda.dev</div><div class="swipe"></div></div>
+</section>
+
+<!-- ═════════════ POST 7 — Numeri ═════════════ -->
+<section class="card" id="post-07-numbers">
+  <div class="top"><div class="brand"><img src="../../logo.svg" alt="">Sevenda</div><div class="tag">By the numbers</div></div>
+  <div class="sp-64"></div>
+  <h2>Less time drawing.<br><span class="dim">More time understanding.</span></h2>
+  <div class="grow"></div>
+  <div class="stats">
+    <div class="stat"><div class="v acc">&lt;&thinsp;60s</div><div class="l">to first<br>diagram</div></div>
+    <div class="stat"><div class="v">BPMN&thinsp;2.0</div><div class="l">+ Insights</div></div>
+    <div class="stat"><div class="v">4</div><div class="l">export formats<br>.bpmn .svg .png .docx</div></div>
+    <div class="stat"><div class="v">0</div><div class="l">configuration<br>works on any website</div></div>
+  </div>
+  <div class="grow"></div>
+  <div class="foot"><div class="url">sevenda.dev</div><div class="swipe">14-day free trial →</div></div>
+</section>
+
+<script>
+  // Mini-diagrammi BPMN in SVG: eventi (cerchi), task (rettangoli), gateway (rombi)
+  const C = { line: '#6e6e6a', task: '#1a1a1a', stroke: 'rgba(255,255,255,.35)', acc: '#E8733A', red: '#dc5858', text: '#e8e8e6' };
+  const arrow = (x1, y1, x2, y2, col = C.line) => `<path d="M${x1} ${y1} L${x2} ${y2}" stroke="${col}" stroke-width="2.5" fill="none" marker-end="url(#ar)"/>`;
+  const elbow = (pts, col = C.line) => `<path d="M${pts.map(p => p.join(' ')).join(' L')}" stroke="${col}" stroke-width="2.5" fill="none" marker-end="url(#ar)"/>`;
+  const task = (x, y, w, h, l1, l2, hl) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="12" fill="${hl ? 'rgba(232,115,58,.10)' : C.task}" stroke="${hl || C.stroke}" stroke-width="2"/>`
+    + `<text x="${x + w / 2}" y="${y + h / 2 - (l2 ? 4 : -8)}" fill="${C.text}" font-family="Geist" font-size="22" text-anchor="middle">${l1}</text>`
+    + (l2 ? `<text x="${x + w / 2}" y="${y + h / 2 + 24}" fill="#a9a9a5" font-family="Geist Mono" font-size="18" text-anchor="middle">${l2}</text>` : '');
+  const start = (cx, cy) => `<circle cx="${cx}" cy="${cy}" r="20" fill="none" stroke="${C.acc}" stroke-width="3"/>`;
+  const end = (cx, cy, col = C.text) => `<circle cx="${cx}" cy="${cy}" r="20" fill="none" stroke="${col}" stroke-width="6"/>`;
+  const gw = (cx, cy, col = C.acc) => `<path d="M${cx} ${cy - 32} L${cx + 32} ${cy} L${cx} ${cy + 32} L${cx - 32} ${cy} Z" fill="#131313" stroke="${col}" stroke-width="2.5"/>`
+    + `<path d="M${cx - 10} ${cy - 10} L${cx + 10} ${cy + 10} M${cx + 10} ${cy - 10} L${cx - 10} ${cy + 10}" stroke="${col}" stroke-width="3"/>`;
+  const lbl = (x, y, t, col = '#a9a9a5') => `<text x="${x}" y="${y}" fill="${col}" font-family="Geist Mono" font-size="17" text-anchor="middle">${t}</text>`;
+  const defs = `<defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="${C.line}"/></marker></defs>`;
+  const svg = (h, body) => `<svg viewBox="0 0 860 ${h}" xmlns="http://www.w3.org/2000/svg">${defs}${body}</svg>`;
+
+  const D = {
+    // start → Navigate → Sign In → Dashboard → end
+    login: svg(140,
+      start(30, 70) + arrow(50, 70, 92, 70) +
+      task(94, 30, 190, 80, 'Navigate to', '/login') + arrow(284, 70, 326, 70) +
+      task(328, 30, 190, 80, 'Click', '"Sign In"', C.acc) + arrow(518, 70, 560, 70) +
+      task(562, 30, 190, 80, 'Load', 'Dashboard') + arrow(752, 70, 806, 70) +
+      end(828, 70)),
+    // start → Login → gateway → (ok) Dashboard → end / (ko) Mostra errore
+    gateway: svg(300,
+      start(30, 90) + arrow(50, 90, 82, 90) +
+      task(84, 50, 180, 80, 'Login', 'POST /auth') + arrow(264, 90, 316, 90) +
+      gw(350, 90) + lbl(440, 76, '200') + arrow(382, 90, 500, 90) +
+      task(502, 50, 200, 80, 'Load', 'Dashboard') + arrow(702, 90, 786, 90) + end(808, 90) +
+      elbow([[350, 122], [350, 230], [500, 230]]) + lbl(400, 218, '401') +
+      task(502, 190, 200, 80, 'Show error', 'invalid creds')),
+    // come "gateway" ma il ramo di errore è nuovo ed evidenziato
+    error: svg(300,
+      start(30, 90) + arrow(50, 90, 82, 90) +
+      task(84, 50, 180, 80, 'Call API', 'POST /login') + arrow(264, 90, 316, 90) +
+      gw(350, 90) + lbl(440, 76, 'ok') + arrow(382, 90, 500, 90) +
+      task(502, 50, 200, 80, 'Load', 'Dashboard') + arrow(702, 90, 786, 90) + end(808, 90) +
+      elbow([[350, 122], [350, 230], [500, 230]], C.acc) + lbl(410, 218, 'error', C.acc) +
+      task(502, 190, 200, 80, 'Handle error', '+ new', C.acc) + arrow(702, 230, 786, 230, C.acc) + end(808, 230, C.red)),
+  };
+  document.querySelectorAll('[data-bpmn]').forEach(el => { el.innerHTML = D[el.dataset.bpmn]; });
+</script>
+</body>
+</html>
