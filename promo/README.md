@@ -23,6 +23,7 @@ Geist reale caricato in locale e **due run producono frame byte-identici**.
 | `stills/` | Due immagini 9:16 (1080×1920) per apertura e chiusura del video verticale: sorgenti HTML/CSS e PNG. Si rigenerano con `node render-stills.mjs`. Le varianti `*-it` sono minimal (sfondo piatto del sito, solo logo e slogan in italiano): `node render-stills.mjs opening-it closing-it`. |
 | `render-linkedin.mjs` | Asset per la pagina aziendale LinkedIn: logo 300×300 e banner 1128×191 (PNG e JPG) in `stills/`, più le 5 copertine per il banner a rotazione Premium (2256×382, PNG). `node render-linkedin.mjs [logo] [banner] [cover01…cover05]`. |
 | `VOICEOVER.md` | Testo della voce narrante sincronizzato con le scene (EN + versione IT) e note per il mix audio. |
+| `promo-camunda.html`, `promo-camunda-it.html` | Video LinkedIn di 10 s in 4:5 (1080×1350) sull'integrazione Sevenda × Camunda: stessa resa della card animata della pagina Connect (luci arancio/blu, griglia BPMN, parole "kinetic type") su una timeline unica di 10 000 ms. Generati da `build_camunda.py` (`--it` per l'italiano). |
 
 Output: `sevenda-promo.mp4` (1920×1080, 30 fps, 45 s, senza audio) e
 `sevenda-promo-vertical.mp4` (1080×1920, 9:16) e `sevenda-promo-it.mp4` (testi in italiano).
@@ -58,6 +59,24 @@ python3 build.py --vertical            # rigenera promo-vertical.html (facoltati
 node render.mjs --page promo-vertical.html --width 1080 --height 1920 --out frames-vertical
 ./encode.sh 30 frames-vertical sevenda-promo-vertical.mp4 1080x1920
 ```
+
+Video LinkedIn Sevenda × Camunda (10 s, 4:5):
+
+```bash
+python3 build_camunda.py && python3 build_camunda.py --it
+node render.mjs --page promo-camunda.html --width 1080 --height 1350 --duration 10 --out frames-camunda
+./encode.sh 30 frames-camunda sevenda-camunda-linkedin.mp4 1080x1350
+node render.mjs --page promo-camunda-it.html --width 1080 --height 1350 --duration 10 --out frames-camunda-it
+./encode.sh 30 frames-camunda-it sevenda-camunda-linkedin-it.mp4 1080x1350
+```
+
+| Tempo | Scena |
+| --- | --- |
+| 0–1.2 s | "Every click" (kinetic type) |
+| 1.2–2.3 s | Logo + "Sevenda" |
+| 2.3–5.4 s | BPMN 2.0 generato: il diagramma si disegna nodo per nodo, poi l'XML con `xmlns:camunda` e `isExecutable="true"` |
+| 5.4–8.1 s | Export: click su "Export to Camunda", il file `checkout.bpmn` passa nella card Camunda, spunte "Opens in Camunda Modeler" ecc. |
+| 8.1–10 s | Outro: Sevenda × Camunda, sevenda.dev/connect |
 
 Con `--only` si rende un sottoinsieme di fotogrammi in un'altra cartella, utile
 per anteprime e per il test di determinismo:
