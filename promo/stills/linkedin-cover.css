@@ -1,0 +1,12 @@
+/* Sevenda — copertine LinkedIn (1128×191 css px, rese a 2× = 2256×382): nero puro, Geist.
+   Contenuto nella fascia centrale: a sinistra LinkedIn sovrappone il logo aziendale. */
+@font-face { font-family: 'Geist'; src: url('../fonts/Geist-Variable.woff2') format('woff2'); font-weight: 100 900; font-display: block; }
+@font-face { font-family: 'Geist Mono'; src: url('../fonts/GeistMono-Variable.woff2') format('woff2'); font-weight: 100 900; font-display: block; }
+:root { --or: #E8733A; --gray: #8a8a84; --mono: 'Geist Mono', monospace; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1128px; height: 191px; overflow: hidden; background: #000; color: #fff; font-family: 'Geist', sans-serif; -webkit-font-smoothing: antialiased; }
+.stage { position: relative; width: 1128px; height: 191px; overflow: hidden; background: #000; }
+.h { font-weight: 800; letter-spacing: -.045em; line-height: 1.06; }
+.mono { font-family: var(--mono); }
+.abs { position: absolute; }
+.vc { position: absolute; top: 0; height: 191px; display: flex; flex-direction: column; justify-content: center; }

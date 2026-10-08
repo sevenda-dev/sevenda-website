@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><title>Sevenda — LinkedIn banner 1128×191</title>
+<style>
+@font-face { font-family: 'Geist'; src: url('../fonts/Geist-Variable.woff2') format('woff2'); font-weight: 100 900; font-display: block; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1128px; height: 191px; overflow: hidden; background: #000; color: #fff; font-family: 'Geist', sans-serif; -webkit-font-smoothing: antialiased; }
+.stage { position: relative; width: 1128px; height: 191px; overflow: hidden; isolation: isolate; background: #000; }
+/* gruppo centrato: lascia libera la zona sinistra dove LinkedIn sovrappone il logo aziendale */
+.row { position: absolute; inset: 0; z-index: 1; display: flex; align-items: center; justify-content: center; gap: 34px; padding-left: 20px; }
+.logo { display: block; width: 128px; height: 128px; flex: none; }
+.txt { display: flex; flex-direction: column; justify-content: center; }
+.word { font-size: 66px; font-weight: 800; letter-spacing: -.05em; line-height: 1; color: #fff; }
+.tag { margin-top: 12px; font-size: 31px; font-weight: 800; letter-spacing: -.04em; line-height: 1.1; color: #fff; }
+</style></head>
+<body><div class="stage"><div class="row">
+  <img class="logo" src="../logo.svg" alt="Sevenda">
+  <div class="txt"><div class="word">Sevenda</div><p class="tag">Start documenting in seconds.</p></div>
+</div></div></body></html>

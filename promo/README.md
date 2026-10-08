@@ -16,10 +16,18 @@ Geist reale caricato in locale e **due run producono frame byte-identici**.
 | `render.mjs` | Node + Playwright: apre la scena, esegue il seek fotogramma per fotogramma e salva `frames/frame-00000.png …` (3840×2160). |
 | `encode.sh` | ffmpeg: `frames/*.png` → `sevenda-promo.mp4` 1920×1080, h264/yuv420p, crf 16, preset slow, faststart. |
 | `package.json` | Script `render`, `encode`, `build` e la dipendenza `playwright-core`. |
-| `build.py` | Generatore di `promo.html`: la timeline è scritta in secondi e convertita in percentuali dei 45 s (facoltativo, solo Python standard). |
+| `build.py` | Generatore di `promo.html` (e di `promo-vertical.html` con `--vertical`): la timeline è scritta in secondi e convertita in percentuali dei 45 s (solo Python standard). |
+| `promo-vertical.html` | Variante 9:16 (1080×1920) per i social: stessa timeline e stessi keyframe, layout portrait (browser e pannello impilati, pool BPMN affiancati, card in colonna). |
+| `promo-it.html` | Variante con testi on-screen in italiano (16:9): generata da `build.py --it`, stessa timeline e stessi keyframe. |
+| `VOICEOVER-IT.md` | Testo della voce narrante in italiano, sincronizzato con le scene, con note di lettura e di mix. |
+| `stills/` | Due immagini 9:16 (1080×1920) per apertura e chiusura del video verticale: sorgenti HTML/CSS e PNG. Si rigenerano con `node render-stills.mjs`. Le varianti `*-it` sono minimal (sfondo piatto del sito, solo logo e slogan in italiano): `node render-stills.mjs opening-it closing-it`. |
+| `render-linkedin.mjs` | Asset per la pagina aziendale LinkedIn: logo 300×300 e banner 1128×191 (PNG e JPG) in `stills/`, più le 5 copertine per il banner a rotazione Premium (2256×382, PNG). `node render-linkedin.mjs [logo] [banner] [cover01…cover05]`. |
+| `VOICEOVER.md` | Testo della voce narrante sincronizzato con le scene (EN + versione IT) e note per il mix audio. |
+| `promo-camunda.html`, `promo-camunda-it.html` | Video LinkedIn di 10 s in 4:5 (1080×1350) sull'integrazione Sevenda × Camunda: stessa resa della card animata della pagina Connect (luci arancio/blu, griglia BPMN, parole "kinetic type") su una timeline unica di 10 000 ms. Generati da `build_camunda.py` (`--it` per l'italiano). |
 
-Output: `sevenda-promo.mp4` (1920×1080, 30 fps, 45 s, senza audio).
-`frames/`, `node_modules/` e i `.mp4` sono ignorati da git (`.gitignore`).
+Output: `sevenda-promo.mp4` (1920×1080, 30 fps, 45 s, senza audio) e
+`sevenda-promo-vertical.mp4` (1080×1920, 9:16) e `sevenda-promo-it.mp4` (testi in italiano).
+`frames*/`, `node_modules/` e i `.mp4` sono ignorati da git (`.gitignore`).
 
 ## Rigenerare tutto
 
@@ -40,7 +48,35 @@ node render.mjs                  # opzioni: --fps 30 --duration 45 --out frames
 
 # tutto insieme
 npm run build
+
+# versione con testi in italiano
+python3 build.py --it                  # rigenera promo-it.html (le traduzioni sono in IT_MAP)
+node render.mjs --page promo-it.html --out frames-it
+./encode.sh 30 frames-it sevenda-promo-it.mp4 1920x1080
+
+# variante verticale 9:16 (1080×1920)
+python3 build.py --vertical            # rigenera promo-vertical.html (facoltativo)
+node render.mjs --page promo-vertical.html --width 1080 --height 1920 --out frames-vertical
+./encode.sh 30 frames-vertical sevenda-promo-vertical.mp4 1080x1920
 ```
+
+Video LinkedIn Sevenda × Camunda (10 s, 4:5):
+
+```bash
+python3 build_camunda.py && python3 build_camunda.py --it
+node render.mjs --page promo-camunda.html --width 1080 --height 1350 --duration 10 --out frames-camunda
+./encode.sh 30 frames-camunda sevenda-camunda-linkedin.mp4 1080x1350
+node render.mjs --page promo-camunda-it.html --width 1080 --height 1350 --duration 10 --out frames-camunda-it
+./encode.sh 30 frames-camunda-it sevenda-camunda-linkedin-it.mp4 1080x1350
+```
+
+| Tempo | Scena |
+| --- | --- |
+| 0–1.2 s | "Every click" (kinetic type) |
+| 1.2–2.3 s | Logo + "Sevenda" |
+| 2.3–5.4 s | BPMN 2.0 generato: il diagramma si disegna nodo per nodo, poi l'XML con `xmlns:camunda` e `isExecutable="true"` |
+| 5.4–8.1 s | Export: click su "Export to Camunda", il file `checkout.bpmn` passa nella card Camunda, spunte "Opens in Camunda Modeler" ecc. |
+| 8.1–10 s | Outro: Sevenda × Camunda, sevenda.dev/connect |
 
 Con `--only` si rende un sottoinsieme di fotogrammi in un'altra cartella, utile
 per anteprime e per il test di determinismo:

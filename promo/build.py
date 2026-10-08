@@ -6,10 +6,14 @@ di percentuali dentro i 45 s; l'easing sta dentro i keyframe.
 Il frame è funzione pura di currentTime: nessun rAF, transition, steps(),
 random. window.__seek(t) porta ogni animazione al tempo t.
 """
-import os
+import os, sys
+
+V = '--vertical' in sys.argv   # variante 9:16 (1080×1920) per i social
+IT = '--it' in sys.argv        # testi on-screen in italiano (solo 16:9): promo-it.html
+assert not (V and IT), 'usa --vertical oppure --it, non entrambi'
 
 DUR = 45.0                     # durata totale (s)
-OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'promo.html')
+OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'promo-vertical.html' if V else ('promo-it.html' if IT else 'promo.html'))
 
 EASE_OUT = 'cubic-bezier(.16,1,.3,1)'
 EASE_IO  = 'cubic-bezier(.45,0,.2,1)'
@@ -113,7 +117,7 @@ HTML = []
 def h(s): HTML.append(s)
 def A(name): return f'class="a" style="animation-name:{name}"'
 
-CARD_X, CARD_Y = 160, 110      # offset card nello stage (per il cursore)
+CARD_X, CARD_Y = (60, 210) if V else (160, 110)   # offset card nello stage (per il cursore)
 
 # ── SFONDO: mesh gradient (blob che derivano per tutti i 45 s) ─────────
 kf('bgA', [(0, {'transform': 'translate(0,0) scale(1)'}, EASE_IO), (22, {'transform': 'translate(340px,180px) scale(1.18)'}, EASE_IO), (45, {'transform': 'translate(-120px,320px) scale(1.05)'}, None)])
@@ -148,9 +152,14 @@ reveal('typed', 8.5, .8)
 pop('toast', 10.45, .4, dy=10)
 pop('cartQty', 6.1, .3, dy=0, sc=.6)
 # cursore (coordinate stage)
-BX, BY = CARD_X + 60, CARD_Y + 120          # origine mock browser nello stage
-cursor_path('cur2', [(4.9, BX + 540, BY + 470), (5.9, BX + 835, BY + 132), (7.2, BX + 835, BY + 244),
-                     (8.3, BX + 150, BY + 351), (9.7, BX + 140, BY + 422), (11.0, BX + 420, BY + 540)])
+if V:
+    BX, BY = CARD_X + 30, CARD_Y + 100       # origine mock browser nello stage (verticale)
+    cursor_path('cur2', [(4.9, BX + 450, BY + 520), (5.9, BX + 765, BY + 132), (7.2, BX + 765, BY + 244),
+                         (8.3, BX + 150, BY + 351), (9.7, BX + 140, BY + 422), (11.0, BX + 420, BY + 560)])
+else:
+    BX, BY = CARD_X + 60, CARD_Y + 120       # origine mock browser nello stage
+    cursor_path('cur2', [(4.9, BX + 540, BY + 470), (5.9, BX + 835, BY + 132), (7.2, BX + 835, BY + 244),
+                         (8.3, BX + 150, BY + 351), (9.7, BX + 140, BY + 422), (11.0, BX + 420, BY + 540)])
 click_scale('clk2', [6.0, 7.3, 8.4, 9.8])
 
 # ═══════════════ SCENA 3 · BPMN 12–22 ═══════════════
@@ -161,15 +170,20 @@ pop('s3tag', 20.0, .4)
 # nodi utente
 for n, t in [('uStart', 12.8), ('uT1', 13.15), ('uT2', 13.65), ('uT3', 14.15), ('uT4', 14.65), ('uEnd', 15.15)]:
     pop(n, t, .4, dy=6, sc=.7)
-for n, t, L in [('uE1', 13.0, 60), ('uE2', 13.5, 70), ('uE3', 14.0, 70), ('uE4', 14.5, 70), ('uE5', 15.0, 90)]:
+UE = [('uE1', 13.0, 42), ('uE2', 13.5, 66), ('uE3', 14.0, 66), ('uE4', 14.5, 66), ('uE5', 15.0, 58)] if V else \
+     [('uE1', 13.0, 60), ('uE2', 13.5, 70), ('uE3', 14.0, 70), ('uE4', 14.5, 70), ('uE5', 15.0, 90)]
+for n, t, L in UE:
     draw(n, t, .3, L)
 # nodi sistema
 for n, t in [('sT1', 15.6), ('sGw', 16.05), ('sT2', 16.55), ('sT3', 16.9), ('sT4', 17.35), ('sEnd', 17.85), ('sEnd2', 18.05)]:
     pop(n, t, .4, dy=6, sc=.7)
-for n, t, L in [('sE1', 15.9, 80), ('sEyes', 16.4, 70), ('sEno', 16.6, 190), ('sE2', 17.2, 70), ('sE3', 17.7, 80), ('sE4', 17.9, 70)]:
+SE = [('sE1', 15.9, 68), ('sEyes', 16.4, 52), ('sEno', 16.6, 260), ('sE2', 17.2, 66), ('sE3', 17.7, 74), ('sE4', 17.9, 56)] if V else \
+     [('sE1', 15.9, 80), ('sEyes', 16.4, 70), ('sEno', 16.6, 190), ('sE2', 17.2, 70), ('sE3', 17.7, 80), ('sE4', 17.9, 70)]
+for n, t, L in SE:
     draw(n, t, .35, L)
 pop('lblYes', 16.5, .3, dy=4, sc=1); pop('lblNo', 16.75, .3, dy=4, sc=1)
-draw('mf1', 18.4, .5, 210); draw('mf2', 18.9, .6, 340); draw('mf3', 19.4, .6, 340)
+MF_L = (150, 260, 260) if V else (210, 340, 340)
+draw('mf1', 18.4, .5, MF_L[0]); draw('mf2', 18.9, .6, MF_L[1]); draw('mf3', 19.4, .6, MF_L[2])
 for n, t in [('mf1d', 18.4), ('mf2d', 18.9), ('mf3d', 19.4)]:
     fade(n, t, .2)
 for n, t in [('mf1a', 18.8), ('mf2a', 19.4), ('mf3a', 19.9)]:
@@ -200,7 +214,7 @@ pop('s5l', 29.3, .4); pop('s5box', 29.4, .5, dy=16)
 for i, t in enumerate([29.5, 29.62, 29.74]):
     pop(f'tagc{i}', t, .4, dy=12)
 for i, t in enumerate([30.3, 31.0, 31.7]):
-    move(f'fly{i}', t, .75, 860, 40, ease=EASE_IO)
+    move(f'fly{i}', t, .75, *((0, 510) if V else (860, 40)), ease=EASE_IO)
     kf(f'slot{i}', [(t + .6, {'border-color': 'rgba(255,255,255,.14)', 'background': 'transparent'}, None),
                     (t + .8, {'border-color': 'rgba(232,115,58,.55)', 'background': 'rgba(232,115,58,.08)'}, None)])
 draw('okCircle', 32.6, .5, 200); draw('okTick', 33.0, .3, 60)
@@ -229,7 +243,10 @@ for i, t in enumerate([40.5, 40.58, 40.66]):
 press('btnInv', 41.2, sc=.95)
 pop('avNew', 41.65, .4, dy=0, sc=.4)
 pop('toast2', 41.6, .4, dy=10)
-cursor_path('cur7', [(40.3, CARD_X + 1180, CARD_Y + 560), (41.1, CARD_X + 1412, CARD_Y + 146), (42.3, CARD_X + 1300, CARD_Y + 420)], hide_dur=.3)
+if V:
+    cursor_path('cur7', [(40.3, CARD_X + 700, CARD_Y + 760), (41.1, CARD_X + 812, CARD_Y + 242), (42.3, CARD_X + 600, CARD_Y + 640)], hide_dur=.3)
+else:
+    cursor_path('cur7', [(40.3, CARD_X + 1180, CARD_Y + 560), (41.1, CARD_X + 1412, CARD_Y + 146), (42.3, CARD_X + 1300, CARD_Y + 420)], hide_dur=.3)
 click_scale('clk7', [41.2])
 
 # ═══════════════ OUTRO 43–45 ═══════════════
@@ -256,6 +273,55 @@ def evt(name, cx, cy, end=False):
             f'<circle class="{"evt end" if end else "evt"}" cx="{cx}" cy="{cy}" r="18"/></g>')
 def edge(name, d, L, cls='e'):
     return f'<path class="{cls} a" style="animation-name:{name};stroke-dasharray:{L}" d="{d}" marker-end="url(#arr)"/>'
+
+
+def bpmn_vertical():
+    """Pool affiancati (User a sinistra, System a destra), flusso dall'alto in basso."""
+    g = []
+    g.append('<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.75)"/></marker></defs>')
+    for name, x, w, label in [('poolU', 60, 370, 'USER'), ('poolS', 450, 460, 'SYSTEM')]:
+        g.append(f'<g class="a" style="animation-name:{name};transform-origin:{x + w/2}px 640px"><rect class="pool" x="{x}" y="110" width="{w}" height="1060" rx="14"/>'
+                 f'<rect class="poolL" x="{x}" y="110" width="{w}" height="36" rx="14"/><text class="poolT" x="{x + w/2}" y="133">{label}</text></g>')
+    # corsia utente (cx 245)
+    g.append(evt('uStart', 245, 210))
+    g.append(edge('uE1', 'M245,228 V270', 42))
+    g.append(task('uT1', 125, 270, 'Browse products', w=240))
+    g.append(edge('uE2', 'M245,334 V400', 66))
+    g.append(task('uT2', 125, 400, 'Add to cart', w=240))
+    g.append(edge('uE3', 'M245,464 V530', 66))
+    g.append(task('uT3', 125, 530, 'Checkout', w=240))
+    g.append(edge('uE4', 'M245,594 V660', 66))
+    g.append(task('uT4', 125, 660, 'Pay', w=240))
+    g.append(edge('uE5', 'M245,724 V782', 58))
+    g.append(evt('uEnd', 245, 800, end=True))
+    # corsia sistema (colonna principale cx 615, ramo "no" cx 820)
+    g.append(task('sT1', 520, 400, 'Validate cart', 'service', w=190))
+    g.append(edge('sE1', 'M615,464 V532', 68))
+    g.append('<g class="a" style="animation-name:sGw;transform-origin:615px 560px"><polygon class="gw" points="615,532 643,560 615,588 587,560"/>'
+             '<path class="gwx" d="M606,551 L624,569 M624,551 L606,569"/></g>')
+    g.append(edge('sEyes', 'M615,588 V640', 52))
+    g.append('<text class="lbl a" style="animation-name:lblYes" x="626" y="620">yes</text>')
+    g.append(edge('sEno', 'M643,560 H820 V640', 260))
+    g.append('<text class="lbl a" style="animation-name:lblNo" x="700" y="550">no</text>')
+    g.append(task('sT2', 520, 640, 'Reserve items', 'service', w=190))
+    g.append(task('sT3', 745, 640, 'Out of stock', 'service', w=150))
+    g.append(edge('sE2', 'M615,704 V770', 66))
+    g.append(task('sT4', 520, 770, 'Process payment', 'service', w=190))
+    g.append(edge('sE3', 'M615,834 V908', 74))
+    g.append(evt('sEnd', 615, 926, end=True))
+    g.append(edge('sE4', 'M820,704 V760', 56))
+    g.append(evt('sEnd2', 820, 778, end=True))
+    # message flow fra le corsie
+    for n, d, L, (ox, oy), (ax, ay, rot) in [
+            ('mf1', 'M365,432 H520', 150, (365, 432), (512, 432, 0)),
+            ('mf2', 'M520,672 H450 V562 H365', 260, (520, 672), (373, 562, 180)),
+            ('mf3', 'M365,692 H450 V802 H520', 260, (365, 692), (512, 802, 0))]:
+        g.append(f'<mask id="{n}m" maskUnits="userSpaceOnUse" x="0" y="0" width="960" height="1500">'
+                 f'<path class="a" style="animation-name:{n};stroke-dasharray:{L}" d="{d}" fill="none" stroke="#fff" stroke-width="8"/></mask>'
+                 f'<path class="mf" mask="url(#{n}m)" d="{d}"/>'
+                 f'<circle class="mfo a" style="animation-name:{n}d" cx="{ox}" cy="{oy}" r="5"/>'
+                 f'<path class="a" style="animation-name:{n}a" d="M-7,-6 L1,0 L-7,6" fill="none" stroke="#E8733A" stroke-width="1.8" transform="translate({ax},{ay}) rotate({rot})"/>')
+    return g
 
 def hand_svg():
     return ('<svg class="hand" viewBox="0 0 32 40" width="44" height="55"><path d="M11 3v18l-3-3.5c-1.5-1.5-4-1.2-4.6.8-.4 1.3.1 2.6 1 3.6L11 30c2 2.5 4.5 4 8 4h3c4.5 0 8-3.5 8-8v-9c0-1.5-1.2-2.6-2.6-2.6S25 15.5 25 17v-1.5c0-1.5-1.2-2.7-2.7-2.7S19.7 14 19.7 15.5V14c0-1.5-1.2-2.7-2.7-2.7S14.3 12.5 14.3 14V3c0-1.7-.8-3-1.7-3S11 1.3 11 3z"/></svg>')
@@ -441,6 +507,46 @@ html, body {{ width: 1920px; height: 1080px; overflow: hidden; background: var(-
 .outro .word {{ font-size: 140px; font-weight: 600; letter-spacing: -.045em; line-height: 1; color: #fff; }}
 .outro .url {{ font-family: var(--mono); font-size: 26px; letter-spacing: .14em; color: #ffd9c2; }}
 ''')
+
+if V:
+    h('''
+/* ── Variante verticale 9:16 (1080×1920): stessa timeline, layout portrait ── */
+html, body, .stage { width: 1080px; height: 1920px; }
+.bA { left: -520px; top: -600px; width: 1400px; height: 1400px; }
+.bB { right: -640px; top: 500px; width: 1300px; height: 1300px; }
+.bC { left: -300px; bottom: -800px; width: 1500px; height: 1300px; }
+.bD { left: -100px; top: 560px; width: 1300px; height: 900px; }
+.card { left: 60px; top: 210px; width: 960px; height: 1500px; }
+.cap { font-size: 28px; bottom: 48px; padding: 0 40px; }
+.s1 { gap: 40px; } .s1 img { width: 150px; height: 150px; } .s1 h1 { font-size: 60px; max-width: 820px; }
+/* S2: browser sopra, pannello sotto */
+.brw { left: 30px; top: 100px; width: 900px; height: 620px; }
+.prod { width: 840px; } .prod .btn { left: 690px; } .cart { width: 840px; } .cart .btn { left: 690px; }
+.form { width: 840px; } .inp { width: 600px; } .toast { top: 490px; }
+.pnl { left: 30px; top: 760px; width: 900px; height: 620px; }
+/* S3 */
+.bpmn { width: 960px; height: 1500px; }
+.s3tag { right: 30px; top: 1388px; left: 30px; justify-content: center; }
+/* S4: card in colonna */
+.s4hdr { left: 30px; top: 96px; }
+.ic { width: 900px; height: 260px; padding: 22px 28px; } .ic .v { font-size: 56px; }
+.bars { height: 140px; } .spark { width: 340px; height: 140px; }
+/* S5: i tag scendono nel container */
+.s5l { left: 60px; top: 100px; }
+.tagw { left: 90px; width: 780px; }
+.gtm { left: 90px; top: 620px; width: 780px; height: 640px; padding: 26px 40px; }
+.slot { width: 700px; } .prog { bottom: 110px; } .ok { bottom: 36px; }
+/* S6: motivo sopra, narrazione sotto */
+.dna { left: 200px; top: 90px; width: 560px; height: 560px; }
+.s6lbl { left: 60px; top: 690px; } .nar { left: 60px; top: 740px; width: 840px; }
+.line { font-size: 32px; margin-bottom: 24px; } .sharechip { left: 60px; top: 1280px; }
+/* S7 */
+.s7hdr { left: 60px; top: 110px; } .avs { left: 60px; top: 228px; } .inv { left: 720px; top: 218px; width: 180px; }
+.lib { left: 60px; width: 840px; }
+.toast2 { right: 60px; bottom: 110px; }
+/* Outro */
+.outro { gap: 28px; } .outro img { width: 170px; height: 170px; } .outro .word { font-size: 124px; } .outro .url { font-size: 24px; }
+''')
 h('\n'.join(KF))   # segnaposto: sostituito in fondo (i keyframe sono già tutti definiti sopra)
 h('</style>\n</head>\n<body>\n<div class="stage">')
 
@@ -482,6 +588,7 @@ h(f'''<div class="scene a" style="animation-name:s2">
 
 # S3 BPMN
 svg = []
+
 svg.append('<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.75)"/></marker>'
            '<marker id="arrO" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="none" stroke="#E8733A" stroke-width="1.2"/></marker></defs>')
 # pool
@@ -529,26 +636,29 @@ for n, d, L, (ox, oy), (ax, ay, rot) in [
                f'<path class="mf" mask="url(#{n}m)" d="{d}"/>'
                f'<circle class="mfo a" style="animation-name:{n}d" cx="{ox}" cy="{oy}" r="5"/>'
                f'<path class="a" style="animation-name:{n}a" d="M-7,-6 L1,0 L-7,6" fill="none" stroke="#E8733A" stroke-width="1.8" transform="translate({ax},{ay}) rotate({rot})"/>')
+if V:
+    svg = bpmn_vertical()
 h(f'''<div class="scene a" style="animation-name:s3">
-  <svg class="bpmn" viewBox="0 0 1600 860">{''.join(svg)}</svg>
+  <svg class="bpmn" viewBox="{'0 0 960 1500' if V else '0 0 1600 860'}">{''.join(svg)}</svg>
   <span class="chip s3tag a" style="animation-name:s3tag">checkout-flow.bpmn · 2 pools · 3 message flows</span>
   <div class="cap a" style="animation-name:s3cap">AI-generated <b>BPMN 2.0</b> — with isolated pools &amp; message flows.</div>
 </div>''')
 
 # S4 insights
+IC = [(30, 170), (30, 450), (30, 730), (30, 1010)] if V else [(60, 180), (820, 180), (60, 480), (820, 480)]
 bars = ''.join(f'<i class="bar{" dimm" if k < 4 else ""} a" style="animation-name:bar{k};height:{hgt}%"></i>' for k, hgt in enumerate([100, 78, 62, 45, 38]))
 wk = ''.join(f'<i class="{"hot" if k == 6 else ""} a" style="animation-name:wk{k};height:{hh}%"></i>' for k, hh in enumerate([40, 55, 48, 70, 62, 84, 100]))
 h(f'''<div class="scene a" style="animation-name:s4">
   <div class="s4hdr a" style="animation-name:s4hdr">Insights <span class="pill">GA4</span><span class="pill">GTM</span></div>
-  <div class="ic a" style="animation-name:ic0;left:60px;top:180px"><div class="k">Checkout drop-off</div><div class="v a" style="animation-name:num0">38%</div><div class="d">of sessions leave at the payment step</div>
+  <div class="ic a" style="animation-name:ic0;left:{IC[0][0]}px;top:{IC[0][1]}px"><div class="k">Checkout drop-off</div><div class="v a" style="animation-name:num0">38%</div><div class="d">of sessions leave at the payment step</div>
     <div class="bars">{bars}</div><div class="barl"><span>cart</span><span>checkout</span><span>email</span><span>pay</span><span>done</span></div></div>
-  <div class="ic a" style="animation-name:ic1;left:820px;top:180px"><div class="k">Add-to-cart rate</div><div class="v a" style="animation-name:num1">12.4%<small>+2.1% vs last week</small></div><div class="d">product page → cart</div>
+  <div class="ic a" style="animation-name:ic1;left:{IC[1][0]}px;top:{IC[1][1]}px"><div class="k">Add-to-cart rate</div><div class="v a" style="animation-name:num1">12.4%<small>+2.1% vs last week</small></div><div class="d">product page → cart</div>
     <svg class="spark" viewBox="0 0 340 150"><path class="area" d="M0,120 L48,104 L96,112 L144,80 L192,86 L240,58 L288,46 L340,22 L340,150 L0,150 Z"/>
       <path class="a" style="animation-name:spark" d="M0,120 L48,104 L96,112 L144,80 L192,86 L240,58 L288,46 L340,22"/>
       <circle class="a" style="animation-name:sparkDot" cx="340" cy="22" r="6" fill="#E8733A"/></svg></div>
-  <div class="ic a" style="animation-name:ic2;left:60px;top:480px"><div class="k">Sessions recorded</div><div class="v a" style="animation-name:num2">1,284</div><div class="d">avg. 4m 12s from first click to purchase</div>
+  <div class="ic a" style="animation-name:ic2;left:{IC[2][0]}px;top:{IC[2][1]}px"><div class="k">Sessions recorded</div><div class="v a" style="animation-name:num2">1,284</div><div class="d">avg. 4m 12s from first click to purchase</div>
     <div class="wk">{wk}</div></div>
-  <div class="ic a" style="animation-name:ic3;left:820px;top:480px"><div class="k">Suggested GTM tags</div><div class="v a" style="animation-name:num3">3<small>ready to push</small></div>
+  <div class="ic a" style="animation-name:ic3;left:{IC[3][0]}px;top:{IC[3][1]}px"><div class="k">Suggested GTM tags</div><div class="v a" style="animation-name:num3">3<small>ready to push</small></div>
     <div class="tagrow a" style="animation-name:tagrow0"><i></i>add_to_cart<em>GA4 event</em></div>
     <div class="tagrow a" style="animation-name:tagrow1"><i></i>begin_checkout<em>GA4 event</em></div>
     <div class="tagrow a" style="animation-name:tagrow2"><i></i>purchase<em>GA4 event</em></div>
@@ -599,7 +709,7 @@ libs = [('Checkout flow', 'BPMN · Insights · Narrative · updated 2 days ago',
         ('Refund request', 'BPMN · Insights · updated last week', ['MK'])]
 def who_html(who):
     return ''.join(f'<span class="av {c}">{a}</span>' for a, c in zip(who, ['o', 'm', '']))
-lib_html = ''.join(f'<div class="lib a" style="animation-name:lib{i};top:{210 + i * 100}px"><div class="ico"></div><div class="n">{n}<small>{m}</small></div>'
+lib_html = ''.join(f'<div class="lib a" style="animation-name:lib{i};top:{(320 if V else 210) + i * 100}px"><div class="ico"></div><div class="n">{n}<small>{m}</small></div>'
                    f'<div class="who">{who_html(who)}</div></div>' for i, (n, m, who) in enumerate(libs))
 h(f'''<div class="scene a" style="animation-name:s7">
   <div class="s7hdr a" style="animation-name:s7hdr">Shared library<small>TEAM · ACME DIGITAL · 3 PROCESSES</small></div>
@@ -637,8 +747,81 @@ h(f'''<script>
 </body>
 </html>''')
 
+
+# ── Traduzione italiana dei testi on-screen (--it) ──────────────────────────
+# Sostituzioni esatte sull'HTML generato: se una stringa non viene trovata lo
+# script si ferma, così non resta nulla in inglese per errore.
+IT_MAP = [
+    ('<html lang="en">', '<html lang="it">'),
+    ('<title>Sevenda — promo (45 s, single timeline)</title>', '<title>Sevenda — promo (45 s, timeline unica, IT)</title>'),
+    # intro
+    ('Turn any browser session<br>into a clear process.', 'Trasforma ogni sessione browser<br>in un processo chiaro.'),
+    # S2 · record
+    ('Lightweight · size 42 · in stock', 'Leggera · taglia 42 · disponibile'),
+    ('>Add to cart</span>', '>Al carrello</span>'),
+    ('Cart <span', 'Carrello <span'),
+    ('item · €129', 'articolo · €129'),
+    ('Pay €129', 'Paga €129'),
+    ('Order confirmed · #A1042', 'Ordine confermato · #A1042'),
+    ('<span class="on">Events</span>', '<span class="on">Eventi</span>'),
+    ('Record a <b>real</b> user session.', 'Registra una sessione utente <b>reale</b>.'),
+    # S3 · BPMN
+    ('>USER</text>', '>UTENTE</text>'), ('>SYSTEM</text>', '>SISTEMA</text>'),
+    ('>Browse products</text>', '>Sfoglia prodotti</text>'),
+    ('>Add to cart</text>', '>Aggiungi al carrello</text>'),
+    ('>Pay</text>', '>Paga</text>'),
+    ('>Validate cart</text>', '>Verifica carrello</text>'),
+    ('>yes</text>', '>sì</text>'),
+    ('>Reserve items</text>', '>Riserva articoli</text>'),
+    ('>Notify out of stock</text>', '>Notifica esaurito</text>'),
+    ('>Process payment</text>', '>Elabora pagamento</text>'),
+    ('checkout-flow.bpmn · 2 pools · 3 message flows', 'checkout-flow.bpmn · 2 pool · 3 message flow'),
+    ('AI-generated <b>BPMN 2.0</b> — with isolated pools &amp; message flows.', '<b>BPMN 2.0</b> generato dall\'AI, con pool isolati e message flow.'),
+    # S4 · insights
+    ('Checkout drop-off', 'Abbandono al checkout'),
+    ('of sessions leave at the payment step', 'delle sessioni si interrompe al pagamento'),
+    ('<span>cart</span>', '<span>carrello</span>'), ('<span>pay</span>', '<span>paga</span>'), ('<span>done</span>', '<span>fatto</span>'),
+    ('Add-to-cart rate', 'Tasso di aggiunta al carrello'),
+    ('12.4%', '12,4%'), ('+2.1% vs last week', '+2,1% vs settimana scorsa'),
+    ('product page → cart', 'pagina prodotto → carrello'),
+    ('Sessions recorded', 'Sessioni registrate'), ('1,284', '1.284'),
+    ('avg. 4m 12s from first click to purchase', 'media 4m 12s dal primo click all\'acquisto'),
+    ('Suggested GTM tags', 'Tag GTM suggeriti'),
+    ('<small>ready to push</small>', '<small>pronti da inviare</small>'),
+    ('GA4 event', 'evento GA4'),
+    ('Push to GTM →', 'Invia a GTM →'),
+    ('Instant <b>GA4 &amp; GTM</b> analytics insights.', 'Insight analytics <b>GA4 e GTM</b> istantanei.'),
+    # S5 · GTM push
+    ('>Suggested tags<', '>Tag suggeriti<'),
+    ('FROM THIS SESSION · 3', 'DA QUESTA SESSIONE · 3'),
+    ('trigger: page /order/complete', 'trigger: pagina /order/complete'),
+    ('>GTM container</div>', '>Container GTM</div>'),
+    ('3 tags pushed to your workspace', '3 tag inviati al tuo workspace'),
+    ('Push tags <b>live</b> to your GTM container.', 'Invia i tag <b>live</b> al tuo container GTM.'),
+    # S6 · DNA narrative
+    ('The user browses the catalogue and adds <b>Trail Runner X</b> to the cart.', 'L\'utente sfoglia il catalogo e aggiunge <b>Trail Runner X</b> al carrello.'),
+    ('The system validates stock and <b>reserves the items</b> before checkout.', 'Il sistema verifica la disponibilità e <b>riserva gli articoli</b> prima del checkout.'),
+    ('Payment is processed and the order is confirmed in <b>4.2 s</b>.', 'Il pagamento viene elaborato e l\'ordine è confermato in <b>4,2&nbsp;s</b>.'),
+    ('One retry on <b>/api/payments/confirm</b> (503) — worth a look.', 'Un nuovo tentativo su <b>/api/payments/confirm</b> (503): da verificare.'),
+    ('Share narrative →', 'Condividi narrazione →'),
+    ('Turn flows into a <b>shareable narrative</b>.', 'Trasforma i flussi in una <b>narrazione condivisibile</b>.'),
+    # S7 · team
+    ('>Shared library<', '>Libreria condivisa<'),
+    ('3 PROCESSES', '3 PROCESSI'),
+    ('>Invite</span>', '>Invita</span>'),
+    ('Checkout flow', 'Flusso di checkout'),
+    ('updated 2 days ago', 'aggiornato 2 giorni fa'), ('updated 5 days ago', 'aggiornato 5 giorni fa'),
+    ('Refund request', 'Richiesta di rimborso'), ('updated last week', 'aggiornato la settimana scorsa'),
+    ('Invitation sent to dario@acme.digital', 'Invito inviato a dario@acme.digital'),
+    ('Share with your <b>team</b>.', 'Condividi con il tuo <b>team</b>.'),
+]
+
 # ── scrittura: i keyframe vanno inseriti nello <style> (sono definiti tutti prima dell'HTML) ──
 out = '\n'.join(HTML)
+if IT:
+    for a, b in IT_MAP:
+        assert a in out, f'stringa non trovata: {a!r}'
+        out = out.replace(a, b)
 os.makedirs(os.path.dirname(OUT), exist_ok=True)
 with open(OUT, 'w', encoding='utf-8') as f:
     f.write(out)
