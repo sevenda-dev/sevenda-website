@@ -23,7 +23,7 @@ Geist reale caricato in locale e **due run producono frame byte-identici**.
 | `stills/` | Due immagini 9:16 (1080×1920) per apertura e chiusura del video verticale: sorgenti HTML/CSS e PNG. Si rigenerano con `node render-stills.mjs`. Le varianti `*-it` sono minimal (sfondo piatto del sito, solo logo e slogan in italiano): `node render-stills.mjs opening-it closing-it`. |
 | `render-linkedin.mjs` | Asset per la pagina aziendale LinkedIn: logo 300×300 e banner 1128×191 (PNG e JPG) in `stills/`, più le 5 copertine per il banner a rotazione Premium (2256×382, PNG). `node render-linkedin.mjs [logo] [banner] [cover01…cover05]`. |
 | `VOICEOVER.md` | Testo della voce narrante sincronizzato con le scene (EN + versione IT) e note per il mix audio. |
-| `promo-camunda.html`, `promo-camunda-it.html` | Video LinkedIn di 10 s in 4:5 (1080×1350) sull'integrazione Sevenda × Camunda: stessa resa della card animata della pagina Connect (luci arancio/blu, griglia BPMN, parole "kinetic type") su una timeline unica di 10 000 ms. Generati da `build_camunda.py` (`--it` per l'italiano). |
+| `promo-camunda.html`, `promo-camunda-it.html` | Video LinkedIn di 10 s in 4:5 (1080×1350) sull'integrazione Sevenda × Camunda: stessa animazione "kinetic type" della card della pagina Connect, su sfondo nero pieno, testi in Geist come il wordmark, timeline unica di 10 000 ms. Generati da `build_camunda.py` (`--it` per l'italiano). |
 
 Output: `sevenda-promo.mp4` (1920×1080, 30 fps, 45 s, senza audio) e
 `sevenda-promo-vertical.mp4` (1080×1920, 9:16) e `sevenda-promo-it.mp4` (testi in italiano).

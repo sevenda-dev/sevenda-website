@@ -2,8 +2,8 @@
 """Generatore di promo-camunda.html (e promo-camunda-it.html con --it).
 
 Video LinkedIn di 10 s, 1080×1350 (4:5), sull'integrazione Sevenda × Camunda.
-Stessa resa della card animata della pagina Connect (macchie di luce arancio/blu,
-griglia BPMN, parole "kinetic type" che entrano da scale 1.28 + blur), ma su una
+Stessa resa della card animata della pagina Connect (parole "kinetic type" che
+entrano da scale 1.28 + blur, card con barra superiore) su sfondo nero pieno e su una
 timeline CSS unica e deterministica come promo.html: ogni elemento ha durata
 10000 ms, linear, fill both, paused; l'easing è dentro i keyframe e
 window.__seek(t) porta tutte le animazioni al tempo t.
@@ -241,7 +241,7 @@ def scene_b():
       <div class="track"><div class="dash" {reveal(t0 + .4, t0 + .8)}></div></div>
       <div class="pc" {rise(t0 + .3, None, .65)}>
         <div class="win pcard" {glow}><div class="bar"><i></i><i></i><i></i></div>
-          <div class="pbody"><img class="clogo" src="logos/camunda.svg" alt=""><div class="psub mono">{T('Modeler · Platform')}</div></div>
+          <div class="pbody"><img class="clogo" src="logos/camunda.svg" alt=""><div class="psub">{T('Modeler · Platform')}</div></div>
           <div class="badge" {pop(tf1 + .1)}>{CHECK}</div></div>
       </div>
       <div class="file mono" {file_}><span class="fi"></span>checkout.bpmn</div>
@@ -259,21 +259,14 @@ def outro():
     <div class="ow" {word(t, None)}>{LOGO}Sevenda</div>
     <div class="ox" {rise(t + .3, None)}><span>×</span><img src="logos/camunda.svg" alt=""></div>
     <div class="ot" {rise(t + .55, None)}>{T('From recorded session')}<br>{T('to Camunda-ready BPMN.')}</div>
-    <div class="url mono" {rise(t + .8, None)}>sevenda.dev/connect</div>
+    <div class="url" {rise(t + .8, None)}>sevenda.dev/connect</div>
   </div>'''
 
 
-# ── Sfondo (come .fv-bg / .fv-grid della pagina Connect, ma su timeline) ──
-blob_a = kf([(0, 'transform:translate(0px,0px) scale(1)', 'ease-in-out'), (DUR, 'transform:translate(150px,120px) scale(1.15)', None)])
-blob_b = kf([(0, 'transform:translate(0px,0px) scale(1)', 'ease-in-out'), (DUR, 'transform:translate(-130px,-150px) scale(1.1)', None)])
-# Spinta di luce arancio quando il file arriva in Camunda
-flash = kf([(SB[0] + 1.7, 'opacity:0', EXPO), (SB[0] + 2.1, 'opacity:1', 'ease-in-out'), (SB[1] + .3, 'opacity:0', None)])
+# ── Sfondo: nero pieno (#000), senza luci né griglia ──
 
 body = f'''
 <div class="stage">
-  <div class="bg"><div class="blob ba a" style="animation-name:{blob_a}"></div><div class="blob bb a" style="animation-name:{blob_b}"></div>
-    <div class="blob bc a" style="animation-name:{flash}"></div></div>
-  <div class="grid"></div>
   <div class="ww" {word(*W1)}>{T('Every click')}</div>
   <div class="ww" {word(*W2)}>{LOGO}Sevenda</div>
   {scene_a()}
@@ -286,23 +279,11 @@ CSS = f'''
 @font-face {{ font-family: 'Geist Mono'; src: url('fonts/GeistMono-Variable.woff2') format('woff2'); font-weight: 100 900; font-display: block; }}
 :root {{ --or: #E8733A; --blue: 122,175,212; --text: #f2f2ef; --muted: #8a8a84; --sans: 'Geist', sans-serif; --mono: 'Geist Mono', monospace; }}
 *, *::before, *::after {{ box-sizing: border-box; margin: 0; padding: 0; }}
-html, body {{ width: {W}px; height: {H}px; overflow: hidden; background: #0a0a0a; color: var(--text); font-family: var(--sans); -webkit-font-smoothing: antialiased; }}
+html, body {{ width: {W}px; height: {H}px; overflow: hidden; background: #000; color: var(--text); font-family: var(--sans); -webkit-font-smoothing: antialiased; }}
 /* Timeline unica: ogni elemento animato condivide durata, linear, both, paused */
 .a, [style*="animation-name"] {{ animation-duration: {int(DUR * 1000)}ms; animation-timing-function: linear; animation-fill-mode: both; animation-play-state: paused; }}
 .mono {{ font-family: var(--mono); }}
-.stage {{ position: relative; width: {W}px; height: {H}px; overflow: hidden; background: #0a0a0a; isolation: isolate; }}
-
-/* Sfondo: macchia arancio (alto a sinistra) e blu (basso a destra) che derivano, come .fv-bg */
-.bg {{ position: absolute; inset: 0; z-index: 0; overflow: hidden; }}
-.blob {{ position: absolute; border-radius: 50%; }}
-.ba {{ left: -320px; top: -420px; width: 1100px; height: 1100px; background: radial-gradient(circle, rgba(232,115,58,.55) 0%, rgba(232,115,58,.12) 45%, transparent 68%); }}
-.bb {{ right: -360px; bottom: -480px; width: 1100px; height: 1100px; background: radial-gradient(circle, rgba(var(--blue),.38) 0%, rgba(var(--blue),.08) 45%, transparent 68%); }}
-.bc {{ right: -300px; top: 250px; width: 1000px; height: 1000px; background: radial-gradient(circle, rgba(232,115,58,.32) 0%, rgba(232,115,58,.07) 45%, transparent 68%); }}
-/* Griglia BPMN mascherata al centro, come .fv-grid */
-.grid {{ position: absolute; inset: 0; z-index: 1; pointer-events: none;
-  background-image: linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
-  background-size: 44px 44px; background-position: -2px -2px;
-  -webkit-mask-image: radial-gradient(ellipse at 50% 50%, #000 40%, transparent 85%); mask-image: radial-gradient(ellipse at 50% 50%, #000 40%, transparent 85%); }}
+.stage {{ position: relative; width: {W}px; height: {H}px; overflow: hidden; background: #000; isolation: isolate; }}
 
 /* Parole a tutto schermo (stile .fv-word) */
 .ww, .ow {{ position: absolute; left: 0; right: 0; z-index: 3; display: flex; align-items: center; justify-content: center; gap: .26em;
@@ -313,9 +294,9 @@ html, body {{ width: {W}px; height: {H}px; overflow: hidden; background: #0a0a0a
 /* Scene */
 .scn {{ position: absolute; inset: 0; z-index: 3; }}
 .hd {{ position: absolute; left: 80px; right: 80px; top: 250px; text-align: center; }}
-.h1 {{ font-size: 64px; font-weight: 700; letter-spacing: -.035em; line-height: 1.08; color: #fff; }}
+.h1 {{ font-size: 64px; font-weight: 800; letter-spacing: -.045em; line-height: 1.08; color: #fff; }}
 .h1.dim {{ color: var(--or); }}
-.h2 {{ margin-top: 14px; font-family: var(--mono); font-size: 24px; color: var(--muted); letter-spacing: .01em; }}
+.h2 {{ margin-top: 14px; font-size: 28px; font-weight: 600; color: var(--muted); letter-spacing: -.02em; }}
 
 /* Finestra (come .fv-card: barra superiore, puntino arancio) */
 .win {{ background: #141414; border: 1px solid rgba(255,255,255,.13); border-radius: 18px; overflow: hidden;
@@ -330,13 +311,13 @@ html, body {{ width: {W}px; height: {H}px; overflow: hidden; background: #0a0a0a
 .dg {{ display: block; width: 100%; height: auto; margin: 30px 0 22px; overflow: visible; }}
 .node {{ transform-box: fill-box; transform-origin: center; }}
 .tk {{ fill: #1b1b1b; stroke: rgba(255,255,255,.55); stroke-width: 1.6; }}
-.tl {{ font-family: var(--sans); font-size: 16px; font-weight: 500; fill: #ecece8; text-anchor: middle; }}
+.tl {{ font-family: var(--sans); font-size: 16px; font-weight: 600; letter-spacing: -.025em; fill: #ecece8; text-anchor: middle; }}
 .ev {{ fill: #1b1b1b; stroke: #ecece8; stroke-width: 2; }}
 .ee {{ fill: #1b1b1b; stroke: #ecece8; stroke-width: 5; }}
 .gw {{ fill: #1b1b1b; stroke: #ecece8; stroke-width: 2; }}
 .gx {{ stroke: var(--or); stroke-width: 3; stroke-linecap: round; }}
-.gl {{ font-family: var(--mono); font-size: 15px; fill: #b9b9b3; text-anchor: middle; }}
-.bl {{ font-family: var(--mono); font-size: 14px; fill: var(--or); text-anchor: middle; }}
+.gl {{ font-family: var(--sans); font-weight: 600; font-size: 16px; fill: #b9b9b3; text-anchor: middle; }}
+.bl {{ font-family: var(--sans); font-weight: 600; font-size: 15px; fill: var(--or); text-anchor: middle; }}
 .ed {{ fill: none; stroke: rgba(255,255,255,.6); stroke-width: 2; stroke-dasharray: 1; }}
 .ah {{ fill: rgba(255,255,255,.75); transform-box: fill-box; transform-origin: center; }}
 .code {{ margin: 0 22px 24px; padding: 18px 20px; background: #0e0e0e; border: 1px solid rgba(255,255,255,.08); border-radius: 12px;
@@ -349,11 +330,11 @@ html, body {{ width: {W}px; height: {H}px; overflow: hidden; background: #0a0a0a
 .pcard {{ position: relative; height: 330px; }}
 .pbody {{ height: 284px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; }}
 .plogo {{ width: 84px; height: 84px; }}
-.pname {{ font-size: 32px; font-weight: 700; letter-spacing: -.03em; }}
+.pname {{ font-size: 34px; font-weight: 800; letter-spacing: -.045em; }}
 .btn {{ margin-top: 4px; height: 50px; padding: 0 22px; border-radius: 11px; background: var(--or); color: #140903;
   display: inline-flex; align-items: center; font-weight: 600; font-size: 19px; letter-spacing: -.01em; }}
 .clogo {{ width: 210px; height: auto; }}
-.psub {{ font-size: 16px; color: var(--muted); }}
+.psub {{ font-size: 18px; font-weight: 600; letter-spacing: -.01em; color: var(--muted); }}
 .badge {{ position: absolute; right: 16px; top: 62px; width: 40px; height: 40px; border-radius: 50%; background: var(--or);
   display: flex; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(232,115,58,.5); }}
 .track {{ flex: 1; height: 2px; position: relative; }}
@@ -363,7 +344,7 @@ html, body {{ width: {W}px; height: {H}px; overflow: hidden; background: #0a0a0a
   box-shadow: 0 14px 34px rgba(0,0,0,.6), 0 0 26px rgba(232,115,58,.25); }}
 .fi {{ width: 18px; height: 22px; border-radius: 3px; border: 2px solid var(--or); position: relative; }}
 .rows {{ position: absolute; left: 50%; top: 910px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: flex-start; gap: 18px; }}
-.row {{ display: flex; align-items: center; gap: 14px; font-size: 28px; font-weight: 500; letter-spacing: -.015em; color: #ecece8; white-space: nowrap; }}
+.row {{ display: flex; align-items: center; gap: 14px; font-size: 28px; font-weight: 600; letter-spacing: -.025em; color: #ecece8; white-space: nowrap; }}
 .ck {{ width: 34px; height: 34px; border-radius: 50%; background: var(--or); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }}
 .ck svg {{ width: 18px; height: 18px; }}
 
@@ -373,8 +354,8 @@ html, body {{ width: {W}px; height: {H}px; overflow: hidden; background: #0a0a0a
 .ox {{ margin-top: 34px; display: flex; align-items: center; gap: 26px; }}
 .ox span {{ font-size: 54px; font-weight: 300; color: var(--muted); line-height: 1; }}
 .ox img {{ width: 250px; height: auto; }}
-.ot {{ margin-top: 56px; text-align: center; font-size: 40px; font-weight: 500; letter-spacing: -.025em; line-height: 1.25; color: #d9d9d4; }}
-.url {{ margin-top: 48px; font-size: 24px; color: var(--or); border: 1px solid rgba(232,115,58,.45); border-radius: 100px; padding: 12px 26px; background: rgba(232,115,58,.08); }}
+.ot {{ margin-top: 56px; text-align: center; font-size: 40px; font-weight: 700; letter-spacing: -.035em; line-height: 1.25; color: #d9d9d4; }}
+.url {{ margin-top: 48px; font-size: 26px; font-weight: 600; letter-spacing: -.02em; color: var(--or); border: 1px solid rgba(232,115,58,.45); border-radius: 100px; padding: 12px 26px; background: rgba(232,115,58,.08); }}
 '''
 
 # Il tratteggio della traccia usa draw() su un div: nessun stroke, quindi lo rivelo con clip-path
