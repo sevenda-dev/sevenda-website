@@ -22,7 +22,7 @@ Geist reale caricato in locale e **due run producono frame byte-identici**.
 | `VOICEOVER-IT.md` | Testo della voce narrante in italiano, sincronizzato con le scene, con note di lettura e di mix. |
 | `stills/` | Due immagini 9:16 (1080×1920) per apertura e chiusura del video verticale: sorgenti HTML/CSS e PNG. Si rigenerano con `node render-stills.mjs`. Le varianti `*-it` sono minimal (sfondo piatto del sito, solo logo e slogan in italiano): `node render-stills.mjs opening-it closing-it`. |
 | `render-linkedin.mjs` | Asset per la pagina aziendale LinkedIn: logo 300×300 e banner 1128×191 (PNG e JPG) in `stills/`, più le 5 copertine per il banner a rotazione Premium (2256×382, PNG). `node render-linkedin.mjs [logo] [banner] [cover01…cover05]`. |
-| `promo-connect.html` | Video Connect di 45 s (1920×1080), montaggio su griglia a 124 BPM: brand opening su nero → una linea arancione collega punti sparsi → le 8 integrazioni della pagina Connect (loghi autentici, 4 disponibili + 4 "coming soon", più 4 tile) entrano una per battuta → cluster 3D e primo piano su OGNI integrazione con una caption di storytelling (Geist 800 come il wordmark; le altre card si attenuano) → campo largo "Build on the tools you already use." → tutto si allontana nel buio → brand closing. Il logo Sevenda compare solo in apertura e chiusura. Generato da `build_connect.py`; output `sevenda-connect-promo.mp4`; voce narrante in `VOICEOVER-CONNECT.md`. |
+| `promo-connect.html` | Video Connect di 45 s (1920×1080), montaggio su griglia a 124 BPM: brand opening su nero → una linea arancione collega punti sparsi → le 7 integrazioni della pagina Connect (loghi autentici, 4 disponibili + 3 "coming soon": Jira, Camunda, Google Analytics 4, Confluence, SAP Signavio, Mermaid, Notion; Bizagi escluso per scelta di prodotto; più 4 tile) entrano una per battuta → cluster 3D e primo piano su OGNI integrazione con una caption di storytelling (Geist 800 come il wordmark; le altre card si attenuano) → campo largo "Build on the tools you already use." → tutto si allontana nel buio → brand closing. Il logo Sevenda compare solo in apertura e chiusura. Generato da `build_connect.py`; output `sevenda-connect-promo.mp4`; voce narrante in `VOICEOVER-CONNECT.md`. |
 | `VOICEOVER.md` | Testo della voce narrante sincronizzato con le scene (EN + versione IT) e note per il mix audio. |
 | `promo-camunda.html`, `promo-camunda-it.html` | Video LinkedIn di 10 s in 4:5 (1080×1350) sull'integrazione Sevenda × Camunda: stessa animazione "kinetic type" della card della pagina Connect, su sfondo nero pieno, testi in Geist come il wordmark, timeline unica di 10 000 ms. Generati da `build_camunda.py` (`--it` per l'italiano). |
 
@@ -91,10 +91,10 @@ node render.mjs --page promo-connect.html --out frames-connect
 | --- | --- |
 | 0–4 s | Brand opening: nero #000, logo + wordmark Sevenda in dissolvenza con alone arancione |
 | 4–9 s | Near-black #0A0A0A con luce calda; una linea arancione collega otto punti, uno per battuta; caption "One recording." / "Every destination." |
-| 9–15 s | 12 ingressi (8 card + 4 tile) uno per battuta, metà ravvicinati e metà dal fondo; caption sul BPMN e gli insight che arrivano nei tool del team |
-| 15–16.5 s | Passaggio di luce e convergenza nel cluster stratificato |
-| 16.5–35.8 s | Primo piano su ogni integrazione (6 battute le disponibili, 4 le "coming soon"), card in risalto con bagliore e le altre attenuate, una caption per ciascuna |
-| 35.8–37.7 s | Campo largo con collegamenti arancioni, leggera rotazione, caption "Build on the tools you already use." |
+| 9–14 s | 11 ingressi (7 card + 4 tile) uno per battuta, metà ravvicinati e metà dal fondo; caption sul BPMN e gli insight che arrivano nei tool del team |
+| 14.5–16.5 s | Passaggio di luce e convergenza nel cluster stratificato |
+| 16.5–35.3 s | Primo piano su ogni integrazione (6 battute le disponibili, 5 le "coming soon"), card in risalto con bagliore e le altre attenuate, una caption per ciascuna |
+| 35.3–37.7 s | Campo largo con collegamenti arancioni, leggera rotazione, caption "Build on the tools you already use." |
 | 37.7–40 s | Passaggio di luce, le card si allontanano nel buio, la camera avanza, torna il nero con un ultimo bagliore |
 | 40.5–45 s | Brand closing: logo identico all'apertura, fermo fino alla fine |
 

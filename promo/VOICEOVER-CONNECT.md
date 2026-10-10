@@ -3,7 +3,7 @@
 Video: `sevenda-connect-promo.mp4`, 1920×1080, 45 s, montaggio su griglia a
 124 BPM. La voce segue le caption a schermo (Geist 800, come il wordmark):
 ogni battuta parte 0,1–0,2 s dopo l'ingresso della caption e finisce prima che
-esca. Circa 95 parole in inglese, 90 in italiano. Tono calmo e sicuro, senza
+esca. Circa 90 parole in inglese, 85 in italiano. Tono calmo e sicuro, senza
 enfasi da televendita; la musica elettronica a ritmo medio resta sotto la voce.
 
 | Tempo | Scena | Caption a schermo | Voce EN | Voce IT |
@@ -16,11 +16,10 @@ enfasi da televendita; la musica elettronica a ritmo medio resta sotto la voce.
 | 19.4–22.3 s | Primo piano Camunda | Standards-compliant BPMN 2.0 that opens in Camunda Modeler. | Standards-compliant BPMN 2.0, ready to open in Camunda Modeler. | BPMN 2.0 conforme allo standard, pronto da aprire in Camunda Modeler. |
 | 22.3–25.2 s | Primo piano GA4 | Captured events become a GA4 tracking plan, pushed to Tag Manager as drafts. | Captured events become a GA4 tracking plan, pushed to Tag Manager as drafts. | Gli eventi catturati diventano un tracking plan GA4, inviato a Tag Manager come bozza. |
 | 25.2–28.1 s | Primo piano Confluence | Diagram and narrative, published to a Confluence page. | Diagram and narrative, published to a Confluence page your team can review. | Diagramma e narrazione, pubblicati in una pagina Confluence che il team può rivedere. |
-| 28.1–30.0 s | Primo piano SAP Signavio | Coming soon · SAP Signavio | And coming soon: SAP Signavio, | E in arrivo: SAP Signavio, |
-| 30.0–31.9 s | Primo piano Mermaid | Coming soon · Mermaid | Mermaid, | Mermaid, |
-| 31.9–33.9 s | Primo piano Notion | Coming soon · Notion | Notion, | Notion, |
-| 33.9–35.8 s | Primo piano Bizagi | Coming soon · Bizagi | and Bizagi. | e Bizagi. |
-| 36.1–38.1 s | Campo largo | Build on the tools you already use. | Build on the tools you already use. | Costruisci sugli strumenti che usi già. |
+| 28.1–30.5 s | Primo piano SAP Signavio | Coming soon · SAP Signavio | And coming soon: SAP Signavio, | E in arrivo: SAP Signavio, |
+| 30.5–32.9 s | Primo piano Mermaid | Coming soon · Mermaid | Mermaid, | Mermaid, |
+| 32.9–35.3 s | Primo piano Notion | Coming soon · Notion | and Notion. | e Notion. |
+| 35.6–38.1 s | Campo largo | Build on the tools you already use. | Build on the tools you already use. | Costruisci sugli strumenti che usi già. |
 | 38–45 s | Buio, brand closing | — | *(pausa)* Sevenda. | *(pausa)* Sevenda. |
 
 ## Testo continuo
@@ -33,7 +32,7 @@ enfasi da televendita; la musica elettronica a ritmo medio resta sotto la voce.
 > Standards-compliant BPMN 2.0, ready to open in Camunda Modeler.
 > Captured events become a GA4 tracking plan, pushed to Tag Manager as drafts.
 > Diagram and narrative, published to a Confluence page your team can review.
-> And coming soon: SAP Signavio, Mermaid, Notion, and Bizagi.
+> And coming soon: SAP Signavio, Mermaid, and Notion.
 > Build on the tools you already use.
 > Sevenda.
 
@@ -45,14 +44,14 @@ enfasi da televendita; la musica elettronica a ritmo medio resta sotto la voce.
 > BPMN 2.0 conforme allo standard, pronto da aprire in Camunda Modeler.
 > Gli eventi catturati diventano un tracking plan GA4, inviato a Tag Manager come bozza.
 > Diagramma e narrazione, pubblicati in una pagina Confluence che il team può rivedere.
-> E in arrivo: SAP Signavio, Mermaid, Notion e Bizagi.
+> E in arrivo: SAP Signavio, Mermaid e Notion.
 > Costruisci sugli strumenti che usi già.
 > Sevenda.
 
 ## Note di lettura
 
 * **Pronuncia**: "BPMN 2.0" → EN "bee-pee-em-en two-point-oh", IT "bi-pi-emme-enne due punto zero"; "GA4" → EN "gee-ay-four", IT "gi-a-quattro"; "Jira" come "gìra" (EN "JEE-ra"); "Sevenda" con l'accento sulla seconda sillaba (se-VEN-da).
-* **Ritmo**: le quattro integrazioni "coming soon" vanno lette come un unico elenco, un nome ogni due secondi, in sincrono con i cambi di inquadratura (28,1 / 30,0 / 31,9 / 33,9 s).
+* **Ritmo**: le tre integrazioni "coming soon" vanno lette come un unico elenco, un nome ogni 2,4 s, in sincrono con i cambi di inquadratura (28,1 / 30,5 / 32,9 s).
 * **Chiusura**: "Sevenda." si pronuncia quando il logo è già a schermo (dopo il secondo 41). In alternativa si lascia solo la musica.
 * **Termini lasciati in inglese** come sul sito: BPMN, insight, tracking plan, issue, task, Tag Manager.
 

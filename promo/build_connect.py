@@ -78,8 +78,7 @@ CARDS = [
     ('confluence', 'Confluence',         'Documentation', True,  ( 640,  230, -200), ( 340,  170,  50)),
     ('signavio',   'SAP Signavio',       'Modeling',      False, (-230, -330, -240), (-110, -250, -40)),
     ('mermaid',    'Mermaid',            'Documentation', False, ( 260, -350,  200), ( 120, -260, -60)),
-    ('notion',     'Notion',             'Documentation', False, (-260,  330, -220), (-120,  250, -50)),
-    ('bizagi',     'Bizagi',             'Modeling',      False, ( 300,  350, -120), ( 130,  260, -30)),
+    ('notion',     'Notion',             'Documentation', False, (-260,  330, -220), (  10,  255, -45)),
 ]
 # Tile quadrate (solo logo) delle integrazioni disponibili, per infittire il montaggio
 TILES = [
@@ -98,19 +97,19 @@ NOTION_SVG = ('<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4.459 4.20
 T_LOGO_IN, T_LOGO_OUT = 0.5, 4.0
 T_NET = [b(10.5 + i) for i in range(8)]                     # 5.1 → 8.5 s: la linea raggiunge i punti
 ORDER = ['jira', 'tile:jira', 'camunda', 'ga4', 'tile:camunda', 'confluence', 'signavio',
-         'tile:ga4', 'mermaid', 'notion', 'tile:confluence', 'bizagi']
-T_IN = {k: b(19 + i) for i, k in enumerate(ORDER)}          # 9.2 → 14.5 s, uno per battuta
+         'tile:ga4', 'mermaid', 'tile:confluence', 'notion']
+T_IN = {k: b(19 + i) for i, k in enumerate(ORDER)}          # 9.2 → 14.0 s, uno per battuta
 T_CLUSTER = b(31)                                            # 15.0 s: convergenza (3 battute)
-# Primi piani: ogni integrazione, 6 battute le disponibili, 4 le "coming soon"
+# Primi piani: ogni integrazione, 6 battute le disponibili, 5 le "coming soon"
 FOCUS = [('jira', 6), ('camunda', 6), ('ga4', 6), ('confluence', 6),
-         ('signavio', 4), ('mermaid', 4), ('notion', 4), ('bizagi', 4)]
+         ('signavio', 5), ('mermaid', 5), ('notion', 5)]
 T_FOCUS = {}
 _t = 34
 for _k, _n_beats in FOCUS:
     T_FOCUS[_k] = (b(_t), b(_t + _n_beats))
     _t += _n_beats
-T_WIDE = b(_t)                                               # 35.8 s: campo largo
-T_COLLAPSE = b(_t + 4)                                       # 37.7 s
+T_WIDE = b(_t)                                               # 35.3 s: campo largo
+T_COLLAPSE = b(_t + 5)                                       # 37.7 s
 T_CLOSE = 40.5
 
 # ── Storytelling (caption in Geist 800, come il wordmark; la voce narrante le segue)
@@ -127,7 +126,6 @@ CAPTIONS = [
     ('<span class="soon">Coming soon</span> <em>SAP Signavio</em>',                       *T_FOCUS['signavio'], 'low'),
     ('<span class="soon">Coming soon</span> <em>Mermaid</em>',                            *T_FOCUS['mermaid'], 'low'),
     ('<span class="soon">Coming soon</span> <em>Notion</em>',                             *T_FOCUS['notion'], 'low'),
-    ('<span class="soon">Coming soon</span> <em>Bizagi</em>',                             *T_FOCUS['bizagi'], 'low'),
     ('Build on the tools <span class="dim">you already use.</span>',                      T_WIDE + .3, T_COLLAPSE + .4, 'mid'),
 ]
 
@@ -174,7 +172,7 @@ def net():
 
 # ── Campo largo: brevi collegamenti fra card vicine nel cluster ──────────────
 RING = [('jira', 'signavio'), ('signavio', 'mermaid'), ('mermaid', 'camunda'), ('camunda', 'confluence'),
-        ('confluence', 'bizagi'), ('bizagi', 'notion'), ('notion', 'ga4'), ('ga4', 'jira')]
+        ('confluence', 'notion'), ('notion', 'ga4'), ('ga4', 'jira')]
 
 
 def ring():
@@ -184,7 +182,7 @@ def ring():
         (ax, ay, (aw, ah)), (cx, cy, (cw, ch)) = pos[a], pos[c]
         x1, y1 = rect_edge(ax, ay, aw, ah, cx, cy)
         x2, y2 = rect_edge(cx, cy, cw, ch, ax, ay)
-        t = T_WIDE + .3 + i * .12
+        t = T_WIDE + .3 + i * .14
         out.append(f'<line x1="{W / 2 + x1:.1f}" y1="{H / 2 + y1:.1f}" x2="{W / 2 + x2:.1f}" y2="{H / 2 + y2:.1f}" pathLength="1" class="ln lit" '
                    + A(kf([(t, 'stroke-dashoffset:1; opacity:.0', None), (t + .001, 'stroke-dashoffset:1; opacity:.85', SOFT),
                            (t + .4, 'stroke-dashoffset:0; opacity:.85', None),
@@ -402,7 +400,6 @@ html, body {{ width: {W}px; height: {H}px; overflow: hidden; background: #000; c
 .lg.camunda {{ max-height: 40px; }}
 .lg.ga4 {{ max-height: 52px; }}
 .lg.confluence {{ max-width: 80%; }}
-.lg.bizagi {{ max-height: 50px; }}
 .lrow {{ display: flex; align-items: center; gap: 12px; color: #f2f2ef; font-size: 26px; font-weight: 600; letter-spacing: -.02em; }}
 .lrow svg {{ width: 40px; height: 40px; }}
 .lrow .sq {{ width: 42px; height: 42px; border-radius: 10px; }}
