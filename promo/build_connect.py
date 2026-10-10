@@ -2,15 +2,17 @@
 """Generatore di promo-connect.html: video Connect di 45 s esatti, 1920×1080.
 
 Montaggio tagliato su una griglia a 124 BPM (musica elettronica a ritmo medio):
-ogni ingresso, movimento di camera e passaggio di luce cade su una battuta.
+ogni ingresso, movimento di camera, caption e passaggio di luce cade su una battuta.
 
 Narrazione: brand opening su nero → near-black, una linea arancione collega
-punti sparsi (nessun hub) → le integrazioni della pagina Connect (loghi
-autentici: 4 disponibili + 4 "coming soon", più 4 tile delle disponibili)
-attraversano il quadro in profondità, una ogni 2 battute → convergono in un
-cluster centrale stratificato, primi piani rapidi, campo largo al picco (32–34 s)
-→ tutto si allontana nel buio → brand closing identico all'apertura.
-Il logo Sevenda compare solo in apertura e chiusura.
+punti sparsi (nessun hub) con le caption "One recording." / "Every destination."
+→ le integrazioni della pagina Connect (loghi autentici: 4 disponibili + 4
+"coming soon", più 4 tile) entrano una per battuta → convergono in un cluster
+stratificato → la camera si avvicina a OGNI integrazione, una caption per
+ciascuna (storytelling che la voce narrante segue, vedi VOICEOVER-CONNECT.md)
+→ campo largo con "Build on the tools you already use." → tutto si allontana
+nel buio → brand closing identico all'apertura. Il logo Sevenda compare solo
+in apertura e chiusura; le caption usano Geist 800 come il wordmark.
 
 Stessa tecnica di promo.html: timeline CSS unica di 45 000 ms, linear, fill
 both, paused; easing nei keyframe; window.__seek(t). Profondità vera:
@@ -81,10 +83,10 @@ CARDS = [
 ]
 # Tile quadrate (solo logo) delle integrazioni disponibili, per infittire il montaggio
 TILES = [
-    ('jira',       ( -60,  -60, -330), (  70,  -40, 130)),
+    ('jira',       ( -60,  -60, -330), (  70,  -40,  40)),
     ('camunda',    ( 120,   80,  300), (-560,   10, -80)),
     ('ga4',        (-860,   40, -380), ( 560,    0, -90)),
-    ('confluence', ( 840,  -30, -300), ( -60,   30, 100)),
+    ('confluence', ( 840,  -30, -300), ( -60,   30,  30)),
 ]
 CW, CH = 300, 196          # card disponibile
 SW, SH = 256, 166          # card "coming soon"
@@ -97,12 +99,43 @@ T_LOGO_IN, T_LOGO_OUT = 0.5, 4.0
 T_NET = [b(10.5 + i) for i in range(8)]                     # 5.1 → 8.5 s: la linea raggiunge i punti
 ORDER = ['jira', 'tile:jira', 'camunda', 'ga4', 'tile:camunda', 'confluence', 'signavio',
          'tile:ga4', 'mermaid', 'notion', 'tile:confluence', 'bizagi']
-T_IN = {k: b(19 + 2 * i) for i, k in enumerate(ORDER)}      # 9.2 → 19.8 s, uno ogni 2 battute
-T_CLUSTER = b(48)                                            # 23.2 s: convergenza (1 bar)
-T_PUSH = [b(51), b(55), b(59)]                               # primi piani
-T_WIDE = b(63)                                               # 30.5 s: campo largo
-T_COLLAPSE = b(73)                                           # 35.3 s
-T_CLOSE = 40.4
+T_IN = {k: b(19 + i) for i, k in enumerate(ORDER)}          # 9.2 → 14.5 s, uno per battuta
+T_CLUSTER = b(31)                                            # 15.0 s: convergenza (3 battute)
+# Primi piani: ogni integrazione, 6 battute le disponibili, 4 le "coming soon"
+FOCUS = [('jira', 6), ('camunda', 6), ('ga4', 6), ('confluence', 6),
+         ('signavio', 4), ('mermaid', 4), ('notion', 4), ('bizagi', 4)]
+T_FOCUS = {}
+_t = 34
+for _k, _n_beats in FOCUS:
+    T_FOCUS[_k] = (b(_t), b(_t + _n_beats))
+    _t += _n_beats
+T_WIDE = b(_t)                                               # 35.8 s: campo largo
+T_COLLAPSE = b(_t + 4)                                       # 37.7 s
+T_CLOSE = 40.5
+
+# ── Storytelling (caption in Geist 800, come il wordmark; la voce narrante le segue)
+CAPTIONS = [
+    # (testo, t_in, t_out, stile)
+    ('One recording.',                         b(10),      b(14) - .05, 'big'),
+    ('Every destination.',                     b(14),      b(18.5),     'big'),
+    ('The BPMN 2.0 diagram and the insights Sevenda generates,<br>straight into the tools your team already lives in.',
+                                               b(19.5),    T_CLUSTER + .6, 'low'),
+    ('Every step becomes a <em>Jira</em> issue —<br>stories, tasks, acceptance criteria.', *T_FOCUS['jira'], 'low'),
+    ('Standards-compliant BPMN 2.0<br>that opens in <em>Camunda</em> Modeler.',          *T_FOCUS['camunda'], 'low'),
+    ('Captured events become a <em>GA4</em> tracking plan,<br>pushed to Tag Manager as drafts.', *T_FOCUS['ga4'], 'low'),
+    ('Diagram and narrative, published<br>to a <em>Confluence</em> page.',                *T_FOCUS['confluence'], 'low'),
+    ('<span class="soon">Coming soon</span> <em>SAP Signavio</em>',                       *T_FOCUS['signavio'], 'low'),
+    ('<span class="soon">Coming soon</span> <em>Mermaid</em>',                            *T_FOCUS['mermaid'], 'low'),
+    ('<span class="soon">Coming soon</span> <em>Notion</em>',                             *T_FOCUS['notion'], 'low'),
+    ('<span class="soon">Coming soon</span> <em>Bizagi</em>',                             *T_FOCUS['bizagi'], 'low'),
+    ('Build on the tools <span class="dim">you already use.</span>',                      T_WIDE + .3, T_COLLAPSE + .4, 'mid'),
+]
+
+
+def caption(text, t_in, t_out, style):
+    anim = kf([(t_in, 'opacity:0; transform:translateY(26px)', EXPO), (t_in + .45, 'opacity:1; transform:translateY(0px)', None),
+               (t_out - .3, 'opacity:1; transform:translateY(0px)', SOFT), (t_out, 'opacity:0; transform:translateY(-14px)', None)])
+    return f'<div class="cap {style}" {A(anim)}><div>{text}</div></div>'
 
 
 def rect_edge(x, y, w, h, tx, ty, inset=10):
@@ -139,7 +172,7 @@ def net():
     return '\n'.join(out)
 
 
-# ── Scena 4: brevi collegamenti fra card vicine nel cluster ──────────────────
+# ── Campo largo: brevi collegamenti fra card vicine nel cluster ──────────────
 RING = [('jira', 'signavio'), ('signavio', 'mermaid'), ('mermaid', 'camunda'), ('camunda', 'confluence'),
         ('confluence', 'bizagi'), ('bizagi', 'notion'), ('notion', 'ga4'), ('ga4', 'jira')]
 
@@ -151,17 +184,17 @@ def ring():
         (ax, ay, (aw, ah)), (cx, cy, (cw, ch)) = pos[a], pos[c]
         x1, y1 = rect_edge(ax, ay, aw, ah, cx, cy)
         x2, y2 = rect_edge(cx, cy, cw, ch, ax, ay)
-        t = b(64.5 + i * .5)
+        t = T_WIDE + .3 + i * .12
         out.append(f'<line x1="{W / 2 + x1:.1f}" y1="{H / 2 + y1:.1f}" x2="{W / 2 + x2:.1f}" y2="{H / 2 + y2:.1f}" pathLength="1" class="ln lit" '
                    + A(kf([(t, 'stroke-dashoffset:1; opacity:.0', None), (t + .001, 'stroke-dashoffset:1; opacity:.85', SOFT),
-                           (t + .45, 'stroke-dashoffset:0; opacity:.85', None),
-                           (T_COLLAPSE, 'stroke-dashoffset:0; opacity:.85', SOFT), (T_COLLAPSE + .7, 'stroke-dashoffset:1; opacity:0', None)])) + '/>')
+                           (t + .4, 'stroke-dashoffset:0; opacity:.85', None),
+                           (T_COLLAPSE, 'stroke-dashoffset:0; opacity:.85', SOFT), (T_COLLAPSE + .6, 'stroke-dashoffset:1; opacity:0', None)])) + '/>')
     return '\n'.join(out)
 
 
 # ── Card e tile ──────────────────────────────────────────────────────────────
 def motion(start, cluster, near):
-    """Keyframe del wrapper .ci: ingresso rapido, deriva, convergenza nel cluster, uscita nel buio."""
+    """Stati del wrapper .ci: ingresso rapido, deriva, convergenza nel cluster, uscita nel buio."""
     x, y, z = start
     cx, cy, cz = cluster
     sx = 1 if x >= 0 else -1
@@ -174,11 +207,9 @@ def motion(start, cluster, near):
         enter = (f'opacity:0; transform:translate3d({sx * 480:.0f}px,{sy * 220:.0f}px,-1500px) '
                  f'rotateY({sx * 14}deg) rotateZ({-sx * 3}deg)')
     rest = 'opacity:1; transform:translate3d(0px,0px,0px) rotateY(0deg) rotateZ(0deg)'
-    # Deriva lenta fino alla convergenza (parallasse con la camera)
     dx, dy = sx * 64, sy * 30
     drift = f'opacity:1; transform:translate3d({dx}px,{dy}px,0px) rotateY(0deg) rotateZ(0deg)'
     clus = f'opacity:1; transform:translate3d({cx - x}px,{cy - y}px,{cz - z}px) rotateY(0deg) rotateZ(0deg)'
-    # Uscita: si allontana nel buio
     gone = f'opacity:0; transform:translate3d({(cx - x) + cx * .6:.0f}px,{(cy - y) + cy * .6:.0f}px,{cz - z - 1700}px) rotateY(0deg) rotateZ(0deg)'
     return enter, rest, drift, clus, gone
 
@@ -186,25 +217,40 @@ def motion(start, cluster, near):
 def wrap(t_in, t_out, start, cluster, near):
     enter, rest, drift, clus, gone = motion(start, cluster, near)
     return A(kf([(t_in, enter, SNAP), (t_in + .62, rest, 'linear'),
-                 (T_CLUSTER, drift, INOUT), (T_CLUSTER + 1.9, clus, None),
-                 (t_out, clus, EASEIN), (t_out + .9, gone, None)]))
+                 (T_CLUSTER, drift, INOUT), (T_CLUSTER + 1.45, clus, None),
+                 (t_out, clus, EASEIN), (t_out + .8, gone, None)]))
 
 
-def glow(t_in):
+def glow(t_in, key=None, base_op=1):
+    """Bagliore arancione (atterraggio, proprio primo piano, campo largo) e opacità:
+    durante i primi piani le card non in risalto si attenuano."""
     base = '0 30px 60px rgba(0,0,0,.6)'
-    return A(kf([(t_in + .2, f'box-shadow:{base}, 0 0 0 0 rgba(232,115,58,0)', EXPO),
-                 (t_in + .55, f'box-shadow:{base}, 0 0 54px 0 rgba(232,115,58,.4)', SOFT),
-                 (t_in + 1.6, f'box-shadow:{base}, 0 0 0 0 rgba(232,115,58,0)', None),
-                 (b(66), f'box-shadow:{base}, 0 0 0 0 rgba(232,115,58,0)', SOFT),
-                 (b(68.5), f'box-shadow:{base}, 0 0 44px 0 rgba(232,115,58,.26)', SOFT),
-                 (T_COLLAPSE, f'box-shadow:{base}, 0 0 0 0 rgba(232,115,58,0)', None)]))
+    off = f'box-shadow:{base}, 0 0 0 0 rgba(232,115,58,0)'
+    on = f'box-shadow:{base}, 0 0 70px 0 rgba(232,115,58,.5)'
+    DIM = .3
+    pts = [(t_in + .2, f'{off}; opacity:{base_op}', EXPO), (t_in + .55, f'box-shadow:{base}, 0 0 54px 0 rgba(232,115,58,.4); opacity:{base_op}', SOFT),
+           (t_in + 1.4, f'{off}; opacity:{base_op}', None)]
+    first = FOCUS[0][0]
+    for i, (k, _) in enumerate(FOCUS):
+        f0, f1 = T_FOCUS[k]
+        mine = (k == key)
+        prev_val = (f'{on}; opacity:1' if FOCUS[i - 1][0] == key else f'{off}; opacity:{DIM}') if i else f'{off}; opacity:{base_op}'
+        cur_val = f'{on}; opacity:1' if mine else f'{off}; opacity:{DIM}'
+        pts += [(f0 - .25, prev_val, SOFT), (f0 + .25, cur_val, None)]
+    last_val = f'{on}; opacity:1' if FOCUS[-1][0] == key else f'{off}; opacity:{DIM}'
+    pts += [(T_WIDE - .3, last_val, SOFT), (T_WIDE + .9, f'box-shadow:{base}, 0 0 44px 0 rgba(232,115,58,.26); opacity:{base_op}', SOFT),
+            (T_COLLAPSE, f'{off}; opacity:{base_op}', None)]
+    return A(kf(pts))
+
+
+def t_out_for(key):
+    return T_COLLAPSE + .3 + (len(ORDER) - 1 - ORDER.index(key)) * .08
 
 
 def card(i, key, name, cat, live, start, cluster):
     w, h = (CW, CH) if live else (SW, SH)
     x, y, z = start
     t = T_IN[key]
-    t_out = T_COLLAPSE + .3 + (len(ORDER) - 1 - ORDER.index(key)) * .17
     if key == 'notion':
         logo = f'<div class="lrow">{NOTION_SVG}<span>Notion</span></div>'
     elif key == 'mermaid':
@@ -214,8 +260,8 @@ def card(i, key, name, cat, live, start, cluster):
     status = '<span class="st live">Available</span>' if live else '<span class="st soon">Coming soon</span>'
     return f'''
     <div class="cp" style="left:{W / 2 + x - w / 2:.0f}px; top:{H / 2 + y - h / 2:.0f}px; width:{w}px; height:{h}px; transform:translateZ({z}px)">
-      <div class="ci" {wrap(t, t_out, start, cluster, near=(i % 2 == 1))}>
-        <div class="card{'' if live else ' soon'}" {glow(t)}>
+      <div class="ci" {wrap(t, t_out_for(key), start, cluster, near=(i % 2 == 1))}>
+        <div class="card{'' if live else ' soon'}" {glow(t, key, 1 if live else .84)}>
           <div class="bar"><i></i>{status}</div>
           <div class="body">{logo}</div>
           <div class="foot"><b>{name}</b><span>{cat}</span></div>
@@ -227,45 +273,44 @@ def card(i, key, name, cat, live, start, cluster):
 def tile(i, key, start, cluster):
     x, y, z = start
     t = T_IN['tile:' + key]
-    t_out = T_COLLAPSE + .3 + (len(ORDER) - 1 - ORDER.index('tile:' + key)) * .17
     return f'''
     <div class="cp" style="left:{W / 2 + x - TW / 2:.0f}px; top:{H / 2 + y - TW / 2:.0f}px; width:{TW}px; height:{TW}px; transform:translateZ({z}px)">
-      <div class="ci" {wrap(t, t_out, start, cluster, near=(i % 2 == 0))}>
-        <div class="card tile" {glow(t)}><div class="body"><img src="logos/{key}.svg" alt="" class="lg {key}"></div></div>
+      <div class="ci" {wrap(t, t_out_for('tile:' + key), start, cluster, near=(i % 2 == 0))}>
+        <div class="card tile" {glow(t, None)}><div class="body"><img src="logos/{key}.svg" alt="" class="lg {key}"></div></div>
       </div>
     </div>'''
 
 
 # ── Camera (transform del mondo) ─────────────────────────────────────────────
 def target(key, z):
-    cx, cy, _ = next(c for k, _, _, _, _, c in CARDS if k == key)
-    return (-cx, -cy, z)
+    cx, cy, cz = next(c for k, _, _, _, _, c in CARDS if k == key)
+    # la card resta leggibile: più vicina per le card piccole, un po' più in alto per lasciare spazio alla caption
+    return (-cx, -cy + 40, z)
 
 
 CAM = [
-    (0.0,           (0, 0, -220), None),
-    (b(18),         (0, 0, -220), 'ease-in-out'),
-    (b(30),         (80, -40, -130), 'ease-in-out'),       # oscillazione laterale durante gli ingressi
-    (b(42),         (-80, 30, -70), 'ease-in-out'),
-    (T_CLUSTER,     (24, -12, -90), INOUT),
-    (T_CLUSTER + 1.9, (0, 0, -160), None),
-    (T_PUSH[0] - .55, (0, 0, -160), INOUT),
-    (T_PUSH[0],     target('camunda', 640), None),        # primo piano Camunda
-    (T_PUSH[1] - .55, target('camunda', 640), INOUT),
-    (T_PUSH[1],     target('ga4', 660), None),            # primo piano GA4
-    (T_PUSH[2] - .55, target('ga4', 660), INOUT),
-    (T_PUSH[2],     target('jira', 640), None),           # primo piano Jira
-    (T_WIDE - .6,   target('jira', 640), INOUT),
-    (T_WIDE + 1.3,  (0, 0, -200), 'linear'),              # campo largo sull'ecosistema
-    (T_COLLAPSE,    (0, 0, -170), INOUT),
-    (T_COLLAPSE + 3.3, (0, 0, 180), None),                # la camera avanza mentre tutto si allontana
+    (0.0,            (0, 0, -220), None),
+    (b(18),          (0, 0, -220), 'ease-in-out'),
+    (b(25),          (70, -30, -140), 'ease-in-out'),      # oscillazione laterale durante gli ingressi
+    (T_CLUSTER,      (-40, 20, -110), INOUT),
+    (T_CLUSTER + 1.45, (0, 0, -160), INOUT),
 ]
+prev = (0, 0, -160)
+for key, _nb in FOCUS:
+    f0, f1 = T_FOCUS[key]
+    live = next(l for k, _, _, l, _, _ in CARDS if k == key)
+    tgt = target(key, 720 if live else 800)
+    CAM += [(f0, tgt, None), (f1 - .5, tgt, INOUT)]
+    prev = tgt
+CAM += [(T_WIDE + .9, (0, 0, -200), 'linear'),               # campo largo sull'ecosistema
+        (T_COLLAPSE, (0, 0, -170), INOUT),
+        (T_COLLAPSE + 2.6, (0, 0, 180), None)]               # la camera avanza mentre tutto si allontana
+# la camera parte verso il primo primo piano mezza battuta prima che il cluster sia formato
+CAM[4] = (T_CLUSTER + .9, (0, 0, -160), INOUT)
 cam = kf([(t, f'transform:translate3d({x}px,{y}px,{z}px)', e) for t, (x, y, z), e in CAM])
-# Leggera rotazione del mondo al picco: dà volume al cluster
 tilt = kf([(T_WIDE, 'transform:rotateY(0deg) rotateX(0deg)', 'ease-in-out'),
-           (b(68), 'transform:rotateY(-5deg) rotateX(2deg)', 'ease-in-out'),
-           (b(72), 'transform:rotateY(4deg) rotateX(-1.5deg)', 'ease-in-out'),
-           (T_COLLAPSE + 1.5, 'transform:rotateY(0deg) rotateX(0deg)', None)])
+           (T_WIDE + 1.2, 'transform:rotateY(-4deg) rotateX(1.5deg)', 'ease-in-out'),
+           (T_COLLAPSE + 1.2, 'transform:rotateY(0deg) rotateX(0deg)', None)])
 
 # ── Luci e veli ──────────────────────────────────────────────────────────────
 lock = kf([(T_LOGO_IN, 'opacity:0; transform:scale(1.06)', SOFT),
@@ -275,17 +320,20 @@ lock = kf([(T_LOGO_IN, 'opacity:0; transform:scale(1.06)', SOFT),
            (T_CLOSE, 'opacity:0; transform:scale(1.04)', SOFT),
            (T_CLOSE + 1.3, 'opacity:1; transform:scale(1)', None)])
 halo = opacity([(T_LOGO_IN + .3, 0, SOFT), (T_LOGO_IN + 2.0, .55, None), (T_LOGO_OUT, .55, SOFT),
-                (T_LOGO_OUT + .8, 0, None), (38.4, 0, SOFT), (39.2, .4, SOFT), (40.1, 0, SOFT), (T_CLOSE + 1.8, .5, None)])
-blk = opacity([(4.3, 1, SOFT), (5.4, 0, None), (38.0, 0, SOFT), (40.0, 1, None)])
+                (T_LOGO_OUT + .8, 0, None), (39.3, 0, SOFT), (39.9, .4, SOFT), (40.5, 0, SOFT), (T_CLOSE + 1.8, .5, None)])
+blk = opacity([(4.3, 1, SOFT), (5.4, 0, None), (38.7, 0, SOFT), (40.1, 1, None)])
 warm = kf([(4.4, 'opacity:0; transform:translateX(-120px)', SOFT), (6.8, 'opacity:.75; transform:translateX(-120px)', 'linear'),
-           (b(66), 'opacity:.75; transform:translateX(120px)', SOFT), (b(69), 'opacity:1; transform:translateX(0px)', 'linear'),
-           (T_COLLAPSE, 'opacity:.9; transform:translateX(0px)', SOFT), (39.6, 'opacity:0; transform:translateX(0px)', None)])
-bloom = opacity([(b(65), 0, SOFT), (b(68.5), .55, SOFT), (b(72), .2, None), (T_COLLAPSE, .2, SOFT),
-                 (T_COLLAPSE + 2.0, .7, SOFT), (39.6, 0, None)])
+           (T_WIDE - .5, 'opacity:.75; transform:translateX(120px)', SOFT), (T_WIDE + 1.2, 'opacity:1; transform:translateX(0px)', 'linear'),
+           (T_COLLAPSE, 'opacity:.9; transform:translateX(0px)', SOFT), (39.8, 'opacity:0; transform:translateX(0px)', None)])
+bloom = opacity([(T_WIDE, 0, SOFT), (T_WIDE + 1.2, .5, SOFT), (T_COLLAPSE, .25, SOFT),
+                 (T_COLLAPSE + 1.6, .7, SOFT), (39.8, 0, None)])
+# Ombra in basso per la leggibilità delle caption sui primi piani
+shade = opacity([(b(19.3), 0, SOFT), (b(20), .85, None), (T_WIDE - .3, .85, SOFT), (T_WIDE + .3, .55, None),
+                 (T_COLLAPSE, .55, SOFT), (T_COLLAPSE + .6, 0, None)])
 
 
 def sweep(t):
-    """Passaggio di luce arancione sul cambio scena (una battuta)."""
+    """Passaggio di luce arancione sul cambio scena (una battuta e mezza)."""
     return A(kf([(t - .01, 'opacity:0; transform:translateX(-700px) skewX(-18deg)', None),
                  (t, 'opacity:.9; transform:translateX(-700px) skewX(-18deg)', 'cubic-bezier(.3,0,.2,1)'),
                  (t + BEAT * 1.5, 'opacity:0; transform:translateX(2300px) skewX(-18deg)', None)]))
@@ -295,7 +343,8 @@ def sweep(t):
 cards = '\n'.join(card(i, *c) for i, c in enumerate(CARDS))
 tiles = '\n'.join(tile(i, *t) for i, t in enumerate(TILES))
 net_svg, ring_svg = net(), ring()
-sweep1, sweep2 = sweep(T_CLUSTER), sweep(T_COLLAPSE)
+sweep1, sweep2, sweep3 = sweep(T_CLUSTER), sweep(T_WIDE), sweep(T_COLLAPSE)
+caps = '\n'.join(caption(*c) for c in CAPTIONS)
 
 html = f'''<!DOCTYPE html>
 <html lang="en">
@@ -321,6 +370,8 @@ html, body {{ width: {W}px; height: {H}px; overflow: hidden; background: #000; c
   background: radial-gradient(ellipse, rgba(232,115,58,.5) 0%, rgba(232,115,58,.16) 32%, transparent 64%); }}
 .sweep {{ position: absolute; left: 0; top: -200px; width: 420px; height: {H + 400}px; z-index: 4; pointer-events: none; mix-blend-mode: screen;
   background: linear-gradient(90deg, transparent 0%, rgba(232,115,58,.28) 45%, rgba(255,200,160,.42) 50%, rgba(232,115,58,.28) 55%, transparent 100%); }}
+.shade {{ position: absolute; left: 0; right: 0; bottom: 0; height: 380px; z-index: 3; pointer-events: none;
+  background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,.55) 55%, rgba(0,0,0,.8) 100%); }}
 
 /* Mondo 3D: la camera è il transform di .world */
 .world {{ position: absolute; inset: 0; z-index: 2; transform-style: preserve-3d; }}
@@ -336,7 +387,6 @@ html, body {{ width: {W}px; height: {H}px; overflow: hidden; background: #000; c
 .ci {{ width: 100%; height: 100%; }}
 .card {{ width: 100%; height: 100%; border-radius: 18px; background: #141414; border: 1px solid rgba(255,255,255,.13);
   display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 30px 60px rgba(0,0,0,.6); }}
-.card.soon {{ opacity: .84; }}
 .card.tile {{ border-radius: 22px; background: #121212; }}
 .card.tile .body {{ padding: 0 18px; }}
 .card.tile .lg {{ max-width: 80%; max-height: 54px; }}
@@ -361,6 +411,17 @@ html, body {{ width: {W}px; height: {H}px; overflow: hidden; background: #000; c
 .foot b {{ font-size: 15px; font-weight: 600; letter-spacing: -.01em; color: #ecece8; }}
 .foot span {{ font-family: var(--mono); font-size: 11px; color: #8a8a84; letter-spacing: .03em; }}
 .card.soon .foot b {{ color: #c9c9c4; }}
+
+/* Caption: stesso font e peso del wordmark "Sevenda" (Geist 800, tracking stretto) */
+.cap {{ position: absolute; left: 120px; right: 120px; z-index: 4; display: flex; justify-content: center; text-align: center;
+  font-weight: 800; letter-spacing: -.045em; line-height: 1.08; color: #fff; pointer-events: none; }}
+.cap.big {{ top: 0; bottom: 0; align-items: center; font-size: 112px; }}
+.cap.low {{ bottom: 84px; font-size: 54px; }}
+.cap.mid {{ bottom: 92px; font-size: 80px; }}
+.cap em {{ font-style: normal; color: var(--or); }}
+.cap .dim {{ color: #8a8a84; }}
+.cap .soon {{ display: inline-block; vertical-align: middle; margin-right: 18px; padding: 6px 16px 8px; border-radius: 100px; font-size: 26px; letter-spacing: -.01em;
+  color: var(--or); border: 2px solid rgba(232,115,58,.55); background: rgba(232,115,58,.08); transform: translateY(-6px); }}
 
 /* Velo nero e logo (apertura / chiusura) */
 .blk {{ position: absolute; inset: 0; z-index: 5; background: #000; }}
@@ -387,8 +448,11 @@ html, body {{ width: {W}px; height: {H}px; overflow: hidden; background: #000; c
 {cards}
 {tiles}
   </div></div>
+  <div class="shade" {shade}></div>
+{caps}
   <div class="sweep" {sweep1}></div>
   <div class="sweep" {sweep2}></div>
+  <div class="sweep" {sweep3}></div>
   <div class="blk" {blk}></div>
   <div class="halo" {halo}></div>
   <div class="lock" {A(lock)}><img src="logo.svg" alt=""><span>Sevenda</span></div>
@@ -410,4 +474,4 @@ html, body {{ width: {W}px; height: {H}px; overflow: hidden; background: #000; c
 '''
 out = Path(__file__).with_name('promo-connect.html')
 out.write_text(html, encoding='utf-8')
-print(f'{out.name}: {len(KF)} keyframes, {len(html) // 1024} KB, beat={BEAT:.3f}s')
+print(f'{out.name}: {len(KF)} keyframes, {len(html) // 1024} KB, beat={BEAT:.3f}s, wide={T_WIDE}s, collapse={T_COLLAPSE}s')
