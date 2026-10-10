@@ -22,6 +22,7 @@ Geist reale caricato in locale e **due run producono frame byte-identici**.
 | `VOICEOVER-IT.md` | Testo della voce narrante in italiano, sincronizzato con le scene, con note di lettura e di mix. |
 | `stills/` | Due immagini 9:16 (1080×1920) per apertura e chiusura del video verticale: sorgenti HTML/CSS e PNG. Si rigenerano con `node render-stills.mjs`. Le varianti `*-it` sono minimal (sfondo piatto del sito, solo logo e slogan in italiano): `node render-stills.mjs opening-it closing-it`. |
 | `render-linkedin.mjs` | Asset per la pagina aziendale LinkedIn: logo 300×300 e banner 1128×191 (PNG e JPG) in `stills/`, più le 5 copertine per il banner a rotazione Premium (2256×382, PNG). `node render-linkedin.mjs [logo] [banner] [cover01…cover05]`. |
+| `promo-connect.html` | Video Connect di 45 s (1920×1080): brand opening su nero → ecosistema near-black con hub Sevenda, linee arancioni e le 8 integrazioni della pagina Connect (loghi autentici, 4 disponibili + 4 "coming soon") in profondità 3D → camera su singole card e campo largo → convergenza → brand closing. Generato da `build_connect.py`; output `sevenda-connect-promo.mp4`. |
 | `VOICEOVER.md` | Testo della voce narrante sincronizzato con le scene (EN + versione IT) e note per il mix audio. |
 | `promo-camunda.html`, `promo-camunda-it.html` | Video LinkedIn di 10 s in 4:5 (1080×1350) sull'integrazione Sevenda × Camunda: stessa animazione "kinetic type" della card della pagina Connect, su sfondo nero pieno, testi in Geist come il wordmark, timeline unica di 10 000 ms. Generati da `build_camunda.py` (`--it` per l'italiano). |
 
@@ -77,6 +78,23 @@ node render.mjs --page promo-camunda-it.html --width 1080 --height 1350 --durati
 | 2.3–5.4 s | BPMN 2.0 generato: il diagramma si disegna nodo per nodo, poi l'XML con `xmlns:camunda` e `isExecutable="true"` |
 | 5.4–8.1 s | Export: click su "Export to Camunda", il file `checkout.bpmn` passa nella card Camunda, spunte "Opens in Camunda Modeler" ecc. |
 | 8.1–10 s | Outro: Sevenda × Camunda, sevenda.dev/connect |
+
+Video Connect (45 s, 16:9):
+
+```bash
+python3 build_connect.py
+node render.mjs --page promo-connect.html --out frames-connect
+./encode.sh 30 frames-connect sevenda-connect-promo.mp4 1920x1080
+```
+
+| Tempo | Scena |
+| --- | --- |
+| 0–4 s | Brand opening: nero #000, logo + wordmark Sevenda in dissolvenza con alone arancione |
+| 4–9 s | Transizione: near-black #0A0A0A con luce calda; l'hub Sevenda emerge, linee arancioni si estendono verso 8 nodi |
+| 9–23 s | Integrazioni in movimento: Jira, Camunda, GA4, Confluence, poi Signavio, Mermaid, Notion, Bizagi (badge "Coming soon") entrano una alla volta in profondità |
+| 23–35 s | Composizione: primi piani su Camunda, GA4 e Jira, poi campo largo sull'intero ecosistema (picco 32–34 s) |
+| 35–40 s | Le card convergono nell'hub, le linee si ritraggono, torna il nero |
+| 40–45 s | Brand closing: logo identico all'apertura, fermo fino alla fine |
 
 Con `--only` si rende un sottoinsieme di fotogrammi in un'altra cartella, utile
 per anteprime e per il test di determinismo:
